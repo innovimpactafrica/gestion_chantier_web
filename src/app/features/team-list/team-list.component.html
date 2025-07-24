@@ -2,54 +2,114 @@
   <h2 class="text-2xl font-bold text-gray-800">Les acteurs du chantier</h2>
   <button class="flex items-center px-5 py-2 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50">
     <span class="mr-2 text-xl">+</span>
-    <span>Ajouter un membre </span>
+    <span>Ajouter un membre</span>
   </button>
-
 </div>
+
 <p class="mb-4">
-  Cette section présente l’ensemble des acteurs impliqués dans le chantier, 
-leurs rôles et leurs responsabilités.
+  Cette section présente l'ensemble des acteurs impliqués dans le chantier, 
+  leurs rôles et leurs responsabilités.
 </p>
+
+<!-- Message d'erreur -->
+<div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+  <p>{{ error }}</p>
+  <button 
+    (click)="refresh()" 
+    class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+    Réessayer
+  </button>
+</div>
+
 <div class="container mx-auto p-4">
-    <!-- Tableau d'équipe -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-      <!-- En-tête du tableau -->
-      <div class="grid grid-cols-5 gap-4 px-6 py-4 border-b">
-        <div class="font-medium text-gray-800">Nom</div>
-        <div class="font-medium text-gray-800">Rôles</div>
-        <div class="font-medium text-gray-800">Téléphone</div>
-        <div class="font-medium text-gray-800">Adresse</div>
-        <div class="font-medium text-gray-800">Email</div>
-      </div>
-  
-      <!-- Lignes du tableau -->
-      <div *ngFor="let member of teamMembers" class="grid grid-cols-5 gap-4 px-6 py-4 border-b items-center">
+  <!-- Tableau d'équipe -->
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <!-- En-tête du tableau -->
+    <div class="grid grid-cols-5 gap-4 px-6 py-4 border-b"> 
+      <div class="font-medium text-gray-800">Nom</div>
+      <div class="font-medium text-gray-800">Rôles</div>
+      <div class="font-medium text-gray-800">Téléphone</div>
+      <div class="font-medium text-gray-800">Adresse</div>
+      <div class="font-medium text-gray-800">Email</div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="px-6 py-8 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      <p class="mt-2 text-gray-600">Chargement en cours...</p>
+    </div>
+
+    <!-- Lignes du tableau -->
+    <div *ngIf="!isLoading" class="min-h-[400px]">
+      <div *ngFor="let member of teamMembers" class="grid grid-cols-5 gap-4 px-6 py-4 border-b items-center hover:bg-gray-50 transition-colors">
         <div class="flex items-center">
-          <div class="w-12 h-12 rounded-full overflow-hidden mr-3">
-            <img [src]="member.avatar" alt="{{member.name}}" class="w-full h-full object-cover">
+          <div class="w-12 h-12 rounded-full overflow-hidden mr-3 bg-gray-200">
+            <img 
+              [src]="member.avatar" 
+              [alt]="member.name" 
+              class="w-full h-full object-cover"
+             >
           </div>
-          <span class="font-medium">{{member.name}}</span>
+          <span class="font-medium text-gray-900">{{ member.name }}</span>
         </div>
-        <div class="text-gray-600">{{member.role}}</div>
-        <div class="text-gray-600">{{member.phone}}</div>
-        <div class="text-gray-600">{{member.address}}</div>
-        <div class="text-gray-600">{{member.email}}</div>
+        <div class="text-gray-600">
+          <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+            {{ member.role }}
+          </span>
+        </div>
+        <div class="text-gray-600">
+          <a 
+            [href]="'tel:' + member.phone" 
+            class="hover:text-orange-600 hover:underline">
+            {{ member.phone }}
+          </a>
+        </div>
+        <div class="text-gray-600">{{ member.address }}</div>
+        <div class="text-gray-600">
+          <a 
+            [href]="'mailto:' + member.email" 
+            class="hover:text-orange-600 hover:underline">
+            {{ member.email }}
+          </a>
+        </div>
       </div>
-  
-      <!-- Pagination -->
-      <div class="px-6 py-4 flex items-center justify-between border-t">
-        <span class="text-sm text-gray-600">Voir 1 sur 2</span>
-        <div class="flex space-x-2">
-          <button class="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center">
-            1
-          </button>
-          <button class="w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center">
-            2
-          </button>
-          <button class="px-4 py-2 rounded-full hover:bg-gray-100 text-orange-500 flex items-center justify-center">
-            Suivant
-          </button>
-        </div>
+
+      <!-- Message si aucun membre -->
+      <div *ngIf="teamMembers.length === 0 && !isLoading" class="px-6 py-8 text-center text-gray-500">
+        <p>Aucun membre d'équipe trouvé.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-6 py-4 flex items-center justify-between border-t bg-gray-50">
+      <span class="text-sm text-gray-600">{{ getPaginationText() }}</span>
+      <div class="flex space-x-2">
+        <!-- Bouton précédent -->
+        <button 
+          *ngIf="hasPreviousPage()"
+          (click)="previousPage()"
+          class="px-4 py-2 rounded-full hover:bg-gray-100 text-orange-500 flex items-center justify-center transition-colors">
+          Précédent
+        </button>
+
+        <!-- Numéros de page -->
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          (click)="goToPage(page)"
+          [class]="page === currentPage ? 
+            'w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center' : 
+            'w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center transition-colors'">
+          {{ page }}
+        </button>
+
+        <!-- Bouton suivant -->
+        <button 
+          *ngIf="hasNextPage()"
+          (click)="nextPage()"
+          class="px-4 py-2 rounded-full hover:bg-gray-100 text-orange-500 flex items-center justify-center transition-colors">
+          Suivant
+        </button>
       </div>
     </div>
   </div>
+</div>

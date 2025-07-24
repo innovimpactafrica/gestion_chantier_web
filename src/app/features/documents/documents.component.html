@@ -1,142 +1,290 @@
 <div class="container mx-auto p-4">
-    <!-- Section Activités récentes -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">Activités récentes</h2>
-      <button class="flex items-center px-5 py-2 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50">
-        <span class="mr-2 text-xl">+</span>
-        <span>Ajouter un document</span>
+  <!-- Section Activités récentes -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Activités récentes</h2>
+    <button 
+      (click)="openAddDocumentModal()"
+      class="flex items-center px-5 py-2 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50">
+      <span class="mr-2 text-xl">+</span>
+      <span>Ajouter un document</span>
+    </button>
+  </div>
+
+  <!-- Cartes de documents récents -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <div *ngFor="let doc of recentActivities" class="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+      <div class="p-4">
+        <img [src]="doc.thumbnail" alt="Aperçu du document" class="w-full h-36 object-cover bg-gray-100 mb-4">
+        <div class="flex justify-between items-start">
+          <div class="flex items-start">
+            <span class="text-gray-500 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+            <span class="font-medium">{{ doc.name }}</span>
+          </div>
+          <button class="text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Fichiers récents -->
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Fichiers récents</h2>
+
+  <!-- Filtres -->
+  <div class="flex flex-wrap gap-4 mb-6">
+    <div class="relative w-full md:w-64">
+      <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Tous les documents</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
     </div>
-  
-    <!-- Cartes de documents récents -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-      <div *ngFor="let doc of recentActivities" class="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
-        <div class="p-4">
-          <img [src]="doc.thumbnail" alt="Aperçu du document" class="w-full h-36 object-cover bg-gray-100 mb-4">
-          <div class="flex justify-between items-start">
-            <div class="flex items-start">
-              <span class="text-gray-500 mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </span>
-              <span class="font-medium">{{ doc.name }}</span>
-            </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
+
+    <div class="relative w-full md:w-64">
+      <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span>Personne</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="relative w-full md:w-64">
+      <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>Dates</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau de fichiers récents -->
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <!-- En-tête du tableau -->
+    <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b">
+      <div class="col-span-1"></div>
+      <div class="col-span-3 flex items-center">
+        <span class="font-medium text-gray-700">Nom</span>
+        <button class="ml-1 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
+          </svg>
+        </button>
+      </div>
+      <div class="col-span-2 font-medium text-gray-700">Créé par</div>
+      <div class="col-span-2 font-medium text-gray-700">Taille</div>
+      <div class="col-span-2 flex items-center">
+        <span class="font-medium text-gray-700">Date</span>
+        <button class="ml-1 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
+          </svg>
+        </button>
+      </div>
+      <div class="col-span-2 flex items-center">
+        <span class="font-medium text-gray-700">Dernière modification</span>
+        <button class="ml-1 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lignes du tableau -->
+    <div *ngFor="let file of recentFiles" class="grid grid-cols-12 gap-4 px-6 py-3 border-b hover:bg-gray-50">
+      <div class="col-span-1 flex items-center">
+        <div class="w-5 h-5 border border-gray-300 rounded flex items-center justify-center" 
+             [ngClass]="{'bg-green-500 border-green-500': file.selected}"
+             (click)="toggleFileSelection(file)">
+          <svg *ngIf="file.selected" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+      <div class="col-span-3 font-medium text-gray-800">{{ file.name }}</div>
+      <div class="col-span-2">
+        <div class="flex items-center">
+          <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
+            <img [src]="file.createdBy.avatar" alt="{{file.createdBy.name}}" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <div class="font-medium">{{ file.createdBy.name }}</div>
+            <div class="text-xs text-gray-500">{{ file.createdBy.role }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-2 text-gray-600">{{ file.size }}</div>
+      <div class="col-span-2 text-gray-600">{{ file.date}}</div>
+      <div class="col-span-2 text-gray-600">{{ file.lastModified }}</div>
+    </div>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+</div>
+
+<!-- Modal d'ajout de document -->
+<div *ngIf="showAddDocumentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-semibold text-gray-800">Téléverser un nouveau document</h3>
+      <button (click)="closeAddDocumentModal()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <form (ngSubmit)="saveDocument()" class="space-y-6">
+      <!-- Titre du document -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Titre du document</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newDocument.title" 
+          name="title"
+          placeholder="Ex: Fiche de Suivi des Travaux"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700"
+          required>
+      </div>
+
+      <!-- Document upload -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Document</label>
+        <div class="border-2 border-dashed border-orange-300 rounded-lg p-6 text-center bg-orange-50">
+          <input 
+            type="file" 
+            (change)="onFileSelected($event)"
+            class="hidden" 
+            #fileInput
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+          
+          <div *ngIf="!newDocument.file" class="cursor-pointer" (click)="fileInput.click()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-orange-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <button 
+              type="button"
+              class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+              Choisir un fichier
+            </button>
+            <p class="text-gray-500 text-sm mt-2">Aucun fichier choisi</p>
+          </div>
+
+          <div *ngIf="newDocument.file" class="text-green-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="font-medium">{{ newDocument.file }}</p>
+            <button 
+              type="button" 
+              (click)="fileInput.click()"
+              class="text-orange-500 text-sm underline mt-1">
+              Changer le fichier
             </button>
           </div>
         </div>
       </div>
-    </div>
-  
-    <!-- Section Fichiers récents -->
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Fichiers récents</h2>
-  
-    <!-- Filtres -->
-    <div class="flex flex-wrap gap-4 mb-6">
-      <div class="relative w-full md:w-64">
-        <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+
+      <!-- Type de document -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Type de document</label>
+        <div class="relative">
+          <select 
+            [(ngModel)]="newDocument.typeId" 
+            name="typeId"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 appearance-none bg-white"
+            required>
+            <option value="0">Sélectionner</option>
+            <option *ngFor="let type of documentTypes" [value]="type.id">
+              {{ type.label }}
+            </option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-            <span>Tous les documents</span>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Description (optionnel)</label>
+        <textarea 
+          [(ngModel)]="newDocument.description" 
+          name="description"
+          rows="4"
+          placeholder="Saisir"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 resize-none"></textarea>
+      </div>
+
+      <!-- Dates -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
+          <input 
+            type="date" 
+            [(ngModel)]="newDocument.startDate" 
+            name="startDate"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700"
+            required>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
+          <input 
+            type="date" 
+            [(ngModel)]="newDocument.endDate" 
+            name="endDate"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700"
+            required>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex justify-between pt-4">
+        <button 
+          type="button" 
+          (click)="closeAddDocumentModal()"
+          class="px-8 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors">
+          Annuler
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="!isFormValid() || isLoading"
+          class="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <span *ngIf="isLoading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer' }}
         </button>
       </div>
-  
-      <div class="relative w-full md:w-64">
-        <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span>Personne</span>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-  
-      <div class="relative w-full md:w-64">
-        <button class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Dates</span>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  
-    <!-- Tableau de fichiers récents -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-      <!-- En-tête du tableau -->
-      <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b">
-        <div class="col-span-1"></div>
-        <div class="col-span-3 flex items-center">
-          <span class="font-medium text-gray-700">Nom</span>
-          <button class="ml-1 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
-            </svg>
-          </button>
-        </div>
-        <div class="col-span-2 font-medium text-gray-700">Créé par</div>
-        <div class="col-span-2 font-medium text-gray-700">Taille</div>
-        <div class="col-span-2 flex items-center">
-          <span class="font-medium text-gray-700">Date</span>
-          <button class="ml-1 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
-            </svg>
-          </button>
-        </div>
-        <div class="col-span-2 flex items-center">
-          <span class="font-medium text-gray-700">Dernière modification</span>
-          <button class="ml-1 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4" />
-            </svg>
-          </button>
-        </div>
-      </div>
-  
-      <!-- Lignes du tableau -->
-      <div *ngFor="let file of recentFiles" class="grid grid-cols-12 gap-4 px-6 py-3 border-b hover:bg-gray-50">
-        <div class="col-span-1 flex items-center">
-          <div class="w-5 h-5 border border-gray-300 rounded flex items-center justify-center" [ngClass]="{'bg-green-500 border-green-500': file.selected}">
-            <svg *ngIf="file.selected" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        </div>
-        <div class="col-span-3 font-medium text-gray-800">{{ file.name }}</div>
-        <div class="col-span-2">
-          <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
-              <img [src]="file.createdBy.avatar" alt="{{file.createdBy.name}}" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <div class="font-medium">{{ file.createdBy.name }}</div>
-              <div class="text-xs text-gray-500">{{ file.createdBy.role }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-span-2 text-gray-600">{{ file.size }}</div>
-        <div class="col-span-2 text-gray-600">{{ file.date }}</div>
-        <div class="col-span-2 text-gray-600">{{ file.lastModified }}</div>
-      </div>
-    </div>
+    </form>
   </div>
+</div>

@@ -164,12 +164,7 @@ export class AuthService {
     return user ? `${user.prenom} ${user.nom}` : null;
   });
   
-  // Computed signals pour les rôles et permissions
-  // isAdmin = computed(() => this.userProfile() === UserProfile.ADMIN);
-  // isSiteManager = computed(() => this.userProfile() === UserProfile.SITE_MANAGER);
-  // isSupplier = computed(() => this.userProfile() === UserProfile.SUPPLIER);
-  // isSubcontractor = computed(() => this.userProfile() === UserProfile.SUBCONTRACTOR);
-  // isBasicUser = computed(() => this.userProfile() === UserProfile.USER);
+
   
   isUserActivated = computed(() => this._currentUser()?.activated || false);
   isUserEnabled = computed(() => this._currentUser()?.enabled || false);

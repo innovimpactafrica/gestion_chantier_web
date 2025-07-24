@@ -40,19 +40,19 @@ interface ProjectInfo {
 
 export class ProjectDetailHeaderComponent implements OnInit {
   activeTab: string = 'presentation'; 
-  projectInfo: ProjectInfo = {
-    title: 'Construction d\'un immeuble résidentiel de 10 Étages',
-    status: {
-      label: 'En progression',
-      percentage: 42.31
-    },
-    tasks: {
-      completed: 33,
-      total: 78
-    },
-    dueDate: '28 mars 2025',
-    budget: 'Fcfa 700.000'
-  };
+  // projectInfo: ProjectInfo = {
+  //   title: 'Construction d\'un immeuble résidentiel de 10 Étages',
+  //   status: {
+  //     label: 'En progression',
+  //     percentage: 42.31
+  //   },
+  //   tasks: {
+  //     completed: 33,
+  //     total: 78
+  //   },
+  //   dueDate: '28 mars 2025',
+  //   budget: 'Fcfa 700.000'
+  // };
 
   tabs = [
     { name: 'Présentation du projet', active: true, link: '#' },

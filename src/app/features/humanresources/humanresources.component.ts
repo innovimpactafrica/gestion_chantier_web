@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
 
 interface TeamMember {
   id: number;
@@ -11,6 +12,7 @@ interface TeamMember {
   position: string;
   status: 'affecté' | 'non-affecté' | 'en mission' | 'inactive';
   selected: boolean;
+  originalWorker?: Worker;
 }
 
 @Component({
@@ -23,6 +25,7 @@ interface TeamMember {
 export class HumanResourcesComponent implements OnInit {
   allTeamMembers: TeamMember[] = [];
   displayedMembers: TeamMember[] = [];
+  filteredMembers: TeamMember[] = [];
   currentPage = 1;
   totalPages = 1;
   itemsPerPage = 10;
@@ -31,78 +34,114 @@ export class HumanResourcesComponent implements OnInit {
   startIndex = 1;
   endIndex = 10;
   searchQuery: string = '';
- 
   selectedPeriod: string = '';
   selectedStatus: string = '';
+  
+  // Variables pour le popup
+  showCreateUserModal = false;
+  isCreatingUser = false;
+  createUserErrors: string[] = [];
+  
+  // Données du formulaire de création
+  newUser: CreateWorkerRequest = {
+    nom: '',
+    prenom: '',
+    email: '',
+    password: '',
+    telephone: '',
+    date: '',
+    lieunaissance: '',
+    adress: '',
+    profil: 'WORKER'
+  };
+
+  // Variables de loading
+  isLoading = false;
+  errorMessage = '';
+userForm: any;
+isSubmitting: any;
+
+  constructor(private utilisateurService: UtilisateurService) {}
 
   ngOnInit() {
     this.loadTeamMembers();
-    this.paginateData();
   }
 
   loadTeamMembers() {
-    this.allTeamMembers = [
-      { id: 1, name: 'Aziz Ndiaye', phone: '+221-70-986-45-43', email: 'azizndiaye@gmail.com', position: 'Gestionnaire de Projet', status: 'affecté', selected: true },
-      { id: 2, name: 'Abdoul Cisse', phone: '+221-70-986-45-43', email: 'abdoulcisse@gmail.com', position: 'Ouvrier', status: 'affecté', selected: true },
-      { id: 3, name: 'Ndeye Sine', phone: '+221-70-986-45-43', email: 'ndeyesine@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: true },
-      { id: 4, name: 'Ndeye Seck', phone: '+221-70-986-45-43', email: 'ndeyeseck@gmail.com', position: 'Ouvrier', status: 'affecté', selected: true },
-      { id: 5, name: 'Aboulaye Kane', phone: '+221-70-986-45-43', email: 'aboulayekane@gmail.com', position: 'Responsable Financier', status: 'non-affecté', selected: true },
-      { id: 6, name: 'Maïmouna Sarr', phone: '+221-70-986-45-43', email: 'maïmounasarr@gmail.com', position: 'Responsable Financier', status: 'affecté', selected: true },
-      { id: 7, name: 'Salimata Soumaré', phone: '+221-70-986-45-43', email: 'salisoumaré@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 8, name: 'Assane Gueye', phone: '+221-70-986-45-43', email: 'assanegueye@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 9, name: 'Omar Leye', phone: '+221-70-986-45-43', email: 'omarleye@gmail.com', position: 'Chef de chantier', status: 'affecté', selected: false },
-      { id: 10, name: 'Cheikh Ndoye', phone: '+221-70-986-45-43', email: 'cheikhndoye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 11, name: 'Papis A.M Camara', phone: '+221-70-986-45-43', email: 'papis.camara @gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 12, name: 'Astou Sy', phone: '+221-70-986-45-43', email: 'astousy@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 13, name: 'Mame marie Ndoye', phone: '+221-70-986-45-43', email: 'mamemariendoye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 14, name: 'Ousmane Ndiaye', phone: '+221-70-986-45-43', email: 'ousmanendiaye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 15, name: 'Saliou Diop', phone: '+221-70-986-45-43', email: 'salioudiop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 16, name: 'Aminata Diallo', phone: '+221-70-986-45-43', email: 'aminatadiallo@gmail.com', position: 'Responsable RH', status: 'affecté', selected: false },
-      { id: 17, name: 'Ibrahima Sow', phone: '+221-70-986-45-43', email: 'ibrahimasow@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 18, name: 'Fatou Fall', phone: '+221-70-986-45-43', email: 'fatoufall@gmail.com', position: 'Secrétaire', status: 'affecté', selected: false },
-      { id: 19, name: 'Moussa Diagne', phone: '+221-70-986-45-43', email: 'moussadiagne@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 20, name: 'Aida Mbaye', phone: '+221-70-986-45-43', email: 'aidambaye@gmail.com', position: 'Comptable', status: 'affecté', selected: false },
-      // On peut ajouter d'autres membres pour tester avec plus de données
-      { id: 21, name: 'Modou Faye', phone: '+221-70-986-45-43', email: 'modoufaye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 22, name: 'Sokhna Diop', phone: '+221-70-986-45-43', email: 'sokhnadiop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 23, name: 'Amadou Ba', phone: '+221-70-986-45-43', email: 'amadouba@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 24, name: 'Dieynaba Seck', phone: '+221-70-986-45-43', email: 'dieynabaseck@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 25, name: 'Babacar Ndiaye', phone: '+221-70-986-45-43', email: 'babacarndiaye@gmail.com', position: 'Ingénieur', status: 'affecté', selected: false },
-      { id: 26, name: 'Coumba Gueye', phone: '+221-70-986-45-43', email: 'coumbagueye@gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 27, name: 'Oumar Sall', phone: '+221-70-986-45-43', email: 'oumarsall@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 28, name: 'Awa Thiam', phone: '+221-70-986-45-43', email: 'awathiam@gmail.com', position: 'Responsable Logistique', status: 'affecté', selected: false },
-      { id: 29, name: 'Lamine Diallo', phone: '+221-70-986-45-43', email: 'laminediallo@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 30, name: 'Maty Gueye', phone: '+221-70-986-45-43', email: 'matygueye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 31, name: 'Djibril Kane', phone: '+221-70-986-45-43', email: 'djibrilkane@gmail.com', position: 'Gestionnaire de Stock', status: 'affecté', selected: false },
-      { id: 32, name: 'Ndeye Diop', phone: '+221-70-986-45-43', email: 'ndeyediop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 33, name: 'Cheikh Fall', phone: '+221-70-986-45-43', email: 'cheikhfall@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 34, name: 'Khady Sow', phone: '+221-70-986-45-43', email: 'khadysow@gmail.com', position: 'Secrétaire', status: 'affecté', selected: false },
-      { id: 35, name: 'Mamadou Diouf', phone: '+221-70-986-45-43', email: 'mamadoudiouf@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 36, name: 'Penda Ndoye', phone: '+221-70-986-45-43', email: 'pendandoye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 37, name: 'Serigne Mbaye', phone: '+221-70-986-45-43', email: 'serignembaye@gmail.com', position: 'Chef d\'équipe', status: 'affecté', selected: false },
-      { id: 38, name: 'Sokhna Niang', phone: '+221-70-986-45-43', email: 'sokhnaniang@gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 39, name: 'Idrissa Gueye', phone: '+221-70-986-45-43', email: 'idrissagueye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 40, name: 'Maimouna Diallo', phone: '+221-70-986-45-43', email: 'maimounadiallo@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-    ];
+    this.isLoading = true;
+    this.errorMessage = '';
     
+    this.utilisateurService.listUsers(this.currentPage - 1, this.itemsPerPage)
+      .subscribe({
+        next: (response: WorkersResponse) => {
+          this.allTeamMembers = response.content.map(worker => 
+            UtilisateurService.workerToTeamMember(worker)
+          );
+          this.totalMembers = response.totalElements;
+          this.totalPages = response.totalPages;
+          this.applyFilters();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des utilisateurs:', error);
+          this.errorMessage = 'Erreur lors du chargement des données';
+          this.isLoading = false;
+          // Fallback avec des données de test en cas d'erreur
+          this.loadTestData();
+        }
+      });
+  }
+
+  // Données de test en cas d'erreur de chargement
+  loadTestData() {
+    this.allTeamMembers = [
+      { id: 1, name: 'Aziz Ndiaye', phone: '+221-70-986-45-43', email: 'azizndiaye@gmail.com', position: 'Gestionnaire de Projet', status: 'affecté', selected: false },
+      { id: 2, name: 'Abdoul Cisse', phone: '+221-70-986-45-43', email: 'abdoulcisse@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
+      { id: 3, name: 'Ndeye Sine', phone: '+221-70-986-45-43', email: 'ndeyesine@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
+    ];
     this.totalMembers = this.allTeamMembers.length;
+    this.totalPages = Math.ceil(this.totalMembers / this.itemsPerPage);
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.allTeamMembers];
+
+    // Filtre par recherche
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(member => 
+        member.name.toLowerCase().includes(query) ||
+        member.email.toLowerCase().includes(query) ||
+        member.phone.includes(query)
+      );
+    }
+
+    // Filtre par statut
+    if (this.selectedStatus && this.selectedStatus !== '') {
+      filtered = filtered.filter(member => member.status === this.selectedStatus);
+    }
+
+    this.filteredMembers = filtered;
+    this.totalMembers = filtered.length;
     this.calculateTotalPages();
+    this.currentPage = 1; // Reset à la première page
+    this.paginateData();
   }
 
   calculateTotalPages() {
-    this.totalPages = Math.ceil(this.allTeamMembers.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredMembers.length / this.itemsPerPage);
   }
 
   paginateData() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
     
-    this.displayedMembers = this.allTeamMembers.slice(start, end);
+    this.displayedMembers = this.filteredMembers.slice(start, end);
     
-    this.startIndex = start + 1;
-    this.endIndex = Math.min(end, this.totalMembers);
+    this.startIndex = this.filteredMembers.length > 0 ? start + 1 : 0;
+    this.endIndex = Math.min(end, this.filteredMembers.length);
     
-    // Reset select all checkbox when changing pages
     this.updateSelectAllState();
   }
 
@@ -110,26 +149,18 @@ export class HumanResourcesComponent implements OnInit {
     this.selectAll = !this.selectAll;
     this.displayedMembers.forEach(member => member.selected = this.selectAll);
     
-    // Update the selection state in the main array too
+    // Update the selection state in the filtered array too
     const start = (this.currentPage - 1) * this.itemsPerPage;
     for (let i = 0; i < this.displayedMembers.length; i++) {
-      this.allTeamMembers[start + i].selected = this.selectAll;
+      const filteredIndex = start + i;
+      if (filteredIndex < this.filteredMembers.length) {
+        this.filteredMembers[filteredIndex].selected = this.selectAll;
+      }
     }
   }
 
   toggleMemberSelection(member: TeamMember) {
-    // Toggle in displayed array
-    const displayedIndex = this.displayedMembers.findIndex(m => m.id === member.id);
-    if (displayedIndex >= 0) {
-      this.displayedMembers[displayedIndex].selected = !this.displayedMembers[displayedIndex].selected;
-    }
-    
-    // Toggle in main array
-    const mainIndex = this.allTeamMembers.findIndex(m => m.id === member.id);
-    if (mainIndex >= 0) {
-      this.allTeamMembers[mainIndex].selected = !this.allTeamMembers[mainIndex].selected;
-    }
-    
+    member.selected = !member.selected;
     this.updateSelectAllState();
   }
 
@@ -178,16 +209,13 @@ export class HumanResourcesComponent implements OnInit {
     const maxVisiblePages = 5;
     
     if (this.totalPages <= maxVisiblePages) {
-      // If total pages is less than maxVisiblePages, show all pages
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show pages around current page
       let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = startPage + maxVisiblePages - 1;
       
-      // Adjust if endPage exceeds totalPages
       if (endPage > this.totalPages) {
         endPage = this.totalPages;
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -201,21 +229,104 @@ export class HumanResourcesComponent implements OnInit {
     return pages;
   }
 
-  // Filtre par Periode 
+  // Méthodes de filtrage
   filterByPeriod(period: string): void {
     this.selectedPeriod = period;
-    // Implémenter la logique de filtrage
+    // TODO: Implémenter la logique de filtrage par période
+    this.applyFilters();
   }
 
-  // Filtre par Status
   filterByStatus(status: string): void {
     this.selectedStatus = status;
-    // Implémenter la logique de filtrage
+    this.applyFilters();
   }
 
-  // Recherche 
   searchProjects(): void {
-    // Implémenter la logique de recherche
-    console.log('Recherche:', this.searchQuery);
+    this.applyFilters();
+  }
+
+  // Méthodes pour le popup de création d'utilisateur
+  openCreateUserModal() {
+    this.showCreateUserModal = true;
+    this.resetCreateUserForm();
+  }
+
+  closeCreateUserModal() {
+    this.showCreateUserModal = false;
+    this.resetCreateUserForm();
+  }
+
+  resetCreateUserForm() {
+    this.newUser = {
+      nom: '',
+      prenom: '',
+      email: '',
+      password: '',
+      telephone: '',
+      date: '',
+      lieunaissance: '',
+      adress: '',
+      profil: 'WORKER'
+    };
+    this.createUserErrors = [];
+    this.isCreatingUser = false;
+  }
+
+  createUser() {
+    // Validation
+    this.createUserErrors = UtilisateurService.validateWorkerData(this.newUser);
+    
+    if (this.createUserErrors.length > 0) {
+      return;
+    }
+
+    this.isCreatingUser = true;
+    
+    this.utilisateurService.createUser(this.newUser)
+      .subscribe({
+        next: (response: Worker) => {
+          console.log('Utilisateur créé avec succès:', response);
+          this.isCreatingUser = false;
+          this.closeCreateUserModal();
+          // Recharger la liste des utilisateurs
+          this.loadTeamMembers();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création de l\'utilisateur:', error);
+          this.createUserErrors = ['Erreur lors de la création de l\'utilisateur. Veuillez réessayer.'];
+          this.isCreatingUser = false;
+        }
+      });
+  }
+
+  // Méthodes utilitaires pour le filtrage par statut
+  getStatusOptions() {
+    return [
+      { value: '', label: 'Tous les statuts' },
+      { value: 'affecté', label: 'Affecté' },
+      { value: 'non-affecté', label: 'Non-affecté' },
+      { value: 'en mission', label: 'En mission' },
+      { value: 'inactive', label: 'Inactive' }
+    ];
+  }
+
+  // Méthode pour supprimer les utilisateurs sélectionnés
+  deleteSelectedUsers() {
+    const selectedMembers = this.displayedMembers.filter(member => member.selected);
+    if (selectedMembers.length === 0) {
+      alert('Aucun utilisateur sélectionné');
+      return;
+    }
+
+    if (confirm(`Êtes-vous sûr de vouloir supprimer ${selectedMembers.length} utilisateur(s) ?`)) {
+      // TODO: Implémenter la suppression via l'API
+      console.log('Suppression des utilisateurs:', selectedMembers);
+    }
+  }
+
+  // Méthode pour exporter les données
+  exportData() {
+    // TODO: Implémenter l'export des données
+    console.log('Export des données');
   }
 }

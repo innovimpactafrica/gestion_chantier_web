@@ -1,141 +1,366 @@
-<!-- dashboard.component.html (à modifier) -->
- 
-<div class="container p-6">
-  <!-- Entête du tableau de bord -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-700">Tableau de bord</h1>
-    <div class="flex gap-4">
-      <div class="relative">
-        <input
-          type="text"
-          placeholder="Rechercher par projet"
-          class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-64 focus:outline-none"
-        >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-        </svg>
-      </div>
-      <div class="relative">
-        <select class="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none">
-          <option>2025</option>
-          <option>2024</option>
-        </select>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute right-3 top-2.5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </div>
+<!-- Dashboard Container -->
+<div class="min-h-screen p-6">
+  
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
+    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center">
+      <svg class="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="text-red-700">{{ errorMessage }}</span>
+      <button (click)="refreshDashboard()" class="ml-auto bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md">
+        Réessayer
+      </button>
     </div>
   </div>
-  
 
-  <!-- Première rangée -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <!-- Vue d'ensemble des chantiers -->
-    <app-project-oview 
-  [chantiersSummary]="chantiersSummary"
-  [selectedPropertyId]="selectedPropertyId"
-  [currentUserId]="currentUserId"
-  *ngIf="canLoadData">
-</app-project-oview>
-    <!-- Taux moyen d'avancement -->
-    <app-avaragerate-avancement>
-      [currentUser]="currentUser"
-    </app-avaragerate-avancement>
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading && !hasError">
     
-   
-    <!-- Budget global -->
-    <app-overall-budget
-  
-  [propertyId]="selectedPropertyId"
-  [promoterId]="currentUserId"
-  [useApiData]="true"
-></app-overall-budget>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <input type="text" placeholder="Rechercher par projet" 
+                 class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg border">
+          <span class="text-lg font-semibold">{{ dashboardData.annee }}</span>
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
 
-  
-  </div>
-
-  <!-- Deuxième rangée -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <!-- Alertes stock matériaux -->
-    <app-material-stock-alert></app-material-stock-alert>
-    <!-- État d'avancement -->
-   <app-progess-report></app-progess-report>
-    
-    <!-- Incidents signalés -->
-    <app-incidents-chart></app-incidents-chart>
-     
-    
-  </div>
-
-  <!-- Troisième rangée -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <!-- Tâches critiques à échéance -->
-    <app-critical-task ></app-critical-task>
-    <!-- Photos récentes -->
-<app-photo-project [photos]="photosRecentes"></app-photo-project>
-    <!-- Résumé des performances -->
-    <!-- <div class="bg-white rounded-lg shadow p-4">
-
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Résumé des performances</h3>
-      <div class="grid grid-cols-3 gap-4">
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Avancement moyen</p>
-          <p class="text-xl font-bold text-blue-600">{{performancesSummary.averageProgress}}%</p>
+      <!-- Vue d'ensemble des chantiers -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
+        
+          <div class="text-gray-500">
+            <img src="assets/images/dashboard-icons/vues.png" alt="vue" srcset="" class="w-6 h-6">
+          </div>
         </div>
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Budget consommé</p>
-          <p class="text-xl font-bold text-green-600">{{performancesSummary.budgetConsumed}}%</p>
-        </div>
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Incidents</p>
-          <p class="text-xl font-bold text-red-600">{{performancesSummary.incidents}}</p>
-        </div>
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Présence moyenne</p>
-          <p class="text-xl font-bold text-purple-600">{{performancesSummary.averagePresence}}%</p>
-        </div>
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Tâches en retard</p>
-          <p class="text-xl font-bold text-orange-600">{{performancesSummary.delayedTasks}}</p>
-        </div>
-        <div class="text-center">
-          <p class="text-sm text-gray-500">Alertes matériaux</p>
-          <p class="text-xl font-bold text-yellow-600">{{performancesSummary.materialsAlerted}}</p>
-        </div>
-      </div>
-    </div> -->
-    <div class="p-4 bg-white rounded-lg shadow-sm max-w-md mx-auto h-[305px]">
-      <div class="flex justify-between items-center mb-0">
-        <h2 class="text-lg font-medium text-gray-700">Résumé des performances</h2>
-        <div class="p-2">
-          <i class="fa-solid fa-chart-line"></i>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-100 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">En cours</p>
+            <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">En retard</p>
+            <p class="text-3xl font-bold text-red-600">{{ chantiers.enRetard }}</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">En attente</p>
+            <p class="text-3xl font-bold text-orange-500">{{ chantiers.enAttente }}</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">Terminées</p>
+            <p class="text-3xl font-bold text-green-600">{{ chantiers.termines }}</p>
+          </div>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-2">
-        <div class="bg-gray-100 p-3 rounded-lg">
-          <div class="text-sm text-gray-500 mb-1">Taux moyen d'avancement</div>
-          <div class="text-2xl font-bold text-gray-700">68%</div>
+
+      <!-- Taux moyen d'avancement -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Taux moyen d'avancement</h2>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-        <div class="bg-gray-100 p-2 rounded-[8px]">
-          <div class="text-sm text-gray-500 mb-1">Budget consommé</div>
-          <div class="text-2xl font-bold text-gray-700">70%</div>
+        
+        <div class="relative flex justify-center">
+          <div class="w-64 h-32 relative">
+            <svg class="w-full h-full" viewBox="0 0 100 50">
+              <!-- Arc de fond -->
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#EDF2F7" stroke-width="10" stroke-linecap="round"/>
+              <!-- Arc de progression -->
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#ff5c01" stroke-width="10" 
+                    stroke-linecap="round" 
+                    [attr.stroke-dasharray]="avancement.display.circumference" 
+                    [attr.stroke-dashoffset]="avancement.display.dashOffset"/>
+              <!-- Point à la fin de l'arc -->
+              <circle 
+                [attr.cx]="avancement.display.pointX" 
+                [attr.cy]="avancement.display.pointY" 
+                r="6" 
+                fill="#ff5c01"
+                stroke="#fff"
+                stroke-width="3"
+                filter="url(#shadowFilter)"
+              />
+            </svg>
+            
+            <!-- Texte central -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center pt-4">
+              <span class="text-4xl font-bold text-gray-900">{{ avancement.pourcentage }}%</span>
+              <span class="text-sm text-gray-600">Taux moyen</span>
+            </div>
+          </div>
         </div>
-        <div class="bg-gray-100 p-2 rounded-lg">
-          <div class="text-sm text-gray-500 mb-1">Incidents (7j)</div>
-          <div class="text-2xl font-bold text-gray-700">12</div>
+      </div>
+
+      <!-- Budget global -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900">Budget global</h2>
+          <div class="text-gray-400">
+            <div class="p-2">
+              <img src="assets/images/dashboard-icons/budget.png" alt="budget-icons" srcset="">
+            </div>
+          </div>
         </div>
-        <div class="bg-gray-100 p-2 rounded-lg">
-          <div class="text-sm text-gray-500 mb-1">Présence moyenne</div>
-          <div class="text-2xl font-bold text-gray-700">89%</div>
+        
+        <!-- Container principal avec layout flex -->
+        <div class="flex items-start justify-between">
+          <!-- Section gauche : Graphique -->
+          <div class="relative flex-shrink-0">
+            <div class="w-40 h-40 relative">
+              <canvas #budgetChart class="w-full h-full"></canvas>
+              
+              <!-- Étiquette avec bande noire repositionnée à droite du cercle -->
+              <div class="absolute top-4 w-[126px] rounded-[13px] h-[56px] -right-20 bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg">
+                <div class="text-xs text-gray-300">Consommé</div>
+                <div class="text-white font-bold">{{ formatCurrency(budget.consomme) }}</div>
+              </div>
+              
+              <!-- Pourcentage central -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-bold text-gray-900">{{ budget.pourcentageConsomme }}%</span>
+                <span class="text-sm text-gray-600 mt-1">consommé</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Section droite : Légende -->
+          <div class="flex flex-col justify-end h-40 space-y-3 text-sm ml-8">
+            <div class="flex items-center">
+              <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+              <span class="text-gray-700 font-medium">Consommé : {{ formatCurrency(budget.consomme) }}</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 bg-gray-300 rounded-full mr-3"></div>
+              <span class="text-gray-700 font-medium">Restant : {{ formatCurrency(budget.restant) }}</span>
+            </div>
+          </div>
         </div>
-        <div class="bg-gray-100 p-2 rounded-lg">
-          <div class="text-sm text-gray-500 mb-1">Tâches en retard</div>
-          <div class="text-2xl font-bold text-gray-700">7</div>
+      </div>
+    </div>
+
+    <!-- Second Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      
+      <!-- Alertes stock matériaux - Design adapté -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900">Alertes stock matériaux</h2>
+          <div class="text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
         </div>
-        <div class="bg-gray-100 p-2 rounded-lg">
-          <div class="text-sm text-gray-500 mb-1">Matériaux en alerte</div>
-          <div class="text-2xl font-bold text-gray-700">17</div>
+        
+        <div class="space-y-5" *ngIf="stockAlertes.length > 0; else noAlertes">
+          <div *ngFor="let alerte of stockAlertes" class="pb-4">
+            <!-- Nom du matériau -->
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-gray-900">{{ alerte.nom }}</h3>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" 
+                    [ngClass]="{
+                      'bg-orange-100 text-orange-800': alerte.status === 'Faible',
+                      'bg-green-100 text-green-800': alerte.status === 'Normal',
+                      'bg-red-100 text-red-800': alerte.status === 'Critique atteint'
+                    }">
+                {{ alerte.status }}
+              </span>
+            </div>
+            
+            <!-- Barre de progression -->
+            <div class="relative">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all duration-300" 
+                     [style.width.%]="alerte.pourcentage"
+                     [ngClass]="{
+                       'bg-orange-500': alerte.status === 'Faible',
+                       'bg-green-500': alerte.status === 'Normal',
+                       'bg-red-500': alerte.status === 'Critique atteint'
+                     }"></div>
+              </div>
+            </div>
+            
+            <!-- Quantité -->
+            <div class="text-sm text-gray-600 mt-2">
+              {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil: {{ alerte.seuil }} {{ alerte.unite }}
+            </div>
+          </div>
+        </div>
+        <ng-template #noAlertes>
+          <p class="text-gray-500 text-sm">Aucune alerte matériaux</p>
+        </ng-template>
+      </div>
+
+      <!-- État d'avancement -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">État d'avancement</h2>
+          <div class="text-gray-400">
+            <img src="assets/images/dashboard-icons/bar-chart.png" alt="" srcset="">
+          </div>
+        </div>
+        
+        <div class="h-48">
+          <canvas #progressChart></canvas>
+        </div>
+      </div>
+
+      <!-- Incidents signalés -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Incidents signalés (7 jours)</h2>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        
+        <div class="h-48">
+          <canvas #incidentsChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Third Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Tâches critiques à échéance - Design adapté -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900">Tâches critiques à échéance</h2>
+          <div class="text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+        
+        <div class="space-y-4" *ngIf="tachesCritiques.length > 0; else noTaches">
+          <div *ngFor="let tache of tachesCritiques" class="border-l-4 pl-4 py-2" 
+               [ngClass]="{
+                 'border-red-500': tache.status === 'En retard',
+                 'border-orange-500': tache.status === 'Urgent',
+                 'border-green-500': tache.status === 'À jour'
+               }">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-gray-900">{{ tache.nom }}</h3>
+              <span class="px-3 py-1 rounded-full text-xs font-medium" 
+                    [ngClass]="{
+                      'bg-red-100 text-red-800': tache.status === 'En retard',
+                      'bg-orange-100 text-orange-800': tache.status === 'Urgent',
+                      'bg-green-100 text-green-800': tache.status === 'À jour'
+                    }">
+                {{ tache.status }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">
+              Échéance : {{ tache.echeance }}
+              <span *ngIf="tache.joursRestants" class="text-gray-500">
+                ({{ tache.joursRestants }} j restants)
+              </span>
+            </p>
+          </div>
+        </div>
+        <ng-template #noTaches>
+          <p class="text-gray-500 text-sm">Aucune tâche critique</p>
+        </ng-template>
+      </div>
+
+      <!-- Photos récentes -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Photos récentes</h2>
+          <div class="p-2">
+            <img src="assets/images/dashboard-icons/photos.png" alt="" srcset="">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3" *ngIf="photosRecentes.length > 0; else noPhotos">
+          <div *ngFor="let photo of photosRecentes | slice:0:4" class="relative group cursor-pointer">
+            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+              <!-- Image ou placeholder -->
+              <img *ngIf="photo.src; else placeholder" 
+                   [src]="'https://wakana.online/repertoire_chantier/'+photo.src" 
+                   [alt]="photo.alt"
+                   class="w-full h-full object-cover">
+              <ng-template #placeholder>
+                <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                  <svg class="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </ng-template>
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+              {{ photo.alt }}
+            </div>
+            <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+              {{ photo.date }}
+            </div>
+          </div>
+        </div>
+        <ng-template #noPhotos>
+          <p class="text-gray-500 text-sm">Aucune photo récente</p>
+        </ng-template>
+      </div>
+
+      <!-- Résumé des performances -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
+          <div class="p-2">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Taux moyen d'avanc...</p>
+            <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Budget consommé</p>
+            <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Incidents (7j)</p>
+            <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Présence moyenne</p>
+            <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Tâches en retard</p>
+            <p class="text-2xl font-bold text-orange-600">{{ performances.tachesRetard }}</p>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 text-center">
+            <p class="text-xs text-gray-600 mb-1">Matériaux en alerte</p>
+            <p class="text-2xl font-bold text-red-600">{{ performances.materiauxAlerte }}</p>
+          </div>
         </div>
       </div>
     </div>

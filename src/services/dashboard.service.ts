@@ -25,6 +25,8 @@ export interface BudgetKpi {
 }
 
 export interface CriticalMaterial {
+property: any;
+unit: any;
   id: number;
   label: string;
   quantity: number;

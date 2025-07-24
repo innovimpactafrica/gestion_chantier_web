@@ -16,7 +16,7 @@
     <div class="md:col-span-1">
       <!-- Plan 3D -->
       <div class="bg-white rounded-[8px] shadow mb-6">
-        <img [src]="'assets/images/residential-building.jpg'" 
+        <img [src]=" 'https://wakana.online/repertoire_chantier/'+ projet.plan " 
              [alt]="'Plan 3D de ' + projet.name" 
              class="w-full h-auto rounded-t">
         
@@ -30,27 +30,36 @@
           </div>
         </div>
 
-        <!-- Progression -->
-        <div class="bg-[#E8F0FE] rounded-lg shadow p-[15px] mb-6 mx-4">
-          <div class="flex items-center mb-2">
-            <i class="fa-solid fa-chart-line mr-2"></i>
-            <h3 class="text-gray-700 text-xs">Progression</h3>
-          </div>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xl font-bold mr-2 ml-2">{{ projet.averageProgess }}%</span>
-            <div>
-              <i class="fa-solid fa-spinner text-xs text-[#4A6FA5]"></i>
-              <span class="px-2 py-1 text-[#4A6FA5] text-xs">{{ statutFrancais }}</span>
-            </div>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              [style.width.%]="projet.averageProgess"
-              [style.background]="getGradientBackgroundDetail(projet.averageProgess)"
-              class="h-full rounded-full">
-            </div>
-          </div>
-        </div>
+<!-- Progression -->
+<div class="bg-[#E8F0FE] rounded-lg shadow p-[15px] mb-6 mx-4">
+  <div class="flex items-center mb-2">
+    <i class="fa-solid fa-chart-line mr-2"></i>
+    <h3 class="text-gray-700 text-xs">Progression</h3>
+  </div>
+
+  <ng-container *ngIf="!isLoadingProgress; else loadingProgress">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-xl font-bold mr-2 ml-2">{{ averageProgress }}%</span>
+      <div>
+        <i class="fa-solid fa-spinner text-xs text-[#4A6FA5]"></i>
+        <span class="px-2 py-1 text-[#4A6FA5] text-xs">{{ statutFrancais }}</span>
+      </div>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-2">
+      <div 
+        [style.width.%]="averageProgress"
+        [style.background]="getGradientBackgroundDetail(averageProgress!)"
+        class="h-full rounded-full">
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingProgress>
+    <p class="text-xs text-gray-500">Chargement de la progression...</p>
+  </ng-template>
+</div>
+
+
         
         <!-- Informations surface et lots -->
         <div class="grid grid-cols-2 gap-4 mb-6 px-4">
@@ -241,7 +250,7 @@
 
           <!-- Onglet État d'avancement -->
           <div *ngIf="isActiveTab('avancement')">
-         <app-status-report></app-status-report>
+         <app-status-report ></app-status-report>
           </div>
 
           <!-- Onglet Budget -->

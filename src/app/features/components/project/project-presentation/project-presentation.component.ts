@@ -5,8 +5,10 @@ import { StatusReportComponent } from '../status-report/status-report.component'
 import { ProjectBudgetComponent } from '../project-budget/project-budget.component';
 import { ActivatedRoute } from '@angular/router';
 import { RealEstateProject, RealestateService } from '../../../../core/services/realestate.service';
-// import { AvaragerateAvancementComponent } from "../../dashboard/avaragerate-avancement/avaragerate-avancement.component";
-
+import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
+import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service'; // Ajout de l'import
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-project-presentation',
@@ -16,130 +18,124 @@ import { RealEstateProject, RealestateService } from '../../../../core/services/
   styleUrl: './project-presentation.component.css'
 })
 export class ProjectPresentationComponent implements OnInit {
-  
-  // Propriété pour gérer l'onglet actif
-//   activeTab: string = 'general';
-
-//   projet: Projet = {
-//     titre: 'Construction d\'un Immeuble Résidentiel de 10 Étages',
-//     description: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.',
-//     montant: 1553076000,
-//     surface: 200,
-//     emplacement: 'Dakar, Médina Rue 21',
-//     nombreLots: 20,
-//     dateEcheance: new Date('2026-03-28'),
-//     progression: 40,
-//     progressBudgetaire: 87,
-//     statut: 'En cours',
-//     dateDebut: new Date('2025-01-01'),
-//     dateFin: new Date('2027-01-01'),
-//     budgetUtilise: 1553076000,
-//     budgetTotal: 1500000000,
-//     equipementsCommuns: []
-//   };
-
-//   // Données pour l'onglet État d'avancement
-//   avancementData = {
-//     phases: [
-//       { nom: 'Études préliminaires', progression: 100, statut: 'Terminé' },
-//       { nom: 'Fondations', progression: 85, statut: 'En cours' },
-//       { nom: 'Structure', progression: 45, statut: 'En cours' },
-//       { nom: 'Couverture', progression: 20, statut: 'En attente' },
-//       { nom: 'Finitions', progression: 0, statut: 'En attente' }
-//     ],
-//     dernieresActivites: [
-//       { date: new Date('2025-05-20'), description: 'Coulage du béton niveau 3' },
-//       { date: new Date('2025-05-18'), description: 'Installation des armatures niveau 4' },
-//       { date: new Date('2025-05-15'), description: 'Inspection technique niveau 2' }
-//     ]
-//   };
-
-//   // Données pour l'onglet Budget
-//   // budgetData = {
-//   //   categories: [
-//   //     { nom: 'Matériaux', budgetAlloue: 600000000, depense: 520000000 },
-//   //     { nom: 'Main d\'œuvre', budgetAlloue: 400000000, depense: 350000000 },
-//   //     { nom: 'Équipements', budgetAlloue: 300000000, depense: 280000000 },
-//   //     { nom: 'Autres', budgetAlloue: 200000000, depense: 150000000 }
-//   //   ],
-//   //   dernieresDepenses: [
-//   //     { date: new Date('2025-05-22'), description: 'Achat ciment', montant: 2500000 },
-//   //     { date: new Date('2025-05-20'), description: 'Salaires équipe', montant: 5000000 },
-//   //     { date: new Date('2025-05-18'), description: 'Location grue', montant: 1200000 }
-//   //   ]
-//   // };
-
-//   constructor() { }
-
-//   ngOnInit(): void { }
-
-//   // Méthode pour changer d'onglet
-//   setActiveTab(tab: string): void {
-//     this.activeTab = tab;
-//   }
-
-//   // Méthode pour vérifier si un onglet est actif
-//   isActiveTab(tab: string): boolean {
-//     return this.activeTab === tab;
-//   }
-
-//   getColorStatus(statut: string): string {
-//     switch (statut) {
-//       case 'En cours':
-//         return '#F39C12'; // Orange
-//       case 'En pause':
-//         return '#FF5C02'; // Red
-//       case 'Terminé':
-//         return '#2ECC71'; // Green
-//       default:
-//         return '#000000'; // Default color (black)
-//     }
-//   }
-
-//   getGradientBackgroundDetail(progress: number): string {
-//     return 'linear-gradient(90deg, #F39C12 0%, #FF5C02 100%)';
-//   }
-
-//   // Méthode pour obtenir la couleur selon le statut des phases
-//   getPhaseStatusColor(statut: string): string {
-//     switch (statut) {
-//       case 'Terminé':
-//         return 'bg-green-100 text-green-800';
-//       case 'En cours':
-//         return 'bg-yellow-100 text-yellow-800';
-//       case 'En attente':
-//         return 'bg-gray-100 text-gray-800';
-//       default:
-//         return 'bg-gray-100 text-gray-800';
-//     }
-//   }
-
-//   // Méthode pour calculer le pourcentage d'utilisation du budget par catégorie
-//   getBudgetPercentage(budgetAlloue: number, depense: number): number {
-//     return Math.round((depense / budgetAlloue) * 100);
-//   }
-// }
-
-private route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private realEstateService = inject(RealestateService);
+  private dashboardService = inject(DashboardService);
+  private projectBudgetService = inject(ProjectBudgetService); // Injection du service
 
   projet: RealEstateProject | null = null;
   loading = true;
   error: string | null = null;
   activeTab = 'general';
 
-  // Propriétés calculées pour l'affichage
-  get progressionBudgetaire(): number {
-    if (!this.projet || this.projet.price === 0) return 0;
-    return Math.round((this.projet.price / this.projet.price) * 100);
+  averageProgress: number | null = null;
+  isLoadingProgress = true;
+  progressError: string | null = null;
+  
+  // Propriétés pour le budget
+  budgetUtilise: number = 0;
+  budgetTotal: number = 0;
+  progressionBudgetaire: number = 0;
+  budgetData: BudgetResponse | null = null;
+  isLoadingBudget = true;
+  budgetError: string | null = null;
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      const projectId = +id;
+      this.loadProjectDetails(projectId);
+      this.loadProgression();
+      this.loadBudget(projectId); // Chargement du budget
+    }
   }
 
-  get budgetUtilise(): number {
-    return this.projet?.price || 0;
+  private phaseDisplayNames: { [key: string]: string } = {
+    'GROS_OEUVRE': 'Gros œuvre',
+    'SECOND_OEUVRE': 'Second œuvre',
+    'FINITION': 'Finition'
+  };
+
+  private loadProjectDetails(id: number): void {
+    this.loading = true;
+    this.error = null;
+
+    this.realEstateService.getRealEstateDetails(id).subscribe({
+      next: (response) => {
+        this.projet = response.realEstateProperty;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du projet:', error);
+        this.error = 'Erreur lors du chargement des détails du projet';
+        this.loading = false;
+      }
+    });
   }
 
-  get budgetTotal(): number {
-    return this.projet?.price || 0;
+  private loadProgression(): void {
+    this.isLoadingProgress = true;
+    this.dashboardService.etatAvancement().pipe(
+      catchError(error => {
+        console.error('Erreur progression:', error);
+        this.progressError = 'Impossible de charger la progression';
+        this.isLoadingProgress = false;
+        return of([] as PhaseIndicator[]);
+      })
+    ).subscribe((phases: PhaseIndicator[]) => {
+      const relevantPhases = phases.filter(p =>
+        ['GROS_OEUVRE', 'SECOND_OEUVRE', 'FINITION'].includes(p.phaseName)
+      );
+      
+      const total = relevantPhases.reduce((sum, p) => sum + p.averageProgressPercentage, 0);
+      const count = relevantPhases.length;
+
+      this.averageProgress = count > 0 ? Math.round(total / count) : 0;
+      this.isLoadingProgress = false;
+    });
+  }
+
+  // Nouvelle méthode pour charger le budget
+  private loadBudget(propertyId: number): void {
+    this.isLoadingBudget = true;
+    this.budgetError = null;
+
+    this.projectBudgetService.GetProjectBudget(propertyId).pipe(
+      catchError(error => {
+        console.error('Erreur lors du chargement du budget:', error);
+        this.budgetError = 'Impossible de charger les données du budget';
+        this.isLoadingBudget = false;
+        return of(null);
+      })
+    ).subscribe((budgetResponse: BudgetResponse | null) => {
+      if (budgetResponse) {
+        this.budgetData = budgetResponse;
+        this.budgetTotal = budgetResponse.plannedBudget;
+        this.budgetUtilise = budgetResponse.consumedBudget;
+        
+        // Calcul du pourcentage d'utilisation du budget
+        if (this.budgetTotal > 0) {
+          this.progressionBudgetaire = Math.round((this.budgetUtilise / this.budgetTotal) * 100);
+        } else {
+          this.progressionBudgetaire = 0;
+        }
+      } else {
+        // Valeurs par défaut en cas d'erreur
+        this.budgetTotal = 0;
+        this.budgetUtilise = 0;
+        this.progressionBudgetaire = 0;
+      }
+      
+      this.isLoadingBudget = false;
+    });
+  }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  isActiveTab(tab: string): boolean {
+    return this.activeTab === tab;
   }
 
   get statutFrancais(): string {
@@ -161,115 +157,14 @@ private route = inject(ActivatedRoute);
 
   get dateDebut(): string {
     if (!this.projet?.startDate) return '01/01/25';
-    
-    // Convertir la string en Date
     const date = new Date(this.projet.startDate);
-    
-    // Vérifier si la date est valide
-    if (isNaN(date.getTime())) {
-      return '01/01/25'; // Date par défaut si invalide
-    }
-    
-    return date.toLocaleDateString('fr-FR');
+    return isNaN(date.getTime()) ? '01/01/25' : date.toLocaleDateString('fr-FR');
   }
-  
+
   get dateFinPrevue(): string {
     if (!this.projet?.endDate) return '01/01/27';
-    
-    // Convertir la string en Date
     const date = new Date(this.projet.endDate);
-    
-    // Vérifier si la date est valide
-    if (isNaN(date.getTime())) {
-      return '01/01/27'; // Date par défaut si invalide
-    }
-    
-    return date.toLocaleDateString('fr-FR');
-  }
-  get equipementsCommuns() {
-    if (!this.projet) return [];
-    
-    const equipements = [];
-    
-    if (this.projet.hasHall) {
-      equipements.push({
-        icon: 'assets/images/project-icons/hall1.png',
-        nom: 'Hall d\'entrée',
-        description: 'Espace d\'accueil de l\'immeuble'
-      });
-    }
-    
-    if (this.projet.hasElevator) {
-      equipements.push({
-        icon: 'assets/images/project-icons/escalier.svg',
-        nom: 'Escaliers et ascenseurs',
-        description: 'Zones permettant d\'accéder aux différents niveaux'
-      });
-    }
-    
-    equipements.push({
-      icon: 'assets/images/project-icons/couloir.png',
-      nom: 'Couloirs',
-      description: 'Espaces de circulation entre les différentes unités'
-    });
-    
-    if (this.projet.hasGarden || this.projet.hasSharedTerrace) {
-      equipements.push({
-        icon: 'assets/images/project-icons/hall.png',
-        nom: 'Jardins ou terrasses partagés',
-        description: 'Espaces extérieurs accessibles à tous'
-      });
-    }
-    
-    if (this.projet.hasStorageRooms) {
-      equipements.push({
-        icon: 'assets/images/project-icons/locaux.png',
-        nom: 'Locaux Techniques',
-        description: 'Espaces dédiés aux installations'
-      });
-    }
-    
-    if (this.projet.hasParking) {
-      equipements.push({
-        icon: 'assets/images/project-icons/parking.png',
-        nom: 'Parkings communs',
-        description: 'Espaces de stationnement partagés'
-      });
-    }
-    
-    return equipements;
-  }
-
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadProjectDetails(+id);
-    }
-  }
-
-  private loadProjectDetails(id: number): void {
-    this.loading = true;
-    this.error = null;
-
-    this.realEstateService.getRealEstateDetails(id).subscribe({
-      next: (response) => {
-        this.projet = response.realEstateProperty;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement du projet:', error);
-        this.error = 'Erreur lors du chargement des détails du projet';
-        this.loading = false;
-      }
-    });
-  }
-
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-  }
-
-  isActiveTab(tab: string): boolean {
-    return this.activeTab === tab;
+    return isNaN(date.getTime()) ? '01/01/27' : date.toLocaleDateString('fr-FR');
   }
 
   getGradientBackgroundDetail(percentage: number): string {
@@ -283,7 +178,59 @@ private route = inject(ActivatedRoute);
   }
 
   onModifier(): void {
-    // Logique pour modifier le projet
     console.log('Modification du projet:', this.projet?.id);
+  }
+
+  get equipementsCommuns() {
+    if (!this.projet) return [];
+    const equipements = [];
+
+    if (this.projet.hasHall) {
+      equipements.push({
+        icon: 'assets/images/project-icons/hall1.png',
+        nom: 'Hall d\'entrée',
+        description: 'Espace d\'accueil de l\'immeuble'
+      });
+    }
+
+    if (this.projet.hasElevator) {
+      equipements.push({
+        icon: 'assets/images/project-icons/escalier.svg',
+        nom: 'Escaliers et ascenseurs',
+        description: 'Zones permettant d\'accéder aux différents niveaux'
+      });
+    }
+
+    equipements.push({
+      icon: 'assets/images/project-icons/couloir.png',
+      nom: 'Couloirs',
+      description: 'Espaces de circulation entre les différentes unités'
+    });
+
+    if (this.projet.hasGarden || this.projet.hasSharedTerrace) {
+      equipements.push({
+        icon: 'assets/images/project-icons/hall.png',
+        nom: 'Jardins ou terrasses partagés',
+        description: 'Espaces extérieurs accessibles à tous'
+      });
+    }
+
+    if (this.projet.hasStorageRooms) {
+      equipements.push({
+        icon: 'assets/images/project-icons/locaux.png',
+        nom: 'Locaux Techniques',
+        description: 'Espaces dédiés aux installations'
+      });
+    }
+
+    if (this.projet.hasParking) {
+      equipements.push({
+        icon: 'assets/images/project-icons/parking.png',
+        nom: 'Parkings communs',
+        description: 'Espaces de stationnement partagés'
+      });
+    }
+
+    return equipements;
   }
 }

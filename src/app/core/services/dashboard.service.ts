@@ -16,6 +16,9 @@ import {
   providedIn: 'root'
 })
 export class DashboardService {
+  etatAvancement() {
+    throw new Error('Method not implemented.');
+  }
   getProjectOverview(): Observable<ProjectOverview> {
     return of({
       inProgress: 12,

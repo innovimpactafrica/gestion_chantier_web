@@ -1,26 +1,23 @@
-<!-- human-resources.component.html -->
-<div class=" bg-[#F5F7FA]  rounded-lg shadow-sm p-6">
-    <!-- Header -->
-  
+<div class="bg-[#F5F7FA] rounded-lg shadow-sm p-6">
+  <!-- Header -->
   <div class="flex justify-between">
-    <div class="pb-4  border-gray-200 " >
-      <h1 class="text-xl font-semibold text-gray-800">Fournisseurs </h1>
+    <div class="pb-4 border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-800">Fournisseurs</h1>
       <p class="text-gray-600 text-sm mt-1">
-        Retrouvez en un clin d'œil tous les membres de votre équipe de construction.
+        Gestion des Fournisseurs de votre entreprise
+      </p>
     </div>
-    <button   (click)="openModal()"class="flex items-center justify-between text-white bg-orange-500 rounded-md hover:bg-orange-600 btn-supplier "  >
+    <button (click)="openModal()" class="h-[50px]  flex items-center justify-between text-white bg-orange-500  rounded-md hover:bg-orange-600 btn-worker">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
-      Nouveau Fournisseur 
+      Nouveau Fournisseur
     </button>
   </div>
   
-    <div class="flex justify-between items-center py-4 border-b">
-   
-  
+
+  <div class="flex justify-between items-center py-4 border-b">
     <!-- Controls -->
-  
     <div class="flex flex-wrap gap-4 mb-8">
       <!-- Barre de recherche -->
       <div class="relative flex-grow max-w-xs">
@@ -29,275 +26,349 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-    
-  
         <input 
           type="text" 
           [(ngModel)]="searchQuery"
-          (input)="searchProjects()"
-          class="block w-[302px] h-[48px] pl-10  px-4 py-2 border border-gray-300 rounded-[8px] p-12 leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-          placeholder="Rechercher par nom ">
+          (input)="searchWorkers()"
+          class="block w-[302px] h-[48px] pl-10 px-4 py-2 border border-gray-300 rounded-[8px] p-12 leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+          placeholder="Rechercher par nom">
       </div>
-  
-  
-  
-      <!-- Filtre par statut -->
-    
     </div>
-  
-  
-      <div class="flex  flex-wrap gap-4 mb-8">
-        <button class="flex items-center  justify-between  w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-          Supprimer
-        </button>
-        <button class="flex items-center justify-between  w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12 ml-4">
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
-          </svg> -->
-          <img src="assets/images/filter-lines.svg" alt="" srcset="" class="mr-2">
-         <p class="mr-8"> Filtres</p> 
-        </button>
-     
+
+    <div class="flex flex-wrap gap-4 mb-8">
+      <button class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        Supprimer
+      </button>
+      <button class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12 ml-4">
+        <img src="assets/images/filter-lines.svg" alt="" srcset="" class="mr-2">
+        <p class="mr-8">Filtres</p> 
+      </button>
       <div class="flex mb-8">
-        <button class="flex items-center text-gray-600 px-4 py-2  mx-8 border border-gray-300 rounded-md bg-white  hover:bg-white ">
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg> -->
+        <button class="flex items-center text-gray-600 px-4 py-2 mx-8 border border-gray-300 rounded-md bg-white hover:bg-white">
           <img src="assets/images/download-cloud-02.svg" alt="download" srcset="" class="mr-2">
           Exporter
         </button>
-       
       </div>
-    </div>
-    </div>
-  
-    <!-- Table -->
-    <div class="mt-6 overflow-x-auto">
-      <table class="min-w-full">
-        <thead>
-          <tr class="border-b border-gray-200">
-            <th class="py-3 px-2 text-left w-12">
-              <div class="flex items-center">
-                <input 
-                  type="checkbox" 
-                  class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
-                  [checked]="selectAll"
-                  (change)="toggleSelectAll()"
-                >
-              </div>
-            </th>
-            <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-              <div class="flex items-center">
-                <span>NOM</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </th>
-            <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-              <div class="flex items-center">
-                <span>Téléphone</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </th>
-            <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-              <div class="flex items-center">
-                <span>Email</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </th>
-            <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-              <div class="flex items-center">
-                <span>Poste Occupé</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </th>
-            <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-              <div class="flex items-center">
-                <span>Status</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </th>
-            <th class="py-3 px-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let member of displayedMembers" class="border-b border-gray-100 hover:bg-gray-50">
-            <td class="py-3 px-2">
-              <input 
-                type="checkbox" 
-                class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
-                [checked]="member.selected"
-                (change)="toggleMemberSelection(member)"
-              >
-            </td>
-            <td class="py-3 px-2 font-medium">{{ member.name }}</td>
-            <td class="py-3 px-2 text-gray-600">{{ member.phone }}</td>
-            <td class="py-3 px-2 text-gray-600">{{ member.email }}</td>
-            <td class="py-3 px-2 text-gray-600">{{ member.position }}</td>
-            <td class="py-3 px-2">
-              <div class="flex items-center">
-                <span class="h-2 w-2 rounded-full mr-2" [ngClass]="getStatusDot(member.status)"></span>
-                <span [ngClass]="getStatusColor(member.status)">
-                  {{ member.status === 'affecté' ? 'Affecté' :
-                     member.status === 'non-affecté' ? 'non-affecté' :
-                     member.status === 'en mission' ? 'En mission' : 'Inactive' }}
-                </span>
-              </div>
-            </td>
-            <td class="py-3 px-2 text-right">
-              <button class="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  
-    <!-- Pagination -->
-    <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
-      <div>
-        Voir de {{ startIndex }} à {{ endIndex }} sur {{ totalMembers }} ({{ totalPages }} pages)
-      </div>
-      <div class="flex space-x-1">
-        <button 
-          (click)="goToPreviousPage()" 
-          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-          [class.opacity-50]="currentPage === 1"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button 
-          *ngFor="let page of getPageNumbers()" 
-          (click)="goToPage(page)" 
-          class="w-8 h-8 flex items-center justify-center border rounded-md"
-          [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-50'"
-        >
-          {{ page }}
-        </button>
-        <button 
-          (click)="goToNextPage()" 
-          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-          [class.opacity-50]="currentPage === totalPages"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-
-
-    <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <!-- Overlay -->
-      <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeModal()"></div>
-      
-      <!-- Modal Content -->
-      <div class="relative bg-white rounded-lg p-6 w-full max-w-2xl mx-4 z-10">
-        <!-- Modal Header -->
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-semibold text-gray-900">Nouveau Fournisseur</h2>
-          <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Raison sociale -->
-      <div>
-        <label for="raisonSociale" class="block text-sm font-medium text-gray-700 mb-2">
-          Raison sociale
-        </label>
-        <input
-          id="raisonSociale"
-          type="text"
-          [(ngModel)]=" nouveauFournisseur.raisonSociale"
-          placeholder="Ex: GueyePro"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-        >
-      </div>
-
-      <!-- Nom du contact -->
-      <div>
-        <label for="nomContact" class="block text-sm font-medium text-gray-700 mb-2">
-          Nom du contact
-        </label>
-        <input
-          id="nomContact"
-          type="text"
-          [(ngModel)]=" nouveauFournisseur.nomContact"
-          placeholder="Ex: Cheikh Gueye"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-        >
-      </div>
-
-      <!-- Téléphone -->
-      <div>
-        <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
-          Téléphone
-        </label>
-        <input
-          id="telephone"
-          type="tel"
-          [(ngModel)]=" nouveauFournisseur.telephone"
-          placeholder="Ex: 77 123 45 67"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-        >
-      </div>
-
-      <!-- Email -->
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          [(ngModel)]=" nouveauFournisseur.email"
-          placeholder="Ex: cgueye@gmail.com"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-        >
-      </div>
-    </div>
-
-    <!-- Modal Buttons -->
-    <div class="flex justify-end space-x-4 mt-8">
-      <button
-       
-        class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-      >
-        Enregistrer
-      </button>
-      <button
-        (click)="closeModal()"
-        class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        Annuler
-      </button>
-      
     </div>
   </div>
 
-    
-  
+  <!-- Table -->
+  <div class="mt-6 overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200">
+          <th class="py-3 px-2 text-left w-12">
+            <div class="flex items-center">
+              <input 
+                type="checkbox" 
+                class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
+                [checked]="selectAll"
+                (change)="toggleSelectAll()"
+              >
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>NOM</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>TÉLÉPHONE</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>EMAIL</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>POSTE</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>STATUS</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let worker of displayedWorkers" class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="py-3 px-2">
+            <input 
+              type="checkbox" 
+              class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
+              [checked]="worker.selected"
+              (change)="toggleWorkerSelection(worker)"
+            >
+          </td>
+          <td class="py-3 px-2 font-medium">{{ worker.name }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ worker.phone }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ worker.email }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ worker.position }}</td>
+          <td class="py-3 px-2">
+            <div class="flex items-center">
+              <span class="h-2 w-2 rounded-full mr-2" [ngClass]="getStatusDot(worker.status)"></span>
+              <span [ngClass]="getStatusColor(worker.status)">
+                {{ worker.status }}
+              </span>
+            </div>
+          </td>
+          <td class="py-3 px-2 text-right">
+            <button class="text-gray-400 hover:text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
+    <div>
+      Voir de {{ startIndex }} à {{ endIndex }} sur {{ totalWorkers }} ({{ totalPages }} pages)
+    </div>
+    <div class="flex space-x-1">
+      <button 
+        (click)="goToPreviousPage()" 
+        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
+        [class.opacity-50]="currentPage === 1"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button 
+        *ngFor="let page of getPageNumbers()" 
+        (click)="goToPage(page)" 
+        class="w-8 h-8 flex items-center justify-center border rounded-md"
+        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-50'"
+      >
+        {{ page }}
+      </button>
+      <button 
+        (click)="goToNextPage()" 
+        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
+        [class.opacity-50]="currentPage === totalPages"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+ <!-- Modal -->
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
+  <!-- Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeModal()"></div>
   
+  <!-- Modal Content -->
+  <div class="relative bg-white rounded-lg p-6 w-full max-w-3xl mx-4 z-10 max-h-[90vh] overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-900">Nouveau Worker</h2>
+      <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-200">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" #workerForm="ngForm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Nom -->
+        <div>
+          <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
+            Nom <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="nom"
+            name="nom"
+            type="text"
+            [(ngModel)]="nouveauWorker.nom"
+            placeholder="Ex: Gueye"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Prénom -->
+        <div>
+          <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+            Prénom <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="prenom"
+            name="prenom"
+            type="text"
+            [(ngModel)]="nouveauWorker.prenom"
+            placeholder="Ex: Cheikh"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="nouveauWorker.email"
+            placeholder="Ex: cgueye@gmail.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="telephone"
+            name="telephone"
+            type="tel"
+            [(ngModel)]="nouveauWorker.telephone"
+            placeholder="Ex: 77 123 45 67"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Mot de passe -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Mot de passe <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            [(ngModel)]="nouveauWorker.password"
+            placeholder="Minimum 6 caractères"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+            minlength="6"
+          >
+        </div>
+
+        <!-- Date de naissance -->
+        <div>
+          <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+            Date de naissance <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="date"
+            name="date"
+            type="text"
+            [(ngModel)]="nouveauWorker.date"
+            placeholder="dd-mm-yyyy"
+            pattern="^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+          <p class="text-xs text-gray-500 mt-1">Format: jj-mm-aaaa</p>
+        </div>
+
+        <!-- Lieu de naissance -->
+        <div>
+          <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-2">
+            Lieu de naissance <span class="text-red-500">*</span>
+          </label>
+          <input
+           
+            id="lieunaissance"
+            name="lieunaissance"
+            type="text"
+            [(ngModel)]="nouveauWorker.lieunaissance"
+            placeholder="Ex: Dakar"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Adresse -->
+        <div>
+          <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">
+            Adresse <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="adress"
+            name="adress"
+            type="text"
+            [(ngModel)]="nouveauWorker.adress"
+            placeholder="Ex: 123 Rue de l'Indépendance, Dakar"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required
+          >
+        </div>
+
+        <!-- Profil (caché, fixé à WORKER) -->
+        <input type="hidden" [(ngModel)]="nouveauWorker.profil" name="profil">
+      </div>
+
+      <!-- Modal Buttons -->
+      <div class="flex justify-end space-x-4 mt-8 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isLoading || !workerForm.form.valid"
+          class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!isLoading">Enregistrer</span>
+          <span *ngIf="isLoading" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Enregistrement...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>

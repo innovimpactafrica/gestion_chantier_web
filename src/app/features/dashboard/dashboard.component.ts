@@ -1,670 +1,791 @@
-// import { Component, OnInit, AfterViewInit } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { RouterOutlet } from '@angular/router';
-// import { Chart } from 'chart.js/auto';
-// import { CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, DoughnutController, Tooltip } from 'chart.js';
-
-// // Register Chart.js components
-// Chart.register(
-//   CategoryScale,
-//   LinearScale,
-//   BarElement,
-//   LineElement, 
-//   PointElement,
-//   ArcElement,
-//   DoughnutController,
-//   Tooltip
-// );
-
-// // Import core components
-// import { HeaderComponent } from "../../core/components/header/header.component";
-// import { SidebarComponent } from "../../sidebar/sidebar.component";
-
-// // Import custom components
-// import { CriticalTaskComponent, CriticalTask } from '../components/dashboard/critical-task/critical-task.component';
-// import { ProgessReportComponent } from '../components/dashboard/progess-report/progess-report.component';
-// import { IncidentsChartComponent } from '../components/dashboard/incidents-chart/incidents-chart.component';
-// import { PhotoProjectComponent, ProjectPhoto } from '../components/dashboard/photo-project/photo-project.component';
-// import { MaterialStockAlertComponent } from '../components/dashboard/material-stock-alert/material-stock-alert.component';
-// import { ProjectOviewComponent } from '../components/dashboard/project-oview/project-oview.component';
-// import { AvaragerateAvancementComponent } from '../components/dashboard/avaragerate-avancement/avaragerate-avancement.component';
-// import { PerformanceSummary } from '../../models/PerformanceSummary';
-// import { OverallBudgetComponent } from "../components/dashboard/overall-budget/overall-budget.component";
-
-// @Component({
-//   selector: 'app-dashboard',
-//   templateUrl: './dashboard.component.html',
-//   standalone: true,
-//   imports: [
-//     CommonModule,
-//     RouterOutlet,
-//     HeaderComponent,
-//     SidebarComponent,
-//     CriticalTaskComponent,
-//     MaterialStockAlertComponent,
-//     ProgessReportComponent,
-//     IncidentsChartComponent,
-//     PhotoProjectComponent,
-//     ProjectOviewComponent,
-//     AvaragerateAvancementComponent,
-//     OverallBudgetComponent
-//   ],
-//   styleUrls: ['./dashboard.component.css']
-// })
-// export class DashboardComponent implements OnInit, AfterViewInit {
-  
-//   // Données du dashboard
-//   chantiersSummary = {
-//     enCours: 12,
-//     enRetard: 8,
-//     enAttente: 5,
-//     termines: 8
-//   };
-
-//   tauxMoyenAvancement = 60;
-  
-//   budgetData = {
-//     consomme: 42000000,
-//     total: 60000000,
-//     pourcentage: 70
-//   };
-  
-//   stockMateriaux = [
-//     { 
-//       nom: 'Ciment (Chantier A)', 
-//       quantite: 20, 
-//       seuil: 25, 
-//       pourcentage: 30, 
-//       status: 'Faible' 
-//     },
-//     { 
-//       nom: 'Fer à béton (Chantier A)', 
-//       quantite: 40, 
-//       seuil: 40, 
-//       pourcentage: 65, 
-//       status: 'Normal' 
-//     },
-//     { 
-//       nom: 'Carrelage (Chantier B)', 
-//       quantite: 12, 
-//       seuil: 30, 
-//       pourcentage: 15, 
-//       status: 'Critique atteint' 
-//     }
-//   ];
-  
-//   etatAvancement = [
-//     { phase: 'Gros œuvre', avancement: 90 },
-//     { phase: 'Second œuvre', avancement: 60 },
-//     { phase: 'Finition', avancement: 15 }
-//   ];
-  
-//   incidents7Jours = [
-//     { jour: 'J-6', nombre: 3 },
-//     { jour: 'J-5', nombre: 2 },
-//     { jour: 'J-4', nombre: 1 },
-//     { jour: 'J-3', nombre: 4 },
-//     { jour: 'J-2', nombre: 2 },
-//     { jour: 'J-1', nombre: 3 },
-//     { jour: 'Aujourd\'hui', nombre: 5 }
-//   ];
-  
-//   tachesCritiques: CriticalTask[] = [
-//     { nom: 'Clôture du chantier A', echeance: '01/05/2025', status: 'En retard', jours: 0 },
-//     { nom: 'Livraison matériel chantier B', echeance: '10/05/2025', status: 'Urgent', jours: 0 },
-//     { nom: 'Inspection sécurité chantier C', echeance: '15/05/2025', status: 'À jour', jours: 7 },
-//     { nom: 'Réunion suivi client', echeance: '25/05/2025', status: 'À jour', jours: 17 }
-//   ];
-  
-//   photosRecentes: ProjectPhoto[] = [
-//     { url: '/api/placeholder/180/120', titre: 'Chantier A', date: '02/05/2025' },
-//     { url: '/api/placeholder/180/120', titre: '', date: '' },
-//     { url: '/api/placeholder/180/120', titre: '', date: '' },
-//     { url: '/api/placeholder/180/120', titre: '', date: '' }
-//   ];
-  
-//   performancesSummary: PerformanceSummary = {
-//     averageProgress: 68,
-//     budgetConsumed: 70,
-//     incidents: 12,
-//     averagePresence: 89,
-//     delayedTasks: 7,
-//     materialsAlerted: 17
-//   };
-
-//   constructor() { }
-
-//   ngOnInit(): void {
-//     // Initialisation des données si nécessaire
-//   }
-
-//   ngAfterViewInit(): void {
-//     this.initCharts();
-//   }
-
-//   initCharts(): void {
-//     // Les charts sont maintenant initialisés dans leurs composants respectifs
-//     // Cette méthode reste pour d'éventuelles initialisations futures
-//   }
-
-//   // Méthodes utilitaires
-//   formatCurrency(amount: number): string {
-//     return amount.toLocaleString('fr-FR') + ' FCFA';
-//   }
-// }
-
-import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
-import { Chart } from 'chart.js/auto';
-import { CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, DoughnutController, Tooltip } from 'chart.js';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { ProjectOviewComponent } from "../components/dashboard/project-oview/project-oview.component";
+import { 
+  DashboardService, 
+  TasksKpi, 
+  GlobalIndicator, 
+  BudgetKpi, 
+  CriticalMaterial, 
+  PhaseIndicator, 
+  IncidentStatistic, 
+  CriticalTask, 
+  RecentPhoto, 
+  PageableResponse 
+} from '../../../services/dashboard.service';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
-// Register Chart.js components
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement, 
-  PointElement,
-  ArcElement,
-  DoughnutController,
-  Tooltip
-);
-
-// Import core components
-
-
-// Import custom components
-import { CriticalTaskComponent, CriticalTask } from '../components/dashboard/critical-task/critical-task.component';
-
-import { IncidentsChartComponent } from '../components/dashboard/incidents-chart/incidents-chart.component';
-import { PhotoProjectComponent, ProjectPhoto } from '../components/dashboard/photo-project/photo-project.component';
-import { MaterialStockAlertComponent, MaterialStockItem } from '../components/dashboard/material-stock-alert/material-stock-alert.component';
-import { ProjectOviewComponent } from '../components/dashboard/project-oview/project-oview.component';
-import { AvaragerateAvancementComponent } from '../components/dashboard/avaragerate-avancement/avaragerate-avancement.component';
-import { PerformanceSummary } from '../../models/PerformanceSummary';
-import { OverallBudgetComponent } from "../components/dashboard/overall-budget/overall-budget.component";
-import { ProgressReportComponent } from '../components/dashboard/progess-report/progess-report.component';
-import { AuthService } from '../auth/services/auth.service';
-import { DahsboardService } from '../../core/services/dahsboard.service';
+Chart.register(...registerables);
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ProjectOviewComponent],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  standalone: true,
-  imports: [
-    CommonModule,
-    CriticalTaskComponent,
-    MaterialStockAlertComponent,
-    ProgressReportComponent,
-    IncidentsChartComponent,
-    PhotoProjectComponent,
-    ProjectOviewComponent,
-    AvaragerateAvancementComponent,
-    OverallBudgetComponent,
-    
-],
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
-  currentUserId!: number;
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('progressChart', { static: false }) progressChart!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('incidentsChart', { static: false }) incidentsChart!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('budgetChart', { static: false }) budgetChart!: ElementRef<HTMLCanvasElement>;
 
+  private destroy$ = new Subject<void>();
+  private progressChartInstance?: Chart;
+  private incidentsChartInstance?: Chart;
+  private budgetChartInstance?: Chart;
+  private isBrowser: boolean;
 
-  currentUser: any = null;
-  selectedPropertyId: number = 1; // ID par défaut ou récupéré dynamiquement
-  isUserLoaded: boolean = false;
-  // Données du dashboard
-  chantiersSummary = {
-    enCours: 12,
-    enRetard: 8,
-    enAttente: 5,
-    termines: 8
-  };
+  // États de chargement et d'erreur
+  isLoading = true;
+  hasError = false;
+  errorMessage = '';
 
-  tauxMoyenAvancement = 60;
-  
-  budgetData = {
-    consomme: 42000000,
-    total: 60000000,
-    pourcentage: 70
-  };
-  
-  stockMateriaux: MaterialStockItem[] = [
-    { 
-      nom: 'Ciment (Chantier A)', 
-      quantite: 20, 
-      seuil: 25, 
-      pourcentage: 30, 
-      status: 'Faible' 
+  // Données brutes du backend
+  private rawData: any = {};
+
+  // Données structurées pour l'affichage
+  dashboardData = {
+    chantiers: {
+      enCours: 0,
+      enRetard: 0,
+      enAttente: 0,
+      termines: 0,
+      total: 0
     },
-    { 
-      nom: 'Fer à béton (Chantier A)', 
-      quantite: 40, 
-      seuil: 40, 
-      pourcentage: 65, 
-      status: 'Normal' 
-    },
-    { 
-      nom: 'Carrelage (Chantier B)', 
-      quantite: 12, 
-      seuil: 30, 
-      pourcentage: 15, 
-      status: 'Critique atteint' 
-    }
-  ];
-  
-  etatAvancement = [
-    { phase: 'Gros œuvre', avancement: 90 },
-    { phase: 'Second œuvre', avancement: 60 },
-    { phase: 'Finition', avancement: 15 }
-  ];
-  
-  incidents7Jours = [
-    { jour: 'J-6', nombre: 3 },
-    { jour: 'J-5', nombre: 2 },
-    { jour: 'J-4', nombre: 1 },
-    { jour: 'J-3', nombre: 4 },
-    { jour: 'J-2', nombre: 2 },
-    { jour: 'J-1', nombre: 3 },
-    { jour: 'Aujourd\'hui', nombre: 5 }
-  ];
-  
-  tachesCritiques: CriticalTask[] = [
-    { nom: 'Clôture du chantier A', echeance: '01/05/2025', status: 'En retard', jours: 0 },
-    { nom: 'Livraison matériel chantier B', echeance: '10/05/2025', status: 'Urgent', jours: 0 },
-    { nom: 'Inspection sécurité chantier C', echeance: '15/05/2025', status: 'À jour', jours: 7 },
-    { nom: 'Réunion suivi client', echeance: '25/05/2025', status: 'À jour', jours: 17 }
-  ];
-  
-  photosRecentes: ProjectPhoto[] = [
-    // { url: '/api/placeholder/180/120', titre: 'Chantier A', date: '02/05/2025' },
-    // { url: '/api/placeholder/180/120', titre: '', date: '' },
-    // { url: '/api/placeholder/180/120', titre: '', date: '' },
-    // { url: '/api/placeholder/180/120', titre: '', date: '' }
-
-    // {
-    //   url: 'assets/images/photoRecents/photo1.png',
-    //   titre: 'Chantier A',
-    //   date: '12/03/2025'
-    // },
-    // {
-    //   url: 'assets/images/photoRecents/photo2.png',
-    //   titre: 'Structure',
-    //   date: '25/03/2025'
-    // },
-    // {
-    //   url: 'assets/images/photoRecents/photo3.png',
-    //   titre: 'Toiture',
-    //   date: '10/04/2025'
-    // },
-    // {
-    //   url: 'assets/images/photoRecents/photo3.png',
-    //   titre: '',
-    //   date: ''
-    // },
-    // {
-    //   url: 'assets/images/photoRecents/photo3.png',
-    //   titre: '',
-    //   date: ''
-    // },
-   
-  ];
-  
-  performancesSummary: PerformanceSummary = {
-    averageProgress: 68,
-    budgetConsumed: 70,
-    incidents: 12,
-    averagePresence: 89,
-    delayedTasks: 7,
-    materialsAlerted: 17
-  };
-
-  progressRate: number = 60;
-// selectedPropertyId: number|undefined;
-averageProgressPercentage: any;
-propertyId: number|undefined;
-mesProprietes: any;
-  userProperties!: any[];
-constructor(
-  private authService: AuthService,
-  private dashboardService: DahsboardService,
-  private router: Router
-) { }
-
-ngOnInit(): void {
-  this.initializeDashboard();
-}
-
-ngAfterViewInit(): void {
-  this.initCharts();
-}
-
-/**
- * Initialise le dashboard en vérifiant d'abord l'authentification
- */
-private initializeDashboard(): void {
-  // Vérifier si l'utilisateur est connecté
-  this.authService.getCurrentUser().subscribe({
-    next: (user) => {
-      if (user && user.id) {
-        this.currentUser = user;
-        this.isUserLoaded = true;
-        this.currentUserId = user.id; // 
-        console.log('Utilisateur connecté:', user);
-        
-        // Une fois l'utilisateur chargé, charger les données du dashboard
-        this.loadDashboardData();
-      } else {
-        console.error('Utilisateur non connecté');
-        // this.redirectToLogin();
+    avancement: {
+      pourcentage: 0,
+      display: {
+        circumference: 141.37,
+        dashOffset: 141.37,
+        pointX: 5,
+        pointY: 50
       }
     },
-    error: (error) => {
-      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-      // this.redirectToLogin();
-    }
-  });
-}
-
-
-// private initializeDashboard(): void {
-//   this.authService.getCurrentUser().subscribe({
-//     next: (user) => {
-//       if (user && user.id) {
-//         this.currentUser = user;
-//         this.isUserLoaded = true;
-//         this.currentUserId = user.id;
-        
-//         console.log('👤 Utilisateur connecté:', {
-//           id: user.id,
-//           nom: user.nom || user.name,
-//           email: user.email
-//         });
-        
-//         // 🔧 Debug: Vérifier les IDs utilisés
-//         console.log('🔍 IDs utilisés pour les KPIs:', {
-//           currentUserId: this.currentUserId,
-//           selectedPropertyId: this.selectedPropertyId
-//         });
-        
-//         // Charger les propriétés de l'utilisateur d'abord
-//         this.loadUserProperties();
-        
-//       } else {
-//         console.error('❌ Utilisateur non connecté');
-//         this.redirectToLogin();
-//       }
-//     },
-//     error: (error) => {
-//       console.error('❌ Erreur lors de la récupération de l\'utilisateur:', error);
-//       this.redirectToLogin();
-//     }
-//   });
-// }
-
-/**
- * Charge les propriétés de l'utilisateur
- */
-private loadUserProperties(): void {
-  this.dashboardService.getUserProperties(this.currentUserId).subscribe({
-    next: (properties) => {
-      console.log('🏠 Propriétés de l\'utilisateur:', properties);
-      this.userProperties = properties;
-      
-      // Si l'utilisateur a des propriétés, prendre la première par défaut
-      if (properties && properties.length > 0) {
-        this.selectedPropertyId = properties[0].id;
-        console.log('🏠 Propriété sélectionnée automatiquement:', this.selectedPropertyId);
-      }
-      
-      // Maintenant charger les données du dashboard
-      this.loadDashboardData();
+    budget: {
+      planifie: 0,
+      consomme: 0,
+      restant: 0,
+      pourcentageConsomme: 0,
+      pourcentageRestant: 0
     },
-    error: (error) => {
-      console.error('❌ Erreur lors du chargement des propriétés:', error);
-      // Continuer avec la valeur par défaut
-      this.loadDashboardData();
-    }
-  });
-}
+    materiaux: [] as any[],
+    phases: [] as any[],
+    incidents: {
+      total: 0,
+      donnees: [] as number[],
+      labels: [] as string[],
+      periode: 7
+    },
+    taches: [] as any[],
+    photos: [] as any[],
+    performances: {
+      tauxAvancement: 0,
+      budgetConsomme: 0,
+      incidents: 0,
+      presenceMoyenne: 0,
+      tachesRetard: 0,
+      materiauxAlerte: 0
+    },
+    annee: new Date().getFullYear()
+  };
 
-/**
- * Charge les KPIs des tâches avec debug
- */
-private loadTasksKPIs(): void {
-  if (!this.selectedPropertyId || !this.currentUserId) {
-    console.warn('⚠️ Paramètres manquants pour les KPIs:', {
-      selectedPropertyId: this.selectedPropertyId,
-      currentUserId: this.currentUserId
+  // Propriétés pour l'accès direct dans le template
+  stockAlertes: any[] = [];
+  tachesCritiques: any[] = [];
+  photosRecentes: any[] = [];
+
+  constructor(
+    private dashboardService: DashboardService,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  ngAfterViewInit(): void {
+    // Les graphiques seront créés après le chargement des données
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    if (this.progressChartInstance) {
+      this.progressChartInstance.destroy();
+    }
+    if (this.incidentsChartInstance) {
+      this.incidentsChartInstance.destroy();
+    }
+    if (this.budgetChartInstance) {
+      this.budgetChartInstance.destroy();
+    }
+  }
+
+  private loadDashboardData(): void {
+    this.isLoading = true;
+    this.hasError = false;
+
+    // Vérifier si l'utilisateur est connecté
+    if (!this.dashboardService.isUserConnected()) {
+      this.hasError = true;
+      this.errorMessage = 'Utilisateur non connecté';
+      this.isLoading = false;
+      return;
+    }
+
+    // Chargement parallèle de toutes les données depuis le backend
+    forkJoin({
+      vueEnsemble: this.dashboardService.vueEnsemble().pipe(
+        catchError(error => {
+          console.warn('Erreur vueEnsemble:', error);
+          return of({
+            totalTasks: 0,
+            pendingTasks: 0,
+            completedTasks: 0,
+            overdueTasks: 0
+          } as TasksKpi);
+        })
+      ),
+      tauxMoyenAvancement: this.dashboardService.tauxMoyenAvancement().pipe(
+        catchError(error => {
+          console.warn('Erreur tauxMoyenAvancement:', error);
+          return of({ averageProgressPercentage: 0 } as GlobalIndicator);
+        })
+      ),
+      budget: this.dashboardService.getBudget().pipe(
+        catchError(error => {
+          console.warn('Erreur budget:', error);
+          return of({
+            totalPlanned: 0,
+            totalConsumed: 0,
+            totalRemaining: 0,
+            consumedPercentage: 0,
+            remainingPercentage: 0
+          } as BudgetKpi);
+        })
+      ),
+      materiauxCritique: this.dashboardService.materiauxCritique(0, 20).pipe(
+        catchError(error => {
+          console.warn('Erreur materiauxCritique:', error);
+          return of({
+            content: [],
+            totalElements: 0,
+            totalPages: 0,
+            size: 0,
+            number: 0,
+            first: true,
+            last: true,
+            empty: true
+          } as unknown as PageableResponse<CriticalMaterial>);
+        })
+      ),
+      etatAvancement: this.dashboardService.etatAvancement().pipe(
+        catchError(error => {
+          console.warn('Erreur etatAvancement:', error);
+          return of([] as PhaseIndicator[]);
+        })
+      ),
+      statistiqueSignalement: this.dashboardService.statistiqueDeSignalement().pipe(
+        catchError(error => {
+          console.warn('Erreur statistiqueSignalement:', error);
+          return of([] as IncidentStatistic[]);
+        })
+      ),
+      tacheCritique: this.dashboardService.tacheCritique().pipe(
+        catchError(error => {
+          console.warn('Erreur tacheCritique:', error);
+          return of([] as CriticalTask[]);
+        })
+      ),
+      photoRecent: this.dashboardService.photoRecent(0, 8).pipe(
+        catchError(error => {
+          console.warn('Erreur photoRecent:', error);
+          return of({
+            content: [],
+            totalElements: 0,
+            totalPages: 0,
+            size: 0,
+            number: 0,
+            first: true,
+            last: true,
+            empty: true
+          } as unknown as PageableResponse<RecentPhoto>);
+        })
+      ),
+      tacheEnRetard: this.dashboardService.tacheEnRetard().pipe(
+        catchError(error => {
+          console.warn('Erreur tacheEnRetard:', error);
+          return of(0);
+        })
+      ),
+      incidents: this.dashboardService.incidents().pipe(
+        catchError(error => {
+          console.warn('Erreur incidents:', error);
+          return of(0);
+        })
+      ),
+      presenceMoyenne: this.dashboardService.presenceMoyenne().pipe(
+        catchError(error => {
+          console.warn('Erreur presenceMoyenne:', error);
+          return of(0);
+        })
+      )
+    }).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (data) => {
+        console.log('Données reçues:', data);
+        this.rawData = data;
+        this.processDashboardData();
+        this.isLoading = false;
+        
+        // Créer les graphiques après le chargement des données
+        setTimeout(() => {
+          this.createCharts();
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des données:', error);
+        this.hasError = true;
+        this.errorMessage = 'Erreur lors du chargement des données du tableau de bord';
+        this.isLoading = false;
+      }
     });
-    return;
   }
 
-  console.log('🚀 Chargement des KPIs avec:', {
-    selectedPropertyId: this.selectedPropertyId,
-    currentUserId: this.currentUserId
-  });
+  private processDashboardData(): void {
+    try {
+      // Traitement des données avec vérification de sécurité
+      this.dashboardData.chantiers = this.processChantiers();
+      this.dashboardData.avancement = this.processAvancement();
+      this.dashboardData.budget = this.processBudget();
+      this.dashboardData.materiaux = this.processMateriaux();
+      this.dashboardData.phases = this.processPhases();
+      this.dashboardData.incidents = this.processIncidents();
+      this.dashboardData.taches = this.processTaches();
+      this.dashboardData.photos = this.processPhotos();
+      this.dashboardData.performances = this.processPerformances();
+      this.dashboardData.annee = this.getCurrentYear();
 
-  this.dashboardService.getTasksKPIs(this.selectedPropertyId, this.currentUserId).subscribe({
-    next: (data) => {
-      console.log('✅ KPIs des tâches chargés:', data);
-      
-      // Mettre à jour chantiersSummary avec les vraies données
-      if (data) {
-        this.chantiersSummary = {
-          enCours: data.pendingTasks || 0,
-          enRetard: data.overdueTasks || 0,
-          enAttente: data.pendingTasks || 0, // Ajustez selon votre API
-          termines: data.completedTasks || 0
-        };
-        
-        console.log('📊 Données mises à jour:', this.chantiersSummary);
+      // Assigner aux propriétés directes pour le template
+      this.stockAlertes = this.dashboardData.materiaux;
+      this.tachesCritiques = this.dashboardData.taches;
+      this.photosRecentes = this.dashboardData.photos;
+
+      console.log('Données processées:', this.dashboardData);
+    } catch (error) {
+      console.error('Erreur lors du traitement des données:', error);
+      // Garder les valeurs par défaut en cas d'erreur
+    }
+  }
+
+  private processChantiers(): any {
+    const vueEnsemble = this.rawData.vueEnsemble;
+    
+    if (!vueEnsemble) {
+      return this.dashboardData.chantiers;
+    }
+
+    // Selon votre mapping:
+    // completedTasks = terminé
+    // overdueTasks = en retard  
+    // pendingTasks = en cours
+    // totalTasks - (completedTasks + overdueTasks + pendingTasks) = en attente
+    
+    const termines = vueEnsemble.completedTasks || 0;
+    const enRetard = vueEnsemble.overdueTasks || 0;
+    const enCours = vueEnsemble.pendingTasks || 0;
+    const total = vueEnsemble.totalTasks || 0;
+    const enAttente = Math.max(0, total - termines - enRetard - enCours);
+
+    return {
+      enCours,
+      enRetard,
+      enAttente,
+      termines,
+      total
+    };
+  }
+
+  private processAvancement(): any {
+    const tauxMoyenAvancement = this.rawData.tauxMoyenAvancement;
+    
+    if (!tauxMoyenAvancement || tauxMoyenAvancement.averageProgressPercentage === undefined) {
+      return this.dashboardData.avancement;
+    }
+
+    const pourcentage = Math.round(tauxMoyenAvancement.averageProgressPercentage || 0);
+    const circumference = 141.37; // π * 45
+    const progression = pourcentage / 100;
+    const dashOffset = circumference * (1 - progression);
+    
+    // Calcul de la position du point sur l'arc
+    const angle = Math.PI * progression;
+    const pointX = 50 + 45 * Math.cos(Math.PI - angle);
+    const pointY = 50 - 45 * Math.sin(Math.PI - angle);
+
+    return {
+      pourcentage,
+      display: {
+        circumference,
+        dashOffset,
+        pointX,
+        pointY
       }
-    },
-    error: (error) => {
-      console.error('❌ Erreur lors du chargement des KPIs des tâches:', error);
-    }
-  });
-}
-
-// private loadPhotosRecentes(): void {
-//   if (!this.selectedPropertyId) return;
-
-//   this.dashboardService.getRecentProgressAlbums(this.selectedPropertyId).subscribe({
-//     next: (data: string[]) => {
-//       this.photosRecentes = data.map((filename, index) => ({
-//         url: `https://wakana.online/repertoire_chantier/${filename}`,
-//         titre: `Photo ${index + 1}`,
-//         date: new Date().toLocaleDateString('fr-FR'), // ou la vraie date si tu l’as
-//         photo: filename
-//       }));
-
-//       console.log('📸 Photos récentes formatées:', this.photosRecentes);
-//     },
-//     error: (err) => {
-//       console.error('❌ Erreur lors du chargement des photos récentes:', err);
-//     }
-//   });
-// }
-
-
-// ... autres méthodes
-
-/**
- * Test manuel des KPIs avec les valeurs qui fonctionnent dans Postman
- */
-testKPIsWithWorkingValues(): void {
-  console.log('🧪 Test avec les valeurs qui fonctionnent:');
-  this.dashboardService.getTasksKPIs(17, 19).subscribe({
-    next: (data) => {
-      console.log('✅ Test réussi avec propertyId=17, promoterId=19:', data);
-    },
-    error: (error) => {
-      console.error('❌ Test échoué:', error);
-    }
-  });
-}
-/**
- * Charge toutes les données du dashboard
- */
-private loadDashboardData(): void {
-  if (!this.currentUser || !this.currentUser.id) {
-    console.error('Impossible de charger les données: utilisateur non authentifié');
-    return;
+    };
   }
 
-
-  
-  // Charger les KPIs des tâches
-  this.loadTasksKPIs();
-  
-  // Charger les indicateurs globaux
-  this.loadGlobalIndicators();
-  
-  // Charger les données budget
-  this.loadBudgetData();
-  
-  // Charger les matériaux critiques
-  this.loadCriticalMaterials();
-  
-  // Charger les incidents
-  this.loadIncidents();
-  // charger les photos récentes
-  // this.loadPhotosRecentes();
-}
-
-/**
- * Charge les KPIs des tâches
- */
-// private loadTasksKPIs(): void {
-//   if (!this.selectedPropertyId || !this.currentUserId) {
-//     console.warn('ID de la propriété ou de l’utilisateur manquant');
-//     return;
-//   }
-
-//   this.dashboardService.getTasksKPIs(this.selectedPropertyId, this.currentUserId).subscribe({
-//     next: (data) => {
-//       console.log('KPIs des tâches chargés:', data);
-//       // this.updateTasksKPIs(data); // si tu as un traitement à faire ensuite
-//     },
-//     error: (error) => {
-//       console.error('Erreur lors du chargement des KPIs des tâches:', error);
-//     }
-//   });
-// }
-
-
-/**
- * Charge les indicateurs globaux
- */
-private loadGlobalIndicators(): void {
-  this.dashboardService.getGlobalIndicators().subscribe({
-    next: (data) => {
-      console.log('Indicateurs globaux chargés:', data);
-      // Mettre à jour vos données avec les données reçues
-      // this.updateGlobalIndicators(data);
-    },
-    error: (error) => {
-      console.error('Erreur lors du chargement des indicateurs globaux:', error);
+  private processBudget(): any {
+    const budget = this.rawData.budget;
+    
+    if (!budget) {
+      return this.dashboardData.budget;
     }
-  });
-}
 
-/**
- * Charge les données budget
- */
-private loadBudgetData(): void {
-  const additionalParams = { period: 'monthly', year: 2024 };
-  
-  if (!this.selectedPropertyId || !this.currentUserId) {
-    console.warn("Paramètres manquants");
-    return;
+    return {
+      planifie: budget.totalPlanned || 0, 
+      consomme: budget.totalConsumed || 0,
+      restant: budget.totalRemaining || 0,
+      pourcentageConsomme: Math.round(budget.consumedPercentage || 0),
+      pourcentageRestant: Math.round(budget.remainingPercentage || 0)
+    };
   }
 
-  this.dashboardService.getBudgetDashboardKpiWithParams(
-    this.selectedPropertyId,
-    this.currentUserId,
-    { someParam: 'value' } // <-- si tu en as besoin
-  ).subscribe({
-    next: (data) => {
-      console.log("Budget KPIs chargés:", data);
-      // traitement ici
-    },
-    error: (err) => {
-      console.error("Erreur lors du chargement des KPI:", err);
+  private processMateriaux(): any[] {
+    const materiauxCritique = this.rawData.materiauxCritique;
+    
+    if (!materiauxCritique || !Array.isArray(materiauxCritique.content)) {
+      return [];
     }
-  });
-}
 
-/**
- * Charge les matériaux critiques
- */
-private loadCriticalMaterials(): void {
-  if (!this.currentUserId) {
-    console.warn('ID utilisateur manquant pour les matériaux critiques');
-    return;
+    return materiauxCritique.content.map((material: CriticalMaterial) => ({
+      id: material.id,
+      nom: material.label,
+      quantite: `${material.quantity} ${material.unitName}`,
+      seuil: material.criticalThreshold,
+      unite: material.unitName,
+      propriete: material.propertyName,
+      status: material.statusLabel,
+      color: material.color,
+      description: `${material.quantity} ${material.unitName} / seuil: ${material.criticalThreshold} ${material.unitName}`
+    }));
   }
-
-  this.dashboardService.getCriticalMaterials(this.currentUserId).subscribe({
-    next: (data) => {
-      console.log('Matériaux critiques chargés:', data);
-      // this.updateMaterialsStock(data); // si tu veux mettre à jour un tableau affiché
-    },
-    error: (error) => {
-      console.error('Erreur lors du chargement des matériaux critiques:', error);
-    }
-  });
-}
-
-/**
- * Charge les incidents
- */
-private loadIncidents(): void {
-  if (!this.currentUserId) {
-    console.warn('ID utilisateur manquant pour les incidents');
-    return;
-  }
-
-  this.dashboardService.getIncidentsKpi(this.currentUserId).subscribe({
-    next: (data) => {
-      console.log('Incidents chargés:', data);
-      // this.updateIncidents(data); // si tu veux mettre à jour un tableau ou une statistique
-    },
-    error: (error) => {
-      console.error('Erreur lors de la récupération des incidents:', error);
-    }
-  });
-}
-
-
-/**
- * Redirige vers la page de connexion
- */
-// private redirectToLogin(): void {
-//   this.router.navigate(['/login']);
-// }
-
-initCharts(): void {
-  // Les charts sont maintenant initialisés dans leurs composants respectifs
-  // Cette méthode reste pour d'éventuelles initialisations futures
-}
-
-// Méthodes utilitaires
-formatCurrency(amount: number): string {
-  return amount.toLocaleString('fr-FR') + ' FCFA';
-}
-
-/**
- * Getter pour vérifier si les données peuvent être chargées
- */
-get canLoadData(): boolean {
-  return this.isUserLoaded && this.currentUser && this.currentUser.id;
-}
-
 
  
+  private processPhases(): any[] {
+    const etatAvancement = this.rawData.etatAvancement;
+    
+    if (!etatAvancement || !Array.isArray(etatAvancement)) {
+      return [];
+    }
+  
+    // Définir l'ordre exact des phases (remplacez par les noms exacts de votre backend)
+    const ordrePhases = [
+      'GROS_OEUVRE',      // Remplacez par le nom exact
+      'SECOND_OEUVRE',    // Remplacez par le nom exact  
+      'FINITION'         // Remplacez par le nom exact
+    ];
+    
+    // Créer un mapping pour l'ordre
+    const phaseOrderMap = new Map(ordrePhases.map((phase, index) => [phase, index]));
+    
+    // Traiter les phases
+    const phasesProcessed = etatAvancement.map((phase: PhaseIndicator, index: number) => ({
+      nom: phase.phaseName,
+      pourcentage: Math.round(phase.averageProgressPercentage || 0),
+      couleur: this.generateColor(index),
+      ordre: phaseOrderMap.get(phase.phaseName) ?? 999 // 999 pour les phases non trouvées
+    }));
+  
+    // Trier par ordre défini
+    return phasesProcessed.sort((a, b) => a.ordre - b.ordre);
+  }
 
+  private processIncidents(): any {
+    const statistiqueSignalement = this.rawData.statistiqueSignalement;
+    const totalIncidents = this.rawData.incidents || 0;
+    
+    if (!statistiqueSignalement || !Array.isArray(statistiqueSignalement)) {
+      return {
+        total: totalIncidents,
+        donnees: [0, 0, 0, 0, 0, 0, 0],
+        labels: ["J-6", "J-5", "J-4", "J-3", "J-2", "Hier", "Aujourd'hui"],
+        periode: 7
+      };
+    }
 
+    // Créer les données pour les 7 derniers jours
+    const donneesGraphique = this.createLast7DaysData(statistiqueSignalement);
 
+    return {
+      total: totalIncidents,
+      donnees: donneesGraphique.data,
+      labels: donneesGraphique.labels,
+      periode: 7,
+      statistiques: statistiqueSignalement
+    };
+  }
 
+  private processTaches(): any[] {
+    const tacheCritique = this.rawData.tacheCritique;
+    
+    if (!tacheCritique || !Array.isArray(tacheCritique)) {
+      return [];
+    }
+
+    return tacheCritique.map((task: CriticalTask) => ({
+      id: task.id,
+      nom: task.title,
+      titre: task.title,
+      echeance: this.formatDateFromArray(task.endDate),
+      dateEcheance: task.endDate,
+      status: task.statusLabel,
+      priority: this.normalizePriority(task.priority),
+      couleur: task.color,
+      prioriteNormalisee: this.normalizePriority(task.priority)
+    }));
+  }
+
+  private processPhotos(): any[] {
+    const photoRecent = this.rawData.photoRecent;
+    
+    if (!photoRecent || !Array.isArray(photoRecent.content)) {
+      return [];
+    }
+
+    return photoRecent.content.map((photo: RecentPhoto) => ({
+      id: photo.id,
+      src: photo.pictures && photo.pictures.length > 0 ? photo.pictures[0] : '',
+      images: photo.pictures || [],
+      alt: photo.phaseName || 'Photo de chantier',
+      phase: photo.phaseName,
+      description: photo.description,
+      date: this.formatDateFromArray(photo.lastUpdated),
+      dateArray: photo.lastUpdated,
+      estEntree: photo.entrance
+    }));
+  }
+
+  private processPerformances(): any {
+    return {
+      tauxAvancement: this.dashboardData.avancement?.pourcentage || 0,
+      budgetConsomme: this.dashboardData.budget?.pourcentageConsomme || 0,
+      incidents: this.rawData.incidents || 0,
+      presenceMoyenne: Math.round(this.rawData.presenceMoyenne || 0),
+      tachesRetard: this.rawData.tacheEnRetard || 0,
+      materiauxAlerte: this.dashboardData.materiaux?.length || 0
+    };
+  }
+
+  private createLast7DaysData(incidents: IncidentStatistic[]): { data: number[], labels: string[] } {
+    const today = new Date();
+    const labels: string[] = [];
+    const data: number[] = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const incident = incidents.find(inc => inc.date === dateStr);
+      
+      if (i === 0) {
+        labels.push("Aujourd'hui");
+      } else if (i === 1) {
+        labels.push("Hier");
+      } else {
+        labels.push(`J-${i}`);
+      }
+      
+      data.push(incident ? incident.count : 0);
+    }
+    
+    return { data, labels };
+  }
+
+  private createCharts(): void {
+    this.createProgressChart();
+    this.createIncidentsChart();
+    this.createBudgetChart();
+  }
+
+  private createProgressChart(): void {
+    if (!this.isBrowser || !this.progressChart || !this.dashboardData.phases?.length) {
+      return;
+    }
+
+    const ctx = this.progressChart.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const config: ChartConfiguration<'bar'> = {
+      type: 'bar',
+      data: {
+        labels: this.dashboardData.phases.map((phase: any) => phase.nom),
+        datasets: [{
+          data: this.dashboardData.phases.map((phase: any) => phase.pourcentage),
+          backgroundColor: this.dashboardData.phases.map((phase: any) => phase.couleur),
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: { display: false },
+            ticks: { display: false }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 12 } }
+          }
+        }
+      }
+    };
+
+    if (this.progressChartInstance) {
+      this.progressChartInstance.destroy();
+    }
+    this.progressChartInstance = new Chart(ctx, config);
+  }
+
+  private createIncidentsChart(): void {
+    if (!this.isBrowser || !this.incidentsChart || !this.dashboardData.incidents?.donnees?.length) {
+      return;
+    }
+
+    const ctx = this.incidentsChart.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const maxValue = Math.max(...this.dashboardData.incidents.donnees, 6);
+
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: this.dashboardData.incidents.labels,
+        datasets: [{
+          data: this.dashboardData.incidents.donnees,
+          borderColor: '#FF6B35',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#FF6B35',
+          pointBorderColor: '#FF6B35',
+          pointRadius: 4,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: maxValue,
+            grid: { display: true, color: '#F3F4F6' },
+            ticks: { stepSize: 1, font: { size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 10 } }
+          }
+        }
+      }
+    };
+
+    if (this.incidentsChartInstance) {
+      this.incidentsChartInstance.destroy();
+    }
+    this.incidentsChartInstance = new Chart(ctx, config);
+  }
+
+  private createBudgetChart(): void {
+    if (!this.isBrowser || !this.budgetChart) {
+      return;
+    }
+  
+    const ctx = this.budgetChart.nativeElement.getContext('2d');
+    if (!ctx) return;
+  
+    // Couleurs conformes à la capture d'écran
+    const consumedColor = '#FF6B35'; // Orange pour la partie consommée
+    const remainingColor = '#F5F5F5'; // Gris très clair pour la partie restante
+  
+    const config: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [
+            this.dashboardData.budget.pourcentageConsomme, 
+            this.dashboardData.budget.pourcentageRestant
+          ],
+          backgroundColor: [consumedColor, remainingColor],
+          borderWidth: 0,
+          borderRadius: 0, // Pas de coins arrondis
+          spacing: 0 // Pas d'espacement entre les segments
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true, // Changé pour maintenir le ratio
+        cutout: '65%', // Trou au centre
+        plugins: {
+          legend: { 
+            display: false 
+          },
+          tooltip: { 
+            enabled: false 
+          }
+        },
+        // Désactive les animations pour un rendu plus fluide
+        animation: {
+          animateRotate: false,
+          animateScale: false
+        }
+      }
+    };
+  
+    // Détruire le graphique existant s'il existe
+    if (this.budgetChartInstance) {
+      this.budgetChartInstance.destroy();
+    }
+    
+    // Créer le nouveau graphique
+    this.budgetChartInstance = new Chart(ctx, config);
+  }
+
+  // Méthodes utilitaires
+  private getCurrentYear(): number {
+    return new Date().getFullYear();
+  }
+
+  private generateColor(index: number): string {
+    const colors = ['#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316', '#EC4899'];
+    return colors[index % colors.length];
+  }
+
+  private normalizePriority(priority: string): 'high' | 'medium' | 'low' {
+    if (!priority) return 'low';
+    
+    const priorityLower = priority.toLowerCase();
+    if (priorityLower.includes('high') || priorityLower.includes('élevé') || priorityLower.includes('urgent')) {
+      return 'high';
+    }
+    if (priorityLower.includes('medium') || priorityLower.includes('moyen')) {
+      return 'medium';
+    }
+    return 'low';
+  }
+
+  private formatDateFromArray(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) {
+      return new Date().toLocaleDateString('fr-FR');
+    }
+    
+    const [year, month, day] = dateArray;
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('fr-FR');
+  }
+
+  // Méthodes publiques pour les classes CSS (utilisées dans le template)
+  getStatusClass(status: string): string {
+    if (!status) return 'text-gray-600 bg-gray-100';
+    
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('faible') || statusLower.includes('low')) {
+      return 'text-orange-600 bg-orange-100';
+    }
+    if (statusLower.includes('normal') || statusLower.includes('good') || statusLower.includes('bon')) {
+      return 'text-green-600 bg-green-100';
+    }
+    if (statusLower.includes('critique') || statusLower.includes('critical') || statusLower.includes('atteint')) {
+      return 'text-red-600 bg-red-100';
+    }
+    return 'text-gray-600 bg-gray-100';
+  }
+
+  getPriorityClass(priority: string): string {
+    const normalizedPriority = this.normalizePriority(priority);
+    switch (normalizedPriority) {
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-orange-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  }
+
+  getPriorityBadge(status: string): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
+    
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('retard') || statusLower.includes('overdue')) {
+      return 'bg-red-100 text-red-800';
+    }
+    if (statusLower.includes('urgent')) {
+      return 'bg-orange-100 text-orange-800';
+    }
+    if (statusLower.includes('jour') || statusLower.includes('time') || statusLower.includes('completed') || statusLower.includes('terminé')) {
+      return 'bg-green-100 text-green-800';
+    }
+    return 'bg-gray-100 text-gray-800';
+  }
+
+  formatCurrency(amount: number): string {
+    if (!amount && amount !== 0) return '0 FCFA';
+    
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XOF',
+      minimumFractionDigits: 0
+    }).format(amount);
+  }
+
+  formatNumber(value: number): string {
+    if (!value && value !== 0) return '0';
+    return new Intl.NumberFormat('fr-FR').format(value);
+  }
+
+  formatPercentage(value: number): string {
+    if (!value && value !== 0) return '0%';
+    return `${Math.round(value)}%`;
+  }
+
+  // Méthode pour recharger les données
+  refreshDashboard(): void {
+    this.loadDashboardData();
+  }
+
+  // Getters pour accéder aux données dans le template
+  get chantiers() {
+    return this.dashboardData.chantiers;
+  }
+
+  get avancement() {
+    return this.dashboardData.avancement;
+  }
+
+  get budget() {
+    return this.dashboardData.budget;
+  }
+
+  get performances() {
+    return this.dashboardData.performances;
+  }
+
+  get incidents() {
+    return this.dashboardData.incidents;
+  }
 }

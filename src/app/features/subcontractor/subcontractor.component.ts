@@ -1,35 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UtilisateurService, Worker, WorkersResponse } from '../../../services/utilisateur.service'; // Ajustez le chemin
 
-interface TeamMember {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  position: string;
-  status: 'affecté' | 'non-affecté' | 'en mission' | 'inactive';
-  selected: boolean;
-}
-interface SousTraitant {
+interface SubcontractorMember {
   id: number;
   raisonSociale: string;
   nomContact: string;
   telephone: string;
   email: string;
-  selected?: boolean;
+  status: 'active' | 'inactive';
+  selected: boolean;
+  originalWorker?: Worker;
 }
+
 @Component({
   selector: 'app-subcontractor',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './subcontractor.component.html',
   styleUrl: './subcontractor.component.css'
 })
-export class SubcontractorComponent {
-
+export class SubcontractorComponent implements OnInit {
   showModal = false;
   searchTerm = '';
+  isLoading = false;
+  errorMessage = '';
 
   nouveauSousTraitant = {
     raisonSociale: '',
@@ -38,8 +34,8 @@ export class SubcontractorComponent {
     email: ''
   };
 
-  allTeamMembers: TeamMember[] = [];
-  displayedMembers: TeamMember[] = [];
+  allSubcontractors: SubcontractorMember[] = [];
+  displayedMembers: SubcontractorMember[] = [];
   currentPage = 1;
   totalPages = 1;
   itemsPerPage = 10;
@@ -48,137 +44,102 @@ export class SubcontractorComponent {
   startIndex = 1;
   endIndex = 10;
   searchQuery: string = '';
- 
-  selectedPeriod: string = '';
-  selectedStatus: string = '';
+
+  constructor(private utilisateurService: UtilisateurService) {}
 
   ngOnInit() {
-    this.loadTeamMembers();
-    this.paginateData();
+    this.loadSubcontractors();
   }
 
-  loadTeamMembers() {
-    this.allTeamMembers = [
-      { id: 1, name: 'Aziz Ndiaye', phone: '+221-70-986-45-43', email: 'azizndiaye@gmail.com', position: 'Gestionnaire de Projet', status: 'affecté', selected: true },
-      { id: 2, name: 'Abdoul Cisse', phone: '+221-70-986-45-43', email: 'abdoulcisse@gmail.com', position: 'Ouvrier', status: 'affecté', selected: true },
-      { id: 3, name: 'Ndeye Sine', phone: '+221-70-986-45-43', email: 'ndeyesine@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: true },
-      { id: 4, name: 'Ndeye Seck', phone: '+221-70-986-45-43', email: 'ndeyeseck@gmail.com', position: 'Ouvrier', status: 'affecté', selected: true },
-      { id: 5, name: 'Aboulaye Kane', phone: '+221-70-986-45-43', email: 'aboulayekane@gmail.com', position: 'Responsable Financier', status: 'non-affecté', selected: true },
-      { id: 6, name: 'Maïmouna Sarr', phone: '+221-70-986-45-43', email: 'maïmounasarr@gmail.com', position: 'Responsable Financier', status: 'affecté', selected: true },
-      { id: 7, name: 'Salimata Soumaré', phone: '+221-70-986-45-43', email: 'salisoumaré@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 8, name: 'Assane Gueye', phone: '+221-70-986-45-43', email: 'assanegueye@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 9, name: 'Omar Leye', phone: '+221-70-986-45-43', email: 'omarleye@gmail.com', position: 'Chef de chantier', status: 'affecté', selected: false },
-      { id: 10, name: 'Cheikh Ndoye', phone: '+221-70-986-45-43', email: 'cheikhndoye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 11, name: 'Papis A.M Camara', phone: '+221-70-986-45-43', email: 'papis.camara @gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 12, name: 'Astou Sy', phone: '+221-70-986-45-43', email: 'astousy@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 13, name: 'Mame marie Ndoye', phone: '+221-70-986-45-43', email: 'mamemariendoye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 14, name: 'Ousmane Ndiaye', phone: '+221-70-986-45-43', email: 'ousmanendiaye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 15, name: 'Saliou Diop', phone: '+221-70-986-45-43', email: 'salioudiop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 16, name: 'Aminata Diallo', phone: '+221-70-986-45-43', email: 'aminatadiallo@gmail.com', position: 'Responsable RH', status: 'affecté', selected: false },
-      { id: 17, name: 'Ibrahima Sow', phone: '+221-70-986-45-43', email: 'ibrahimasow@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 18, name: 'Fatou Fall', phone: '+221-70-986-45-43', email: 'fatoufall@gmail.com', position: 'Secrétaire', status: 'affecté', selected: false },
-      { id: 19, name: 'Moussa Diagne', phone: '+221-70-986-45-43', email: 'moussadiagne@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 20, name: 'Aida Mbaye', phone: '+221-70-986-45-43', email: 'aidambaye@gmail.com', position: 'Comptable', status: 'affecté', selected: false },
-      // On peut ajouter d'autres membres pour tester avec plus de données
-      { id: 21, name: 'Modou Faye', phone: '+221-70-986-45-43', email: 'modoufaye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 22, name: 'Sokhna Diop', phone: '+221-70-986-45-43', email: 'sokhnadiop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 23, name: 'Amadou Ba', phone: '+221-70-986-45-43', email: 'amadouba@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 24, name: 'Dieynaba Seck', phone: '+221-70-986-45-43', email: 'dieynabaseck@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 25, name: 'Babacar Ndiaye', phone: '+221-70-986-45-43', email: 'babacarndiaye@gmail.com', position: 'Ingénieur', status: 'affecté', selected: false },
-      { id: 26, name: 'Coumba Gueye', phone: '+221-70-986-45-43', email: 'coumbagueye@gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 27, name: 'Oumar Sall', phone: '+221-70-986-45-43', email: 'oumarsall@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 28, name: 'Awa Thiam', phone: '+221-70-986-45-43', email: 'awathiam@gmail.com', position: 'Responsable Logistique', status: 'affecté', selected: false },
-      { id: 29, name: 'Lamine Diallo', phone: '+221-70-986-45-43', email: 'laminediallo@gmail.com', position: 'Ouvrier', status: 'en mission', selected: false },
-      { id: 30, name: 'Maty Gueye', phone: '+221-70-986-45-43', email: 'matygueye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 31, name: 'Djibril Kane', phone: '+221-70-986-45-43', email: 'djibrilkane@gmail.com', position: 'Gestionnaire de Stock', status: 'affecté', selected: false },
-      { id: 32, name: 'Ndeye Diop', phone: '+221-70-986-45-43', email: 'ndeyediop@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 33, name: 'Cheikh Fall', phone: '+221-70-986-45-43', email: 'cheikhfall@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 34, name: 'Khady Sow', phone: '+221-70-986-45-43', email: 'khadysow@gmail.com', position: 'Secrétaire', status: 'affecté', selected: false },
-      { id: 35, name: 'Mamadou Diouf', phone: '+221-70-986-45-43', email: 'mamadoudiouf@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 36, name: 'Penda Ndoye', phone: '+221-70-986-45-43', email: 'pendandoye@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-      { id: 37, name: 'Serigne Mbaye', phone: '+221-70-986-45-43', email: 'serignembaye@gmail.com', position: 'Chef d\'équipe', status: 'affecté', selected: false },
-      { id: 38, name: 'Sokhna Niang', phone: '+221-70-986-45-43', email: 'sokhnaniang@gmail.com', position: 'Ouvrier', status: 'inactive', selected: false },
-      { id: 39, name: 'Idrissa Gueye', phone: '+221-70-986-45-43', email: 'idrissagueye@gmail.com', position: 'Ouvrier', status: 'non-affecté', selected: false },
-      { id: 40, name: 'Maimouna Diallo', phone: '+221-70-986-45-43', email: 'maimounadiallo@gmail.com', position: 'Ouvrier', status: 'affecté', selected: false },
-    ];
+  /**
+   * Charge les sous-traitants depuis l'API
+   */
+  loadSubcontractors() {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-
-
-    
-    
-    this.totalMembers = this.allTeamMembers.length;
-    this.calculateTotalPages();
+    this.utilisateurService.getSubcontractors(this.currentPage - 1, this.itemsPerPage)
+      .subscribe({
+        next: (response: WorkersResponse) => {
+          this.allSubcontractors = response.content.map(worker => 
+            UtilisateurService.workerToSubcontractor(worker)
+          );
+          this.totalMembers = response.totalElements;
+          this.totalPages = response.totalPages;
+          this.updatePaginationData();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des sous-traitants:', error);
+          this.errorMessage = 'Erreur lors du chargement des sous-traitants';
+          this.isLoading = false;
+        }
+      });
   }
 
-  calculateTotalPages() {
-    this.totalPages = Math.ceil(this.allTeamMembers.length / this.itemsPerPage);
+  /**
+   * Met à jour les données de pagination
+   */
+  updatePaginationData() {
+    this.displayedMembers = this.allSubcontractors;
+    this.startIndex = this.allSubcontractors.length > 0 ? 
+      ((this.currentPage - 1) * this.itemsPerPage) + 1 : 0;
+    this.endIndex = Math.min(
+      this.startIndex + this.allSubcontractors.length - 1,
+      this.totalMembers
+    );
+    this.updateSelectAllState();
   }
 
-  paginateData() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    
-    this.displayedMembers = this.allTeamMembers.slice(start, end);
-    
-    this.startIndex = start + 1;
-    this.endIndex = Math.min(end, this.totalMembers);
-    
-    // Reset select all checkbox when changing pages
+  /**
+   * Filtre les sous-traitants affichés selon le terme de recherche
+   */
+  filterDisplayedMembers() {
+    if (!this.searchQuery.trim()) {
+      this.displayedMembers = this.allSubcontractors;
+    } else {
+      const query = this.searchQuery.toLowerCase();
+      this.displayedMembers = this.allSubcontractors.filter(member =>
+        member.nomContact.toLowerCase().includes(query) ||
+        member.raisonSociale.toLowerCase().includes(query) ||
+        member.email.toLowerCase().includes(query) ||
+        member.telephone.includes(query)
+      );
+    }
     this.updateSelectAllState();
   }
 
   toggleSelectAll() {
     this.selectAll = !this.selectAll;
     this.displayedMembers.forEach(member => member.selected = this.selectAll);
-    
-    // Update the selection state in the main array too
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    for (let i = 0; i < this.displayedMembers.length; i++) {
-      this.allTeamMembers[start + i].selected = this.selectAll;
-    }
   }
 
-  toggleMemberSelection(member: TeamMember) {
-    // Toggle in displayed array
-    const displayedIndex = this.displayedMembers.findIndex(m => m.id === member.id);
-    if (displayedIndex >= 0) {
-      this.displayedMembers[displayedIndex].selected = !this.displayedMembers[displayedIndex].selected;
-    }
-    
-    // Toggle in main array
-    const mainIndex = this.allTeamMembers.findIndex(m => m.id === member.id);
-    if (mainIndex >= 0) {
-      this.allTeamMembers[mainIndex].selected = !this.allTeamMembers[mainIndex].selected;
-    }
-    
+  toggleMemberSelection(member: SubcontractorMember) {
+    member.selected = !member.selected;
     this.updateSelectAllState();
   }
 
   updateSelectAllState() {
-    this.selectAll = this.displayedMembers.length > 0 && this.displayedMembers.every(member => member.selected);
+    this.selectAll = this.displayedMembers.length > 0 && 
+      this.displayedMembers.every(member => member.selected);
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'affecté': return 'text-green-500';
-      case 'non-affecté': return 'text-red-500';
-      case 'en mission': return 'text-blue-500';
-      case 'inactive': return 'text-gray-500';
-      default: return '';
+      case 'active': return 'text-green-500';
+      case 'inactive': return 'text-red-500';
+      default: return 'text-gray-500';
     }
   }
 
   getStatusDot(status: string): string {
-    return status === 'affecté' ? 'bg-green-500' : 
-           status === 'non-affecté' ? 'bg-red-500' : 
-           status === 'en mission' ? 'bg-blue-500' : 
-           'bg-gray-500';
+    return status === 'active' ? 'bg-green-500' : 'bg-red-500';
   }
 
   goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
-      this.paginateData();
+      this.loadSubcontractors();
     }
   }
 
@@ -199,16 +160,13 @@ export class SubcontractorComponent {
     const maxVisiblePages = 5;
     
     if (this.totalPages <= maxVisiblePages) {
-      // If total pages is less than maxVisiblePages, show all pages
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show pages around current page
       let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = startPage + maxVisiblePages - 1;
       
-      // Adjust if endPage exceeds totalPages
       if (endPage > this.totalPages) {
         endPage = this.totalPages;
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -222,82 +180,82 @@ export class SubcontractorComponent {
     return pages;
   }
 
-  // Filtre par Periode 
-  filterByPeriod(period: string): void {
-    this.selectedPeriod = period;
-    // Implémenter la logique de filtrage
-  }
-
-  // Filtre par Status
-  filterByStatus(status: string): void {
-    this.selectedStatus = status;
-    // Implémenter la logique de filtrage
-  }
-
   // Recherche 
   searchProjects(): void {
-    // Implémenter la logique de recherche
-    console.log('Recherche:', this.searchQuery);
+    this.filterDisplayedMembers();
   }
 
-
-// Ouvrir le modal
-openModal() {
-  this.showModal = true;
-  // Réinitialiser le formulaire
-  this.nouveauSousTraitant = {
-    raisonSociale: '',
-    nomContact: '',
-    telephone: '',
-    email: ''
-  };
-}
-
-// Fermer le modal
-closeModal() {
-  this.showModal = false;
-}
-
-// Ajouter un nouveau sous-traitant
-ajouterSousTraitant() {
-  if (this.nouveauSousTraitant.raisonSociale && 
-      this.nouveauSousTraitant.nomContact && 
-      this.nouveauSousTraitant.telephone && 
-      this.nouveauSousTraitant.email) {
-    
-    // Créer un nouveau membre d'équipe basé sur les données du sous-traitant
-    const nouveauMembre: TeamMember = {
-      id: this.allTeamMembers.length + 1,
-      name: this.nouveauSousTraitant.nomContact,
-      phone: this.nouveauSousTraitant.telephone,
-      email: this.nouveauSousTraitant.email,
-      position: this.nouveauSousTraitant.raisonSociale, // Utiliser la raison sociale comme position
-      status: 'non-affecté',
-      selected: false
+  // Ouvrir le modal
+  openModal() {
+    this.showModal = true;
+    this.nouveauSousTraitant = {
+      raisonSociale: '',
+      nomContact: '',
+      telephone: '',
+      email: ''
     };
+  }
 
-    // Ajouter le nouveau membre à la liste
-    this.allTeamMembers.push(nouveauMembre);
-    
-    // Mettre à jour le nombre total
-    this.totalMembers = this.allTeamMembers.length;
-    
-    // Recalculer les pages
-    this.calculateTotalPages();
-    
-    // Actualiser l'affichage
-    this.paginateData();
-    
-    // Fermer le modal
-    this.closeModal();
-    
-    // Optionnel : afficher un message de succès
-    console.log('Sous-traitant ajouté avec succès !');
-  } else {
-    // Gérer les erreurs de validation
-    console.log('Veuillez remplir tous les champs obligatoires');
+  // Fermer le modal
+  closeModal() {
+    this.showModal = false;
+  }
+
+  // Ajouter un nouveau sous-traitant
+  ajouterSousTraitant() {
+    if (this.nouveauSousTraitant.raisonSociale && 
+        this.nouveauSousTraitant.nomContact && 
+        this.nouveauSousTraitant.telephone && 
+        this.nouveauSousTraitant.email) {
+      
+      // TODO: Implémenter l'appel API pour créer un nouveau sous-traitant
+      // Pour l'instant, on simule l'ajout local
+      const nouveauMembre: SubcontractorMember = {
+        id: Date.now(), // ID temporaire
+        raisonSociale: this.nouveauSousTraitant.raisonSociale,
+        nomContact: this.nouveauSousTraitant.nomContact,
+        telephone: this.nouveauSousTraitant.telephone,
+        email: this.nouveauSousTraitant.email,
+        status: 'active',
+        selected: false
+      };
+
+      this.allSubcontractors.push(nouveauMembre);
+      this.totalMembers++;
+      this.filterDisplayedMembers();
+      this.closeModal();
+      
+      console.log('Sous-traitant ajouté avec succès !');
+    } else {
+      console.log('Veuillez remplir tous les champs obligatoires');
+    }
+  }
+
+  /**
+   * Supprime les sous-traitants sélectionnés
+   */
+  deleteSelectedSubcontractors() {
+    const selectedIds = this.displayedMembers
+      .filter(member => member.selected)
+      .map(member => member.id);
+
+    if (selectedIds.length > 0) {
+      // TODO: Implémenter l'appel API pour supprimer
+      this.allSubcontractors = this.allSubcontractors.filter(
+        member => !selectedIds.includes(member.id)
+      );
+      this.totalMembers = this.allSubcontractors.length;
+      this.filterDisplayedMembers();
+      console.log(`${selectedIds.length} sous-traitant(s) supprimé(s)`);
+    }
+  }
+
+  /**
+   * Exporte les données des sous-traitants
+   */
+  exportData() {
+    // TODO: Implémenter l'export (CSV, Excel, etc.)
+    console.log('Export des données des sous-traitants');
   }
 }
-}
-
-
+// le html 

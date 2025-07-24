@@ -28,12 +28,12 @@
       <!-- Dashboard -->
       <li>
         <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                   (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white')">
+           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <img src="assets/images/home.png" 
                  [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                         (isActive('dashboard') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
+                         (isActive('dashboard') ? 'brightness-0 invert' : '')" 
                  srcset="">
             <span class="text-sm">Tableau de bord</span>
           </div>
@@ -46,8 +46,8 @@
       <!-- Projects Section -->
       <li>
         <a (click)="navigateTo('/projects', 'Projets', 'projects')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                   (isActive('projects') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C021A] hover:shadow-sm hover:text-white')">
+           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('projects') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <i class="fa-regular fa-folder mr-2"></i>
             <span class="text-sm">Projets</span>
@@ -58,11 +58,11 @@
       <!-- HR -->
       <li>
         <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                   (isActive('hr') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white')">
+           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('hr') ? 'bg-[#FF5C02] text-white' : '')">
           <img src="assets/images/humain.png" 
                [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                       (isActive('hr') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
+                       (isActive('hr') ? 'brightness-0 invert' : '')" 
                srcset="">
           <span class="text-sm">Ressources humaines</span>
         </a>
@@ -71,11 +71,11 @@
       <!-- Sous-traitant -->
       <li>
         <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                   (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white')">
+           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : '')">
           <img src="assets/images/humain.png" 
                [class]="'mr-2 transition-all duration-200 ' + 
-                       (isActive('subcontractor') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
+                       (isActive('subcontractor') ? 'brightness-0 invert' : '')" 
                alt="">
           <span class="text-sm">Sous-traitants</span>
         </a>
@@ -83,8 +83,8 @@
 
       <li>
         <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                   (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white')">
+           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : '')">
           <img src="assets/images/humain.png" 
                [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
                        (isActive('suppliers') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
@@ -98,12 +98,12 @@
         <div>
           <!-- Menu principal Paramètres -->
           <a (click)="toggleParametres()" 
-             [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
-                     (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white')">
+             [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                     (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
             <div class="flex items-center">
               <img src="assets/images/solar_settings.png" 
                    [class]="'mr-2 transition-all duration-200 ' + 
-                           (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
+                           (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : '')" 
                    alt="" srcset="">
               <span class="text-sm">Paramètres</span>
             </div>
@@ -119,7 +119,7 @@
             <!-- Unité de mesure -->
             <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" 
                [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm')">
+                       (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Unité de mesure</span>
             </a>
@@ -127,7 +127,7 @@
             <!-- Documents -->
             <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" 
                [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('documents') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm')">
+                       (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Documents</span>
             </a>
@@ -135,7 +135,7 @@
             <!-- Property Type -->
             <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')"
                [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('typebien') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm')">
+                       (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Type de Bien</span>
             </a>
@@ -143,7 +143,7 @@
             <!-- Catégories de matériel -->
             <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" 
                [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('categories') ? 'bg-[#FF5C02] text-white' : 'hover:bg-[#FF5C0212] hover:shadow-sm')">
+                       (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Catégories de matériel</span>
             </a>
@@ -154,9 +154,9 @@
       <!-- Logout Section -->
       <div class="mt-4">
         <a (click)="logout()" 
-           class="flex items-center py-3 px-4 hover:bg-[#FF5C0212] hover:shadow-sm hover:text-white rounded-lg transition-all duration-200 cursor-pointer group">
+           class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
           <img src="assets/images/logout.png" 
-               class="mr-2 transition-all duration-200 group-hover:brightness-0 group-hover:invert" 
+               class="mr-2 transition-all duration-200" 
                alt="">
           <span class="text-sm">Se déconnecter</span>
         </a>
