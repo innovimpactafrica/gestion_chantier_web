@@ -294,6 +294,12 @@ export interface UpdateAlbumRequest {
   description?: string;
   pictures?: string[];
 }
+export interface IndicatorUpdateResponse {
+  id: number;
+  phaseName: string;
+  progressPercentage: number;
+  lastUpdated: string;
+}
 
 export interface DocumentType {
   id: number;
@@ -463,7 +469,7 @@ putBudget(id: number, amount: number): Observable<BudgetResponse> {
   updateAlbum(id: number, album: UpdateAlbumRequest): Observable<ProgressAlbum> {
     return this.http.put<ProgressAlbum>(`${this.baseUrl}/progress-album/update/${id}`, album);
   }
-
+ 
   deleteAlbum(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/progress-album/delete/${id}`);
   }
@@ -472,7 +478,15 @@ putBudget(id: number, amount: number): Observable<BudgetResponse> {
   getDocumentsType(): Observable<DocumentTypesResponse> {
     return this.http.get<DocumentTypesResponse>(`${this.baseUrl}/documents/types`);
   }
-
+  updateIndicator(indicatorId: number, progressPercentage: number): Observable<IndicatorUpdateResponse> {
+    const params = new HttpParams().set('progressPercentage', progressPercentage.toString());
+    
+    return this.http.put<IndicatorUpdateResponse>(
+      `${this.baseUrl}/indicators/update/${indicatorId}`,
+      null, // Pas de body pour cette requête
+      { params }
+    );
+  }
   getDocuments(propertyId: number, page: number = 0, size: number = 10): Observable<DocumentsResponse> {
     return this.http.get<DocumentsResponse>(`${this.baseUrl}/documents/property/${propertyId}?page=${page}&size=${size}`);
   }
