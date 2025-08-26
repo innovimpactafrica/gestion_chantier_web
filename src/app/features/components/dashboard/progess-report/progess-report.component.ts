@@ -51,12 +51,21 @@ export class ProgressReportComponent implements OnInit, AfterViewInit, OnDestroy
     'Finition': 'Finition'
   };
 
-  // Couleurs prédéfinies pour chaque phase
-  private phaseColors: { [key: string]: string } = {
-    'Gros œuvre': '#10B981',     // Vert
-    'Second œuvre': '#F59E0B',   // Orange
-    'Finition': '#EF4444'        // Rouge
-  };
+// Couleurs prédéfinies pour chaque phase - MODIFIÉES
+private phaseColors: { [key: string]: string } = {
+  'Gros œuvre': '#2ECC71',     // Vert modifié
+  'Second œuvre': '#F39C12',   // Orange modifié
+  'Finition': '#EBECF0'        // Gris clair modifié
+};
+
+// Méthode createDefaultData() avec les nouvelles couleurs
+private createDefaultData(): void {
+  this.progressData = [
+    { label: 'Gros œuvre', value: 62, color: '#2ECC71' },
+    { label: 'Second œuvre', value: 38, color: '#F39C12' },
+    { label: 'Finition', value: 5, color: '#EBECF0' }
+  ];
+}
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -156,13 +165,6 @@ export class ProgressReportComponent implements OnInit, AfterViewInit, OnDestroy
     console.log('Données processées:', this.progressData);
   }
 
-  private createDefaultData(): void {
-    this.progressData = [
-      { label: 'Gros œuvre', value: 62, color: '#10B981' },
-      { label: 'Second œuvre', value: 38, color: '#F59E0B' },
-      { label: 'Finition', value: 5, color: '#EF4444' }
-    ];
-  }
 
   private generateColorForPhase(phaseName: string): string {
     // Générer une couleur basée sur le nom de la phase
@@ -200,21 +202,24 @@ export class ProgressReportComponent implements OnInit, AfterViewInit, OnDestroy
         plugins: {
           legend: { display: false }
         },
-        scales: {
-           y: {
+   scales: {
+  y: {
     beginAtZero: true,
     max: 100,
+    border: {
+      display: false // Supprime la ligne de bordure verticale de l'axe Y
+    },
     ticks: {
-      stepSize: 20, // Affiche : 0, 20, 40, ...
+      stepSize: 20,
       callback: function (value) {
-        return value.toString(); // s'assure que le label est affiché
+        return value.toString();
       },
-      color: '#4B5563', // facultatif : gris foncé
+      color: '#4B5563',
       font: { size: 12 }
     },
     grid: {
       display: true,
-      color: '#E5E7EB' // gris clair
+      color: '#E5E7EB'
     }
   },
   x: {
@@ -224,7 +229,7 @@ export class ProgressReportComponent implements OnInit, AfterViewInit, OnDestroy
       color: '#4B5563'
     }
   }
-        }
+}
       }
     };
   

@@ -368,17 +368,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return materiauxCritique.content.map((material: CriticalMaterial) => ({
       id: material.id,
       nom: material.label,
-      quantite: `${material.quantity} ${material.unitName}`,
+      quantiteActuelle: material.quantity,
       seuil: material.criticalThreshold,
       unite: material.unitName,
       propriete: material.propertyName,
       status: material.statusLabel,
       color: material.color,
-      description: `${material.quantity} ${material.unitName} / seuil: ${material.criticalThreshold} ${material.unitName}`
+      pourcentage: this.calculateMaterialPercentage(material.quantity, material.criticalThreshold)
     }));
   }
 
- 
+  private calculateMaterialPercentage(current: number, threshold: number): number {
+    if (!threshold || threshold === 0) return 0;
+    return Math.min(100, Math.max(0, (current / threshold) * 100));
+  }
+
   private processPhases(): any[] {
     const etatAvancement = this.rawData.etatAvancement;
     
@@ -386,26 +390,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return [];
     }
   
-    // Définir l'ordre exact des phases (remplacez par les noms exacts de votre backend)
-    const ordrePhases = [
-      'GROS_OEUVRE',      // Remplacez par le nom exact
-      'SECOND_OEUVRE',    // Remplacez par le nom exact  
-      'FINITION'         // Remplacez par le nom exact
+    // Définir l'ordre exact des phases avec leurs couleurs spécifiques
+    const phasesConfig = [
+      { nom: 'GROS_OEUVRE', couleur: '#2ECC71' },    // Vert
+      { nom: 'SECOND_OEUVRE', couleur: '#F39C12' },  // Orange
+      { nom: 'FINITION', couleur: '#EBECF0' }        // Gris clair
     ];
     
-    // Créer un mapping pour l'ordre
-    const phaseOrderMap = new Map(ordrePhases.map((phase, index) => [phase, index]));
+    // Créer un mapping pour l'ordre et les couleurs
+    const phaseConfigMap = new Map(phasesConfig.map(phase => [phase.nom, phase]));
     
     // Traiter les phases
-    const phasesProcessed = etatAvancement.map((phase: PhaseIndicator, index: number) => ({
-      nom: phase.phaseName,
-      pourcentage: Math.round(phase.averageProgressPercentage || 0),
-      couleur: this.generateColor(index),
-      ordre: phaseOrderMap.get(phase.phaseName) ?? 999 // 999 pour les phases non trouvées
-    }));
+    const phasesProcessed = etatAvancement.map((phase: PhaseIndicator) => {
+      const config = phaseConfigMap.get(phase.phaseName) || { couleur: this.generateColor(0) };
+      return {
+        nom: phase.phaseName,
+        pourcentage: Math.round(phase.averageProgressPercentage || 0),
+        couleur: config.couleur,
+        ordre: phasesConfig.findIndex(p => p.nom === phase.phaseName)
+      };
+    });
   
-    // Trier par ordre défini
-    return phasesProcessed.sort((a, b) => a.ordre - b.ordre);
+    // Trier par ordre défini et filtrer les phases non reconnues
+    return phasesProcessed
+      .filter(phase => phase.ordre !== -1)
+      .sort((a, b) => a.ordre - b.ordre);
   }
 
   private processIncidents(): any {
@@ -439,18 +448,51 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!tacheCritique || !Array.isArray(tacheCritique)) {
       return [];
     }
+  
+    return tacheCritique.map((task: CriticalTask) => {
+      // Normaliser le statut pour correspondre à nos besoins d'affichage
+      let status: 'En retard' | 'Urgent' | 'À jour' = 'À jour';
+      if (task.statusLabel?.includes('retard') || task.statusLabel?.includes('overdue')) {
+        status = 'En retard';
+      } else if (task.priority === 'HIGH' || task.statusLabel?.includes('urgent')) {
+        status = 'Urgent';
+      }
+  
+      return {
+        id: task.id,
+        nom: task.title,
+        echeance: this.formatDateFromArray(task.endDate),
+        dateEcheance: task.endDate,
+        status: status,
+        joursRestants: this.calculateRemainingDays(task.endDate),
+        priority: this.normalizePriority(task.priority)
+      };
+    }).sort((a, b) => {
+      // Trier d'abord par statut (retard > urgent > à jour)
+      const priorityOrder = { 
+        'En retard': 0, 
+        'Urgent': 1, 
+        'À jour': 2 
+      };
+      
+      // Vérification de type pour éviter l'erreur TS
+      const aPriority = priorityOrder[a.status as keyof typeof priorityOrder] || 2;
+      const bPriority = priorityOrder[b.status as keyof typeof priorityOrder] || 2;
+      
+      return aPriority - bPriority;
+    });
+  }
 
-    return tacheCritique.map((task: CriticalTask) => ({
-      id: task.id,
-      nom: task.title,
-      titre: task.title,
-      echeance: this.formatDateFromArray(task.endDate),
-      dateEcheance: task.endDate,
-      status: task.statusLabel,
-      priority: this.normalizePriority(task.priority),
-      couleur: task.color,
-      prioriteNormalisee: this.normalizePriority(task.priority)
-    }));
+  private calculateRemainingDays(dateArray: number[]): number | null {
+    if (!dateArray || dateArray.length < 3) return null;
+    
+    const [year, month, day] = dateArray;
+    const endDate = new Date(year, month - 1, day);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
   }
 
   private processPhotos(): any[] {

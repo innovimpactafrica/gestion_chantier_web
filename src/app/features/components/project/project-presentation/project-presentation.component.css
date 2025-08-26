@@ -12,3 +12,29 @@ background-color:  #FFFFFF;
 margin-left: 10px;
 
 }
+/* Dans votre fichier CSS */
+/* Style personnalisé pour les radios */
+input[type="radio"].custom-radio {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cbd5e0; /* Couleur de bordure par défaut */
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  input[type="radio"].custom-radio:checked {
+    border-color: #FF5C01;
+    background-color: #FF5C01;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='4'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  input[type="radio"].custom-radio:focus {
+    box-shadow: 0 0 0 3px rgba(255, 92, 1, 0.3);
+  }

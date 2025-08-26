@@ -1,58 +1,164 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+  import { Injectable } from '@angular/core';
+  import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+  import { Observable, throwError } from 'rxjs';
+  import { catchError } from 'rxjs/operators';
 
-export interface BudgetResponse {
-  id: number;
-  plannedBudget: number;
-  consumedBudget: number;
-  remainingBudget: number;
-}
-
-export interface ProgressAlbum {
-  id: number;
-  phaseName: string;
-  description: string;
-  lastUpdated: string | number[];
-  pictures: string[];
-  entrance: boolean;
-  realEstateProperty: {
+  export interface BudgetResponse {
     id: number;
-    name: string;
-    address: string;
-    plan: string;
-  };
-}
+    plannedBudget: number;
+    consumedBudget: number;
+    remainingBudget: number;
+  }
 
-export interface Task {
-  id: number;
-  title: string;
-  description: string;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH';
-  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
-  startDate: number[];
-  endDate: number[];
-  pictures: string[];
-  realEstateProperty: {
+  export interface ProgressAlbum {
     id: number;
-    name: string;
-    number: string;
-    address: string;
-    price: number;
-    numberOfRooms: number;
-    area: number;
-    latitude: string;
-    longitude: string;
-    available: boolean;
-    reservationFee: number;
-    discount: number;
-    feesFile: number;
+    phaseName: string;
     description: string;
-    plan: string;
-    legalStatus: string;
-    numberOfLots: number;
-    level: number;
-    promoter: {
+    lastUpdated: string | number[];
+    pictures: string[];
+    entrance: boolean;
+    realEstateProperty: {
+      id: number;
+      name: string;
+      address: string;
+      plan: string;
+    };
+  }
+
+  export interface Task {
+    id: number;
+    title: string;
+    description: string;
+    priority: 'LOW' | 'MEDIUM' | 'HIGH';
+    status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
+    startDate: number[];
+    endDate: number[];
+    pictures: string[];
+    realEstateProperty: {
+      id: number;
+      name: string;
+      number: string;
+      address: string;
+      price: number;
+      numberOfRooms: number;
+      area: number;
+      latitude: string;
+      longitude: string;
+      available: boolean;
+      reservationFee: number;
+      discount: number;
+      feesFile: number;
+      description: string;
+      plan: string;
+      legalStatus: string;
+      numberOfLots: number;
+      level: number;
+      promoter: {
+        id: number;
+        nom: string;
+        prenom: string;
+        email: string;
+        password: string;
+        adress: string;
+        technicalSheet: string | null;
+        profil: string;
+        activated: boolean;
+        notifiable: boolean;
+        telephone: string;
+        subscriptions: Array<{
+          id: number;
+          subscriptionPlan: {
+            id: number;
+            name: string;
+            totalCost: number;
+            installmentCount: number;
+          };
+          startDate: number[];
+          endDate: number[];
+          active: boolean;
+          paidAmount: number;
+          installmentCount: number;
+          dateInvoice: string | null;
+          status: string;
+          renewed: boolean;
+        }>;
+        company: {
+          id: number;
+          name: string | null;
+          logo: string;
+          primaryColor: string | null;
+          secondaryColor: string | null;
+        };
+        createdAt: number[];
+        funds: number;
+        note: number;
+        photo: string | null;
+        idCard: string | null;
+        accountNonExpired: boolean;
+        credentialsNonExpired: boolean;
+        accountNonLocked: boolean;
+        hibernateLazyInitializer: any;
+        username: string;
+        authorities: Array<{
+          authority: string;
+        }>;
+        enabled: boolean;
+      };
+      recipient: any;
+      notary: any;
+      agency: any;
+      bank: any;
+      parentProperty: any;
+      timestamp: number;
+      pictures: string[];
+      propertyType: {
+        id: number;
+        typeName: string;
+        parent: boolean;
+        hibernateLazyInitializer: any;
+      };
+      constructionPhaseIndicators: Array<{
+        id: number;
+        phaseName: string;
+        progressPercentage: number;
+        lastUpdated: string;
+      }>;
+      hasHall: boolean;
+      hasParking: boolean;
+      hasElevator: boolean;
+      hasSwimmingPool: boolean;
+      hasGym: boolean;
+      hasPlayground: boolean;
+      hasSecurityService: boolean;
+      hasGarden: boolean;
+      hasSharedTerrace: boolean;
+      hasBicycleStorage: boolean;
+      hasLaundryRoom: boolean;
+      hasStorageRooms: boolean;
+      hasWasteDisposalArea: boolean;
+      status: string;
+      constructionStatus: string;
+      lotFeesPaid: boolean;
+      lotFee: {
+        id: number;
+        name: string;
+        fee: number;
+        hibernateLazyInitializer: any;
+      };
+      coOwner: boolean;
+      budget: number;
+      allocateDate: string | null;
+      rental: boolean;
+      commentcount: number;
+      rentalDate: string | null;
+      soldAt: string | null;
+      workers: any[];
+      startDate: number[];
+      endDate: number[];
+      hibernateLazyInitializer: any;
+      mezzanine: boolean;
+    };
+    executors: Array<{
       id: number;
       nom: string;
       prenom: string;
@@ -81,335 +187,231 @@ export interface Task {
         status: string;
         renewed: boolean;
       }>;
-      company: {
-        id: number;
-        name: string | null;
-        logo: string;
-        primaryColor: string | null;
-        secondaryColor: string | null;
-      };
+      company: any;
       createdAt: number[];
       funds: number;
       note: number;
-      photo: string | null;
+      photo: string;
       idCard: string | null;
       accountNonExpired: boolean;
       credentialsNonExpired: boolean;
       accountNonLocked: boolean;
-      hibernateLazyInitializer: any;
       username: string;
       authorities: Array<{
         authority: string;
       }>;
       enabled: boolean;
-    };
-    recipient: any;
-    notary: any;
-    agency: any;
-    bank: any;
-    parentProperty: any;
-    timestamp: number;
-    pictures: string[];
-    propertyType: {
-      id: number;
-      typeName: string;
-      parent: boolean;
-      hibernateLazyInitializer: any;
-    };
-    constructionPhaseIndicators: Array<{
-      id: number;
-      phaseName: string;
-      progressPercentage: number;
-      lastUpdated: string;
     }>;
-    hasHall: boolean;
-    hasParking: boolean;
-    hasElevator: boolean;
-    hasSwimmingPool: boolean;
-    hasGym: boolean;
-    hasPlayground: boolean;
-    hasSecurityService: boolean;
-    hasGarden: boolean;
-    hasSharedTerrace: boolean;
-    hasBicycleStorage: boolean;
-    hasLaundryRoom: boolean;
-    hasStorageRooms: boolean;
-    hasWasteDisposalArea: boolean;
-    status: string;
-    constructionStatus: string;
-    lotFeesPaid: boolean;
-    lotFee: {
-      id: number;
-      name: string;
-      fee: number;
-      hibernateLazyInitializer: any;
-    };
-    coOwner: boolean;
-    budget: number;
-    allocateDate: string | null;
-    rental: boolean;
-    commentcount: number;
-    rentalDate: string | null;
-    soldAt: string | null;
-    workers: any[];
-    startDate: number[];
-    endDate: number[];
-    hibernateLazyInitializer: any;
-    mezzanine: boolean;
-  };
-  executors: Array<{
-    id: number;
-    nom: string;
-    prenom: string;
-    email: string;
-    password: string;
-    adress: string;
-    technicalSheet: string | null;
-    profil: string;
-    activated: boolean;
-    notifiable: boolean;
-    telephone: string;
-    subscriptions: Array<{
-      id: number;
-      subscriptionPlan: {
-        id: number;
-        name: string;
-        totalCost: number;
-        installmentCount: number;
+  }
+
+  export interface TasksResponse {
+    content: Task[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      sort: {
+        unsorted: boolean;
+        sorted: boolean;
+        empty: boolean;
       };
-      startDate: number[];
-      endDate: number[];
-      active: boolean;
-      paidAmount: number;
-      installmentCount: number;
-      dateInvoice: string | null;
-      status: string;
-      renewed: boolean;
-    }>;
-    company: any;
-    createdAt: number[];
-    funds: number;
-    note: number;
-    photo: string;
-    idCard: string | null;
-    accountNonExpired: boolean;
-    credentialsNonExpired: boolean;
-    accountNonLocked: boolean;
-    username: string;
-    authorities: Array<{
-      authority: string;
-    }>;
-    enabled: boolean;
-  }>;
-}
-
-export interface TasksResponse {
-  content: Task[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+    numberOfElements: number;
+    size: number;
+    number: number;
     sort: {
       unsorted: boolean;
       sorted: boolean;
       empty: boolean;
     };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  numberOfElements: number;
-  size: number;
-  number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
+    first: boolean;
     empty: boolean;
-  };
-  first: boolean;
-  empty: boolean;
-}
+  }
 
-export interface Expense {
-  id: number;
-  description: string;
-  date: number[];
-  amount: number;
-  budget: {
+  export interface Expense {
     id: number;
-    plannedBudget: number;
-    consumedBudget: number;
-    remainingBudget: number;
-    property: any;
-  };
-}
+    description: string;
+    date: number[];
+    amount: number;
+    budget: {
+      id: number;
+      plannedBudget: number;
+      consumedBudget: number;
+      remainingBudget: number;
+      property: any;
+    };
+  }
 
-export interface ExpensesResponse {
-  content: Expense[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
+  export interface ExpensesResponse {
+    content: Expense[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      sort: {
+        unsorted: boolean;
+        sorted: boolean;
+        empty: boolean;
+      };
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+    numberOfElements: number;
+    size: number;
+    number: number;
     sort: {
       unsorted: boolean;
       sorted: boolean;
       empty: boolean;
     };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  numberOfElements: number;
-  size: number;
-  number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
+    first: boolean;
     empty: boolean;
-  };
-  first: boolean;
-  empty: boolean;
-}
+  }
 
+// project-details.service.ts
 export interface CreateExpenseRequest {
   description: string;
   date: string;
-  amount: number;
+  amount: number; // ← Changez 'amont' en 'amount'
   budgetId: number;
 }
 
-export interface CreateAlbumRequest {
-  realEstatePropertyId: number;
-  name: string;
-  description: string;
-  pictures: string[];
-}
+  export interface CreateAlbumRequest {
+    realEstatePropertyId: number;
+    name: string;
+    description: string;
+    pictures: string[];
+  }
 
-export interface UpdateAlbumRequest {
-  name?: string;
-  description?: string;
-  pictures?: string[];
-}
-export interface IndicatorUpdateResponse {
-  id: number;
-  phaseName: string;
-  progressPercentage: number;
-  lastUpdated: string;
-}
+  export interface UpdateAlbumRequest {
+    name?: string;
+    description?: string;
+    pictures?: string[];
+  }
+  export interface IndicatorUpdateResponse {
+    id: number;
+    phaseName: string;
+    progressPercentage: number;
+    lastUpdated: string;
+  }
 
-export interface DocumentType {
-  id: number;
-  label: string;
-  code: string;
-  hasStartDate: boolean;
-  hasEndDate: boolean;
-  type: string;
-}
+  export interface DocumentType {
+    id: number;
+    label: string;
+    code: string;
+    hasStartDate: boolean;
+    hasEndDate: boolean;
+    type: string;
+  }
 
-export interface DocumentTypesResponse {
-  content: DocumentType[];
-}
+  export interface DocumentTypesResponse {
+    content: DocumentType[];
+  }
 
-export interface Document {
-  id: number;
-  title: string;
-  file: string;
-  description: string;
-  type: DocumentType | null;
-  startDate: number[];
-  endDate: number[];
-}
+  export interface Document {
+    id: number;
+    title: string;
+    file: string;
+    description: string;
+    type: DocumentType | null;
+    startDate: number[];
+    endDate: number[];
+  }
 
-export interface DocumentsResponse {
-  content: Document[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
+  export interface DocumentsResponse {
+    content: Document[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      sort: {
+        unsorted: boolean;
+        sorted: boolean;
+        empty: boolean;
+      };
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+    numberOfElements: number;
+    size: number;
+    number: number;
     sort: {
       unsorted: boolean;
       sorted: boolean;
       empty: boolean;
     };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  numberOfElements: number;
-  size: number;
-  number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
+    first: boolean;
     empty: boolean;
-  };
-  first: boolean;
-  empty: boolean;
-}
+  }
 
-export interface CreateDocumentRequest {
-  title: string;
-  file: string;
-  description: string;
-  realEstatePropertyId: number;
-  typeId: number;
-  startDate: string; // format dd-MM-yyyy
-  endDate: string; // format dd-MM-yyyy
-}
+  export interface CreateDocumentRequest {
+    title: string;
+    file: string;
+    description: string;
+    realEstatePropertyId: number;
+    typeId: number;
+    startDate: string; // format dd-MM-yyyy
+    endDate: string; // format dd-MM-yyyy
+  }
 
-// Nouvelles interfaces pour les signalements
-export interface Signalement {
-  id: number;
-  title: string;
-  description: string;
-  createdAt: number[];
-  propertyName: string;
-  pictures: string[];
-}
+  // Nouvelles interfaces pour les signalements
+  export interface Signalement {
+    id: number;
+    title: string;
+    description: string;
+    createdAt: number[];
+    propertyName: string;
+    pictures: string[];
+  }
 
-export interface SignalementResponse {
-  content: Signalement[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
+  export interface SignalementResponse {
+    content: Signalement[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      sort: {
+        unsorted: boolean;
+        sorted: boolean;
+        empty: boolean;
+      };
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+    numberOfElements: number;
+    size: number;
+    number: number;
     sort: {
       unsorted: boolean;
       sorted: boolean;
       empty: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  numberOfElements: number;
-  size: number;
-  number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
+      };
+    first: boolean;
     empty: boolean;
-  };
-  first: boolean;
-  empty: boolean;
-}
+  }
 
-export interface CreateSignalementRequest {
-  title: string;
-  description: string;
-  propertyId: number;
-  pictures: string[];
-}
+  export interface CreateSignalementRequest {
+    title: string;
+    description: string;
+    propertyId: number;
+    pictures: string[];
+  }
 
-@Injectable({
+ @Injectable({
   providedIn: 'root'
 })
 export class ProjectBudgetService {
@@ -417,94 +419,292 @@ export class ProjectBudgetService {
 
   constructor(private http: HttpClient) {}
 
-  // Méthodes existantes
-  GetProjectBudget(propertyId: number): Observable<BudgetResponse> {
-    return this.http.get<BudgetResponse>(`${this.baseUrl}/budgets/property/${propertyId}`);
+  // Méthode privée pour obtenir les headers d'authentification
+  private getAuthHeaders(forFormData: boolean = false): HttpHeaders {
+    const token = localStorage.getItem('token') || 
+                  sessionStorage.getItem('token') || 
+                  localStorage.getItem('authToken') || 
+                  sessionStorage.getItem('authToken') ||
+                  localStorage.getItem('accessToken') || 
+                  sessionStorage.getItem('accessToken') ||
+                  localStorage.getItem('jwt') || 
+                  sessionStorage.getItem('jwt');
+    
+    console.log('Token récupéré pour headers:', token ? token.substring(0, 20) + '...' : 'null');
+    
+    if (!token) {
+      console.warn('Aucun token d\'authentification trouvé');
+      return new HttpHeaders();
+    }
+    
+    if (forFormData) {
+      return new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
+    }
+    
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
   }
 
-  getAlbum(propertyId: number): Observable<ProgressAlbum[]> {
-    return this.http.get<ProgressAlbum[]>(`${this.baseUrl}/progress-album/by-property/${propertyId}`);
+  // Méthode pour gérer les erreurs HTTP
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erreur HTTP détaillée:', error);
+    
+    let errorMessage = 'Une erreur est survenue';
+    
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = error.error.message;
+    } else {
+      errorMessage = `Code d'erreur: ${error.status}\nMessage: ${error.message}`;
+      
+      if (error.status === 403) {
+        errorMessage = "Accès refusé. Vérifiez vos autorisations.";
+      } else if (error.status === 401) {
+        errorMessage = "Session expirée. Veuillez vous reconnecter.";
+      } else if (error.status === 400) {
+        errorMessage = "Données invalides. Vérifiez les informations saisies.";
+      } else if (error.status === 404) {
+        errorMessage = "Ressource introuvable.";
+      }
+    }
+    
+    return throwError(errorMessage);
   }
 
-  // Gestion des tâches
-  getTasks(propertyId: number, page: number = 0, size: number = 10): Observable<TasksResponse> {
-    return this.http.get<TasksResponse>(`${this.baseUrl}/tasks/by-property/${17}?page=${page}&size=${size}`);
+  // Méthode utilitaire pour convertir base64 en Blob
+  private base64ToBlob(base64: string): Blob {
+    try {
+      // Extraire le type MIME et les données base64
+      const parts = base64.split(';base64,');
+      if (parts.length < 2) {
+        throw new Error('Format base64 invalide');
+      }
+      
+      const mimeType = parts[0].split(':')[1];
+      const byteString = atob(parts[1]);
+      
+      // Convertir en ArrayBuffer
+      const arrayBuffer = new ArrayBuffer(byteString.length);
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      for (let i = 0; i < byteString.length; i++) {
+        uint8Array[i] = byteString.charCodeAt(i);
+      }
+      
+      return new Blob([arrayBuffer], { type: mimeType });
+    } catch (error) {
+      console.error('Erreur lors de la conversion base64 en Blob:', error);
+      throw new Error('Impossible de convertir l\'image');
+    }
   }
 
-  // Gestion du budget
+  // === MÉTHODES POUR LES ALBUMS AVEC FORMDATA ===
 
-// Dans votre ProjectBudgetService
-putBudget(id: number, amount: number): Observable<BudgetResponse> {
-  const params = new HttpParams().set('amount', amount.toString());
-  
-  return this.http.put<BudgetResponse>(
-    `${this.baseUrl}/budgets/${id}`,
-    null, // Pas de body pour cette requête
-    { params }
-  );
-}
-
-  // Gestion des dépenses
-  getDepense(budgetId: number, page: number = 0, size: number = 10): Observable<ExpensesResponse> {
-    return this.http.get<ExpensesResponse>(`${this.baseUrl}/expenses/budget/${budgetId}?page=${page}&size=${size}`);
+  saveAlbum(album: any): Observable<any> {
+    const headers = this.getAuthHeaders(true);
+    
+    // Créer un FormData pour l'envoi multipart
+    const formData = new FormData();
+    
+    // Ajouter les champs texte
+    formData.append('realEstatePropertyId', album.realEstatePropertyId.toString());
+    formData.append('name', album.name);
+    formData.append('description', album.description);
+    
+    // Ajouter les images (convertir les base64 en fichiers Blob)
+    if (album.pictures && album.pictures.length > 0) {
+      album.pictures.forEach((pictureBase64: string, index: number) => {
+        try {
+          const blob = this.base64ToBlob(pictureBase64);
+          const fileName = `image-${index + 1}.png`;
+          formData.append('pictures', blob, fileName);
+        } catch (error) {
+          console.error(`Erreur avec l'image ${index + 1}:`, error);
+        }
+      });
+    }
+    
+    console.log('Envoi FormData avec:', {
+      realEstatePropertyId: album.realEstatePropertyId,
+      name: album.name,
+      description: album.description,
+      pictureCount: album.pictures ? album.pictures.length : 0
+    });
+    
+    return this.http.post<any>(
+      `${this.baseUrl}/progress-album/save`,
+      formData,
+      { headers }
+    ).pipe(
+      catchError((error) => {
+        console.error('Erreur détaillée lors de la création d\'album:', error);
+        return this.handleError(error);
+      })
+    );
   }
 
-  createDepense(expense: CreateExpenseRequest): Observable<Expense> {
-    return this.http.post<Expense>(`${this.baseUrl}/expenses`, expense);
+  updateAlbum(id: number, album: any): Observable<any> {
+    const headers = this.getAuthHeaders(true);
+    
+    const formData = new FormData();
+    
+    if (album.name) formData.append('name', album.name);
+    if (album.description) formData.append('description', album.description);
+    
+    // Ajouter les nouvelles images si présentes
+    if (album.pictures && album.pictures.length > 0) {
+      album.pictures.forEach((pictureBase64: string, index: number) => {
+        try {
+          const blob = this.base64ToBlob(pictureBase64);
+          const fileName = `image-${index + 1}.png`;
+          formData.append('pictures', blob, fileName);
+        } catch (error) {
+          console.error(`Erreur avec l'image ${index + 1}:`, error);
+        }
+      });
+    }
+    
+    return this.http.put<any>(
+      `${this.baseUrl}/progress-album/update/${id}`,
+      formData,
+      { headers }
+    ).pipe(catchError(this.handleError));
   }
 
-  putDepense(id: number, expense: Partial<CreateExpenseRequest>): Observable<Expense> {
-    return this.http.put<Expense>(`${this.baseUrl}/expenses/${id}`, expense);
+  // === MÉTHODES EXISTANTES ===
+
+  GetProjectBudget(propertyId: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/budgets/property/${propertyId}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  getAlbum(propertyId: number): Observable<any[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.baseUrl}/progress-album/by-property/${propertyId}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  getTasks(propertyId: number, page: number = 0, size: number = 10): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/tasks/by-property/${propertyId}?page=${page}&size=${size}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  putBudget(id: number, amont: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    const params = new HttpParams().set('amont', amont.toString());
+    
+    return this.http.put<any>(
+      `${this.baseUrl}/budgets/${id}`,
+      null,
+      { headers, params }
+    ).pipe(catchError(this.handleError));
+  }
+
+  getDepense(budgetId: number, page: number = 0, size: number = 10): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/expenses/budget/${budgetId}?page=${page}&size=${size}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  createDepense(expense: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    return this.http.post<any>(
+      `${this.baseUrl}/expenses`,
+      expense, 
+      { headers }
+    ).pipe(catchError(this.handleError));
+  }
+
+  putDepense(id: number, expense: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<any>(`${this.baseUrl}/expenses/${id}`, expense, { headers })
+      .pipe(catchError(this.handleError));
   }
 
   deleteDepense(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`, { headers })
+      .pipe(catchError(this.handleError));
   }
 
-  // Gestion des albums
-  saveAlbum(album: CreateAlbumRequest): Observable<ProgressAlbum> {
-    return this.http.post<ProgressAlbum>(`${this.baseUrl}/progress-album/save`, album);
-  }
-
-  updateAlbum(id: number, album: UpdateAlbumRequest): Observable<ProgressAlbum> {
-    return this.http.put<ProgressAlbum>(`${this.baseUrl}/progress-album/update/${id}`, album);
-  }
- 
   deleteAlbum(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/progress-album/delete/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.baseUrl}/progress-album/delete/${id}`, { headers })
+      .pipe(catchError(this.handleError));
   }
 
-  // Gestion des documents
-  getDocumentsType(): Observable<DocumentTypesResponse> {
-    return this.http.get<DocumentTypesResponse>(`${this.baseUrl}/documents/types`);
+  getDocumentsType(): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/documents/types`, { headers })
+      .pipe(catchError(this.handleError));
   }
-  updateIndicator(indicatorId: number, progressPercentage: number): Observable<IndicatorUpdateResponse> {
+
+  updateIndicator(indicatorId: number, progressPercentage: number): Observable<any> {
+    const headers = this.getAuthHeaders();
     const params = new HttpParams().set('progressPercentage', progressPercentage.toString());
     
-    return this.http.put<IndicatorUpdateResponse>(
+    return this.http.put<any>(
       `${this.baseUrl}/indicators/update/${indicatorId}`,
-      null, // Pas de body pour cette requête
-      { params }
-    );
-  }
-  getDocuments(propertyId: number, page: number = 0, size: number = 10): Observable<DocumentsResponse> {
-    return this.http.get<DocumentsResponse>(`${this.baseUrl}/documents/property/${propertyId}?page=${page}&size=${size}`);
+      null,
+      { headers, params }
+    ).pipe(catchError(this.handleError));
   }
 
-  saveDocument(document: CreateDocumentRequest): Observable<Document> {
-    return this.http.post<Document>(`${this.baseUrl}/documents/add`, document);
+  getDocuments(propertyId: number, page: number = 0, size: number = 10): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/documents/property/${propertyId}?page=${page}&size=${size}`, { headers })
+      .pipe(catchError(this.handleError));
   }
 
-  // Nouvelles méthodes pour les signalements
-  getSignalement(propertyId: number, page: number = 0, size: number = 10): Observable<SignalementResponse> {
-    return this.http.get<SignalementResponse>(`${this.baseUrl}/incidents?propertyId=${propertyId}&page=${page}&size=${size}`);
+  saveDocument(document: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<any>(`${this.baseUrl}/documents/add`, document, { headers })
+      .pipe(catchError(this.handleError));
   }
 
-  saveSignalement(signalement: CreateSignalementRequest): Observable<Signalement> {
-    return this.http.post<Signalement>(`${this.baseUrl}/incidents/save`, signalement);
+  getSignalement(propertyId: number, page: number = 0, size: number = 10): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.baseUrl}/incidents?propertyId=${propertyId}&page=${page}&size=${size}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  saveSignalement(signalement: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<any>(`${this.baseUrl}/incidents/save`, signalement, { headers })
+      .pipe(catchError(this.handleError));
   }
 
   deleteSignalement(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/incidents/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.baseUrl}/incidents/${id}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Méthode utilitaire pour debug
+  checkAuthToken(): void {
+    const possibleKeys = ['token', 'authToken', 'accessToken', 'jwt', 'bearerToken'];
+    
+    console.log('=== VÉRIFICATION DES TOKENS ===');
+    possibleKeys.forEach(key => {
+      const localValue = localStorage.getItem(key);
+      const sessionValue = sessionStorage.getItem(key);
+      
+      if (localValue) {
+        console.log(`localStorage.${key}:`, localValue.substring(0, 20) + '...');
+      }
+      if (sessionValue) {
+        console.log(`sessionStorage.${key}:`, sessionValue.substring(0, 20) + '...');
+      }
+    });
+    
+    console.log('Clés localStorage:', Object.keys(localStorage));
+    console.log('Clés sessionStorage:', Object.keys(sessionStorage));
+    console.log('===============================');
   }
 }

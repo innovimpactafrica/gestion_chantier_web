@@ -319,12 +319,88 @@ export class AuthService {
   }
 
   // Méthode pour obtenir les headers d'authentification
-  private getAuthHeaders(): HttpHeaders {
+  getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+    
+    console.log('=== DEBUG AUTH HEADERS SERVICE ===');
+    console.log('Token récupéré:', token ? token.substring(0, 50) + '...' : 'null');
+    
+    if (!token) {
+      console.warn('⚠️ Aucun token disponible dans AuthService');
+      return new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+    }
+    
+    // Vérifier la validité du token JWT
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.error('❌ Token JWT invalide (format incorrect)');
+        this.logout(); // Nettoyer le token invalide
+        return new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+      }
+      
+      // Décoder le payload pour vérification
+      const payload = JSON.parse(atob(tokenParts[1]));
+      console.log('Payload token:', {
+        profil: payload.profil || payload.role,
+        exp: payload.exp ? new Date(payload.exp * 1000) : 'Pas d\'expiration',
+        sub: payload.sub || payload.userId,
+        iat: payload.iat ? new Date(payload.iat * 1000) : 'Pas de date émission'
+      });
+      
+      // Vérifier l'expiration
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        console.error('❌ Token expiré');
+        this.logout(); // Nettoyer automatiquement le token expiré
+        return new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+      }
+      
+      console.log('✅ Token valide');
+    } catch (error) {
+      console.error('❌ Erreur lors de la validation du token:', error);
+    }
+    
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     });
+    
+    console.log('Headers créés avec Authorization');
+    console.log('=================================');
+    
+    return headers;
+  }
+  isTokenValid(): boolean {
+    const token = this.getToken();
+    
+    if (!token) {
+      return false;
+    }
+    
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        return false;
+      }
+      
+      const payload = JSON.parse(atob(tokenParts[1]));
+      
+      // Vérifier l'expiration
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la validation du token:', error);
+      return false;
+    }
   }
   // getConnectedUserId(): number | null {
   //   return this._currentUser()?.id ?? null;

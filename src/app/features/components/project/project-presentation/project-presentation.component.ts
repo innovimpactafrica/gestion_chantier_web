@@ -169,11 +169,11 @@ export class ProjectPresentationComponent implements OnInit {
 
   getGradientBackgroundDetail(percentage: number): string {
     if (percentage <= 30) {
-      return 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)'; // Rouge
+      return 'linear-gradient(90deg, #FE6102 100%)'; // Rouge
     } else if (percentage <= 70) {
-      return 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)'; // Orange
+      return 'linear-gradient(90deg, #FE6102 100%)'; // Orange
     } else {
-      return 'linear-gradient(90deg, #10b981 0%, #34d399 100%)'; // Vert
+      return 'linear-gradient(90deg, #FE6102 100%)'; // Vert
     }
   }
 

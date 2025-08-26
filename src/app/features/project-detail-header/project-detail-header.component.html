@@ -49,65 +49,16 @@
         class="pb-2">
       <a (click)="setActiveTab('alert')" class="font-medium cursor-pointer">Signalement</a>
     </li>
+    <li [class.border-b-2]="activeTab === 'etude-bet'" 
+    [class.border-orange-500]="activeTab === 'etude-bet'"
+    [class.text-orange-500]="activeTab === 'etude-bet'"
+    class="pb-2">
+  <a (click)="setActiveTab('etude-bet')" class="font-medium cursor-pointer">Etude Bet</a>
+</li>
       </ul>
     </nav>
   
-    <!-- Project Card -->
-    <!-- <div class="mt-10 bg-[#E6E7EC] border rounded-lg p-6 shadow-sm">
-      <h1 class="text-2xl font-bold mb-6">
-        Projet : <span class="font-normal">Construction d'un immeuble résidentiel de 10 Étages</span>
-      </h1>
-  
-     
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
-        
-        <div class="border rounded-lg p-4 flex items-center bg-white">
-          <div class="w-1 h-12 bg-orange-300 rounded-full mr-4"></div>
-          <div class="flex-1">
-            <div class="text-gray-600 mb-1">Status</div>
-            <div class="flex items-center">
-              <span class="bg-yellow-300 text-black px-3 py-1 rounded-full font-medium mr-2">En progression</span>
-              <span class="text-lg font-medium">42,31%</span>
-            </div>
-          </div>
-        </div>
-  
-        
-        <div class="border rounded-lg p-4 flex items-center bg-white">
-          <div class="w-1 h-12 bg-orange-300 rounded-full mr-4"></div>
-          <div class="flex-1">
-            <div class="text-gray-600 mb-1">Totale des tâches</div>
-            <div class="flex items-center">
-              <span class="text-lg font-medium">33</span>
-              <span class="text-gray-500 mx-1">/</span>
-              <span class="text-lg font-medium">78</span>
-            </div>
-          </div>
-        </div>
-  
-    
-        <div class="border rounded-lg p-4 flex items-center bg-white">
-          <div class="w-1 h-12 bg-orange-300 rounded-full mr-4"></div>
-          <div class="flex-1">
-            <div class="text-gray-600 mb-1">Date d'échéance</div>
-            <div class="flex items-center">
-              <span class="text-lg font-medium">28 mars 2025</span>
-            </div>
-          </div>
-        </div>
-  
-     
-        <div class="border rounded-lg p-4 flex items-center bg-white">
-          <div class="w-1 h-12 bg-orange-300 rounded-full mr-4"></div>
-          <div class="flex-1">
-            <div class="text-gray-600 mb-1">Budget utilisé</div>
-            <div class="flex items-center">
-              <span class="text-lg font-medium">Fcfa 700.000</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
+   
   </div>
 
   <!-- Content based on active tab -->
@@ -130,6 +81,10 @@
        <app-stock></app-stock> 
 
     }
+    @case ('etude-bet') {
+      <app-etude-bet></app-etude-bet> 
+
+   }
      
     @case ('alert') {
      <app-project-alert></app-project-alert>

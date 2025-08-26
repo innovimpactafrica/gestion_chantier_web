@@ -155,7 +155,7 @@ orderCurrentPage: number = 0;
 showOrderModal: boolean = false;
 // propertyId: number = 1; // Vous pouvez le rendre dynamique si nécessaire
 
-orderForm: FormGroup;
+  orderForm: FormGroup;
     // Dans la classe StockComponent, ajoutez ces propriétés
   movements: StockMovement[] = [];
   paginatedMovements: StockMovement[] = [];

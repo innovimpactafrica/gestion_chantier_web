@@ -9,6 +9,7 @@ import { BreadcrumbService } from '../../core/services/breadcrumb-service.servic
 import { StockComponent } from "../components/project/stock/stock.component";
 import { ProjectPresentationComponent } from '../components/project/project-presentation/project-presentation.component';
 import { ProjectAlertComponent } from "../components/project/project-alert/project-alert.component";
+import { EtudeBetComponent } from "../components/project/etude-bet/etude-bet.component";
 
 
 
@@ -33,7 +34,7 @@ interface ProjectInfo {
     TeamListComponent,
     DocumentsComponent,
     LotsSubcontractorsComponent, StockComponent,
-    ProjectPresentationComponent, ProjectAlertComponent],
+    ProjectPresentationComponent, ProjectAlertComponent, EtudeBetComponent],
   templateUrl: './project-detail-header.component.html',
   styleUrl: './project-detail-header.component.css'
 })

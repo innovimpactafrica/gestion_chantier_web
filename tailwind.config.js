@@ -2,19 +2,17 @@
 module.exports = {
   content: [
     "./src/**/*.{html,ts}",
-    
   ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // définit 'sans' comme Inter
+        sans: ['Inter', 'sans-serif'],
       },
       colors: {
-       
         orange: {
-          500: '#FF5C02;', // Couleur du bouton de connexion
-          600: '#E25928', // Version plus foncée pour hover
-          orangeCustom: 'var(--orange-color)', // nom personnalisé
+          500: '#FF5C02', // CORRIGÉ: Supprimé le point-virgule
+          600: '#E25928',
+          orangeCustom: 'var(--orange-color)',
         },
         primary: {
           50: '#f0fdfa',
@@ -30,7 +28,6 @@ module.exports = {
           950: '#042f2e',
         },
       }
-      
     },
   },
   plugins: [],

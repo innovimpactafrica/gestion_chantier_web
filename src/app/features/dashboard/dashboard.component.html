@@ -45,35 +45,53 @@
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       
-      <!-- Vue d'ensemble des chantiers -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
-        
-          <div class="text-gray-500">
-            <img src="assets/images/dashboard-icons/vues.png" alt="vue" srcset="" class="w-6 h-6">
+   <!-- Vue d'ensemble des chantiers - Version avec valeurs à gauche -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
+        <div class="text-gray-500">
+          <img src="assets/images/dashboard-icons/vues.png" alt="vue" srcset="" class="w-6 h-6">
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Carte En cours -->
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div>
+            <p class="text-sm text-gray-600 mt-1">En cours</p>
+            <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
+
           </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-gray-100 rounded-lg p-4 text-center">
-            <p class="text-sm text-gray-600 mb-2">En cours</p>
-            <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
-          </div>
-          <div class="bg-gray-100 rounded-lg p-4 text-center">
-            <p class="text-sm text-gray-600 mb-2">En retard</p>
+        <!-- Carte En retard -->
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div>
+            <p class="text-sm text-gray-600 mt-1">En retard</p>
             <p class="text-3xl font-bold text-red-600">{{ chantiers.enRetard }}</p>
+
           </div>
-          <div class="bg-gray-100 rounded-lg p-4 text-center">
-            <p class="text-sm text-gray-600 mb-2">En attente</p>
+        </div>
+        
+        <!-- Carte En attente -->
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div>
+            <p class="text-sm text-gray-600 mt-1">En attente</p>
             <p class="text-3xl font-bold text-orange-500">{{ chantiers.enAttente }}</p>
+
           </div>
-          <div class="bg-gray-100 rounded-lg p-4 text-center">
-            <p class="text-sm text-gray-600 mb-2">Terminées</p>
+        </div>
+        
+        <!-- Carte Terminées -->
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div>
+            <p class="text-sm text-gray-600 mt-1">Terminées</p>
             <p class="text-3xl font-bold text-green-600">{{ chantiers.termines }}</p>
+
           </div>
         </div>
       </div>
+    </div>
 
       <!-- Taux moyen d'avancement -->
       <div class="bg-white rounded-lg shadow-sm p-6">
@@ -84,7 +102,7 @@
           </svg>
         </div>
         
-        <div class="relative flex justify-center">
+        <div class="relative flex justify-center mt-8">
           <div class="w-64 h-32 relative">
             <svg class="w-full h-full" viewBox="0 0 100 50">
               <!-- Arc de fond -->
@@ -165,7 +183,7 @@
     <!-- Second Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       
-      <!-- Alertes stock matériaux - Design adapté -->
+      <!-- Alertes stock matériaux - Design adapté avec bandes -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-semibold text-gray-900">Alertes stock matériaux</h2>
@@ -177,36 +195,46 @@
         </div>
         
         <div class="space-y-5" *ngIf="stockAlertes.length > 0; else noAlertes">
-          <div *ngFor="let alerte of stockAlertes" class="pb-4">
-            <!-- Nom du matériau -->
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-semibold text-gray-900">{{ alerte.nom }}</h3>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" 
-                    [ngClass]="{
-                      'bg-orange-100 text-orange-800': alerte.status === 'Faible',
-                      'bg-green-100 text-green-800': alerte.status === 'Normal',
-                      'bg-red-100 text-red-800': alerte.status === 'Critique atteint'
-                    }">
-                {{ alerte.status }}
-              </span>
-            </div>
+          <div *ngFor="let alerte of stockAlertes" class="relative">
+            <!-- Bande colorée à gauche -->
+            <div class="absolute left-0 top-0 bottom-0 w-1 rounded-full" 
+                 [ngClass]="{
+                   'bg-orange-500': alerte.status === 'Faible',
+                   'bg-green-500': alerte.status === 'Normal',
+                   'bg-red-500': alerte.status === 'Critique atteint'
+                 }"></div>
             
-            <!-- Barre de progression -->
-            <div class="relative">
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="h-2 rounded-full transition-all duration-300" 
-                     [style.width.%]="alerte.pourcentage"
-                     [ngClass]="{
-                       'bg-orange-500': alerte.status === 'Faible',
-                       'bg-green-500': alerte.status === 'Normal',
-                       'bg-red-500': alerte.status === 'Critique atteint'
-                     }"></div>
+            <div class="pl-4 pb-4">
+              <!-- Nom du matériau et status -->
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold text-gray-900">{{ alerte.nom }}</h3>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" 
+                      [ngClass]="{
+                        'bg-orange-100 text-orange-800': alerte.status === 'Faible',
+                        'bg-green-100 text-green-800': alerte.status === 'Normal',
+                        'bg-red-100 text-red-800': alerte.status === 'Critique atteint'
+                      }">
+                  {{ alerte.status }}
+                </span>
               </div>
-            </div>
-            
-            <!-- Quantité -->
-            <div class="text-sm text-gray-600 mt-2">
-              {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil: {{ alerte.seuil }} {{ alerte.unite }}
+              
+              <!-- Barre de progression -->
+              <div class="relative mb-2">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all duration-300" 
+                       [style.width.%]="alerte.pourcentage"
+                       [ngClass]="{
+                         'bg-orange-500': alerte.status === 'Faible',
+                         'bg-green-500': alerte.status === 'Normal',
+                         'bg-red-500': alerte.status === 'Critique atteint'
+                       }"></div>
+                </div>
+              </div>
+              
+              <!-- Quantité -->
+              <div class="text-sm text-gray-600">
+                {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil: {{ alerte.seuil }} {{ alerte.unite }}
+              </div>
             </div>
           </div>
         </div>
@@ -247,7 +275,7 @@
     <!-- Third Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Tâches critiques à échéance - Design adapté -->
+<!-- Tâches critiques à échéance - Version avec points colorés et ligne verticale -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-semibold text-gray-900">Tâches critiques à échéance</h2>
@@ -258,38 +286,48 @@
           </div>
         </div>
         
-        <div class="space-y-4" *ngIf="tachesCritiques.length > 0; else noTaches">
-          <div *ngFor="let tache of tachesCritiques" class="border-l-4 pl-4 py-2" 
-               [ngClass]="{
-                 'border-red-500': tache.status === 'En retard',
-                 'border-orange-500': tache.status === 'Urgent',
-                 'border-green-500': tache.status === 'À jour'
-               }">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-semibold text-gray-900">{{ tache.nom }}</h3>
-              <span class="px-3 py-1 rounded-full text-xs font-medium" 
-                    [ngClass]="{
-                      'bg-red-100 text-red-800': tache.status === 'En retard',
-                      'bg-orange-100 text-orange-800': tache.status === 'Urgent',
-                      'bg-green-100 text-green-800': tache.status === 'À jour'
-                    }">
-                {{ tache.status }}
-              </span>
+        <div class="relative" *ngIf="tachesCritiques.length > 0; else noTaches">
+          <!-- Ligne verticale transparente qui traverse tous les éléments -->
+          <div class="absolute left-1 top-0 bottom-0 w-px bg-gray-200"></div>
+          
+          <div class="divide-y divide-gray-100">
+            <div *ngFor="let tache of tachesCritiques" class="relative py-4">
+              <!-- Point coloré à gauche, aligné sur la ligne -->
+              <div class="absolute left-0 top-5 h-2 w-2 rounded-full mt-1 z-10" 
+                  [ngClass]="{
+                    'bg-red-500': tache.status === 'En retard',
+                    'bg-orange-500': tache.status === 'Urgent',
+                    'bg-green-500': tache.status === 'À jour'
+                  }"></div>
+              
+              <div class="pl-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-semibold text-gray-900">{{ tache.nom }}</h3>
+                  <span class="px-2 py-1 rounded text-xs font-medium" 
+                        [ngClass]="{
+                          'bg-red-100 text-red-800': tache.status === 'En retard',
+                          'bg-orange-100 text-orange-800': tache.status === 'Urgent',
+                          'bg-green-100 text-green-800': tache.status === 'À jour'
+                        }">
+                    {{ tache.status }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">
+                  Échéance : {{ tache.echeance }}
+                  <span *ngIf="tache.joursRestants !== null" class="text-gray-500">
+                    ({{ tache.joursRestants }} j restants)
+                  </span>
+                </p>
+              </div>
             </div>
-            <p class="text-sm text-gray-600">
-              Échéance : {{ tache.echeance }}
-              <span *ngIf="tache.joursRestants" class="text-gray-500">
-                ({{ tache.joursRestants }} j restants)
-              </span>
-            </p>
           </div>
         </div>
         <ng-template #noTaches>
-          <p class="text-gray-500 text-sm">Aucune tâche critique</p>
+          <p class="text-gray-500 text-sm py-4">Aucune tâche critique</p>
         </ng-template>
       </div>
 
-      <!-- Photos récentes -->
+      <!-- Photos récentes - Taille réduite -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Photos récentes</h2>
@@ -298,9 +336,9 @@
           </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-3" *ngIf="photosRecentes.length > 0; else noPhotos">
+        <div class="grid grid-cols-2 gap-2" *ngIf="photosRecentes.length > 0; else noPhotos">
           <div *ngFor="let photo of photosRecentes | slice:0:4" class="relative group cursor-pointer">
-            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden w-20 h-20 mx-auto">
               <!-- Image ou placeholder -->
               <img *ngIf="photo.src; else placeholder" 
                    [src]="'https://wakana.online/repertoire_chantier/'+photo.src" 
@@ -308,16 +346,16 @@
                    class="w-full h-full object-cover">
               <ng-template #placeholder>
                 <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                  <svg class="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
               </ng-template>
             </div>
-            <div class="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+            <div class="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white text-xs px-1 py-0.5 rounded text-center">
               {{ photo.alt }}
             </div>
-            <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+            <div class="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
               {{ photo.date }}
             </div>
           </div>
@@ -327,42 +365,77 @@
         </ng-template>
       </div>
 
-      <!-- Résumé des performances -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
-          <div class="p-2">
-            <i class="fa-solid fa-chart-line"></i>
+    <!-- Résumé des performances - Version avec valeurs à gauche -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
+        <div class="p-2">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Carte 1 - Taux moyen d'avancement -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Taux moyen d'avanc...</p>
+              <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
+            </div>
           </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Taux moyen d'avanc...</p>
-            <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
+        <!-- Carte 2 - Budget consommé -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Budget consommé</p>
+              <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
+            </div>
           </div>
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Budget consommé</p>
-            <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
+        </div>
+        
+        <!-- Carte 3 - Incidents -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Incidents (7j)</p>
+              <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
+            </div>
           </div>
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Incidents (7j)</p>
-            <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
+        </div>
+        
+        <!-- Carte 4 - Présence moyenne -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Présence moyenne</p>
+              <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
+            </div>
           </div>
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Présence moyenne</p>
-            <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
+        </div>
+        
+        <!-- Carte 5 - Tâches en retard -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Tâches en retard</p>
+              <p class="text-2xl font-bold text-orange-600">{{ performances.tachesRetard }}</p>
+            </div>
           </div>
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Tâches en retard</p>
-            <p class="text-2xl font-bold text-orange-600">{{ performances.tachesRetard }}</p>
-          </div>
-          <div class="bg-gray-100 rounded-lg p-3 text-center">
-            <p class="text-xs text-gray-600 mb-1">Matériaux en alerte</p>
-            <p class="text-2xl font-bold text-red-600">{{ performances.materiauxAlerte }}</p>
+        </div>
+        
+        <!-- Carte 6 - Matériaux en alerte -->
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-gray-600 mt-1">Matériaux en alerte</p>
+              <p class="text-2xl font-bold text-red-600">{{ performances.materiauxAlerte }}</p>
+            </div>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>
