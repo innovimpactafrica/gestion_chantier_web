@@ -231,77 +231,87 @@ export class LoginComponent implements OnInit {
     });
   }
   
-  private processLoginSuccess(response: any): void {
+ private processLoginSuccess(response: any): void {
+  try {
+    console.log('📥 Réponse serveur complète:', response);
+
+    // Indicateurs de profil
+    let isBET = false;
+    let isSUPPLIER = false;
+
     try {
-      console.log('📥 Réponse serveur complète:', response);
-      
-      // Méthode principale: lire le profil directement depuis le token JWT
-      let isBET = false;
-      
-      try {
-        // Décoder le payload JWT
-        const payload = JSON.parse(atob(response.token.split('.')[1]));
-        console.log('🔍 Payload JWT:', payload);
-        
-        // Vérifier le profil dans différentes propriétés possibles
-        const profile = payload.profil || payload.profile || payload.role;
-        isBET = profile === 'BET';
-        
-        console.log('✅ Profil détecté:', profile, 'isBET:', isBET);
-        
-      } catch (tokenError) {
-        console.error('❌ Impossible de lire le token, utilisation du service:', tokenError);
-        
-        // Fallback: utiliser le service auth après un court délai
-        setTimeout(() => {
-          const isBETFallback = this.authService.isBETProfile();
-          console.log('🔄 Fallback - Vérification BET par service:', isBETFallback);
-          this.isLoading.set(false);
-          this.redirectToDashboard(isBETFallback);
-        }, 300);
-        return;
+      // ✅ Décoder le token JWT
+      const tokenParts = response?.token?.split('.');
+      if (!tokenParts || tokenParts.length < 2) {
+        throw new Error('Token JWT invalide ou manquant');
       }
-      
-      // Redirection immédiate avec la valeur détectée
-      this.isLoading.set(false);
-      this.redirectToDashboard(isBET);
-      
-    } catch (error) {
-      console.error('❌ Erreur critique lors du traitement:', error);
-      this.isLoading.set(false);
-      this.redirectToDashboard(false);
+
+      const payload = JSON.parse(atob(tokenParts[1]));
+      console.log('🔍 Payload JWT:', payload);
+
+      // ✅ Lecture flexible du profil
+      const profile = payload.profil || payload.profile || payload.role;
+      isBET = profile === 'BET';
+      isSUPPLIER = profile === 'SUPPLIER';
+
+      console.log('✅ Profil détecté:', profile, '| isBET:', isBET, '| isSUPPLIER:', isSUPPLIER);
+
+    } catch (tokenError) {
+      console.error('❌ Impossible de lire le token, utilisation du service:', tokenError);
+
+      // 🔁 Fallback: vérifier via le service Auth
+      setTimeout(() => {
+        const isBETFallback = this.authService.isBETProfile();
+        const isSUPPLIERFallback = this.authService.isSUPPLIERProfile();
+        console.log('🔄 Fallback - Vérification via service:', { isBETFallback, isSUPPLIERFallback });
+        this.isLoading.set(false);
+        this.redirectToDashboard(isBETFallback, isSUPPLIERFallback);
+      }, 300);
+      return;
     }
+
+    // ✅ Redirection principale
+    this.isLoading.set(false);
+    this.redirectToDashboard(isBET, isSUPPLIER);
+
+  } catch (error) {
+    console.error('❌ Erreur critique lors du traitement:', error);
+    this.isLoading.set(false);
+    this.redirectToDashboard(false, false);
   }
+}
 
-  private redirectToDashboard(isBET?: boolean): void {
-    // Si isBET n'est pas spécifié, le détecter
-    if (isBET === undefined) {
-      isBET = this.authService.isBETProfile();
-    }
 
-    console.log('🎯 Redirection finale - isBET:', isBET);
+private redirectToDashboard(isBET?: boolean, isSUPPLIER?: boolean): void {
+  // 🔄 Valeurs par défaut si non définies
+  if (isBET === undefined) isBET = this.authService.isBETProfile();
+  if (isSUPPLIER === undefined) isSUPPLIER = this.authService.isSUPPLIERProfile();
 
-    if (isBET) {
-      console.log('✅ Redirection vers dashboard-etude');
-      this.router.navigate(['/dashboard-etude']).then(success => {
-        if (success) {
-          this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace BET.');
-        } else {
-          // Fallback vers le dashboard standard si la redirection échoue
-          this.router.navigate(['/dashboard']).then(() => {
-            this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace.');
-          });
-        }
-      });
-    } else {
-      console.log('✅ Redirection vers dashboard standard');
-      this.router.navigate(['/dashboard']).then(success => {
-        if (success) {
-          this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace.');
-        }
-      });
-    }
+  console.log('🎯 Redirection finale - isBET:', isBET, '| isSUPPLIER:', isSUPPLIER);
+
+  if (isBET) {
+    console.log('✅ Redirection vers dashboard BET');
+    this.router.navigate(['/dashboard-etude']).then(success => {
+      this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace BET.');
+      if (!success) this.router.navigate(['/dashboard']);
+    });
+
+  } else if (isSUPPLIER) {
+    console.log('✅ Redirection vers dashboard fournisseur');
+    this.router.navigate(['/dashboardf']).then(success => {
+      this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace fournisseur.');
+      if (!success) this.router.navigate(['/dashboard']);
+    });
+
+  } else {
+    console.log('✅ Redirection vers dashboard standard');
+    this.router.navigate(['/dashboard']).then(success => {
+      if (success) {
+        this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace.');
+      }
+    });
   }
+}
 
   private handleLoginError(err: any): void {
     let errorMessage = 'Erreur de connexion';

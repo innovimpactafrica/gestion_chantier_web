@@ -1,0 +1,1122 @@
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center w-full">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2 flex-shrink-0">
+                    <img src="assets/images/logo.png" class="h-8" alt="">
+                </div>
+
+                <!-- Navigation Desktop -->
+                <nav class="hidden md:flex items-center space-x-8 flex-grow justify-center">
+                    <a href="#accueil"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Accueil</a>
+                    <a href="#apropos" class="text-gray-700 hover:text-orange-500 transition-colors font-medium">À
+                        propos</a>
+                    <a href="#fonctionnalites"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Fonctionnalités</a>
+                    <a href="#profils"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Profils</a>
+                    <a href="#contact"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Contact</a>
+                </nav>
+
+                <!-- CTA Buttons -->
+                <div class="hidden md:flex items-center space-x-4 flex-shrink-0">
+                    <button (click)="goToLogin()"
+                        class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all font-medium">
+                        Se connecter
+                    </button>
+                    <button (click)="goToLogin()"
+                        class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
+                        Essayer gratuitement
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden flex-shrink-0" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t mt-4">
+            <nav class="flex flex-col space-y-4 px-4 py-6">
+                <a href="#accueil" class="text-gray-700 hover:text-orange-500 transition-colors">Accueil</a>
+                <a href="#apropos" class="text-gray-700 hover:text-orange-500 transition-colors">À propos</a>
+                <a href="#fonctionnalites"
+                    class="text-gray-700 hover:text-orange-500 transition-colors">Fonctionnalités</a>
+                <a href="#profils" class="text-gray-700 hover:text-orange-500 transition-colors">Profils</a>
+                <a href="#contact" class="text-gray-700 hover:text-orange-500 transition-colors">Contact</a>
+                <button (click)="goToLogin()" class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg">Se
+                    connecter</button>
+                <button (click)="goToLogin()" class="px-6 py-2 bg-orange-500 text-white rounded-lg">Essayer
+                    gratuitement</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="accueil" class="pt-32 py-20 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div class="space-y-6 animate-fade-in-left">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                        Simplifiez la gestion de vos chantiers, du bureau au terrain.
+                    </h1>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Suivi en temps réel, pointages, plannings, rapports PDF, coûts et photos — le tout dans une
+                        seule plateforme prête pour la MOA, le BET, le chef de chantier et les équipes terrain.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button
+                            class="px-8 py-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
+                            Voir les fonctionnalités
+                        </button>
+                        <button
+                            class="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-all font-medium">
+                            Télécharger l'application
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Content - Dashboard Preview -->
+                <div class="relative animate-fade-in-right flex justify-end">
+                    <div class="w-full hover:scale-105 transition-transform duration-300">
+                        <div class="w-full">
+                            <div class="text-gray-400">
+                                <img src="assets/images/appli.png" alt="" class="w-full h-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>&nbsp;&nbsp;&nbsp;
+    <!-- À propos Section -->
+    <section id="apropos" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Content - Images -->
+                <div class="w-full hover:scale-105 transition-transform duration-300">
+                    <div class="relative animate-fade-in-left ">
+                        <img src="assets/images/apropos.png" alt="">
+                    </div>
+                </div>
+
+                <!-- Right Content - Text -->
+                <div class="space-y-6 animate-fade-in-right">
+                    <div
+                        class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold">
+                        Présentation
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900">
+                        À propos
+                    </h2>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Innovchantiers centralise le pilotage des projets : suivi du terrain, coordination documentaire
+                        et reporting. Conçu pour réduire les frictions et accélérer la prise de décision.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-orange-500 mr-3 flex-shrink-0 mt-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">Suivi des chantiers en temps réel</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-orange-500 mr-3 flex-shrink-0 mt-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">Gestion des équipes et des tâches</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-orange-500 mr-3 flex-shrink-0 mt-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">Partage de documents et rapports</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-orange-500 mr-3 flex-shrink-0 mt-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">Suivi des dépenses et plannings</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Profils utilisateurs Section -->
+    <section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
+        <div class="max-w-7xl mx-auto relative ">
+            <div class="text-center mb-16 animate-fade-in-up">
+                <div
+                    class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
+                    Profils utilisateurs
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Une solution adaptée à chaque intervenant</h2>
+                <p class="text-lg text-gray-600">Innovachantiers inc. propose des fonctionnalités spécifiques pour
+                    chaque profil impliqué dans vos projets de construction</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 ">
+                <!-- MOA Card -->
+                <div
+                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="mb-6">
+                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
+                            <img src="assets/images/ouvrier1.png" alt="">
+                        </div>
+                        <div class="px-6">
+                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
+                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
+                                validation.</p>
+                            <a href="#"
+                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
+                                Découvrir plus
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- BET Card -->
+                <div
+                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="mb-6">
+                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
+                            <img src="assets/images/ouvrier2.png" alt="">
+                        </div>
+                        <div class="px-6">
+                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
+                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
+                                validation.</p>
+                            <a href="#"
+                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
+                                Découvrir plus
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Chef de chantier Card -->
+                <div
+                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="mb-6">
+                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
+                            <img src="assets/images/ouvrier3.png" alt="">
+                        </div>
+                        <div class="px-6">
+                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
+                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
+                                validation.</p>
+                            <a href="#"
+                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
+                                Découvrir plus
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Ouvrier Card -->
+                <div
+                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="mb-6">
+                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
+                            <img src="assets/images/ouvrier4.png" alt="">
+                        </div>
+                        <div class="px-6">
+                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
+                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
+                                validation.</p>
+                            <a href="#"
+                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
+                                Découvrir plus
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fonctionnalités Section -->
+    <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
+        class="py-20 px-4 sm:px-6 lg:px-8 bg-cover bg-center">
+        <div class="max-w-7xl mx-auto ">
+            <div class="text-center mb-4 animate-fade-in-up">
+                <div
+                    class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
+                    Fonctionnalités clés
+                </div>
+            </div>
+            <div class="text-center mb-16 animate-fade-in-up">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Tout ce dont vous avez besoin pour gérer vos chantiers
+                </h2>
+                <p class="text-lg text-gray-600">Innovchantiers inc. centralise tous les outils nécessaires pour gérer
+                    efficacement vos projets
+                    de construction dans une interface intuitive et accessible</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 ">
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.729 6.435C1.743 5.641 0.75 5.244 0.75 4.75C0.75 4.256 1.743 3.86 3.729 3.065L6.537 1.942C8.523 1.147 9.517 0.75 10.75 0.75C11.983 0.75 12.977 1.147 14.963 1.942L17.771 3.065C19.757 3.859 20.75 4.256 20.75 4.75C20.75 5.244 19.757 5.64 17.771 6.435L14.963 7.559C12.977 8.353 11.983 8.75 10.75 8.75C9.517 8.75 8.523 8.353 6.537 7.559L3.729 6.435Z"
+                                stroke="white" stroke-width="1.5" />
+                            <path opacity="0.5"
+                                d="M4.516 6.75L3.729 7.065C1.743 7.859 0.75 8.257 0.75 8.75C0.75 9.243 1.743 9.64 3.729 10.435L6.537 11.559C8.523 12.353 9.517 12.75 10.75 12.75C11.983 12.75 12.977 12.353 14.963 11.559L17.771 10.435C19.757 9.641 20.75 9.243 20.75 8.75C20.75 8.257 19.757 7.86 17.771 7.065L16.984 6.75M4.516 10.75L3.729 11.065C1.743 11.859 0.75 12.257 0.75 12.75C0.75 13.243 1.743 13.64 3.729 14.435L6.537 15.559C8.523 16.353 9.517 16.75 10.75 16.75C11.983 16.75 12.977 16.353 14.963 15.558L17.771 14.435C19.757 13.641 20.75 13.244 20.75 12.75C20.75 12.257 19.757 11.86 17.771 11.065L16.984 10.75"
+                                stroke="white" stroke-width="1.5" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Suivi en temps réel</h3>
+                    <p class=" text-center text-gray-600">Suivez l'avancement de vos chantiers en direct depuis
+                        n'importe où</p>
+                </div>
+
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105 ">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="24" height="19" viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6 8.3125C4.92375 8.3125 6 7.24746 6 5.9375C6 4.62754 4.92375 3.5625 3.6 3.5625C2.27625 3.5625 1.2 4.62754 1.2 5.9375C1.2 7.24746 2.27625 8.3125 3.6 8.3125ZM20.4 8.3125C21.7238 8.3125 22.8 7.24746 22.8 5.9375C22.8 4.62754 21.7238 3.5625 20.4 3.5625C19.0763 3.5625 18 4.62754 18 5.9375C18 7.24746 19.0763 8.3125 20.4 8.3125ZM21.6 9.5H19.2C18.54 9.5 17.9438 9.76348 17.5088 10.1902C19.02 11.0104 20.0925 12.491 20.325 14.25H22.8C23.4638 14.25 24 13.7193 24 13.0625V11.875C24 10.565 22.9238 9.5 21.6 9.5ZM12 9.5C14.3213 9.5 16.2 7.64082 16.2 5.34375C16.2 3.04668 14.3213 1.1875 12 1.1875C9.67875 1.1875 7.8 3.04668 7.8 5.34375C7.8 7.64082 9.67875 9.5 12 9.5ZM14.88 10.6875H14.5688C13.7888 11.0586 12.9225 11.2812 12 11.2812C11.0775 11.2812 10.215 11.0586 9.43125 10.6875H9.12C6.735 10.6875 4.8 12.6023 4.8 14.9625V16.0312C4.8 17.0146 5.60625 17.8125 6.6 17.8125H17.4C18.3938 17.8125 19.2 17.0146 19.2 16.0312V14.9625C19.2 12.6023 17.265 10.6875 14.88 10.6875ZM6.49125 10.1902C6.05625 9.76348 5.46 9.5 4.8 9.5H2.4C1.07625 9.5 0 10.565 0 11.875V13.0625C0 13.7193 0.53625 14.25 1.2 14.25H3.67125C3.9075 12.491 4.98 11.0104 6.49125 10.1902Z"
+                                fill="white" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Gestion d'équipe</h3>
+                    <p class="text-center text-gray-600">Organisez vos équipes et assignez les tâches facilement</p>
+                </div>
+
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3.6002 14.3999C4.23672 14.3999 4.84716 14.6528 5.29725 15.1028C5.74734 15.5529 6.0002 16.1634 6.0002 16.7999C6.0002 17.4364 5.74734 18.0469 5.29725 18.497C4.84716 18.947 4.23672 19.1999 3.6002 19.1999H2.4002V20.9999C2.4002 21.159 2.33698 21.3116 2.22446 21.4242C2.11194 21.5367 1.95933 21.5999 1.8002 21.5999C1.64107 21.5999 1.48845 21.5367 1.37593 21.4242C1.26341 21.3116 1.2002 21.159 1.2002 20.9999V14.9999C1.2002 14.8408 1.26341 14.6882 1.37593 14.5756C1.48845 14.4631 1.64107 14.3999 1.8002 14.3999H3.6002ZM2.4002 17.9999H3.6002C3.91846 17.9999 4.22368 17.8735 4.44872 17.6484C4.67377 17.4234 4.8002 17.1182 4.8002 16.7999C4.8002 16.4816 4.67377 16.1764 4.44872 15.9514C4.22368 15.7263 3.91846 15.5999 3.6002 15.5999H2.4002V17.9999ZM9.6002 14.3999C10.2367 14.3999 10.8472 14.6528 11.2973 15.1028C11.7473 15.5529 12.0002 16.1634 12.0002 16.7999V19.1999C12.0002 19.8364 11.7473 20.4469 11.2973 20.897C10.8472 21.347 10.2367 21.5999 9.6002 21.5999H7.8002C7.64107 21.5999 7.48845 21.5367 7.37593 21.4242C7.26341 21.3116 7.2002 21.159 7.2002 20.9999V14.9999C7.2002 14.8408 7.26341 14.6882 7.37593 14.5756C7.48845 14.4631 7.64107 14.3999 7.8002 14.3999H9.6002ZM8.4002 20.3999H9.6002C9.91846 20.3999 10.2237 20.2735 10.4487 20.0484C10.6738 19.8234 10.8002 19.5182 10.8002 19.1999V16.7999C10.8002 16.4816 10.6738 16.1764 10.4487 15.9514C10.2237 15.7263 9.91846 15.5999 9.6002 15.5999H8.4002V20.3999ZM16.9202 14.4119C17.0558 14.4394 17.1778 14.513 17.2654 14.6202C17.3529 14.7274 17.4008 14.8615 17.4008 14.9999C17.4008 15.1383 17.3529 15.2725 17.2654 15.3796C17.1778 15.4868 17.0558 15.5604 16.9202 15.5879L16.8002 15.5999H14.4002V17.3999H16.2002C16.3593 17.3999 16.5119 17.4631 16.6245 17.5756C16.737 17.6882 16.8002 17.8408 16.8002 17.9999C16.8002 18.159 16.737 18.3116 16.6245 18.4242C16.5119 18.5367 16.3593 18.5999 16.2002 18.5999H14.4002V20.9999C14.4002 21.159 14.337 21.3116 14.2245 21.4242C14.1119 21.5367 13.9593 21.5999 13.8002 21.5999C13.6411 21.5999 13.4885 21.5367 13.3759 21.4242C13.2634 21.3116 13.2002 21.159 13.2002 20.9999V14.9999C13.2002 14.8408 13.2634 14.6882 13.3759 14.5756C13.4885 14.4631 13.6411 14.3999 13.8002 14.3999H16.8002L16.9202 14.4119ZM12.0002 7.7999C12.0002 8.27729 12.1898 8.73513 12.5274 9.0727C12.865 9.41026 13.3228 9.5999 13.8002 9.5999H19.2002V19.7999C19.2002 20.2773 19.0106 20.7351 18.673 21.0727C18.3354 21.4103 17.8776 21.5999 17.4002 21.5999H15.4958C15.5638 21.4111 15.5986 21.2111 15.6002 20.9999V19.7999H16.2002C16.5611 19.7992 16.9134 19.6899 17.2115 19.4865C17.5095 19.283 17.7395 18.9946 17.8716 18.6587C18.0037 18.3229 18.0318 17.9551 17.9522 17.6031C17.8726 17.2511 17.6891 16.9311 17.4254 16.6847C17.822 16.5389 18.1546 16.2581 18.3647 15.8915C18.5748 15.5249 18.6491 15.096 18.5745 14.6801C18.4999 14.2642 18.2811 13.8878 17.9567 13.6171C17.6322 13.3465 17.2227 13.1987 16.8002 13.1999H13.8002C13.4523 13.2 13.1118 13.3009 12.82 13.4905C12.5283 13.68 12.2977 13.95 12.1562 14.2679C11.8218 13.9299 11.4237 13.6615 10.985 13.4782C10.5463 13.2949 10.0757 13.2003 9.6002 13.1999H7.8002C7.47465 13.1999 7.15519 13.2881 6.87583 13.4553C6.59647 13.6224 6.36767 13.8622 6.2138 14.1491C5.81915 13.7604 5.33302 13.4773 4.8002 13.3259V4.1999C4.8002 3.72251 4.98984 3.26468 5.3274 2.92711C5.66497 2.58954 6.12281 2.3999 6.6002 2.3999H12.0002V7.7999ZM18.9002 8.3999H13.8002C13.6411 8.3999 13.4885 8.33669 13.3759 8.22417C13.2634 8.11164 13.2002 7.95903 13.2002 7.7999V2.6999L18.9002 8.3999Z"
+                                fill="white" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Rapports PDF</h3>
+                    <p class="text-center text-gray-600">Générez des rapports détaillés en un clic</p>
+                </div>
+
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M15 15H19L22 22H2L5 15H9M13 8C13 8.26522 12.8946 8.51957 12.7071 8.70711C12.5196 8.89464 12.2652 9 12 9C11.7348 9 11.4804 8.89464 11.2929 8.70711C11.1054 8.51957 11 8.26522 11 8C11 7.73478 11.1054 7.48043 11.2929 7.29289C11.4804 7.10536 11.7348 7 12 7C12.2652 7 12.5196 7.10536 12.7071 7.29289C12.8946 7.48043 13 7.73478 13 8ZM6 8C6 13 12 18 12 18C12 18 18 13 18 8C18 4.583 15.314 2 12 2C8.686 2 6 4.583 6 8Z"
+                                stroke="white" stroke-width="2" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Photos de chantier</h3>
+                    <p class="text-center text-gray-600">Documentez visuellement l'avancement des travaux</p>
+                </div>
+
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM6 9H18V11H6V9ZM14 14H6V12H14V14ZM18 8H6V6H18V8Z"
+                                fill="white" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Suivi des coûts</h3>
+                    <p class="text-center text-gray-600">Maîtrisez votre budget avec un suivi précis des dépenses</p>
+                </div>
+
+                <div
+                    class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M6 16.5L3 19.44V11H6M11 14.66L9.43 13.32L8 14.64V7H11M16 13L13 16V3H16M18.81 12.81L17 11H22V16L20.21 14.21L13 21.36L9.53 18.34L5.75 22H3L9.47 15.66L13 18.64"
+                                fill="white" />
+                        </svg>
+
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Planning intelligent</h3>
+                    <p class="text-center text-gray-600">Planifiez et optimisez vos ressources efficacement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- CTA Section -->
+    <!-- <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-orange-500">
+        <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+            <h2 class="text-4xl font-bold text-white mb-6">Prêt à transformer votre gestion de chantiers ?</h2>
+            <p class="text-xl text-white mb-8 opacity-90">Commencez votre essai gratuit dès aujourd'hui</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                    class="px-8 py-4 bg-white text-orange-500 rounded-lg hover:bg-gray-100 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
+                    Essayer gratuitement
+                </button>
+                <button
+                    class="px-8 py-4 border-2 border-white text-white rounded-lg hover:bg-white hover:text-orange-500 transition-all font-medium">
+                    Nous contacter
+                </button>
+            </div>
+        </div>
+    </section> -->
+
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <!-- Badge -->
+            <div class="text-center mb-8">
+                <span class="inline-block px-6 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
+                    Offres et abonnements
+                </span>
+            </div>
+
+            <!-- Titre et description -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Des formules adaptées à tous les besoins</h2>
+                <p class="text-lg text-gray-600">Choisissez la formule qui correspond le mieux à la taille de votre
+                    entreprise et à vos projets</p>
+            </div>
+
+            <!-- Cartes de pricing -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Gratuit (essai) -->
+                <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Gratuit (essai)</h3>
+                    <p class="text-gray-600 mb-6">Essai limité à 1 projet</p>
+
+                    <div class="mb-8">
+                        <span class="text-4xl font-bold text-gray-900">0 FCFA</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">1 projet</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Profils Chef & Ouvrier</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Rapports PDF</span>
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full py-3 px-6 border-2 border-orange-500 text-orange-500 rounded-lg font-medium hover:bg-orange-50 transition-colors">
+                        Commencer gratuitement
+                    </button>
+                </div>
+
+                <!-- Pro (Recommandé) -->
+                <div class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
+                    <div class="absolute top-0 right-6 transform -translate-y-1/2">
+                        <span class="inline-block px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-medium">
+                            Recommandé
+                        </span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
+                    <p class="text-gray-600 mb-6">Pour les petites et moyennes entreprises</p>
+
+                    <div class="mb-8">
+                        <span class="text-4xl font-bold text-gray-900">16 990 FCFA</span>
+                        <span class="text-gray-600 ml-2">mois</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Projets illimités</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">MOA, BET, Chef & Ouvrier</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Support prioritaire</span>
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full py-3 px-6 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-md">
+                        Souscrire
+                    </button>
+                </div>
+
+                <!-- Entreprise -->
+                <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Entreprise</h3>
+                    <p class="text-gray-600 mb-6">Pour les grandes entreprises</p>
+
+                    <div class="mb-8">
+                        <span class="text-4xl font-bold text-gray-900">Sur devis</span>
+                    </div>
+
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">SSO & rôles avancés</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Statistiques & export</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Accompagnement dédié</span>
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full py-3 px-6 border-2 border-orange-500 text-orange-500 rounded-lg font-medium hover:bg-orange-50 transition-colors">
+                        Nous contacter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Section Téléchargez l'application -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Contenu gauche -->
+                <div>
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">
+                        Téléchargez l'application
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-8">
+                        Badgez, suivez et documentez depuis le terrain. Synchronisation en temps réel avec le web.
+                    </p>
+
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-start gap-3">
+                            <span class="w-2 h-2 bg-gray-900 rounded-full mt-2"></span>
+                            <span class="text-gray-700 text-lg">Suivi des chantiers en temps réel</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-2 h-2 bg-gray-900 rounded-full mt-2"></span>
+                            <span class="text-gray-700 text-lg">Gestion des équipes et des tâches</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-2 h-2 bg-gray-900 rounded-full mt-2"></span>
+                            <span class="text-gray-700 text-lg">Partage de documents et rapports</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-2 h-2 bg-gray-900 rounded-full mt-2"></span>
+                            <span class="text-gray-700 text-lg">Suivi des dépenses et plannings</span>
+                        </li>
+                    </ul>
+
+                    <div class="flex flex-wrap gap-4">
+                        <button
+                            class="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                            </svg>
+                            <div class="text-left">
+                                <div class="text-xs">Télécharger sur</div>
+                                <div class="text-sm font-semibold">App Store</div>
+                            </div>
+                        </button>
+
+                        <button
+                            class="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M0.321321 0.268813C0.117788 0.476546 0 0.799967 0 1.21881V16.1587C0 16.5775 0.117788 16.901 0.321321 17.1087L0.371555 17.1543L8.95802 8.78587V8.58827L0.371555 0.219836L0.321321 0.268813Z"
+                                    fill="url(#paint0_linear_4461_4217)" />
+                                <path
+                                    d="M11.817 11.5762L8.95801 8.78529V8.58769L11.8205 5.7968L11.8845 5.83312L15.2744 7.71369C16.2419 8.24738 16.2419 9.1256 15.2744 9.66266L11.8845 11.5399L11.817 11.5762Z"
+                                    fill="url(#paint1_linear_4461_4217)" />
+                                <path
+                                    d="M11.8845 11.54L8.95799 8.68661L0.321289 17.1082C0.64261 17.4376 1.1666 17.4773 1.76247 17.1479L11.8845 11.54Z"
+                                    fill="url(#paint2_linear_4461_4217)" />
+                                <path
+                                    d="M11.8845 5.83315L1.76247 0.225207C1.1666 -0.100748 0.64261 -0.0610603 0.321289 0.268273L8.95799 8.68652L11.8845 5.83315Z"
+                                    fill="url(#paint3_linear_4461_4217)" />
+                                <defs>
+                                    <linearGradient id="paint0_linear_4461_4217" x1="8.19565" y1="16.3143" x2="-3.13815"
+                                        y2="4.68989" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#00A0FF" />
+                                        <stop offset="0.0066" stop-color="#00A1FF" />
+                                        <stop offset="0.2601" stop-color="#00BEFF" />
+                                        <stop offset="0.5122" stop-color="#00D2FF" />
+                                        <stop offset="0.7604" stop-color="#00DFFF" />
+                                        <stop offset="1" stop-color="#00E3FF" />
+                                    </linearGradient>
+                                    <linearGradient id="paint1_linear_4461_4217" x1="16.5342" y1="8.68554"
+                                        x2="-0.231261" y2="8.68554" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#FFE000" />
+                                        <stop offset="0.4087" stop-color="#FFBD00" />
+                                        <stop offset="0.7754" stop-color="#FFA500" />
+                                        <stop offset="1" stop-color="#FF9C00" />
+                                    </linearGradient>
+                                    <linearGradient id="paint2_linear_4461_4217" x1="10.2932" y1="7.13547" x2="-5.07638"
+                                        y2="-8.62816" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#FF3A44" />
+                                        <stop offset="1" stop-color="#C31162" />
+                                    </linearGradient>
+                                    <linearGradient id="paint3_linear_4461_4217" x1="-1.85275" y1="22.0786" x2="5.01044"
+                                        y2="15.0395" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#32A071" />
+                                        <stop offset="0.0685" stop-color="#2DA771" />
+                                        <stop offset="0.4762" stop-color="#15CF74" />
+                                        <stop offset="0.8009" stop-color="#06E775" />
+                                        <stop offset="1" stop-color="#00F076" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+
+                            <div class="text-left">
+                                <div class="text-xs">Télécharger sur</div>
+                                <div class="text-sm font-semibold">Google Play</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Images mobiles à droite -->
+                <div class="relative flex justify-center lg:justify-end">
+                    <div class="w-full hover:scale-105 transition-transform duration-300">
+
+                        <div class="relative">
+                            <img src="assets/images/phone.png" alt="Ombre de téléphone" class="" />
+                        </div>
+                        <!-- Image mobile arrière -->
+                        <!-- <div class="absolute -left-20 top-10 transform rotate-[-5deg]">
+                            <div
+                                class="w-64 h-[520px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-8 border-gray-900">
+                                <div class="w-full h-full bg-gradient-to-br from-blue-900 to-blue-700"></div>
+                            </div>
+                        </div> -->
+
+                        <!-- Image mobile avant -->
+                        <!-- <div class="relative z-10">
+                            <div
+                                class="w-72 h-[580px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-8 border-gray-900">
+                                <div class="w-full h-full bg-gradient-to-br from-blue-900 to-blue-600 p-6">
+                                    
+                                    <div class="mt-8 space-y-4">
+                                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 h-32"></div>
+                                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 h-24"></div>
+                                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 h-24"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Témoignages clients -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-orange-50">
+        <div class="max-w-7xl mx-auto">
+            <!-- Badge -->
+            <div class="text-center mb-6">
+                <span class="inline-block px-6 py-2 bg-orange-200 text-orange-700 rounded-full text-sm font-medium">
+                    Témoignages clients
+                </span>
+            </div>
+
+            <!-- Titre et description -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Ce que nos clients disent de nous
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Découvrez comment Innovachantiers inc. transforme la gestion des projets de construction pour des
+                    entreprises comme la vôtre
+                </p>
+            </div>
+
+            <!-- Cartes de témoignages -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <!-- Témoignage 1 -->
+                <div class="bg-white rounded-lg p-8 shadow-sm relative">
+                    <!-- Étoiles -->
+                    <div class="flex gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                    </div>
+
+                    <!-- Icône de guillemets -->
+                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+
+
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        Depuis que nous utilisons Innovachantiers, nous avons réduit nos délais de 20% et amélioré la
+                        communication entre nos équipes. Un outil indispensable pour notre entreprise.
+                    </p>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div>
+                            <div class="font-semibold text-gray-900">Jean Dupont</div>
+                            <div class="text-sm text-gray-600">Directeur de projets, Construction Moderne</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Témoignage 2 -->
+                <div class="bg-white rounded-lg p-8 shadow-sm relative">
+                    <!-- Étoiles -->
+                    <div class="flex gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+
+                    <!-- Icône de guillemets -->
+                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+
+
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        La plateforme nous permet de suivre en temps réel l'avancement de nos chantiers et d'anticiper
+                        les problèmes avant qu'ils ne surviennent. L'application mobile est particulièrement pratique
+                        sur le terrain.
+                    </p>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div>
+                            <div class="font-semibold text-gray-900">Marie Lambert</div>
+                            <div class="text-sm text-gray-600">Chef de chantier, Bâtiments du Sud</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Témoignage 3 -->
+                <div class="bg-white rounded-lg p-8 shadow-sm relative">
+                    <!-- Étoiles -->
+                    <div class="flex gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
+                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+
+                    <!-- Icône de guillemets -->
+                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
+                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+
+
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        Innovachantiers a transformé notre façon de gérer les projets. La gestion des tâches et le
+                        traitement des rapports est devenue beaucoup plus simple et efficace. Je recommande vivement
+                        cette solution à toutes les entreprises du BTP.
+                    </p>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div>
+                            <div class="font-semibold text-gray-900">Thomas Martin</div>
+                            <div class="text-sm text-gray-600">PDG, Constructions MTG</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logos des entreprises -->
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+                <img class="h-16 w-32 object-contain" src="assets/images/cse.png" alt="Logo cse" />
+                <img class="h-16 w-32 object-contain" src="assets/images/eiffage.png" alt="Logo eiffage" />
+                <img class="h-16 w-32 object-contain" src="assets/images/nge.png" alt="Logo nge" />
+                <img class="h-16 w-32 object-contain" src="assets/images/soeco.png" alt="Logo soeco" />
+                <img class="h-16 w-32 object-contain" src="assets/images/colas.png" alt="Logo Colas" />
+                <img class="h-16 w-32 object-contain" src="assets/images/snconst.png" alt="Logo snconst" />
+                <img class="h-16 w-32 object-contain" src="assets/images/btp2.png" alt="Logo btp2" />
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer class="bg-[#1a1f2e] text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <!-- Colonne 1 - Logo et description -->
+                <div>
+                    <img src="assets/images/logo.png" class="h-16 mb-6" alt="BTP Logo">
+                    <p class="text-gray-400 leading-relaxed mb-8">
+                        La solution complète pour la gestion de vos projets de construction. Simplifiez votre quotidien
+                        et optimisez la rentabilité de vos chantiers.
+                    </p>
+                    <!-- Réseaux sociaux -->
+                    <div class="flex gap-4">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Colonne 2 - Produit -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Produit</h4>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#fonctionnalites" class="text-gray-400 hover:text-white transition-colors">
+                                Fonctionnalités
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tarifs" class="text-gray-400 hover:text-white transition-colors">
+                                Tarifs
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#temoignages" class="text-gray-400 hover:text-white transition-colors">
+                                Témoignages
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#faq" class="text-gray-400 hover:text-white transition-colors">
+                                FAQ
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Colonne 3 - Contact -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Contact</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <a href="tel:+221771234567" class="text-gray-400 hover:text-white transition-colors">
+                                +221 77 123 45 67
+                            </a>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <a href="mailto:contact@btp.sn" class="text-gray-400 hover:text-white transition-colors">
+                                contact&#64;btp.sn
+
+                            </a>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="text-gray-400">
+                                Fann, Point E
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Ligne de séparation -->
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-gray-400 text-sm">
+                        © 2025 BTP. Tous droits réservés.
+                    </p>
+                    <div class="flex flex-wrap gap-6 text-sm">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            Mentions légales
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            Politique de confidentialité
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            CGU
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            Cookies
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Add scroll animation trigger
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.animate-fade-in-up, .animate-fade-in-left, .animate-fade-in-right').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            observer.observe(el);
+        });
+    </script>
+</div>

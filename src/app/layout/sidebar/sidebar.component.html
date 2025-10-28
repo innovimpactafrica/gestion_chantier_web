@@ -1,17 +1,15 @@
-<div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2">  
+<div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2">
   <!-- Profile Section -->
   <div class="bg-white rounded-[16px] p-4 mb-4 border">
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
-          <img [src]="getProfileImageUrl()" 
-               [alt]="'Photo de profil de ' + getUserDisplayName()" 
-               (error)="onImageError($event)"
-               class="w-full h-full object-cover" />
+          <img [src]="getProfileImageUrl()" [alt]="'Photo de profil de ' + getUserDisplayName()"
+            (error)="onImageError($event)" class="w-full h-full object-cover" />
         </div>
         <div>
           <p class="font-bold text-base">{{ getUserDisplayName() }}</p>
-          <p class="text-sm">{{ getUserProfile() }}</p> 
+          <p class="text-sm">{{ getUserProfile() }}</p>
         </div>
       </div>
       <button class="text-gray-700">
@@ -26,63 +24,59 @@
   <nav class="flex-1">
     <ul class="space-y-2">
       <!-- Dashboard - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
-        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
+        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" 
-                 [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                         (isActive('dashboard') ? 'brightness-0 invert' : '')" 
-                 srcset="">
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                         (isActive('dashboard') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">Tableau de bord</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd" />
           </svg>
         </a>
       </li>
 
       <!-- Dashboard Etude - Affiché seulement si BET -->
       <li *ngIf="isBETProfile()">
-        <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+        <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('dashboard-etude') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" 
-                 [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                         (isActive('dashboard-etude') ? 'brightness-0 invert' : '')" 
-                 srcset="">
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                         (isActive('dashboard-etude') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">Tableau de bord Etude</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd" />
           </svg>
         </a>
       </li>
 
       <!-- Demandes - Affiché seulement si BET -->
       <li *ngIf="isBETProfile()">
-        <a (click)="navigateTo('/demande', 'Demandes', 'demande')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+        <a (click)="navigateTo('/demande', 'Demandes', 'demande')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('demande') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" 
-                 [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                         (isActive('demande') ? 'brightness-0 invert' : '')" 
-                 srcset="">
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                         (isActive('demande') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">Demandes</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd" />
           </svg>
         </a>
       </li>
 
       <!-- Projects Section - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
-        <a (click)="navigateTo('/projects', 'Projets', 'projects')" 
-           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
+        <a (click)="navigateTo('/projects', 'Projets', 'projects')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('projects') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <i class="fa-regular fa-folder mr-2"></i>
@@ -92,94 +86,85 @@
       </li>
 
       <!-- HR - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
-        <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
+        <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('hr') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" 
-               [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                       (isActive('hr') ? 'brightness-0 invert' : '')" 
-               srcset="">
+          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                       (isActive('hr') ? 'brightness-0 invert' : '')" srcset="">
           <span class="text-sm">Ressources humaines</span>
         </a>
       </li>
 
       <!-- Sous-traitant - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
-        <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
+        <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" 
-               [class]="'mr-2 transition-all duration-200 ' + 
-                       (isActive('subcontractor') ? 'brightness-0 invert' : '')" 
-               alt="">
+          <img src="assets/images/humain.png" [class]="'mr-2 transition-all duration-200 ' + 
+                       (isActive('subcontractor') ? 'brightness-0 invert' : '')" alt="">
           <span class="text-sm">Sous-traitants</span>
         </a>
       </li>
 
+
       <!-- Fournisseurs - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
-        <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" 
-           [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
+        <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" 
-               [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                       (isActive('suppliers') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')" 
-               srcset="">
+          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                       (isActive('suppliers') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')"
+            srcset="">
           <span class="text-sm">Fournisseurs</span>
         </a>
       </li>
 
       <!-- Settings with Dropdown - Affiché seulement si pas BET -->
-      <li *ngIf="!isBETProfile()">
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile()">
         <div>
           <!-- Menu principal Paramètres -->
-          <a (click)="toggleParametres()" 
-             [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+          <a (click)="toggleParametres()"
+            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                      (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
             <div class="flex items-center">
-              <img src="assets/images/solar_settings.png" 
-                   [class]="'mr-2 transition-all duration-200 ' + 
-                           (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : '')" 
-                   alt="" srcset="">
+              <img src="assets/images/solar_settings.png"
+                [class]="'mr-2 transition-all duration-200 ' + 
+                           (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : '')"
+                alt="" srcset="">
               <span class="text-sm">Paramètres</span>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                 [class]="'h-4 w-4 transition-transform duration-200 ' + (showParametres ? 'rotate-180' : '')" 
-                 viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'h-4 w-4 transition-transform duration-200 ' + (showParametres ? 'rotate-180' : '')"
+              viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
             </svg>
           </a>
-          
+
           <!-- Sous-menu Paramètres -->
           <div *ngIf="showParametres" class="mt-2 ml-6 space-y-1 border-l-2 border-gray-200 pl-4">
             <!-- Unité de mesure -->
-            <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" 
-               [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+            <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                        (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Unité de mesure</span>
             </a>
-            
+
             <!-- Documents -->
-            <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" 
-               [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+            <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                        (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Documents</span>
             </a>
-            
+
             <!-- Property Type -->
-            <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')"
-               [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+            <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                        (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Type de Bien</span>
             </a>
 
             <!-- Catégories de matériel -->
-            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" 
-               [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                        (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>Catégories de matériel</span>
@@ -187,14 +172,41 @@
           </div>
         </div>
       </li>
-      
+      <li *ngIf="isSUPPLIERProfile()">
+        <a (click)="navigateTo('/dashboardf', 'Tableau de bord', 'dashboardf')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('dashboardf') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                         (isActive('dashboardf') ? 'brightness-0 invert' : '')" srcset="">
+            <span class="text-sm">Tableau de bord</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+        </a>
+      </li>
+      <li *ngIf="isSUPPLIERProfile()">
+        <a (click)="navigateTo('/commandes', 'Tableau de bord', 'commandes')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                   (isActive('commandes') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                         (isActive('commandes') ? 'brightness-0 invert' : '')" srcset="">
+            <span class="text-sm">Commandes</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+        </a>
+      </li>
+
       <!-- Logout Section - Toujours affiché -->
       <div class="mt-4">
-        <a (click)="logout()" 
-           class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
-          <img src="assets/images/logout.png" 
-               class="mr-2 transition-all duration-200" 
-               alt="">
+        <a (click)="logout()" class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
+          <img src="assets/images/logout.png" class="mr-2 transition-all duration-200" alt="">
           <span class="text-sm">Se déconnecter</span>
         </a>
       </div>

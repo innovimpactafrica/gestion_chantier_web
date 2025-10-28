@@ -1,0 +1,454 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-2">Commandes</h1>
+    <p class="text-gray-600">Visualisez toutes les commandes reçues, filtrez par période ou statut et suivez leur progression en temps réel.</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-4 mb-6">
+    <!-- Search -->
+    <div class="flex-1 min-w-64">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Rechercher par commande"
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div>
+    </div>
+
+    <!-- Period Filter -->
+    <div class="relative">
+      <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()"
+        class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="Période">Période</option>
+        <option value="Cette semaine">Cette semaine</option>
+        <option value="Ce mois">Ce mois</option>
+        <option value="Ce trimestre">Ce trimestre</option>
+      </select>
+      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="relative">
+      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()"
+        class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="Statut">Statut</option>
+        <option value="En attente">En attente</option>
+        <option value="Validée">Validée</option>
+        <option value="Rejetée">Rejetée</option>
+      </select>
+      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+    <p class="mt-2 text-gray-600">Chargement des demandes...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex">
+      <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"></path>
+      </svg>
+      <p class="ml-3 text-sm text-red-800">{{ error }}</p>
+    </div>
+    <button (click)="loadDemandes()" class="mt-2 text-sm text-red-600 hover:text-red-800 underline">
+      Réessayer
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && !error" class="bg-white rounded-lg shadow overflow-hidden">
+  <!-- Affichage des données statiques si aucune donnée dynamique -->
+  <div *ngIf="filteredDemandes.length === 0">
+    <!-- Tableau pour les données statiques -->
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chef de projet</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matériaux</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de création</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let demande of staticDemandes" class="hover:bg-gray-50">
+          <!-- Titre avec image -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                <img *ngIf="demande.propertyImg; else defaultIcon" [src]="'https://wakana.online/repertoire_chantier/' + demande.propertyImg" [alt]="demande.propertyName" class="w-full h-full object-cover rounded">
+                <ng-template #defaultIcon>
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </ng-template>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ demande.title }}</div>
+                <div class="text-xs text-gray-500">{{ demande.propertyName }}</div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Chef de projet -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">{{ demande.betName }}</div>
+          </td>
+
+          <!-- Matériaux -->
+          <td class="px-6 py-4">
+            <div class="text-sm text-gray-900">{{ demande.description }}</div>
+          </td>
+
+          <!-- Date de création -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">{{ formatDate(demande.createdAt) }}</div>
+          </td>
+
+          <!-- Statut -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(demande.status)">
+              {{ mapStatusToFrench(demande.status) }}
+            </span>
+          </td>
+
+          <!-- Actions -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex items-center gap-2">
+              <!-- View Details -->
+              <button 
+                (click)="openDetails(demande)"
+                class="text-gray-600 hover:text-gray-900"
+                title="Voir les détails">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              </button>
+
+              <!-- Approve (only for PENDING status) -->
+              <button 
+                *ngIf="demande.status === 'PENDING' && !demande.isStatic"
+                (click)="approveDemande(demande)"
+                class="text-green-600 hover:text-green-900"
+                title="Valider">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </button>
+
+              <!-- Reject (only for PENDING status) -->
+              <button 
+                *ngIf="demande.status === 'PENDING' && !demande.isStatic"
+                (click)="rejectDemande(demande)"
+                class="text-red-600 hover:text-red-900"
+                title="Rejeter">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div *ngIf="staticDemandes.length === 0" class="text-center py-12">
+      <p class="text-gray-500">Aucune demande trouvée</p>
+    </div>
+  </div>
+
+  <!-- Affichage des données dynamiques si disponibles -->
+  <div *ngIf="filteredDemandes.length > 0">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chef de projet</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matériaux</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de création</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let demande of filteredDemandes" class="hover:bg-gray-50">
+          <!-- Titre avec image -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                <img *ngIf="demande.propertyImg; else defaultIcon" [src]="'https://wakana.online/repertoire_chantier/' + demande.propertyImg" [alt]="demande.propertyName" class="w-full h-full object-cover rounded">
+                <ng-template #defaultIcon>
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </ng-template>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ demande.title }}</div>
+                <div class="text-xs text-gray-500">{{ demande.propertyName }}</div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Chef de projet -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">{{ demande.betName }}</div>
+          </td>
+
+          <!-- Matériaux -->
+          <td class="px-6 py-4">
+            <div class="text-sm text-gray-900">{{ demande.description }}</div>
+          </td>
+
+          <!-- Date de création -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">{{ formatDate(demande.createdAt) }}</div>
+          </td>
+
+          <!-- Statut -->
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(demande.status)">
+              {{ mapStatusToFrench(demande.status) }}
+            </span>
+          </td>
+
+          <!-- Actions -->
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex items-center gap-2">
+              <!-- View Details -->
+              <button 
+                (click)="openDetails(demande)"
+                class="text-gray-600 hover:text-gray-900"
+                title="Voir les détails">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              </button>
+              
+
+              <!-- Approve (only for PENDING status) -->
+              <button 
+                *ngIf="demande.status === 'PENDING' && !demande.isStatic"
+                (click)="approveDemande(demande)"
+                class="text-green-600 hover:text-green-900"
+                title="Valider">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </button>
+
+              <!-- Reject (only for PENDING status) -->
+              <button 
+                *ngIf="demande.status === 'PENDING' && !demande.isStatic"
+                (click)="rejectDemande(demande)"
+                class="text-red-600 hover:text-red-900"
+                title="Rejeter">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div *ngIf="filteredDemandes.length === 0" class="text-center py-12">
+      <p class="text-gray-500">Aucune demande trouvée</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="filteredDemandes.length > 0" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+    <div class="flex items-center justify-between">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button (click)="previousPage()" [disabled]="currentPage === 0"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Précédent
+        </button>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Suivant
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            Affichage de <span class="font-medium">{{ (currentPage * pageSize) + 1 }}</span>
+            à <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span>
+            sur <span class="font-medium">{{ totalElements }}</span> résultats
+          </p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <select (change)="changePageSize($event)"
+            class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option [value]="10" [selected]="pageSize === 10">10</option>
+            <option [value]="20" [selected]="pageSize === 20">20</option>
+            <option [value]="50" [selected]="pageSize === 50">50</option>
+          </select>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <button (click)="previousPage()" [disabled]="currentPage === 0"
+              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              Précédent
+            </button>
+            <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)" [class]="'relative inline-flex items-center px-4 py-2 border text-sm font-medium ' + 
+                      (i === currentPage ? 
+                       'z-10 bg-blue-50 border-blue-500 text-blue-600' : 
+                       'bg-white border-gray-300 text-gray-500 hover:bg-gray-50')">
+              {{ i + 1 }}
+            </button>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
+              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              Suivant
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal -->
+  <div *ngIf="showModal && selectedDemande" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" tabindex="-1">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()" aria-hidden="true"></div>
+
+    <!-- Modal Content -->
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="relative bg-white rounded-lg shadow-xl w-full max-w-4xl transform transition-all" #modalContent>
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center space-x-3">
+            <h3 class="text-xl font-semibold text-gray-900" id="modal-title">Commande #{{ selectedDemande.commandeId || 'N/A' }}</h3>
+            <span [ngClass]="getStatusClass(selectedDemande.status)" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">
+              {{ mapStatusToFrench(selectedDemande.status) }}
+            </span>
+          </div>
+          <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Fermer le modal">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-6">
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Left Column: Informations -->
+            <div>
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Informations</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between py-2">
+                  <span class="text-sm text-gray-600">Chantier</span>
+                  <span class="text-sm font-medium text-gray-900">{{ selectedDemande.propertyName || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between py-2">
+                  <span class="text-sm text-gray-600">Chef de projet</span>
+                  <span class="text-sm font-medium text-gray-900">{{ selectedDemande.betName || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between py-2">
+                  <span class="text-sm text-gray-600">Date de création</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatDate(selectedDemande.createdAt) }}</span>
+                </div>
+              </div>
+
+              <!-- Matériaux commandés -->
+              <div class="mt-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-lg font-semibold text-gray-900">Matériaux commandés</h4>
+                  <span class="text-sm font-medium text-gray-600">{{ selectedDemande.materials.length || 0 }}</span>
+                </div>
+                <div *ngIf="selectedDemande.materials.length; else noMaterials" class="space-y-3">
+                  <div class="grid grid-cols-4 gap-3 text-xs font-semibold text-gray-600 pb-2 border-b">
+                    <div>Matériau</div>
+                    <div class="text-center">Stock</div>
+                    <div class="text-right">Prix Unitaire</div>
+                    <div class="text-right">Total (F CFA)</div>
+                  </div>
+                  <div *ngFor="let material of selectedDemande.materials" class="grid grid-cols-4 gap-3 py-3 border-b border-gray-100">
+                    <div class="text-sm text-gray-900">{{ material.name || 'N/A' }}</div>
+                    <div class="text-sm text-gray-600 text-center">{{ material.stock || 0 }} {{ material.unit || '' }}</div>
+                    <div class="text-sm text-gray-900 text-right">{{ formatPrice(material.unitPrice) }}</div>
+                    <div class="text-sm font-medium text-gray-900 text-right">{{ formatPrice(material.total) }}</div>
+                  </div>
+                </div>
+                <ng-template #noMaterials>
+                  <div class="text-sm text-gray-600 italic">Aucun matériau disponible</div>
+                </ng-template>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200">
+                  <span class="text-base font-semibold text-gray-900">Total</span>
+                  <span class="text-lg font-bold text-gray-900">{{ formatPrice(selectedDemande.totalAmount) }} Fcfa</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Historique des activités -->
+            <div>
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Historique des activités</h4>
+              <div *ngIf="selectedDemande.activities.length; else noActivity" class="space-y-3">
+                <div *ngFor="let activity of selectedDemande.activities" class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-900">{{ activity.action || 'N/A' }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ activity.user || 'Inconnu' }} - {{ formatDate(activity.date) }}</p>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noActivity>
+                <div class="text-center py-12">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
+                  <p class="mt-2 text-sm text-gray-600 italic">Aucun historique</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <button (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Fermer
+          </button>
+          <div *ngIf="selectedDemande.status === 'PENDING' && !selectedDemande.isStatic" class="flex items-center space-x-3">
+            <button (click)="rejectDemande(selectedDemande)" class="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+              Rejeter
+            </button>
+            <button (click)="approveDemande(selectedDemande)" class="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+              Valider la commande
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

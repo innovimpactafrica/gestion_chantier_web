@@ -131,7 +131,7 @@ export class RegisterComponent implements OnInit {
     const companyControl = this.profileForm.get('company');
     
     // Pour les fournisseurs et sous-traitants, l'entreprise peut être requise
-    if (profile === profil.SUPPLIER || profile === profil.SUBCONTRACTOR) {
+    if (profile === profil.SUBCONTRACTOR) {
       companyControl?.setValidators([Validators.required]);
     } else {
       companyControl?.clearValidators();
@@ -147,8 +147,7 @@ export class RegisterComponent implements OnInit {
 
   // Vérifier si un profil nécessite des informations d'entreprise
   requiresCompanyInfo(): boolean {
-    return this.selectedProfile === profil.SUPPLIER || 
-           this.selectedProfile === profil.SUBCONTRACTOR;
+    return this.selectedProfile === profil.SUBCONTRACTOR;
   }
 
   nextStep(): void {

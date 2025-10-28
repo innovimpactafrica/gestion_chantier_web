@@ -43,7 +43,7 @@
   export enum profil {
     SITE_MANAGER = 'SITE_MANAGER',
     SUBCONTRACTOR = 'SUBCONTRACTOR',
-    SUPPLIER = 'SUPPLIER'
+    // SUPPLIER = 'SUPPLIER'
   }
 
   // Type pour les profils disponibles
@@ -121,7 +121,7 @@
         permissions: ['SITE_MANAGEMENT', 'TEAM_MANAGEMENT', 'REPORT_CREATE', 'REPORT_VIEW']
       },
       {
-        key: profil.SUPPLIER,
+        key: profil.SUBCONTRACTOR,
         label: 'Fournisseur',
         description: 'Fourniture de matériaux et services',
         icon: 'supplier-icon',
@@ -190,8 +190,8 @@
       console.log("profils du User connecté", user.profils);
       
       // Vérifier d'abord la propriété "profils" (string) de l'API
-      if (user.profils && typeof user.profils === 'string') {
-        return user.profils === 'BET';
+      if (user.profil && typeof user.profil === 'string') {
+        return user.profil === 'BET';
       }
       
       // Ensuite vérifier la propriété "profil" (array) de l'interface
@@ -206,7 +206,32 @@
       
       return false;
     }
-    
+     isSUPPLIERProfile(): boolean {
+      const user = this.currentUser();
+      if (!user) {
+        return false;
+      }
+      
+      console.log("profil du User connecté", user.profil);
+      console.log("profils du User connecté", user.profils);
+      
+      // Vérifier d'abord la propriété "profils" (string) de l'API
+      if (user.profil && typeof user.profil === 'string') {
+        return user.profil === 'SUPPLIER';
+      }
+      
+      // Ensuite vérifier la propriété "profil" (array) de l'interface
+      if (user.profil && Array.isArray(user.profil)) {
+        return user.profil.includes('SUPPLIER' as any);
+      }
+      
+      // Vérifier aussi si "profil" est une string
+      if (user.profil && typeof user.profil === 'string') {
+        return user.profil === 'SUPPLIER';
+      }
+      
+      return false;
+    }
 
     // ✅ CORRECTION: Computed signal pour les permissions basées sur les profils (array)
     userPermissions = computed(() => {
@@ -475,9 +500,9 @@
       return this.hasProfile(profil.SITE_MANAGER);
     }
 
-    isSupplier(): boolean {
-      return this.hasProfile(profil.SUPPLIER);
-    }
+    // isSupplier(): boolean {
+    //   return this.hasProfile(profil.SUPPLIER);
+    // }
 
     isSubcontractor(): boolean {
       return this.hasProfile(profil.SUBCONTRACTOR);
@@ -521,9 +546,7 @@
       return this.isSiteManager() && this.hasPermission('SITE_MANAGEMENT');
     }
 
-    canSupplyMaterials(): boolean {
-      return this.isSupplier() && this.hasPermission('SUPPLY_MANAGEMENT');
-    }
+    
 
     canManageSubcontracts(): boolean {
       return this.isSubcontractor() && this.hasPermission('TASK_MANAGEMENT');

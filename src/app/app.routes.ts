@@ -16,23 +16,32 @@ import { DashboardEtudeComponent } from './features/dashboard-etude/dashboard-et
 import { DemandeComponent } from './features/demande/demande.component';
 // import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from '../guards/role.guard';
+import { CommandeComponent } from './features/fournisseurs/commandes/commandes.component';
+import { DashboardfComponent } from './features/fournisseurs/dashboard/dashboard.component';
+import { PortailComponent } from './features/portail/portail/portail.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  
+  { path: '', redirectTo: '/portail', pathMatch: 'full' },
+
   // Routes d'authentification (sans layout)
-  { 
-    path: 'login', 
+  {
+    path: 'login',
     component: LoginComponent,
     data: { authRequired: false }
   },
-  { 
-    path: 'register', 
+  {
+    path: 'register',
     component: RegisterComponent,
     data: { authRequired: false }
   },
-  
+
+  {
+    path: 'portail',
+    component: PortailComponent,
+    data: { authRequired: false }
+  },
+
   // Routes protégées avec layout (nécessitent une authentification)
   {
     path: '',
@@ -44,9 +53,21 @@ export const routes: Routes = [
         data: { breadcrumb: 'Tableau de Bord' }
       },
       {
+        path: 'dashboardf',
+        component: DashboardfComponent,
+        data: { breadcrumb: 'Tableau de Bord Fournisseur' },
+        // canActivate: [RoleGuard]
+      },
+      {
+        path: 'commandes',
+        component: CommandeComponent,
+        data: { breadcrumb: 'Commandes Fournisseur' },
+        canActivate: [RoleGuard]
+      },
+      {
         path: 'dashboard-etude',
         component: DashboardEtudeComponent,
-        data: { 
+        data: {
           breadcrumb: 'Tableau de Bord Etude',
         },
         // canActivate: [RoleGuard]
@@ -54,7 +75,7 @@ export const routes: Routes = [
       {
         path: 'demande',
         component: DemandeComponent,
-        data: { 
+        data: {
           breadcrumb: 'Demandes d\'étude',
         },
         canActivate: [RoleGuard]
@@ -63,14 +84,14 @@ export const routes: Routes = [
         path: 'humanresources',
         loadChildren: () => import('./features/humanresources/humanresource.routes')
           .then(m => m.HUMANRESOURCES_ROUTES),
-        data: { 
+        data: {
         },
         canActivate: [RoleGuard]
       },
       {
         path: 'subcontractor',
         component: SubcontractorComponent,
-        data: { 
+        data: {
           breadcrumb: 'Sous-traitants',
         },
         canActivate: [RoleGuard]
@@ -79,7 +100,7 @@ export const routes: Routes = [
         path: 'projects',
         loadChildren: () => import('./features/projects/projects.routes')
           .then(m => m.PROJECTS_ROUTES),
-        data: { 
+        data: {
         },
         canActivate: [RoleGuard]
       },
@@ -91,7 +112,7 @@ export const routes: Routes = [
       {
         path: 'nouveau-projet',
         component: NewProjectComponent,
-        data: { 
+        data: {
           breadcrumb: 'Nouveau Projet',
         },
         canActivate: [RoleGuard]
@@ -105,14 +126,14 @@ export const routes: Routes = [
         path: 'settings',
         loadChildren: () => import('./features/settings/settings.routes')
           .then(m => m.SETTINGS_ROUTES),
-        data: { 
+        data: {
         },
         canActivate: [RoleGuard]
       },
       {
         path: 'parametres/unite-mesure',
         component: UnitComponent,
-        data: { 
+        data: {
           breadcrumb: 'Unités de Mesure',
         },
         canActivate: [RoleGuard]
@@ -120,7 +141,7 @@ export const routes: Routes = [
       {
         path: 'parametres/documents',
         component: DocumentComponent,
-        data: { 
+        data: {
           breadcrumb: 'Documents',
         },
         canActivate: [RoleGuard]
@@ -128,7 +149,7 @@ export const routes: Routes = [
       {
         path: 'parametres/categories',
         component: MaterialCategoryComponent,
-        data: { 
+        data: {
           breadcrumb: 'Catégories de Matériaux',
         },
         canActivate: [RoleGuard]
@@ -136,7 +157,7 @@ export const routes: Routes = [
       {
         path: 'parametres/typebien',
         component: PropertyTypeComponent,
-        data: { 
+        data: {
           breadcrumb: 'Types de Bien',
         },
         canActivate: [RoleGuard]
@@ -144,14 +165,14 @@ export const routes: Routes = [
       {
         path: 'fournisseur',
         component: SupplierComponent,
-        data: { 
+        data: {
           breadcrumb: 'Fournisseurs',
         },
         canActivate: [RoleGuard]
       }
     ]
   },
-  
+
   // Route catch-all - redirige vers login pour toute route non trouvée
   { path: '**', redirectTo: '/login' }
 ];

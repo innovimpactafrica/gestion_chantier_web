@@ -11,8 +11,8 @@ export interface BreadcrumbItem {
 })
 export class BreadcrumbService {
   private breadcrumbsSubject = new BehaviorSubject<BreadcrumbItem[]>([
-    { label: 'Accueil', path: '/' },
-    { label: 'Tableau de Bord', path: '/dashboard' }
+    { label: 'Accueil', path: '/dashboardf' },
+    { label: 'Tableau de Bord', path: '/dashboardf' }
   ]);
   
   breadcrumbs$ = this.breadcrumbsSubject.asObservable();
@@ -23,7 +23,7 @@ export class BreadcrumbService {
   setBreadcrumbs(items: BreadcrumbItem[]): void {
     // Toujours commencer par Accueil
     const breadcrumbs = [
-      { label: 'Accueil', path: '/' }, 
+      { label: 'Accueil', path: '/#' }, 
       ...items
     ];
     this.breadcrumbsSubject.next(breadcrumbs);
@@ -41,7 +41,7 @@ export class BreadcrumbService {
   // Réinitialise le fil d'Ariane à son état initial (Accueil/Tableau de Bord)
   reset(): void {
     this.breadcrumbsSubject.next([
-      { label: 'Accueil', path: '/' },
+      { label: 'Accueil', path: '/#' },
       { label: 'Tableau de Bord', path: '/dashboard' }
     ]);
   }

@@ -3,12 +3,13 @@
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-2xl font-bold text-gray-800">Gestion du Budget</h1>
-    <button 
+    <button
       class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="openBudgetModal()"
-      [disabled]="loading">
+      (click)="openBudgetModal()" [disabled]="loading">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+        </path>
       </svg>
       Modifier Budget
     </button>
@@ -18,7 +19,9 @@
   <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex">
       <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"></path>
       </svg>
       <p class="ml-3 text-sm text-red-800">{{ error }}</p>
     </div>
@@ -29,7 +32,9 @@
     <div class="flex items-center">
       <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
       </svg>
       <p class="text-sm text-blue-800">Chargement en cours...</p>
     </div>
@@ -37,7 +42,7 @@
 
   <!-- Budget Content -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
+
     <!-- Graphique circulaire -->
     <div class="bg-white rounded-lg shadow-sm p-6">
       <div class="flex justify-center mb-4">
@@ -63,7 +68,7 @@
           <p class="text-sm text-gray-500 mb-1">Budget restant</p>
           <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetRestant) }}</p>
         </div>
-        
+
         <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
           <p class="text-sm text-gray-500 mb-1">Budget utilisé</p>
           <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetUtilise) }}</p>
@@ -76,14 +81,13 @@
   <div class="mt-12 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
       <h2 class="text-xl font-semibold text-gray-800">Liste des dépenses</h2>
-      <button 
+      <button
         class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="openExpenseModal()"
-        [disabled]="loading">
+        (click)="openExpenseModal()" [disabled]="loading">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
-        Ajouter une dépense
+        
       </button>
     </div>
 
@@ -109,22 +113,21 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-center">
               <div class="flex justify-center space-x-2">
-                <button 
+                <button
                   class="text-orange-500 hover:text-orange-600 p-2 rounded-lg hover:bg-orange-50 transition-colors"
-                  (click)="openEditExpenseModal(expense)"
-                  [disabled]="loading"
-                  title="Modifier">
+                  (click)="openEditExpenseModal(expense)" [disabled]="loading" title="Modifier">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
                   </svg>
                 </button>
-                <button 
-                  class="text-red-500 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                  (click)="confirmDeleteExpense(expense)"
-                  [disabled]="loading"
-                  title="Supprimer">
+                <button class="text-red-500 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                  (click)="confirmDeleteExpense(expense)" [disabled]="loading" title="Supprimer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -132,11 +135,13 @@
           </tr>
         </tbody>
       </table>
-      
+
       <!-- Message si aucune dépense -->
       <div *ngIf="expenses.length === 0 && !loading" class="text-center py-12">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+          </path>
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune dépense</h3>
         <p class="mt-1 text-sm text-gray-500">Commencez par ajouter une nouvelle dépense.</p>
@@ -146,28 +151,20 @@
     <!-- Pagination -->
     <div *ngIf="totalPages > 1" class="flex justify-center items-center py-4 border-t border-gray-200">
       <nav class="flex space-x-2">
-        <button 
-          class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
-          [disabled]="currentPage === 0"
-          (click)="changePage(currentPage - 1)">
+        <button class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
+          [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
           Précédent
         </button>
-        
-        <button 
-          *ngFor="let page of pageNumbers" 
-          class="px-3 py-2 text-sm font-medium rounded-md transition-colors"
-          [class.bg-orange-500]="page === currentPage"
-          [class.text-white]="page === currentPage"
-          [class.text-gray-700]="page !== currentPage"
-          [class.hover:bg-gray-100]="page !== currentPage"
+
+        <button *ngFor="let page of pageNumbers" class="px-3 py-2 text-sm font-medium rounded-md transition-colors"
+          [class.bg-orange-500]="page === currentPage" [class.text-white]="page === currentPage"
+          [class.text-gray-700]="page !== currentPage" [class.hover:bg-gray-100]="page !== currentPage"
           (click)="changePage(page)">
           {{ page + 1 }}
         </button>
-        
-        <button 
-          class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
-          [disabled]="currentPage === totalPages - 1"
-          (click)="changePage(currentPage + 1)">
+
+        <button class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
+          [disabled]="currentPage === totalPages - 1" (click)="changePage(currentPage + 1)">
           Suivant
         </button>
       </nav>
@@ -180,8 +177,7 @@
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-semibold text-gray-800">Modifier le budget</h2>
-      <button 
-        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+      <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeBudgetModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -196,24 +192,17 @@
     <form (ngSubmit)="saveBudget()" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Budget prévu</label>
-        <input 
-          type="number" 
-          [(ngModel)]="budgetToEdit.plannedBudget"
-          name="plannedBudget"
+        <input type="number" [(ngModel)]="budgetToEdit.plannedBudget" name="plannedBudget"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Montant du budget"
-          required>
+          placeholder="Montant du budget" required>
       </div>
 
       <div class="flex justify-end space-x-3 pt-4">
-        <button 
-          type="button"
-          class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           (click)="closeBudgetModal()">
           Annuler
         </button>
-        <button 
-          type="submit"
+        <button type="submit"
           class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
           [disabled]="loading">
           {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
@@ -230,8 +219,7 @@
       <h2 class="text-xl font-semibold text-gray-800">
         {{ isEditingExpense ? 'Modifier la dépense' : 'Nouvelle dépense' }}
       </h2>
-      <button 
-        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+      <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeExpenseModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -246,45 +234,31 @@
     <form (ngSubmit)="saveExpense()" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-        <input 
-          type="text" 
-          [(ngModel)]="newExpense.description"
-          name="description"
+        <input type="text" [(ngModel)]="newExpense.description" name="description"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Description de la dépense"
-          required>
+          placeholder="Description de la dépense" required>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
-        <input 
-          type="date" 
-          [(ngModel)]="newExpense.date"
-          name="date"
+        <input type="date" [(ngModel)]="newExpense.date" name="date"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           required>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Montant</label>
-        <input 
-          type="number" 
-          [(ngModel)]="newExpense.amount"
-          name="amount"
+        <input type="number" [(ngModel)]="newExpense.amount" name="amount"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Montant en F"
-          required>
+          placeholder="Montant en F" required>
       </div>
 
       <div class="flex justify-end space-x-3 pt-4">
-        <button 
-          type="button"
-          class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           (click)="closeExpenseModal()">
           Annuler
         </button>
-        <button 
-          type="submit"
+        <button type="submit"
           class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
           [disabled]="loading">
           {{ loading ? 'Enregistrement...' : (isEditingExpense ? 'Modifier' : 'Ajouter') }}
@@ -299,8 +273,7 @@
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-semibold text-gray-800">Confirmer la suppression</h2>
-      <button 
-        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+      <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeConfirmModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -311,7 +284,9 @@
     <div class="mb-6">
       <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
         <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.734-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.734-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z">
+          </path>
         </svg>
       </div>
       <p class="text-gray-800 text-center">
@@ -334,17 +309,12 @@
     </div>
 
     <div class="flex justify-end space-x-3">
-      <button 
-        type="button"
-        class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+      <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
         (click)="closeConfirmModal()">
         Annuler
       </button>
-      <button 
-        type="button"
-        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-        (click)="deleteExpense()"
-        [disabled]="loading">
+      <button type="button" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+        (click)="deleteExpense()" [disabled]="loading">
         {{ loading ? 'Suppression...' : 'Supprimer' }}
       </button>
     </div>

@@ -1,103 +1,172 @@
 <div class="container mx-auto px-4 py-6 ">
-  <h1 class="text-2xl font-bold mb-6">
-    Projet : <span class="font-normal">Construction d'un immeuble résidentiel de 10 Étages</span>
-  </h1>
-    <!-- Navigation Tabs -->
-    <nav class="flex border-b  bg-white  rounded-lg shadow-sm p-6 ">
-      <ul class="flex space-x-10 text-lg ">
-        <li [class.border-b-2]="activeTab === 'presentation'" 
-            [class.border-orange-500]="activeTab === 'presentation'" 
-            
-            class="pb-2">
-          <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer">Présentation du projet</a>
-        </li>
-        <li [class.border-b-2]="activeTab === 'tasks'" 
-            [class.border-orange-500]="activeTab === 'tasks'"
-            [class.text-orange-500]="activeTab === 'tasks'"
-            class="pb-2">
-          <a (click)="setActiveTab('tasks')" class="font-medium cursor-pointer">Tâches</a>
-        </li>
-        <li [class.border-b-2]="activeTab === 'team'" 
-            [class.border-orange-500]="activeTab === 'team'"
-            [class.text-orange-500]="activeTab === 'team'"
-            class="pb-2">
-          <a (click)="setActiveTab('team')" class="font-medium cursor-pointer">Équipe</a>
-        </li>
-        <li [class.border-b-2]="activeTab === 'lots'" 
-            [class.border-orange-500]="activeTab === 'lots'"
-            [class.text-orange-500]="activeTab === 'lots'"
-            class="pb-2">
-          <a (click)="setActiveTab('lots')" class="font-medium cursor-pointer">Lots et sous-traitants</a>
-        </li>
-        <li [class.border-b-2]="activeTab === 'documents'" 
-            [class.border-orange-500]="activeTab === 'documents'"
-            [class.text-orange-500]="activeTab === 'documents'"
-            class="pb-2">
-          <a (click)="setActiveTab('documents')" class="font-medium cursor-pointer">Documents</a>
-        </li>
-       
-        <li [class.border-b-2]="activeTab === 'stock'" 
-            [class.border-orange-500]="activeTab === 'stock'"
-            [class.text-orange-500]="activeTab === 'stock'"
-            class="pb-2">
-          <a (click)="setActiveTab('stock')" class="font-medium cursor-pointer">Stock</a>
-        </li>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">
+      Projet : <span class="font-normal">Construction d'un immeuble résidentiel de 10 Étages</span>
+    </h1>
 
-        <li [class.border-b-2]="activeTab === 'signalement'" 
-        [class.border-orange-500]="activeTab === 'signalement'"
-        [class.text-orange-500]="activeTab === 'signalement'"
-        class="pb-2">
-      <a (click)="setActiveTab('alert')" class="font-medium cursor-pointer">Signalement</a>
-    </li>
-    <li [class.border-b-2]="activeTab === 'etude-bet'" 
-    [class.border-orange-500]="activeTab === 'etude-bet'"
-    [class.text-orange-500]="activeTab === 'etude-bet'"
-    class="pb-2">
-  <a (click)="setActiveTab('etude-bet')" class="font-medium cursor-pointer">Etude Bet</a>
-</li>
-      </ul>
-    </nav>
-  
-   
+    <button (click)="openQrModal()"
+      class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-orange-500 font-medium px-4 py-2 rounded-md transition-all duration-200">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#clip0_4123_2628)">
+          <path
+            d="M5 1H1V5H5V1ZM6 0V6H0V0H6ZM2 2H4V4H2V2ZM15 1H11V5H15V1ZM16 0V6H10V0H16ZM12 2H14V4H12V2ZM5 11H1V15H5V11ZM6 10V16H0V10H6ZM2 12H4V14H2V12ZM7 0H8V1H7V0ZM8 1H9V2H8V1ZM7 2H8V3H7V2ZM8 3H9V4H8V3ZM7 4H8V5H7V4ZM8 5H9V6H8V5ZM7 6H8V7H7V6ZM7 8H8V9H7V8ZM8 9H9V10H8V9ZM7 10H8V11H7V10ZM8 11H9V12H8V11ZM7 12H8V13H7V12ZM8 13H9V14H8V13ZM7 14H8V15H7V14ZM8 15H9V16H8V15ZM15 8H16V9H15V8ZM1 8H2V9H1V8ZM2 7H3V8H2V7ZM0 7H1V8H0V7ZM4 7H5V8H4V7ZM5 8H6V9H5V8ZM6 7H7V8H6V7ZM9 8H10V9H9V8ZM10 7H11V8H10V7ZM11 8H12V9H11V8ZM12 7H13V8H12V7ZM13 8H14V9H13V8ZM14 7H15V8H14V7ZM15 10H16V11H15V10ZM9 10H10V11H9V10ZM10 9H11V10H10V9ZM11 10H12V11H11V10ZM13 10H14V11H13V10ZM14 9H15V10H14V9ZM15 12H16V13H15V12ZM9 12H10V13H9V12ZM10 11H11V12H10V11ZM12 11H13V12H12V11ZM13 12H14V13H13V12ZM14 11H15V12H14V11ZM15 14H16V15H15V14ZM10 13H11V14H10V13ZM11 14H12V15H11V14ZM12 13H13V14H12V13ZM13 14H14V15H13V14ZM10 15H11V16H10V15ZM12 15H13V16H12V15ZM14 15H15V16H14V15Z"
+            fill="#FF5C02" />
+          <g opacity="0.1">
+            <path
+              d="M16.8999 9.14309C17.0543 8.53735 16.6884 7.92113 16.0827 7.76673C15.4769 7.61233 14.8607 7.97821 14.7063 8.58394C14.5519 9.18968 14.9178 9.80589 15.5235 9.9603C16.1293 10.1147 16.7455 9.74882 16.8999 9.14309Z"
+              fill="#FF5C02" />
+            <path
+              d="M12.9289 9.10649C13.816 8.20164 12.2606 7.29216 11.4478 8.12106C11.4022 8.15842 6.13124 13.4683 6.09557 13.5125C5.15895 14.4678 6.64899 15.444 7.57668 14.498C7.62225 14.4606 12.8932 9.15068 12.9289 9.10649Z"
+              fill="#FF5C02" />
+            <path
+              d="M14.1634 11.3128C15.0449 10.4169 13.502 9.40974 12.6301 10.2957C12.5825 10.3345 8.87472 14.0695 8.83748 14.1155C7.95011 15.0515 9.49298 16.0587 10.3707 15.1326C10.4184 15.0938 14.1262 11.3588 14.1634 11.3128Z"
+              fill="#FF5C02" />
+            <path
+              d="M5.81108 12.779C6.39531 12.5567 6.68872 11.9029 6.46643 11.3186C6.24414 10.7344 5.59032 10.441 5.00609 10.6633C4.42186 10.8856 4.12844 11.5394 4.35074 12.1236C4.57303 12.7078 5.22684 13.0013 5.81108 12.779Z"
+              fill="#FF5C02" />
+          </g>
+        </g>
+        <defs>
+          <clipPath id="clip0_4123_2628">
+            <rect width="16" height="16" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+      Voir QR Code
+    </button>
   </div>
 
-  <!-- Content based on active tab -->
-  @switch (activeTab) {
-    @case ('tasks') {
-      <app-task-board></app-task-board>
-    }
-    @case ('team') {
-      <app-team-list></app-team-list>
-    }
-    @case ('documents') {
-      <app-documents></app-documents>
-    }
-    @case ('lots') {
-      <!-- <app-lots></app-lots> -->
-     <app-lots-subcontractors></app-lots-subcontractors>
-    }
-  
-    @case ('stock') {
-       <app-stock></app-stock> 
+  <!-- Navigation Tabs -->
+  <nav class="flex border-b  bg-white  rounded-lg shadow-sm p-6 ">
+    <ul class="flex space-x-10 text-lg ">
+      <li [class.border-b-2]="activeTab === 'presentation'" [class.border-orange-500]="activeTab === 'presentation'"
+        class="pb-2">
+        <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer">Présentation du projet</a>
+      </li>
+      <li [class.border-b-2]="activeTab === 'tasks'" [class.border-orange-500]="activeTab === 'tasks'"
+        [class.text-orange-500]="activeTab === 'tasks'" class="pb-2">
+        <a (click)="setActiveTab('tasks')" class="font-medium cursor-pointer">Tâches</a>
+      </li>
+      <li [class.border-b-2]="activeTab === 'team'" [class.border-orange-500]="activeTab === 'team'"
+        [class.text-orange-500]="activeTab === 'team'" class="pb-2">
+        <a (click)="setActiveTab('team')" class="font-medium cursor-pointer">Équipe</a>
+      </li>
+      <li [class.border-b-2]="activeTab === 'lots'" [class.border-orange-500]="activeTab === 'lots'"
+        [class.text-orange-500]="activeTab === 'lots'" class="pb-2">
+        <a (click)="setActiveTab('lots')" class="font-medium cursor-pointer">Lots et sous-traitants</a>
+      </li>
+      <li [class.border-b-2]="activeTab === 'documents'" [class.border-orange-500]="activeTab === 'documents'"
+        [class.text-orange-500]="activeTab === 'documents'" class="pb-2">
+        <a (click)="setActiveTab('documents')" class="font-medium cursor-pointer">Documents</a>
+      </li>
 
-    }
-    @case ('etude-bet') {
-      <app-etude-bet></app-etude-bet> 
+      <li [class.border-b-2]="activeTab === 'stock'" [class.border-orange-500]="activeTab === 'stock'"
+        [class.text-orange-500]="activeTab === 'stock'" class="pb-2">
+        <a (click)="setActiveTab('stock')" class="font-medium cursor-pointer">Stock</a>
+      </li>
 
-   }
-     
-    @case ('alert') {
-     <app-project-alert></app-project-alert>
-    
-   }
-    @case ('presentation') {
-      <app-project-presentation></app-project-presentation>
-      
-    }
-    @default {
-      <div>Sélectionnez un onglet</div>
-    }
-  }
+      <li [class.border-b-2]="activeTab === 'signalement'" [class.border-orange-500]="activeTab === 'signalement'"
+        [class.text-orange-500]="activeTab === 'signalement'" class="pb-2">
+        <a (click)="setActiveTab('alert')" class="font-medium cursor-pointer">Signalement</a>
+      </li>
+      <li [class.border-b-2]="activeTab === 'etude-bet'" [class.border-orange-500]="activeTab === 'etude-bet'"
+        [class.text-orange-500]="activeTab === 'etude-bet'" class="pb-2">
+        <a (click)="setActiveTab('etude-bet')" class="font-medium cursor-pointer">Etude Bet</a>
+      </li>
+    </ul>
+  </nav>
+
+
+</div>
+
+<!-- Content based on active tab -->
+@switch (activeTab) {
+@case ('tasks') {
+<app-task-board></app-task-board>
+}
+@case ('team') {
+<app-team-list></app-team-list>
+}
+@case ('documents') {
+<app-documents></app-documents>
+}
+@case ('lots') {
+<!-- <app-lots></app-lots> -->
+<app-lots-subcontractors></app-lots-subcontractors>
+}
+
+@case ('stock') {
+<app-stock></app-stock>
+
+}
+@case ('etude-bet') {
+<app-etude-bet></app-etude-bet>
+
+}
+
+@case ('alert') {
+<app-project-alert></app-project-alert>
+
+}
+@case ('presentation') {
+<app-project-presentation></app-project-presentation>
+
+}
+@default {
+<div>Sélectionnez un onglet</div>
+}
+}
 <!-- 
   <app-project-budget></app-project-budget> -->
-  
+<!-- ✅ MODAL QR CODE -->
+<div *ngIf="showQrModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-[380px] p-6 relative">
+    <button (click)="closeQrModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      ✕
+    </button>
+
+    <h2 class="text-lg font-semibold mb-4">QR code</h2>
+
+    <div class="flex flex-col items-center">
+      <img src="assets/images/qr-sample.png" alt="QR Code" class="w-40 h-40 mb-3">
+      <p class="text-gray-500 text-sm text-center mb-4">
+        Scannez avec votre téléphone pour ouvrir les détails du projet.
+      </p>
+
+      <div class="w-full space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Projet</span>
+          <span class="font-medium">Construction d'un Immeuble</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Statut</span>
+          <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-medium">En cours</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Date MAJ</span>
+          <span class="font-medium">14 Oct. 2025</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between w-full mt-6">
+        <button class="flex items-center gap-2 border border-gray-300 px-3 py-2 rounded-md hover:bg-gray-50">
+          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M16.25 8V5H8.25V8H6.25V3H18.25V8H16.25ZM18.25 12.5C18.5333 12.5 18.771 12.404 18.963 12.212C19.155 12.02 19.2507 11.7827 19.25 11.5C19.2493 11.2173 19.1533 10.98 18.962 10.788C18.7707 10.596 18.5333 10.5 18.25 10.5C17.9667 10.5 17.7293 10.596 17.538 10.788C17.3467 10.98 17.2507 11.2173 17.25 11.5C17.2493 11.7827 17.3453 12.0203 17.538 12.213C17.7307 12.4057 17.968 12.5013 18.25 12.5ZM16.25 19V15H8.25V19H16.25ZM18.25 21H6.25V17H2.25V11C2.25 10.15 2.54167 9.43767 3.125 8.863C3.70833 8.28833 4.41667 8.00067 5.25 8H19.25C20.1 8 20.8127 8.28767 21.388 8.863C21.9633 9.43833 22.2507 10.1507 22.25 11V17H18.25V21ZM20.25 15V11C20.25 10.7167 20.154 10.4793 19.962 10.288C19.77 10.0967 19.5327 10.0007 19.25 10H5.25C4.96667 10 4.72933 10.096 4.538 10.288C4.34667 10.48 4.25067 10.7173 4.25 11V15H6.25V13H18.25V15H20.25Z"
+              fill="#2C3E50" />
+          </svg>
+          Imprimer
+        </button>
+        <button
+          class="flex items-center gap-2 text-orange-600 border border-orange-600 px-3 py-2 rounded-md hover:bg-orange-50">
+          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12.25 15.577L8.711 12.039L9.419 11.319L11.75 13.65V5H12.75V13.65L15.08 11.32L15.789 12.039L12.25 15.577ZM6.866 19C6.40533 19 6.021 18.846 5.713 18.538C5.405 18.23 5.25067 17.8453 5.25 17.384V14.961H6.25V17.384C6.25 17.538 6.314 17.6793 6.442 17.808C6.57 17.9367 6.711 18.0007 6.865 18H17.635C17.7883 18 17.9293 17.936 18.058 17.808C18.1867 17.68 18.2507 17.5387 18.25 17.384V14.961H19.25V17.384C19.25 17.8447 19.096 18.229 18.788 18.537C18.48 18.845 18.0953 18.9993 17.634 19H6.866Z"
+              fill="#FF5C02" />
+          </svg>
+          Télécharger
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

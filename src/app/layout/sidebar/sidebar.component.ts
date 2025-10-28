@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class SidebarComponent implements OnInit, OnDestroy {
   // État pour déterminer si le sous-menu des paramètres est affiché ou non
   showParametres = false;
-  
+
   // État pour suivre l'élément de menu actif
   activeMenu = 'dashboard'; // Par défaut sur dashboard
 
@@ -32,7 +32,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private router: Router,
     private breadcrumbService: BreadcrumbService,
     public authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initialiser le menu actif selon le profil utilisateur
@@ -49,7 +49,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
           console.error('Erreur lors du chargement de l\'utilisateur:', error);
         }
       });
-      
+
       this.subscriptions.add(userSubscription);
     }
   }
@@ -76,6 +76,22 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * Vérifie si l'utilisateur connecté a un profil BET
    * @returns boolean - true si l'utilisateur est BET, false sinon
    */
+  isSUPPLIERProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    // Vérifier si le profil est "BET" (string) ou si c'est un tableau contenant "BET"
+    if (typeof user.profil === 'string') {
+      return user.profil === 'SUPPLIER';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('SUPPLIER' as any);
+    }
+
+    return false;
+  }
+  
   isBETProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {
@@ -91,7 +107,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     return false;
   }
-
+  
   /**
    * Obtient le profil de l'utilisateur pour l'affichage
    * @returns string - Le profil de l'utilisateur ou une chaîne vide
@@ -122,12 +138,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   navigateTo(path: string, label: string, menuId: string): void {
     // Mettre à jour le menu actif
     this.activeMenu = menuId;
-    
+
     // Navigation vers la route
     this.router.navigate([path]);
-    
+
     // Mise à jour du fil d'Ariane
-    if (path === '/dashboard' || path === '/dashboard-etude') {
+    if (path === '/dashboard' || path === '/dashboard-etude' || path === '/dashboardf') {
       // Cas particulier pour Dashboard: on reset le fil d'Ariane à juste "Accueil"
       this.breadcrumbService.reset();
     } else {
@@ -142,7 +158,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   navigateToSubSection(path: string, label: string, menuId: string): void {
     // Mettre à jour le menu actif
     this.activeMenu = menuId;
-    
+
     this.router.navigate([path]);
     this.breadcrumbService.addBreadcrumb({ label, path });
   }
@@ -162,11 +178,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   getProfileImageUrl(): string {
     this.profileImageLoading = true;
     const user = this.authService.currentUser();
-    
+
     if (user?.photo) {
       return `${this.baseUrl}${user.photo}?${new Date().getTime()}`;
     }
-    
+
     return 'assets/images/profil.png';
   }
 
@@ -209,44 +225,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   // Méthodes pour vérifier les profils (adaptées pour BET)
-  isSiteManager(): boolean {
-    const user = this.authService.currentUser();
-    if (!user) return false;
 
-    if (typeof user.profil === 'string') {
-      return user.profil === 'SITE_MANAGER';
-    } else if (Array.isArray(user.profil)) {
-      return user.profil.some(p => p === profil.SITE_MANAGER);
-    }
 
-    return false;
-  }
-
-  isSupplier(): boolean {
-    const user = this.authService.currentUser();
-    if (!user) return false;
-
-    if (typeof user.profil === 'string') {
-      return user.profil === 'SUPPLIER';
-    } else if (Array.isArray(user.profil)) {
-      return user.profil.some(p => p === profil.SUPPLIER);
-    }
-
-    return false;
-  }
-
-  isSubcontractor(): boolean {
-    const user = this.authService.currentUser();
-    if (!user) return false;
-
-    if (typeof user.profil === 'string') {
-      return user.profil === 'SUBCONTRACTOR';
-    } else if (Array.isArray(user.profil)) {
-      return user.profil.some(p => p === profil.SUBCONTRACTOR);
-    }
-
-    return false;
-  }
 
   // Méthode pour obtenir des informations supplémentaires sur l'utilisateur
   getUserEmail(): string {

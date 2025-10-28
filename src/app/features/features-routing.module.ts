@@ -31,6 +31,21 @@ export const FEATURES_ROUTES: Routes = [
 
   },
   { 
+    path: 'dashboard', 
+    loadComponent: () => import('./fournisseurs/dashboard/dashboard.component').then(m => m.DashboardfComponent) 
+
+  },
+  { 
+    path: 'commandes', 
+    loadComponent: () => import('./fournisseurs/commandes/commandes.component').then(m => m.CommandeComponent) 
+
+  },
+  { 
+    path: 'portail', 
+    loadComponent: () => import('./portail/portail/portail.component').then(m => m.PortailComponent) 
+
+  },
+  { 
     path: 'stocks', 
     loadComponent: () => import('./stocks/stocks.component').then(m => m.StocksComponent) 
   },
