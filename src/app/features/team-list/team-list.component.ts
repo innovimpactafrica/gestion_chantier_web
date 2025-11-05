@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
 import { AuthService } from './../../features/auth/services/auth.service';
+import { DetailsWorkerService, PerformanceAndTask, PresenceHistory, InfoDashboard, StatusDistribution } from '../../../services/details-worker.service';
+import { forkJoin, of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { catchError } from 'rxjs/operators';
 
 interface TeamMember {
   id: number;
@@ -17,7 +21,15 @@ interface TeamMember {
   tasksCompleted?: number;
   performance?: number;
   taskDistribution?: { [key: string]: number };
-  presenceHistory?: { date: string; entry: string; exit: string }[];
+  presenceHistory?: Array<{
+    date: string;
+    sessions: Array<{
+      entry: string;
+      exit: string;
+    }>;
+    totalTime: string;
+  }>;
+  totalWorkedTime?: string;
 }
 
 @Component({
@@ -35,6 +47,8 @@ export class TeamListComponent implements OnInit {
   pageSize = 5;
   isLoading = false;
   error: string | null = null;
+
+  currentPropertyId: number | null = null;
 
   // Variables pour le popup d'ajout
   showAddMemberModal = false;
@@ -56,25 +70,56 @@ export class TeamListComponent implements OnInit {
   // Variables pour le modal de vue
   showViewModal = false;
   selectedMember: TeamMember | null = null;
+  isLoadingDetails = false;
+  detailsError: string | null = null;
+
+  // Date picker
+  showDatePicker = false;
+  selectedDate: Date | null = null;
+  currentDate = new Date();
+  calendarDays: Array<{day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date}> = [];
+  currentMonthYear = '';
 
   constructor(
     private utilisateurService: UtilisateurService,
-    private authService: AuthService
+    private authService: AuthService,
+    private detailsWorkerService: DetailsWorkerService,
+    private route: ActivatedRoute
   ) {}
 
- 
+  ngOnInit(): void {
+    this.generateCalendar();
+    this.getPropertyIdAndLoadData();
+  }
+
+  private getPropertyIdAndLoadData(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.currentPropertyId = +id;
+      this.loadTeamMembers();
+    } else {
+      console.error("ID de propriété non trouvé dans l'URL.");
+      this.error = "ID de propriété non trouvé dans l'URL.";
+    }
+  }
 
   loadTeamMembers(): void {
+    if (this.currentPropertyId === null) {
+      this.error = 'ID de propriété non disponible';
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
     const apiPage = this.currentPage - 1;
 
-    this.utilisateurService.listUsers(apiPage, this.pageSize).subscribe({
+    this.utilisateurService.getWorkers(apiPage, this.pageSize, this.currentPropertyId).subscribe({
       next: (response: WorkersResponse) => {
         this.teamMembers = this.mapWorkersToTeamMembers(response.content);
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
         this.isLoading = false;
+        console.log(response.content);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des utilisateurs:', error);
@@ -93,17 +138,6 @@ export class TeamListComponent implements OnInit {
       address: worker.adress,
       email: worker.email,
       avatar: worker.photo || this.getDefaultAvatar(),
-      daysPresent: Math.floor(Math.random() * 20) + 10, // Simulé
-      hoursWorked: Math.floor(Math.random() * 150) + 50, // Simulé
-      tasksCompleted: Math.floor(Math.random() * 30) + 20, // Simulé
-      performance: Math.floor(Math.random() * 20) + 80, // Simulé
-      taskDistribution: {
-        'À Faire': 15.8,
-        'En Cours': 28.9,
-        'Terminées': 50,
-        'En Retard': 5.3
-      },
-      presenceHistory: this.generatePresenceHistory() // Simulé
     }));
   }
 
@@ -130,6 +164,421 @@ export class TeamListComponent implements OnInit {
     return defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
   }
 
+  viewMember(member: TeamMember): void {
+    this.selectedMember = { ...member };
+    this.showViewModal = true;
+    this.isLoadingDetails = true;
+    this.detailsError = null;
+    document.body.style.overflow = 'hidden';
+
+    // Créer des observables avec gestion d'erreur pour chaque appel
+    const performance$ = this.detailsWorkerService.getPerformanceAndTask(member.id).pipe(
+      catchError(error => {
+        console.warn('Erreur lors du chargement des performances:', error);
+        return of({
+          totalTasks: 0,
+          completedTasks: 0,
+          performancePercentage: 0
+        });
+      })
+    );
+
+    const presence$ = this.detailsWorkerService.getPresenceHistory(member.id).pipe(
+      catchError(error => {
+        console.warn('Erreur lors du chargement de l\'historique de présence:', error);
+        return of({
+          logs: [],
+          totalWorkedTime: '0h 00min'
+        });
+      })
+    );
+
+    const dashboard$ = this.detailsWorkerService.getInfoDashboard(member.id).pipe(
+      catchError(error => {
+        console.warn('Erreur lors du chargement du dashboard:', error);
+        return of({
+          daysPresent: 0,
+          totalWorkedHours: 0
+        });
+      })
+    );
+
+    // ✅ AJOUT: Observable pour la répartition des tâches
+    const repartitions$ = this.detailsWorkerService.getRepartitions(member.id).pipe(
+      catchError(error => {
+        console.warn('Erreur lors du chargement de la répartition des tâches:', error);
+        return of([] as StatusDistribution[]);
+      })
+    );
+
+    // Charger les détails du worker via les APIs avec gestion d'erreur individuelle
+    forkJoin({
+      performance: performance$,
+      presence: presence$,
+      dashboard: dashboard$,
+      repartitions: repartitions$ // ✅ AJOUT
+    }).subscribe({
+      next: (results) => {
+        if (this.selectedMember) {
+          // Mettre à jour les statistiques
+          this.selectedMember.tasksCompleted = results.performance.completedTasks;
+          this.selectedMember.performance = Math.round(results.performance.performancePercentage);
+          this.selectedMember.daysPresent = results.dashboard.daysPresent;
+          this.selectedMember.hoursWorked = Math.round(results.dashboard.totalWorkedHours);
+
+          // Transformer l'historique de présence
+          this.selectedMember.presenceHistory = this.transformPresenceHistory(results.presence);
+          this.selectedMember.totalWorkedTime = results.presence.totalWorkedTime;
+
+          // ✅ TRANSFORMATION: Convertir la répartition API en format pour le graphique
+          this.selectedMember.taskDistribution = this.transformTaskDistribution(results.repartitions);
+        }
+        this.isLoadingDetails = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des détails:', error);
+        this.detailsError = 'Erreur lors du chargement des détails du membre';
+        this.isLoadingDetails = false;
+      }
+    });
+  }
+
+  // ✅ NOUVELLE MÉTHODE: Transformation de la répartition des tâches
+  private transformTaskDistribution(distributions: StatusDistribution[]): { [key: string]: number } {
+    const taskDistribution: { [key: string]: number } = {
+      'À Faire': 0,
+      'En Cours': 0,
+      'Terminées': 0,
+      'En Retard': 0
+    };
+
+    if (!distributions || distributions.length === 0) {
+      return taskDistribution;
+    }
+
+    // Mapping des statuts API vers les labels affichés
+    const statusMap: { [key: string]: string } = {
+      'TODO': 'À Faire',
+      'A_FAIRE': 'À Faire',
+      'IN_PROGRESS': 'En Cours',
+      'EN_COURS': 'En Cours',
+      'DONE': 'Terminées',
+      'TERMINE': 'Terminées',
+      'TERMINEE': 'Terminées',
+      'LATE': 'En Retard',
+      'EN_RETARD': 'En Retard',
+      'RETARD': 'En Retard'
+    };
+
+    distributions.forEach(dist => {
+      const mappedStatus = statusMap[dist.status.toUpperCase()];
+      if (mappedStatus) {
+        taskDistribution[mappedStatus] = Math.round(dist.percentage * 10) / 10; // Arrondi à 1 décimale
+      }
+    });
+
+    return taskDistribution;
+  }
+
+  // ✅ MÉTHODES UTILITAIRES pour le graphique circulaire
+  getTaskDistributionTotal(): number {
+    if (!this.selectedMember?.taskDistribution) return 0;
+    return Object.values(this.selectedMember.taskDistribution).reduce((sum, val) => sum + val, 0);
+  }
+
+  calculateStrokeDasharray(percentage: number): string {
+    const circumference = 440; // 2 * PI * 70 (rayon)
+    const value = (percentage / 100) * circumference;
+    return `${value} ${circumference}`;
+  }
+
+  calculateStrokeDashoffset(startPercentage: number): number {
+    const circumference = 440;
+    return -(startPercentage / 100) * circumference;
+  }
+
+  // Calcul des offsets cumulés pour le graphique circulaire
+  getTaskOffsets(): { [key: string]: number } {
+    if (!this.selectedMember?.taskDistribution) return {};
+    
+    const offsets: { [key: string]: number } = {
+      'Terminées': 0,
+      'En Cours': 0,
+      'À Faire': 0,
+      'En Retard': 0
+    };
+
+    offsets['Terminées'] = 0;
+    offsets['En Cours'] = -(this.selectedMember.taskDistribution['Terminées'] || 0);
+    offsets['À Faire'] = -(
+      (this.selectedMember.taskDistribution['Terminées'] || 0) +
+      (this.selectedMember.taskDistribution['En Cours'] || 0)
+    );
+    offsets['En Retard'] = -(
+      (this.selectedMember.taskDistribution['Terminées'] || 0) +
+      (this.selectedMember.taskDistribution['En Cours'] || 0) +
+      (this.selectedMember.taskDistribution['À Faire'] || 0)
+    );
+
+    return offsets;
+  }
+
+  private transformPresenceHistory(presenceData: PresenceHistory): Array<{
+    date: string;
+    sessions: Array<{ entry: string; exit: string }>;
+    totalTime: string;
+  }> {
+    if (!presenceData.logs || presenceData.logs.length === 0) {
+      return [];
+    }
+
+    // Regrouper les logs par date
+    const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
+
+    presenceData.logs.forEach(log => {
+      const dateStr = this.formatDateFromArray(log.checkInTime);
+      const entryTime = this.formatTimeFromArray(log.checkInTime);
+      const exitTime = this.formatTimeFromArray(log.checkOutTime);
+
+      if (!groupedByDate.has(dateStr)) {
+        groupedByDate.set(dateStr, []);
+      }
+
+      groupedByDate.get(dateStr)!.push({
+        entry: entryTime,
+        exit: exitTime
+      });
+    });
+
+    // Convertir en tableau avec calcul du temps total par jour
+    const result: Array<{
+      date: string;
+      sessions: Array<{ entry: string; exit: string }>;
+      totalTime: string;
+    }> = [];
+
+    groupedByDate.forEach((sessions, date) => {
+      const totalMinutes = sessions.reduce((total, session) => {
+        return total + this.calculateMinutesBetween(session.entry, session.exit);
+      }, 0);
+
+      result.push({
+        date,
+        sessions,
+        totalTime: this.formatDuration(totalMinutes)
+      });
+    });
+
+    // Trier par date décroissante
+    result.sort((a, b) => {
+      const dateA = this.parseDateString(a.date);
+      const dateB = this.parseDateString(b.date);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    return result;
+  }
+
+  private formatDateFromArray(timeArray: number[]): string {
+    if (!timeArray || timeArray.length < 3) return '';
+    
+    const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
+                    'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+    
+    return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+  }
+
+  private formatTimeFromArray(timeArray: number[]): string {
+    if (!timeArray || timeArray.length < 5) return '00:00';
+    const hours = timeArray[3].toString().padStart(2, '0');
+    const minutes = timeArray[4].toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  private calculateMinutesBetween(entry: string, exit: string): number {
+    const [entryH, entryM] = entry.split(':').map(Number);
+    const [exitH, exitM] = exit.split(':').map(Number);
+    
+    const entryMinutes = entryH * 60 + entryM;
+    const exitMinutes = exitH * 60 + exitM;
+    
+    return exitMinutes - entryMinutes;
+  }
+
+  private formatDuration(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins.toString().padStart(2, '0')}min`;
+  }
+
+  private parseDateString(dateStr: string): Date {
+    const parts = dateStr.split(' ');
+    const day = parseInt(parts[1]);
+    const monthStr = parts[2].replace('.', '');
+    const year = parseInt(parts[3]);
+    
+    const months: {[key: string]: number} = {
+      'janv': 0, 'févr': 1, 'mars': 2, 'avr': 3, 'mai': 4, 'juin': 5,
+      'juil': 6, 'août': 7, 'sept': 8, 'oct': 9, 'nov': 10, 'déc': 11
+    };
+    
+    return new Date(year, months[monthStr] || 0, day);
+  }
+
+  closeViewModal(): void {
+    this.showViewModal = false;
+    this.selectedMember = null;
+    this.detailsError = null;
+    this.selectedDate = null;
+    document.body.style.overflow = 'auto';
+  }
+
+  onViewBackdropClick(event: Event): void {
+    if (event.target === event.currentTarget) this.closeViewModal();
+  }
+
+  // Filtrage de l'historique par date sélectionnée
+  getFilteredPresenceHistory(): Array<{
+    date: string;
+    sessions: Array<{ entry: string; exit: string }>;
+    totalTime: string;
+  }> {
+    if (!this.selectedMember?.presenceHistory) return [];
+    
+    if (!this.selectedDate) {
+      return this.selectedMember.presenceHistory;
+    }
+
+    const selectedDateStr = this.formatSelectedDate(this.selectedDate);
+    return this.selectedMember.presenceHistory.filter(item => 
+      item.date === selectedDateStr
+    );
+  }
+
+  private formatSelectedDate(date: Date): string {
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
+                    'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+    
+    return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+  }
+
+  // Calcul du temps total travaillé
+  getTotalWorkedTime(): string {
+    if (!this.selectedMember?.presenceHistory) return '0h 00min';
+    
+    const history = this.getFilteredPresenceHistory();
+    const totalMinutes = history.reduce((total, day) => {
+      return total + day.sessions.reduce((dayTotal, session) => {
+        return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
+      }, 0);
+    }, 0);
+    
+    return this.formatDuration(totalMinutes);
+  }
+
+  // Méthodes du calendrier
+  toggleDatePicker(): void {
+    this.showDatePicker = !this.showDatePicker;
+    if (this.showDatePicker) {
+      this.generateCalendar();
+    }
+  }
+
+  generateCalendar(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    this.currentMonthYear = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    
+    const daysInMonth = lastDay.getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    this.calendarDays = [];
+    
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: false,
+        isToday: false,
+        isSelected: false,
+        date: new Date(year, month - 1, day)
+      });
+    }
+    
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const isToday = date.toDateString() === today.toDateString();
+      const isSelected = this.selectedDate ? date.toDateString() === this.selectedDate.toDateString() : false;
+      
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: true,
+        isToday,
+        isSelected,
+        date
+      });
+    }
+    
+    const remainingDays = 35 - this.calendarDays.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: false,
+        isToday: false,
+        isSelected: false,
+        date: new Date(year, month + 1, day)
+      });
+    }
+  }
+
+  previousMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  selectDate(day: any): void {
+    if (!day.isCurrentMonth) return;
+    
+    this.selectedDate = day.date;
+    this.generateCalendar();
+    
+    setTimeout(() => {
+      this.showDatePicker = false;
+    }, 200);
+  }
+
+  getDayClasses(day: any): string {
+    const classes = [];
+    
+    if (!day.isCurrentMonth) {
+      classes.push('text-gray-300 cursor-not-allowed');
+    } else if (day.isToday) {
+      classes.push('bg-orange-500 text-white hover:bg-orange-600');
+    } else if (day.isSelected) {
+      classes.push('bg-orange-100 text-orange-600 hover:bg-orange-200');
+    } else {
+      classes.push('text-gray-700 hover:bg-gray-100');
+    }
+    
+    return classes.join(' ');
+  }
+
+  // Méthodes de pagination
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
@@ -188,6 +637,7 @@ export class TeamListComponent implements OnInit {
     this.loadTeamMembers();
   }
 
+  // Méthodes pour l'ajout de membre
   openAddMemberModal(): void {
     this.showAddMemberModal = true;
     this.resetNewMemberForm();
@@ -272,139 +722,6 @@ export class TeamListComponent implements OnInit {
     }
     return dateString;
   }
-  calculateDuration(entry: string, exit: string): string {
-  const [entryH, entryM] = entry.split(':').map(Number);
-  const [exitH, exitM] = exit.split(':').map(Number);
-  
-  let hours = exitH - entryH;
-  let minutes = exitM - entryM;
-  
-  if (minutes < 0) {
-    hours--;
-    minutes += 60;
-  }
-  
-  return `${hours}h ${minutes}min`;
-}
-// Ajoutez ces propriétés après les autres
-showDatePicker = false;
-selectedDate: Date | null = null;
-currentDate = new Date();
-calendarDays: Array<{day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date}> = [];
-currentMonthYear = '';
-
-// Ajoutez ces méthodes
-
-ngOnInit(): void {
-  this.loadTeamMembers();
-  this.generateCalendar();
-}
-
-toggleDatePicker(): void {
-  this.showDatePicker = !this.showDatePicker;
-  if (this.showDatePicker) {
-    this.generateCalendar();
-  }
-}
-
-generateCalendar(): void {
-  const year = this.currentDate.getFullYear();
-  const month = this.currentDate.getMonth();
-  
-  // Format: "Oct 2025"
-  const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-  this.currentMonthYear = `${monthNames[month]} ${year}`;
-  
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Lundi = 0
-  
-  const daysInMonth = lastDay.getDate();
-  const daysInPrevMonth = new Date(year, month, 0).getDate();
-  
-  this.calendarDays = [];
-  
-  // Jours du mois précédent
-  for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-    const day = daysInPrevMonth - i;
-    this.calendarDays.push({
-      day,
-      isCurrentMonth: false,
-      isToday: false,
-      isSelected: false,
-      date: new Date(year, month - 1, day)
-    });
-  }
-  
-  // Jours du mois actuel
-  const today = new Date();
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    const isToday = date.toDateString() === today.toDateString();
-    const isSelected = this.selectedDate ? date.toDateString() === this.selectedDate.toDateString() : false;
-    
-    this.calendarDays.push({
-      day,
-      isCurrentMonth: true,
-      isToday,
-      isSelected,
-      date
-    });
-  }
-  
-  // Jours du mois suivant pour compléter la grille
-  const remainingDays = 35 - this.calendarDays.length; // 5 semaines = 35 jours
-  for (let day = 1; day <= remainingDays; day++) {
-    this.calendarDays.push({
-      day,
-      isCurrentMonth: false,
-      isToday: false,
-      isSelected: false,
-      date: new Date(year, month + 1, day)
-    });
-  }
-}
-
-previousMonth(): void {
-  this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
-  this.generateCalendar();
-}
-
-nextMonth(): void {
-  this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
-  this.generateCalendar();
-}
-
-selectDate(day: any): void {
-  if (!day.isCurrentMonth) return;
-  
-  this.selectedDate = day.date;
-  this.generateCalendar();
-  
-  // Filtrer l'historique selon la date sélectionnée
-  console.log('Date sélectionnée:', this.selectedDate);
-  
-  // Fermer le date picker après sélection
-  setTimeout(() => {
-    this.showDatePicker = false;
-  }, 200);
-}
-
-getDayClasses(day: any): string {
-  const classes = [];
-  
-  if (!day.isCurrentMonth) {
-    classes.push('text-gray-300 cursor-not-allowed');
-  } else if (day.isToday) {
-    classes.push('bg-orange-500 text-white hover:bg-orange-600');
-  } else if (day.isSelected) {
-    classes.push('bg-orange-100 text-orange-600 hover:bg-orange-200');
-  } else {
-    classes.push('text-gray-700 hover:bg-gray-100');
-  }
-  
-  return classes.join(' ');
-}
 
   submitAddMember(): void {
     if (!this.validateForm()) return;
@@ -446,30 +763,5 @@ getDayClasses(day: any): string {
 
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) this.closeAddMemberModal();
-  }
-
-  viewMember(member: TeamMember): void {
-    this.selectedMember = { ...member }; // Cloner pour éviter les modifications directes
-    this.showViewModal = true;
-    document.body.style.overflow = 'hidden';
-  }
-
-  closeViewModal(): void {
-    this.showViewModal = false;
-    this.selectedMember = null;
-    document.body.style.overflow = 'auto';
-  }
-
-  onViewBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) this.closeViewModal();
-  }
-
-  private generatePresenceHistory(): { date: string; entry: string; exit: string }[] {
-    const dates = ['Mer. 16 juil. 2025', 'Mar. 15 juil. 2025', 'Lun. 14 juil. 2025'];
-    return dates.map(date => ({
-      date,
-      entry: ['07:55', '08:10', '18:10'][Math.floor(Math.random() * 3)],
-      exit: ['17:25', '17:10', '20:10'][Math.floor(Math.random() * 3)]
-    }));
   }
 }

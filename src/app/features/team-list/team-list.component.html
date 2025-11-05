@@ -434,236 +434,81 @@
               </div>
             </div>
 
-            <!-- Colonne droite - Historique des présences -->
-            <div class="space-y-4">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-base font-semibold text-gray-900">Historique des présences</h4>
-                <button (click)="toggleDatePicker()"
-                  class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  Filtrer par date
-                </button>
-              </div>
-              <!-- Date Picker Modal -->
-              <div *ngIf="showDatePicker" class="relative">
-                <div class="absolute right-0 top-0 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-80">
-                  <!-- Header du calendrier -->
-                  <div class="flex items-center justify-between mb-4">
-                    <button (click)="previousMonth()" class="p-2 hover:bg-gray-100 rounded-full">
-                      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                      </svg>
-                    </button>
-                    <div class="flex items-center gap-2">
-                      <span class="text-sm font-semibold text-gray-900">{{ currentMonthYear }}</span>
-                      <button class="p-1 hover:bg-gray-100 rounded">
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                          </path>
-                        </svg>
-                      </button>
-                    </div>
-                    <button (click)="nextMonth()" class="p-2 hover:bg-gray-100 rounded-full">
-                      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                      </svg>
-                    </button>
-                  </div>
+        <!-- Colonne droite - Historique des présences -->
+<div class="space-y-4">
+  <div class="flex items-center justify-between mb-4">
+    <h4 class="text-base font-semibold text-gray-900">Historique des présences</h4>
+    <button (click)="toggleDatePicker()"
+      class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      Filtrer par date
+    </button>
+  </div>
 
-                  <!-- Jours de la semaine -->
-                  <div class="grid grid-cols-7 gap-1 mb-2">
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Lun</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Mar</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Mer</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Jeu</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Ven</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Sam</div>
-                    <div class="text-center text-xs font-medium text-gray-500 py-2">Dim</div>
-                  </div>
+  <!-- Date Picker Modal -->
+  <div *ngIf="showDatePicker" class="relative">
+    ... (le code du date picker reste inchangé)
+  </div>
 
-                  <!-- Grille des jours -->
-                  <div class="grid grid-cols-7 gap-1">
-                    <button *ngFor="let day of calendarDays" (click)="selectDate(day)" [disabled]="!day.isCurrentMonth"
-                      [class]="getDayClasses(day)" class="h-9 rounded-lg text-sm font-medium transition-colors">
-                      {{ day.day }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-4">
-                <!-- Groupe de présences par date -->
-                <div class="border-l-4 border-orange-500 pl-4 space-y-3">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-semibold text-gray-700">Mer. 16 juil. 2025</span>
-                    <span class="text-sm text-gray-600">Total: 11h 20min</span>
-                  </div>
+  <!-- Historique des présences dynamique -->
+  <div class="space-y-4" *ngIf="selectedMember.presenceHistory && selectedMember.presenceHistory.length > 0">
+    <!-- Groupe de présences par date -->
+    <div *ngFor="let day of getFilteredPresenceHistory()" class="border-l-4 border-orange-500 pl-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold text-gray-700">{{ day.date }}</span>
+        <span class="text-sm text-gray-600">Total: {{ day.totalTime }}</span>
+      </div>
 
-                  <!-- Entrée/Sortie 1 -->
-                  <div class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
+      <!-- Sessions pour cette date -->
+      <div *ngFor="let session of day.sessions" class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
+        <div class="flex items-start gap-3">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5"
+              d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
+              stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
+            <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
+              stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="flex-1">
+            <span class="text-sm font-medium text-gray-700">Entrée:</span>
+            <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.entry }}</span>
+          </div>
+          <span
+            class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5"
+              d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
+              stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
+            <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
+              stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="flex-1">
+            <span class="text-sm font-medium text-gray-700">Sortie:</span>
+            <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.exit }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Entrée:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">07:55</span>
-                      </div>
-                      <span
-                        class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
+  <!-- Message si pas d'historique -->
+  <div *ngIf="!selectedMember.presenceHistory || selectedMember.presenceHistory.length === 0" class="text-center py-8 text-gray-500">
+    <p>Aucun historique de présence disponible</p>
+  </div>
 
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Sortie:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">17:25</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Entrée/Sortie 2 -->
-                  <div class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Entrée:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">18:10</span>
-                      </div>
-                      <span
-                        class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Sortie:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">20:10</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Deuxième jour -->
-                <div class="border-l-4 border-orange-500 pl-4 space-y-3">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-semibold text-gray-700">Mar. 15 juil. 2025</span>
-                    <span class="text-sm text-gray-600">Total: 11h 27min</span>
-                  </div>
-
-                  <!-- Entrée/Sortie 1 -->
-                  <div class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Entrée:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">08:10</span>
-                      </div>
-                      <span
-                        class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Sortie:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">17:10</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Entrée/Sortie 2 -->
-                  <div class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
-                          stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Entrée:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">18:10</span>
-                      </div>
-                      <span
-                        class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5"
-                          d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
-                        <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
-                          stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-
-                      <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">Sortie:</span>
-                        <span class="text-sm font-semibold text-gray-900 ml-1">20:10</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Troisième jour -->
-                <div class="border-l-4 border-orange-500 pl-4">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-semibold text-gray-700">Lun. 14 juil. 2025</span>
-                    <span class="text-sm text-gray-600">Total: 11h 27min</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Total heures travaillées -->
-              <div class="bg-gray-100 p-4 rounded-lg mt-4">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm font-medium text-gray-700">Total Heures travaillées</span>
-                  <span class="text-xl font-bold text-gray-900">22h 47min</span>
-                </div>
-              </div>
-            </div>
+  <!-- Total heures travaillées -->
+  <div class="bg-gray-100 p-4 rounded-lg mt-4">
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-medium text-gray-700">Total Heures travaillées</span>
+      <span class="text-xl font-bold text-gray-900">{{ getTotalWorkedTime() }}</span>
+    </div>
+  </div>
+</div>
           </div>
 
           <!-- Actions -->

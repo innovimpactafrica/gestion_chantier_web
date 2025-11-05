@@ -267,6 +267,8 @@
       remainingBudget: number;
       property: any;
     };
+    evidence:string
+
   }
 
   export interface ExpensesResponse {

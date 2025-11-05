@@ -110,7 +110,9 @@ export class ProjectBudgetComponent implements OnInit {
       }
     });
   }
-
+  getEvidenceForExpense(){
+       
+  }
   fetchExpenses(): void {
     if (!this.budgetId) {
       console.warn('budgetId non défini, impossible de récupérer les dépenses');

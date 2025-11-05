@@ -1,189 +1,36 @@
-import { Component, OnInit, OnDestroy, Inject, forwardRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DemandeService, Demande, Report, Material, Activity } from './../../../../services/demande.service';
-import { AuthService, profil } from './../../../features/auth/services/auth.service';
-import { Subscription, Observable } from 'rxjs';
+import { CommandeService, Order, OrderItem } from './../../../../services/commande.service';
+import { AuthService } from './../../../features/auth/services/auth.service';
+import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-// Extend the Demande interface to include isStatic
-interface ExtendedDemande extends Demande {
+interface ExtendedOrder extends Order {
   isStatic?: boolean;
-}
-
-interface Comment {
-  id: number;
-  text: string;
-  author: string;
-  createdAt: Date;
 }
 
 @Component({
   standalone: true,
   imports: [CommonModule, FormsModule],
-  selector: 'app-demande',
+  selector: 'app-commandes',
   templateUrl: './commandes.component.html',
   styleUrls: ['./commandes.component.css']
 })
-export class CommandeComponent implements OnInit, OnDestroy {
+export class CommandesComponent implements OnInit, OnDestroy {
   @ViewChild('modalContent') modalContent!: ElementRef;
+  
   searchTerm: string = '';
   selectedPeriod: string = 'Période';
   selectedStatus: string = 'Statut';
   showModal: boolean = false;
-  selectedDemande: ExtendedDemande | null = null;
-  comment: string = '';
-  
-  // Modal de création de rapport
-  showCreateReportModal: boolean = false;
-  newReport: {
-    title: string;
-    version: string;
-    file: File | null;
-  } = {
-    title: '',
-    version: '',
-    file: null
-  };
-  
-  // États de création
-  isCreatingReport: boolean = false;
-  createReportError: string | null = null;
+  selectedCommande: ExtendedOrder | null = null;
   
   // Données dynamiques
-  demandes: ExtendedDemande[] = [];
-  filteredDemandes: ExtendedDemande[] = [];
+  commandes: ExtendedOrder[] = [];
+  filteredCommandes: ExtendedOrder[] = [];
   loading: boolean = true;
   error: string | null = null;
-  
-  // Données statiques pour le fallback
-  staticDemandes: ExtendedDemande[] = [
-    {
-      id: 1,
-      commandeId: 'CMD-001',
-      title: 'Commande statique 1',
-      propertyName: 'Chantier Exemple 1',
-      betName: 'Jean Dupont',
-      description: 'Matériaux de construction généraux',
-      createdAt: [2025, 10, 1, 10, 30, 0],
-      status: 'PENDING',
-      materials: [
-        { name: 'Ciment', stock: '50', unit: 'sacs', unitPrice: 5000, total: 250000 },
-        { name: 'Sable', stock: '10', unit: 'm³', unitPrice: 15000, total: 150000 }
-      ],
-      activities: [
-        { action: 'Commande créée', user: 'Jean Dupont', date: [2025, 10, 1, 10, 30, 0] }
-      ],
-      reports: [],
-      totalAmount: 400000,
-      propertyId: 1,
-      moaId: 1,
-      moaName: 'MOA Exemple',
-      betId: 1,
-      propertyImg: '',
-      isStatic: true
-    },
-    {
-      id: 2,
-      commandeId: 'CMD-002',
-      title: 'Commande statique 2',
-      propertyName: 'Chantier Exemple 2',
-      betName: 'Marie Dubois',
-      description: 'Équipements électriques',
-      createdAt: [2025, 10, 2, 14, 0, 0],
-      status: 'VALIDATED',
-      materials: [
-        { name: 'Câbles électriques', stock: '200', unit: 'mètres', unitPrice: 1000, total: 200000 },
-        { name: 'Prises', stock: '50', unit: 'unités', unitPrice: 2000, total: 100000 }
-      ],
-      activities: [
-        { action: 'Commande validée', user: 'Marie Dubois', date: [2025, 10, 2, 14, 0, 0] }
-      ],
-      reports: [],
-      totalAmount: 300000,
-      propertyId: 2,
-      moaId: 2,
-      moaName: 'MOA Exemple 2',
-      betId: 2,
-      propertyImg: '',
-      isStatic: true
-    },
-     {
-      id: 3,
-      commandeId: 'CMD-003',
-      title: 'Commande statique 3',
-      propertyName: 'Chantier Exemple 3',
-      betName: 'ASSANE NDAW',
-      description: 'Équipements Sportives',
-      createdAt: [2025, 10, 2, 14, 0, 0],
-      status: 'REJECTED',
-      materials: [
-        { name: 'Equipements loisirs', stock: '200', unit: 'mètres', unitPrice: 1000, total: 200000 },
-        { name: 'Prises', stock: '50', unit: 'unités', unitPrice: 2000, total: 100000 }
-      ],
-      activities: [
-        { action: 'Commande en attente', user: 'NDAW', date: [2025, 10, 2, 14, 0, 0] }
-      ],
-      reports: [],
-      totalAmount: 300000,
-      propertyId: 3,
-      moaId: 3,
-      moaName: 'MOA Exemple 3',
-      betId: 3,
-      propertyImg: '',
-      isStatic: true
-    },
-     {
-      id: 4,
-      commandeId: 'CMD-004',
-      title: 'Commande statique 4',
-      propertyName: 'Chantier Exemple 4',
-      betName: 'ASSANE NDAW',
-      description: 'Équipements Sportives',
-      createdAt: [2025, 10, 2, 14, 0, 0],
-      status: 'IN_PROGRESS',
-      materials: [
-        { name: 'Equipements loisirs', stock: '200', unit: 'mètres', unitPrice: 1000, total: 200000 },
-        { name: 'Prises', stock: '50', unit: 'unités', unitPrice: 2000, total: 100000 }
-      ],
-      activities: [
-        { action: 'Commande en attente', user: 'NDAW', date: [2025, 10, 2, 14, 0, 0] }
-      ],
-      reports: [],
-      totalAmount: 300000,
-      propertyId: 4,
-      moaId: 4,
-      moaName: 'MOA Exemple 4',
-      betId: 4,
-      propertyImg: '',
-      isStatic: true
-    },
-    {
-      id: 5,
-      commandeId: 'CMD-005',
-      title: 'Commande statique 5',
-      propertyName: 'Chantier Exemple 5',
-      betName: 'ASSANE NDAW',
-      description: 'Équipements Sportives',
-      createdAt: [2025, 10, 2, 14, 0, 0],
-      status: 'DELIVERED',
-      materials: [
-        { name: 'Equipements loisirs', stock: '200', unit: 'mètres', unitPrice: 1000, total: 200000 },
-        { name: 'Prises', stock: '50', unit: 'unités', unitPrice: 2000, total: 100000 }
-      ],
-      activities: [
-        { action: 'Commande en attente', user: 'NDAW', date: [2025, 10, 2, 14, 0, 0] }
-      ],
-      reports: [],
-      totalAmount: 300000,
-      propertyId: 5,
-      moaId: 5,
-      moaName: 'MOA Exemple 5',
-      betId: 5,
-      propertyImg: '',
-      isStatic: true
-    }
-  ];
   
   // Pagination
   currentPage: number = 0;
@@ -191,11 +38,8 @@ export class CommandeComponent implements OnInit, OnDestroy {
   totalElements: number = 0;
   totalPages: number = 0;
   
-  // Commentaires simulés
-  comments: Comment[] = [];
-  
-  // ID du BET (dynamique depuis l'utilisateur connecté)
-  betId: number | null = null;
+  // ID du fournisseur (dynamique depuis l'utilisateur connecté)
+  supplierId: number | null = null;
   
   // Subscription pour nettoyer les observables
   private subscriptions: Subscription = new Subscription();
@@ -204,31 +48,34 @@ export class CommandeComponent implements OnInit, OnDestroy {
   Math = Math;
 
   constructor(
-    private demandeService: DemandeService,
-    @Inject(forwardRef(() => AuthService)) private authService: AuthService
+    private commandeService: CommandeService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.initializeBetId();
+    this.initializeSupplierId();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  private initializeBetId(): void {
+  /**
+   * Initialise l'ID du fournisseur à partir de l'utilisateur connecté
+   */
+  private initializeSupplierId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
       
       if (user && user.id) {
-        this.betId = user.id;
-        this.loadDemandes();
+        this.supplierId = user.id;
+        this.loadCommandes();
       } else {
         const refreshSubscription = this.authService.refreshUser().subscribe({
-          next: (refreshedUser: { id: number | null; }) => {
+          next: (refreshedUser) => {
             if (refreshedUser && refreshedUser.id) {
-              this.betId = refreshedUser.id;
-              this.loadDemandes();
+              this.supplierId = refreshedUser.id;
+              this.loadCommandes();
             } else {
               this.handleUserError('Utilisateur non trouvé ou ID manquant');
             }
@@ -252,7 +99,10 @@ export class CommandeComponent implements OnInit, OnDestroy {
     this.loading = false;
   }
 
-  private isBETUser(): boolean {
+  /**
+   * Vérifie si l'utilisateur est un fournisseur
+   */
+  private isSupplierUser(): boolean {
     const user = this.authService.currentUser();
     if (!user) return false;
 
@@ -265,15 +115,18 @@ export class CommandeComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  loadDemandes(page: number = 0) {
-    if (this.betId === null) {
-      this.error = 'ID utilisateur non disponible';
+  /**
+   * Charge les commandes depuis le backend
+   */
+  loadCommandes(page: number = 0) {
+    if (this.supplierId === null) {
+      this.error = 'ID fournisseur non disponible';
       this.loading = false;
       return;
     }
 
-    if (!this.isBETUser()) {
-      this.error = 'Accès réservé aux utilisateurs BET';
+    if (!this.isSupplierUser()) {
+      this.error = 'Accès réservé aux fournisseurs';
       this.loading = false;
       return;
     }
@@ -281,53 +134,67 @@ export class CommandeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
-    this.demandeService.getDemande(this.betId, page, this.pageSize).subscribe({
+    const loadSubscription = this.commandeService.getCommandes(this.supplierId, page, this.pageSize).subscribe({
       next: (response) => {
-        this.demandes = response.content.map((demande: Demande) => ({
-          ...demande,
-          materials: demande.materials || [],
-          activities: demande.activities || [],
-          reports: demande.reports || [],
+        this.commandes = response.content.map((commande: Order) => ({
+          ...commande,
+          items: commande.items || [],
           isStatic: false
         }));
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.currentPage = response.number;
         
-        this.filterDemandes();
+        this.filterCommandes();
         this.loading = false;
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors du chargement des demandes:', err);
-        this.error = 'Erreur lors du chargement des demandes';
+        console.error('Erreur lors du chargement des commandes:', err);
+        this.error = 'Erreur lors du chargement des commandes';
         this.loading = false;
       }
     });
+
+    this.subscriptions.add(loadSubscription);
   }
 
+  /**
+   * Change la taille de page
+   */
   changePageSize(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const newSize = +target.value;
     
     this.pageSize = newSize;
     this.currentPage = 0;
-    this.loadDemandes();
+    this.loadCommandes();
   }
 
-  filterDemandes() {
-    this.filteredDemandes = this.demandes.filter(demande => {
-      const matchesSearch = (demande.title || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           (demande.description || '').toLowerCase().includes(this.searchTerm.toLowerCase());
-      
-      const matchesPeriod = this.selectedPeriod === 'Période' || this.matchesPeriodFilter(demande);
-      const matchesStatus = this.selectedStatus === 'Statut' || this.mapStatusToFrench(demande.status) === this.selectedStatus;
+  /**
+   * Filtre les commandes selon les critères
+   */
+  filterCommandes() {
+    this.filteredCommandes = this.commandes.filter(commande => {
+      const matchesSearch = this.matchesSearchFilter(commande);
+      const matchesPeriod = this.selectedPeriod === 'Période' || this.matchesPeriodFilter(commande);
+      const matchesStatus = this.selectedStatus === 'Statut' || this.mapStatusToFrench(commande.status) === this.selectedStatus;
       
       return matchesSearch && matchesPeriod && matchesStatus;
     });
   }
 
-  private matchesPeriodFilter(demande: ExtendedDemande): boolean {
-    const createdDate = this.arrayToDate(demande.createdAt);
+  private matchesSearchFilter(commande: ExtendedOrder): boolean {
+    const searchLower = this.searchTerm.toLowerCase();
+    return (
+      commande.property?.name?.toLowerCase().includes(searchLower) ||
+      commande.supplier?.prenom?.toLowerCase().includes(searchLower) ||
+      commande.supplier?.nom?.toLowerCase().includes(searchLower) ||
+      `CMD-${commande.id}`.toLowerCase().includes(searchLower)
+    );
+  }
+
+  private matchesPeriodFilter(commande: ExtendedOrder): boolean {
+    const createdDate = this.arrayToDate(commande.orderDate);
     const now = new Date();
     
     switch (this.selectedPeriod) {
@@ -346,17 +213,20 @@ export class CommandeComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange() {
-    this.filterDemandes();
+    this.filterCommandes();
   }
 
   onPeriodChange() {
-    this.filterDemandes();
+    this.filterCommandes();
   }
 
   onStatusChange() {
-    this.filterDemandes();
+    this.filterCommandes();
   }
 
+  /**
+   * Convertit un tableau de date en objet Date
+   */
   arrayToDate(dateArray: number[] | undefined): Date {
     if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 3) {
       return new Date();
@@ -365,6 +235,9 @@ export class CommandeComponent implements OnInit, OnDestroy {
                     dateArray[3] || 0, dateArray[4] || 0, dateArray[5] || 0);
   }
 
+  /**
+   * Formate une date pour l'affichage
+   */
   formatDate(dateArray: number[] | undefined): string {
     if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 3) {
       return 'N/A';
@@ -373,6 +246,9 @@ export class CommandeComponent implements OnInit, OnDestroy {
     return date.toLocaleDateString('fr-FR');
   }
 
+  /**
+   * Formate un prix pour l'affichage
+   */
   formatPrice(price: number | undefined): string {
     if (price === undefined || price === null) {
       return '0';
@@ -380,6 +256,9 @@ export class CommandeComponent implements OnInit, OnDestroy {
     return price.toLocaleString('fr-FR');
   }
 
+  /**
+   * Mappe le statut anglais vers le français
+   */
   mapStatusToFrench(status: string | undefined): string {
     if (!status) return 'Inconnu';
     
@@ -392,6 +271,7 @@ export class CommandeComponent implements OnInit, OnDestroy {
       case 'REJECTED':
         return 'Rejetée';
       case 'IN_PROGRESS':
+      case 'IN_DELIVERY':
         return 'En cours';
       case 'DELIVERED':
         return 'Livrée';
@@ -400,6 +280,9 @@ export class CommandeComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Retourne la classe CSS selon le statut
+   */
   getStatusClass(status: string | undefined): string {
     const frenchStatus = this.mapStatusToFrench(status);
     switch (frenchStatus) {
@@ -418,22 +301,22 @@ export class CommandeComponent implements OnInit, OnDestroy {
     }
   }
 
-  openDetails(demande: ExtendedDemande) {
-    if (!demande || !demande.id) {
-      console.error('Demande non valide ou ID manquant');
-      this.error = 'Demande non valide';
+  /**
+   * Ouvre le modal de détails
+   */
+  openDetails(commande: ExtendedOrder) {
+    if (!commande || !commande.id) {
+      console.error('Commande non valide ou ID manquant');
+      this.error = 'Commande non valide';
       return;
     }
-    this.selectedDemande = { 
-      ...demande, 
-      materials: demande.materials || [], 
-      activities: demande.activities || [], 
-      reports: demande.reports || [],
-      isStatic: demande.isStatic || false
+    this.selectedCommande = { 
+      ...commande, 
+      items: commande.items || [],
+      isStatic: commande.isStatic || false
     };
     this.showModal = true;
-    this.comment = '';
-    this.loadComments(demande.id);
+    
     setTimeout(() => {
       if (this.modalContent) {
         this.modalContent.nativeElement.focus();
@@ -441,215 +324,69 @@ export class CommandeComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
+  /**
+   * Ferme le modal
+   */
   closeModal() {
     this.showModal = false;
-    this.selectedDemande = null;
-    this.comment = '';
-    this.comments = [];
+    this.selectedCommande = null;
   }
 
-  approveDemande(demande: ExtendedDemande | null) {
-    if (!demande || !demande.id || demande.isStatic) {
-      console.log('Action non autorisée pour les données statiques ou demande invalide');
-      return;
-    }
-    
-    this.demandeService.updateDemandeStatus(demande.id, 'VALIDATED').subscribe({
-      next: () => {
-        console.log('Demande approuvée:', demande.id);
-        demande.status = 'VALIDATED';
-        this.filterDemandes();
-        this.closeModal();
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors de l\'approbation:', err);
-        this.error = 'Erreur lors de l\'approbation de la demande';
-      }
-    });
+  /**
+   * Calcule le total de la commande
+   */
+  calculateTotal(items: OrderItem[]): number {
+    if (!items || items.length === 0) return 0;
+    return items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
   }
 
-  rejectDemande(demande: ExtendedDemande | null) {
-    if (!demande || !demande.id || demande.isStatic) {
-      console.log('Action non autorisée pour les données statiques ou demande invalide');
-      return;
-    }
-    
-    this.demandeService.updateDemandeStatus(demande.id, 'REJECTED').subscribe({
-      next: () => {
-        console.log('Demande rejetée:', demande.id);
-        demande.status = 'REJECTED';
-        this.filterDemandes();
-        this.closeModal();
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors du rejet:', err);
-        this.error = 'Erreur lors du rejet de la demande';
-      }
-    });
-  }
-
-  sendComment() {
-    if (this.comment.trim() && this.selectedDemande) {
-      const newComment: Comment = {
-        id: this.comments.length + 1,
-        text: this.comment.trim(),
-        author: this.getUserDisplayName() || 'Utilisateur actuel',
-        createdAt: new Date()
-      };
-      
-      this.comments.push(newComment);
-      this.comment = '';
-    }
-  }
-
-  private loadComments(demandeId: number) {
-    if (!demandeId) {
-      console.error('ID de demande non valide');
-      this.comments = [];
-      return;
-    }
-    this.comments = [];
-  }
-
+  /**
+   * Pagination - Page précédente
+   */
   previousPage() {
     if (this.currentPage > 0) {
-      this.loadDemandes(this.currentPage - 1);
+      this.loadCommandes(this.currentPage - 1);
     }
   }
 
+  /**
+   * Pagination - Page suivante
+   */
   nextPage() {
     if (this.currentPage < this.totalPages - 1) {
-      this.loadDemandes(this.currentPage + 1);
+      this.loadCommandes(this.currentPage + 1);
     }
   }
 
+  /**
+   * Pagination - Aller à une page spécifique
+   */
   goToPage(page: number) {
     if (page >= 0 && page < this.totalPages) {
-      this.loadDemandes(page);
+      this.loadCommandes(page);
     }
   }
 
+  /**
+   * Obtient le nom d'affichage de l'utilisateur
+   */
   getUserDisplayName(): string {
     return this.authService.getUserDisplayName() || 'Utilisateur inconnu';
   }
 
+  /**
+   * Debug - Affiche les informations utilisateur
+   */
   debugUserInfo(): void {
     console.log('Current User:', this.authService.currentUser());
-    console.log('BET ID:', this.betId);
-    console.log('Is BET User:', this.isBETUser());
+    console.log('Supplier ID:', this.supplierId);
+    console.log('Is Supplier User:', this.isSupplierUser());
   }
 
-  openCreateReportModal(): void {
-    this.showCreateReportModal = true;
-    this.resetNewReportForm();
-    this.createReportError = null;
-  }
-
-  closeCreateReportModal(): void {
-    this.showCreateReportModal = false;
-    this.resetNewReportForm();
-    this.createReportError = null;
-    this.isCreatingReport = false;
-  }
-
-  private resetNewReportForm(): void {
-    this.newReport = {
-      title: '',
-      version: '',
-      file: null
-    };
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.newReport.file = input.files[0];
-    }
-  }
-
-  private isCreateReportFormValid(): boolean {
-    return !!(
-      this.newReport.title.trim() && 
-      this.newReport.version.trim() && 
-      this.newReport.file
-    );
-  }
-
-  createReport(): void {
-    if (!this.isCreateReportFormValid()) {
-      this.createReportError = 'Veuillez remplir tous les champs obligatoires';
-      return;
-    }
-
-    if (!this.selectedDemande) {
-      this.createReportError = 'Aucune demande sélectionnée';
-      return;
-    }
-
-    if (!this.newReport.file) {
-      this.createReportError = 'Veuillez sélectionner un fichier';
-      return;
-    }
-
-    if (!this.betId) {
-      this.createReportError = 'ID utilisateur non disponible';
-      return;
-    }
-
-    if (!this.authService.isAuthenticated()) {
-      this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
-      return;
-    }
-
-    this.isCreatingReport = true;
-    this.createReportError = null;
-
-    const reportData = {
-      title: this.newReport.title.trim(),
-      versionNumber: parseInt(this.newReport.version),
-      studyRequestId: this.selectedDemande.id,
-      authorId: this.betId
-    };
-
-    const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
-      next: (response: Report) => {
-        console.log('✅ Rapport créé avec succès:', response);
-        this.handleReportCreationSuccess(response);
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('❌ Erreur lors de la création du rapport:', error);
-        this.handleReportCreationError(error);
-      }
-    });
-
-    this.subscriptions.add(createSubscription);
-  }
-
-  private handleReportCreationSuccess(response: Report): void {
-    if (this.selectedDemande) {
-      if (!this.selectedDemande.reports) {
-        this.selectedDemande.reports = [];
-      }
-      this.selectedDemande.reports.push(response);
-    }
-    
-    this.closeCreateReportModal();
-  }
-
-  private handleReportCreationError(error: HttpErrorResponse): void {
-    this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
-    this.isCreatingReport = false;
-  }
-
-  cancelCreateReport(): void {
-    this.closeCreateReportModal();
-  }
-
-  getFileName(): string {
-    return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
-  }
-
-  hasFileSelected(): boolean {
-    return !!this.newReport.file;
+  /**
+   * Rafraîchit les données
+   */
+  refreshData() {
+    this.loadCommandes(this.currentPage);
   }
 }

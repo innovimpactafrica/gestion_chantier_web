@@ -145,6 +145,22 @@ export class UtilisateurService {
 
     return this.http.get<WorkersResponse>(
       `${this.apiUrl}/${currentUserId}/team/others`,
+      
+      { 
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
+  }
+  getWorkers(page: number = 0, size: number = 30,propertyId:number): Observable<WorkersResponse> {
+    
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<WorkersResponse>(
+      `${this.apiUrl}/property/${propertyId}`,
+      
       { 
         params,
         headers: this.getAuthHeaders()

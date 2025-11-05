@@ -16,9 +16,10 @@ import { DashboardEtudeComponent } from './features/dashboard-etude/dashboard-et
 import { DemandeComponent } from './features/demande/demande.component';
 // import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from '../guards/role.guard';
-import { CommandeComponent } from './features/fournisseurs/commandes/commandes.component';
+import { CommandesComponent } from './features/fournisseurs/commandes/commandes.component';
 import { DashboardfComponent } from './features/fournisseurs/dashboard/dashboard.component';
 import { PortailComponent } from './features/portail/portail/portail.component';
+import { CompteComponent } from './features/compte/compte.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
@@ -60,7 +61,7 @@ export const routes: Routes = [
       },
       {
         path: 'commandes',
-        component: CommandeComponent,
+        component: CommandesComponent,
         data: { breadcrumb: 'Commandes Fournisseur' },
         canActivate: [RoleGuard]
       },
@@ -167,6 +168,14 @@ export const routes: Routes = [
         component: SupplierComponent,
         data: {
           breadcrumb: 'Fournisseurs',
+        },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'mon-compte',
+        component: CompteComponent,
+        data: {
+          breadcrumb: 'mon-compte',
         },
         canActivate: [RoleGuard]
       }

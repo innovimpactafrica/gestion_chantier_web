@@ -2,23 +2,24 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
-import { DemandeService, PercentageCountResponse, VolumetryResponse } from '../../../../services/demande.service';
+import { SupplierService, DashboardInfos, OrderCountByStatus } from '../../../../services/supplier.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Subscription } from 'rxjs';
 
 Chart.register(...registerables);
 
-interface EtudeStats {
+interface OrderStats {
   enAttente: number;
-  enCours: number;
-  validees: number;
+  approuvees: number;
   rejetees: number;
+  enLivraison: number;
+  livrees: number;
 }
 
-interface VolumetrieData {
-  projetsConcernes: number;
-  demandesRecues: number;
-  rapportsProduits: number;
+interface PropertyData {
+  propertyId: number;
+  propertyName: string;
+  totalOrders: number;
 }
 
 @Component({
@@ -39,21 +40,18 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedPeriod = 'Ce-mois';
   selectedVolumePeriod = 'Ce-mois';
 
-  stats: EtudeStats = {
+  stats: OrderStats = {
     enAttente: 0,
-    enCours: 0,
-    validees: 0,
-    rejetees: 0
+    approuvees: 0,
+    rejetees: 0,
+    enLivraison: 0,
+    livrees: 0
   };
 
-  volumetrieData: VolumetrieData = {
-    projetsConcernes: 0,
-    demandesRecues: 0,
-    rapportsProduits: 0
-  };
+  topProperties: PropertyData[] = [];
 
-  // ID du BET (dynamique depuis l'utilisateur connecté)
-  betId: number | null = null;
+  // ID du fournisseur (dynamique depuis l'utilisateur connecté)
+  supplierId: number | null = null;
   loading = true;
   error: string | null = null;
 
@@ -61,12 +59,12 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription = new Subscription();
 
   constructor(
-    private demandeService: DemandeService,
+    private supplierService: SupplierService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.initializeBetId();
+    this.initializeSupplierId();
   }
 
   ngOnDestroy() {
@@ -84,22 +82,22 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * Initialise l'ID du BET à partir de l'utilisateur connecté
+   * Initialise l'ID du fournisseur à partir de l'utilisateur connecté
    */
-  private initializeBetId(): void {
+  private initializeSupplierId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
-      
+      console.log(user)
       if (user && user.id) {
-        this.betId = user.id;
-        this.loadKpiData();
+        this.supplierId = user.id;
+        this.loadDashboardData();
       } else {
         // Si l'utilisateur n'a pas d'ID, on rafraîchit les données utilisateur
         const refreshSubscription = this.authService.refreshUser().subscribe({
           next: (refreshedUser) => {
             if (refreshedUser && refreshedUser.id) {
-              this.betId = refreshedUser.id;
-              this.loadKpiData();
+              this.supplierId = refreshedUser.id;
+              this.loadDashboardData();
             } else {
               this.handleError('Utilisateur non trouvé ou ID manquant');
             }
@@ -118,86 +116,57 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * Charge les données KPI (pourcentages et volumétrie)
+   * Charge les données du dashboard (statistiques et propriétés)
    */
-  private loadKpiData(): void {
-    if (this.betId === null) {
-      this.handleError('ID utilisateur non disponible');
+  private loadDashboardData(): void {
+    if (this.supplierId === null) {
+      this.handleError('ID fournisseur non disponible');
       return;
     }
 
     this.loading = true;
     this.error = null;
 
-    // Charger les pourcentages this.betId
-    const percentageSubscription = this.demandeService.getPercentageCount(1).subscribe({
-      next: (data: PercentageCountResponse) => {
-        this.updateStatsFromPercentageData(data);
-        this.checkLoadingComplete();
+    const dashboardSubscription = this.supplierService.getInfosDashboard(this.supplierId).subscribe({
+      next: (data: DashboardInfos) => {
+        this.updateStatsFromDashboardData(data);
+        this.updateTopProperties(data);
+        this.loading = false;
+        
+        // Créer les graphiques après mise à jour des données
+        setTimeout(() => {
+          this.createPieChart();
+          this.createBarChart();
+        }, 0);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des pourcentages:', error);
-        this.handleError('Erreur lors du chargement des statistiques');
-        this.checkLoadingComplete();
+        console.error('Erreur lors du chargement du dashboard:', error);
+        this.handleError('Erreur lors du chargement des données du dashboard');
+        this.loading = false;
       }
     });
 
-    // Charger la volumétrie
-    const volumetrySubscription = this.demandeService.getVolumetry(1).subscribe({
-      next: (data: VolumetryResponse) => {
-        this.updateVolumetryData(data);
-        this.checkLoadingComplete();
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement de la volumétrie:', error);
-        this.handleError('Erreur lors du chargement de la volumétrie');
-        this.checkLoadingComplete();
-      }
-    });
-
-    this.subscriptions.add(percentageSubscription);
-    this.subscriptions.add(volumetrySubscription);
+    this.subscriptions.add(dashboardSubscription);
   }
 
   /**
-   * Met à jour les statistiques à partir des données de pourcentage
+   * Met à jour les statistiques à partir des données du dashboard
    */
-  private updateStatsFromPercentageData(data: PercentageCountResponse): void {
+  private updateStatsFromDashboardData(data: DashboardInfos): void {
     this.stats = {
-      enAttente: data.counts.PENDING,
-      enCours: data.counts.IN_PROGRESS,
-      validees: data.counts.VALIDATED,
-      rejetees: data.counts.REJECTED
+      enAttente: data.orderCountByStatus.PENDING || 0,
+      approuvees: data.orderCountByStatus.APPROVED || 0,
+      rejetees: data.orderCountByStatus.REJECTED || 0,
+      enLivraison: data.orderCountByStatus.IN_DELIVERY || 0,
+      livrees: data.orderCountByStatus.DELIVERED || 0
     };
-
-    // Recréer le graphique circulaire après mise à jour des données
-    setTimeout(() => {
-      this.createPieChart();
-    }, 0);
   }
 
   /**
-   * Met à jour les données de volumétrie
+   * Met à jour les données des propriétés top
    */
-  private updateVolumetryData(data: VolumetryResponse): void {
-    this.volumetrieData = {
-      projetsConcernes: data.distinctPropertiesCount,
-      demandesRecues: data.totalStudyRequests,
-      rapportsProduits: data.totalReports
-    };
-
-    // Recréer le graphique en barres après mise à jour des données
-    setTimeout(() => {
-      this.createBarChart();
-    }, 0);
-  }
-
-  /**
-   * Vérifie si tous les chargements sont terminés
-   */
-  private checkLoadingComplete(): void {
-    // Cette méthode peut être étendue pour gérer plusieurs appels asynchrones
-    this.loading = false;
+  private updateTopProperties(data: DashboardInfos): void {
+    this.topProperties = data.topProperties || [];
   }
 
   /**
@@ -222,18 +191,20 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: {
-        labels: ['Validées', 'En cours', 'Attente', 'Rejetées'],
+        labels: ['Livrées', 'En livraison', 'Approuvées', 'En attente', 'Rejetées'],
         datasets: [{
           data: [
-            this.stats.validees,
-            this.stats.enCours,
+            this.stats.livrees,
+            this.stats.enLivraison,
+            this.stats.approuvees,
             this.stats.enAttente,
             this.stats.rejetees
           ],
           backgroundColor: [
-            '#22c55e', // green-500 pour validées
-            '#3b82f6', // blue-500 pour en cours
-            '#f59e0b', // amber-500 pour attente
+            '#22c55e', // green-500 pour livrées
+            '#3b82f6', // blue-500 pour en livraison
+            '#10b981', // emerald-500 pour approuvées
+            '#f59e0b', // amber-500 pour en attente
             '#ef4444'  // red-500 pour rejetées
           ],
           borderWidth: 0,
@@ -249,7 +220,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
           tooltip: {
             callbacks: {
               label: (context) => {
-                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : '0.0';
                 return `${context.label}: ${percentage}%`;
               }
             }
@@ -269,21 +240,16 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
       this.barChart.destroy();
     }
 
+    // Limiter à 10 propriétés maximum pour la lisibilité
+    const displayProperties = this.topProperties.slice(0, 10);
+    
     const config: ChartConfiguration = {
       type: 'bar',
       data: {
-        labels: ['Projets concernés', 'Demandes reçues', 'Rapports produits'],
+        labels: displayProperties.map(p => p.propertyName),
         datasets: [{
-          data: [
-            this.volumetrieData.projetsConcernes,
-            this.volumetrieData.demandesRecues,
-            this.volumetrieData.rapportsProduits
-          ],
-          backgroundColor: [
-            '#60a5fa', // blue-400
-            '#60a5fa', // blue-400
-            '#60a5fa'  // blue-400
-          ],
+          data: displayProperties.map(p => p.totalOrders),
+          backgroundColor: '#60a5fa', // blue-400
           borderRadius: 4,
           maxBarThickness: 60
         }]
@@ -294,17 +260,21 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `Commandes: ${context.parsed.y}`;
+              }
+            }
           }
         },
         scales: {
           y: {
             beginAtZero: true,
             ticks: {
-              stepSize: Math.ceil(Math.max(
-                this.volumetrieData.projetsConcernes,
-                this.volumetrieData.demandesRecues,
-                this.volumetrieData.rapportsProduits
-              ) / 5)
+              stepSize: 1,
+              precision: 0
             },
             grid: {
               color: '#f3f4f6'
@@ -313,6 +283,10 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
           x: {
             grid: {
               display: false
+            },
+            ticks: {
+              maxRotation: 0,
+              minRotation: 0
             }
           }
         }
@@ -323,7 +297,8 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getTotal(): number {
-    return this.stats.enAttente + this.stats.enCours + this.stats.validees + this.stats.rejetees;
+    return this.stats.enAttente + this.stats.approuvees + this.stats.rejetees + 
+           this.stats.enLivraison + this.stats.livrees;
   }
 
   getPercentage(value: number): string {
@@ -335,13 +310,13 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   onPeriodChange(period: string) {
     this.selectedPeriod = period;
     // Recharger les données selon la période sélectionnée
-    this.loadKpiData();
+    this.loadDashboardData();
   }
 
   onVolumePeriodChange(period: string) {
     this.selectedVolumePeriod = period;
-    // Recharger les données de volumétrie selon la période sélectionnée
-    this.loadKpiData();
+    // Recharger les données selon la période sélectionnée
+    this.loadDashboardData();
   }
 
   /**
@@ -351,18 +326,20 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
     const total = this.getTotal();
     if (total === 0) {
       return {
-        attente: '0.0',
-        enCours: '0.0',
-        validees: '0.0',
-        rejetees: '0.0'
+        enAttente: '0.0',
+        approuvees: '0.0',
+        rejetees: '0.0',
+        enLivraison: '0.0',
+        livrees: '0.0'
       };
     }
 
     return {
-      attente: ((this.stats.enAttente / total) * 100).toFixed(1),
-      enCours: ((this.stats.enCours / total) * 100).toFixed(1),
-      validees: ((this.stats.validees / total) * 100).toFixed(1),
-      rejetees: ((this.stats.rejetees / total) * 100).toFixed(1)
+      enAttente: ((this.stats.enAttente / total) * 100).toFixed(1),
+      approuvees: ((this.stats.approuvees / total) * 100).toFixed(1),
+      rejetees: ((this.stats.rejetees / total) * 100).toFixed(1),
+      enLivraison: ((this.stats.enLivraison / total) * 100).toFixed(1),
+      livrees: ((this.stats.livrees / total) * 100).toFixed(1)
     };
   }
 
@@ -370,9 +347,21 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
    * Méthode pour rafraîchir les données manuellement
    */
   refreshData() {
-    this.loadKpiData();
+    this.loadDashboardData();
+  }
+
+  /**
+   * Méthode pour obtenir le nom de l'utilisateur connecté
+   */
+  getUserDisplayName(): string {
+    return this.authService.getUserDisplayName();
+  }
+
+  /**
+   * Méthode pour debug - afficher les informations utilisateur
+   */
+  debugUserInfo(): void {
+    console.log('Current User:', this.authService.currentUser());
+    console.log('Supplier ID:', this.supplierId);
   }
 }
-
-
-

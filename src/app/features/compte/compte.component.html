@@ -1,0 +1,422 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Titre de la page  -->
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Mon compte</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Carte du profil utilisateur (gauche) -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <!-- Photo de profil ou initiales -->
+                    <div class="flex justify-center mb-6">
+                        <div class="relative">
+                            @if (hasUserPhoto()) {
+                            <img [src]="getUserPhotoUrl()" alt="Photo de profil"
+                                class="w-32 h-32 rounded-full object-cover border-4 border-[#ff5c01]" />
+                            } @else {
+                            <div class="w-32 h-32 rounded-full bg-[#ff5c01] flex items-center justify-center">
+                                <span class="text-white text-5xl font-bold">{{ getUserInitials() }}</span>
+                            </div>
+                            }
+
+                            <!-- Icône de caméra -->
+                            <button type="button"
+                                class="absolute bottom-0 right-0 bg-gray-600 hover:bg-gray-700 text-white rounded-full p-2 shadow-lg transition-colors"
+                                title="Changer la photo">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nom et profil -->
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-1">
+                            {{ getUserFullName() }}
+                        </h2>
+                        <p class="text-gray-600 text-sm">{{ getUserProfile() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu principal (droite) -->
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-lg shadow-sm">
+                    <!-- Onglets -->
+                    <div class="border-b border-gray-200 px-8 pt-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ getPageTitle() }}</h1>
+
+                        <nav class="flex space-x-8" aria-label="Tabs">
+                            <button type="button" (click)="setActiveTab('informations')" [class]="activeTab() === 'informations' 
+                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-4 px-1 border-b-2 text-sm transition-colors">
+                                Informations personnelles
+                            </button>
+                            <button type="button" (click)="setActiveTab('abonnements')" [class]="activeTab() === 'abonnements' 
+                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-4 px-1 border-b-2 text-sm transition-colors">
+                                Abonnements
+                            </button>
+                            <button type="button" (click)="setActiveTab('factures')" [class]="activeTab() === 'factures' 
+                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-4 px-1 border-b-2 text-sm transition-colors">
+                                Factures
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Contenu de l'onglet -->
+                    <div class="p-8">
+                        @if (activeTab() === 'informations') {
+                        <!-- Formulaire d'informations personnelles -->
+                        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Prénom -->
+                                <div>
+                                    <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Prénom
+                                    </label>
+                                    <input type="text" id="prenom" formControlName="prenom"
+                                        [class.border-red-500]="isFieldInvalid('prenom')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent transition-colors"
+                                        placeholder="Cheikh" />
+                                    @if (isFieldInvalid('prenom')) {
+                                    <p class="mt-1 text-sm text-red-600">{{ getFieldError('prenom') }}</p>
+                                    }
+                                </div>
+
+                                <!-- Nom -->
+                                <div>
+                                    <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nom
+                                    </label>
+                                    <input type="text" id="nom" formControlName="nom"
+                                        [class.border-red-500]="isFieldInvalid('nom')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent transition-colors"
+                                        placeholder="Gueye" />
+                                    @if (isFieldInvalid('nom')) {
+                                    <p class="mt-1 text-sm text-red-600">{{ getFieldError('nom') }}</p>
+                                    }
+                                </div>
+
+                                <!-- Numéro de téléphone -->
+                                <div>
+                                    <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Numéro de téléphone
+                                    </label>
+                                    <input type="tel" id="telephone" formControlName="telephone"
+                                        [class.border-red-500]="isFieldInvalid('telephone')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent transition-colors"
+                                        placeholder="78 183 73 70" />
+                                    @if (isFieldInvalid('telephone')) {
+                                    <p class="mt-1 text-sm text-red-600">{{ getFieldError('telephone') }}</p>
+                                    }
+                                </div>
+
+                                <!-- Email -->
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Email
+                                    </label>
+                                    <input type="email" id="email" formControlName="email"
+                                        [class.border-red-500]="isFieldInvalid('email')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent transition-colors"
+                                        placeholder="cgueye@gmail.com" />
+                                    @if (isFieldInvalid('email')) {
+                                    <p class="mt-1 text-sm text-red-600">{{ getFieldError('email') }}</p>
+                                    }
+                                </div>
+
+                                <!-- Nom de l'entreprise -->
+                                <div>
+                                    <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nom de l'entreprise
+                                    </label>
+                                    <input type="text" id="company" formControlName="company"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent transition-colors"
+                                        placeholder="Entreprise A" />
+                                </div>
+
+                                <!-- Profil (lecture seule) -->
+                                <div>
+                                    <label for="profil" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Profil
+                                    </label>
+                                    <input type="text" id="profil" [value]="getUserProfile()" readonly
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed" />
+                                </div>
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="flex items-center justify-end gap-4 mt-8">
+                                <button type="button" (click)="onCancel()" [disabled]="isSaving()"
+                                    class="px-6 py-3 text-gray-700 font-medium hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Annuler
+                                </button>
+                                <button type="submit" [disabled]="userForm.invalid || isSaving()"
+                                    class="px-8 py-3 bg-[#ff5c01] hover:bg-[#e54f00] text-white font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    @if (isSaving()) {
+                                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    <span>Enregistrement...</span>
+                                    } @else {
+                                    <span>Mettre à jour</span>
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                        }
+
+                        @if (activeTab() === 'abonnements') {
+                        <!-- Contenu Abonnements -->
+                        <div>
+                            <!-- Barre de recherche et filtre -->
+                            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                                <div class="flex-1 relative">
+                                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <input type="text" placeholder="Rechercher ici"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent" />
+                                </div>
+                                <select
+                                    class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent bg-white">
+                                    <option value="all">Tous les status</option>
+                                    <option value="Actif">Actif</option>
+                                    <option value="Expiré">Expiré</option>
+                                </select>
+                            </div>
+
+                            <!-- Tableau des abonnements -->
+                            <div class="bg-gray-50 rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Pack</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Date debut
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Date fin
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Statut
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @for (abonnement of getFilteredAbonnements(); track abonnement.id) {
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ abonnement.pack }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-600">{{ abonnement.dateDebut }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-600">{{ abonnement.dateFin }}</td>
+                                            <td class="px-6 py-4">
+                                                @if (abonnement.statut === 'Actif') {
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                                    Actif
+                                                </span>
+                                                } @else {
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                                    Expiré
+                                                </span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @if (abonnement.statut === 'Expiré') {
+                                                <button (click)="renouvelerAbonnement(abonnement.id)"
+                                                    class="text-[#ff5c01] hover:text-[#e54f00] transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                                        </path>
+                                                    </svg>
+                                                </button>
+                                                } @else {
+                                                <button (click)="telechargerAbonnement(abonnement.id)"
+                                                    class="text-gray-600 hover:text-gray-800 transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                        </path>
+                                                    </svg>
+                                                </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between mt-6">
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <span>éléments par page:</span>
+                                    <select class="px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent">
+                                        <option>10</option>
+                                        <option>20</option>
+                                        <option>50</option>
+                                    </select>
+                                    <span class="ml-4">1 - 1 sur 4</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        }
+
+                        @if (activeTab() === 'factures') {
+                        <!-- Contenu Factures -->
+                        <div>
+                            <!-- Barre de recherche et filtre -->
+                            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                                <div class="flex-1 relative">
+                                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <input type="text" placeholder="Rechercher ici"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent" />
+                                </div>
+                                <select
+                                    class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent bg-white">
+                                    <option value="all">Tous les status</option>
+                                    <option value="Payée">Payée</option>
+                                    <option value="En attente">En attente</option>
+                                </select>
+                            </div>
+
+                            <!-- Tableau des factures -->
+                            <div class="bg-gray-50 rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Référence
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Échéance
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Montant
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Statut
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-600">Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @for (facture of getFilteredFactures(); track facture.id) {
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ facture.reference }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-600">{{ facture.echeance }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ facture.montant
+                                                }}</td>
+                                            <td class="px-6 py-4">
+                                                @if (facture.statut === 'Payée') {
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                                    Payée
+                                                </span>
+                                                } @else {
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                                                    En attente
+                                                </span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-2">
+                                                    @if (facture.statut === 'En attente') {
+                                                    <button (click)="payerFacture(facture.id)"
+                                                        class="inline-flex items-center gap-2 px-4 py-2 bg-[#00B894] hover:bg-[#00a080] text-white text-sm font-medium rounded-lg transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        Payer
+                                                    </button>
+                                                    } @else {
+                                                    <button (click)="telechargerFacture(facture.id)"
+                                                        class="text-gray-600 hover:text-gray-800 transition-colors">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                            </path>
+                                                        </svg>
+                                                    </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between mt-6">
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <span>éléments par page:</span>
+                                    <select class="px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent">
+                                        <option>10</option>
+                                        <option>20</option>
+                                        <option>50</option>
+                                    </select>
+                                    <span class="ml-4">1 - 1 sur 4</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
