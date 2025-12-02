@@ -39,9 +39,9 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
   // Données mockées pour les utilisateurs abonnés (basées sur la capture d'écran)
   subscribedUsers: SubscribedUser[] = [
-    { id: 1, name: 'Alpha Dieye', email: 'ad1@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/avatars/alpha.png' },
-    { id: 2, name: 'Aziz Diop', email: 'ad@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/avatars/aziz.png' },
-    { id: 3, name: 'Maguette Ndiaye', email: 'mb@gmail.com', role: 'BET', status: 'Actif', avatarUrl: 'assets/avatars/maguette.png' },
+    { id: 1, name: 'Alpha Dieye', email: 'ad1@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/alpha.png' },
+    { id: 2, name: 'Aziz Diop', email: 'ad@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/aziz.png' },
+    { id: 3, name: 'Maguette Ndiaye', email: 'mb@gmail.com', role: 'BET', status: 'Actif', avatarUrl: 'assets/maguette.png' },
   ];
 
   constructor(

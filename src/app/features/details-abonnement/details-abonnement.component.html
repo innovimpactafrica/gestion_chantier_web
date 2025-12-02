@@ -1,8 +1,8 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA] min-h-screen">
-  
+
     <!-- Loader -->
     <div *ngIf="isLoading" class="flex items-center justify-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
     </div>
 
     <div *ngIf="!isLoading && plan" class="space-y-6">
@@ -10,23 +10,22 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
                 <button (click)="router.navigate(['/abonnements'])" class="text-gray-600 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                 </button>
                 <h1 class="text-2xl font-bold text-[#1E293B]">Détails du plan</h1>
             </div>
             <div class="flex space-x-3">
                 <!-- Bouton Modifier (couleur #0d47a1) -->
-                <button 
-                    (click)="editPlan()"
+                <button (click)="editPlan()"
                     class="bg-[#0d47a1] hover:bg-[#0a3a82] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-md">
                     Modifier
                 </button>
                 <!-- Bouton Désactiver/Activer -->
-                <button 
-                    (click)="deactivatePlan()"
-                    [disabled]="!plan.active"
+                <button (click)="deactivatePlan()" [disabled]="!plan.active"
                     [ngClass]="{'opacity-50 cursor-not-allowed': !plan.active}"
                     class="border border-[#FF5C01] text-[#FF5C01] px-6 py-2 rounded-lg font-medium transition-colors duration-200 hover:bg-orange-50">
                     {{ plan.active ? 'Désactiver' : 'Activer' }}
@@ -36,16 +35,17 @@
 
         <!-- Contenu principal en grille -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             <!-- Colonne de gauche (Détails du plan et Fonctionnalités) - UNE SEULE CARTE -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm space-y-6">
-                    
+
                     <!-- Bloc d'informations principales -->
                     <div class="space-y-4">
                         <h2 class="text-xl font-extrabold text-gray-900 uppercase">{{ plan.label }}</h2>
                         <p class="text-gray-600">{{ plan.description }}</p>
-                        <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatutClass(plan.active)">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium"
+                            [ngClass]="getStatutClass(plan.active)">
                             {{ getStatutText(plan.active) }}
                         </span>
                     </div>
@@ -82,51 +82,60 @@
                         <h3 class="text-lg font-semibold text-gray-800">Fonctionnalités</h3>
                         <ul class="space-y-3 text-gray-700">
                             <li class="flex items-center">
-                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Gestion de projets illimitée
                             </li>
                             <li class="flex items-center">
-                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Tableau de bord avancé
                             </li>
                             <li class="flex items-center">
-                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Rapports personnalisés
                             </li>
                             <li class="flex items-center">
-                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Support prioritaire
                             </li>
                             <li class="flex items-center">
-                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                <svg class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Intégrations API
                             </li>
                         </ul>
                     </div>
-                      <!-- Bouton Supprimer (Reste en dehors de la carte principale) -->
-                <button 
-                (click)="deletePlan()"
-                class="w-full border border-orange-500 text-orange-500 px-6 py-3 rounded-lg font-medium transition-colors duration-200 hover:bg-orange-50">
-                Supprimer
-            </button>
+                    <!-- Bouton Supprimer (Reste en dehors de la carte principale) -->
+                    <button (click)="deletePlan()"
+                        class="w-full border border-orange-500 text-orange-500 px-6 py-3 rounded-lg font-medium transition-colors duration-200 hover:bg-orange-50">
+                        Supprimer
+                    </button>
                 </div>
 
-              
+
             </div>
 
             <!-- Colonne de droite (Graphique et Utilisateurs) -->
             <div class="lg:col-span-2 space-y-6">
-                
+
                 <!-- Bloc Répartition des abonnements (Chart.js) -->
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <h3 class="text-lg font-semibold text-gray-800 border-b pb-3 mb-4">Répartition des abonnements</h3>
@@ -154,10 +163,18 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Utilisateur</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Rôle</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Statut</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -166,7 +183,9 @@
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <!-- Placeholder pour l'avatar -->
-                                                <img class="h-10 w-10 rounded-full bg-gray-200" [src]="user.avatarUrl" alt="Avatar" onerror="this.onerror=null; this.src='https://via.placeholder.com/40'">
+                                                <img class="h-10 w-10 rounded-full bg-gray-200" [src]="user.avatarUrl"
+                                                    alt="Avatar"
+                                                    onerror="this.onerror=null; this.src='https://via.placeholder.com/40'">
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
@@ -177,16 +196,21 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.role }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                              [ngClass]="user.status === 'Actif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                            [ngClass]="user.status === 'Actif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
                                             {{ user.status }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button (click)="viewUser(user)" class="text-gray-600 hover:text-gray-900 transition-colors" title="Voir l'utilisateur">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        <button (click)="viewUser(user)"
+                                            class="text-gray-600 hover:text-gray-900 transition-colors"
+                                            title="Voir l'utilisateur">
+                                            <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                    d="M11.9994 6.68853C13.808 6.68251 15.5815 7.187 17.1162 8.144C18.6509 9.10099 19.8843 10.4716 20.6748 12.0984C19.0518 15.4131 15.7371 17.5082 11.9994 17.5082C8.26165 17.5082 4.9469 15.4131 3.32395 12.0984C4.11439 10.4716 5.34785 9.10099 6.88252 8.144C8.41719 7.187 10.1908 6.68251 11.9994 6.68853ZM11.9994 4.72131C7.08133 4.72131 2.88133 7.78033 1.17969 12.0984C2.88133 16.4164 7.08133 19.4754 11.9994 19.4754C16.9174 19.4754 21.1174 16.4164 22.819 12.0984C21.1174 7.78033 16.9174 4.72131 11.9994 4.72131ZM11.9994 9.63935C12.6515 9.63935 13.277 9.89842 13.7381 10.3596C14.1993 10.8207 14.4584 11.4462 14.4584 12.0984C14.4584 12.7505 14.1993 13.376 13.7381 13.8372C13.277 14.2983 12.6515 14.5574 11.9994 14.5574C11.3472 14.5574 10.7217 14.2983 10.2606 13.8372C9.79942 13.376 9.54034 12.7505 9.54034 12.0984C9.54034 11.4462 9.79942 10.8207 10.2606 10.3596C10.7217 9.89842 11.3472 9.63935 11.9994 9.63935ZM11.9994 7.67213C9.56001 7.67213 7.57313 9.65902 7.57313 12.0984C7.57313 14.5377 9.56001 16.5246 11.9994 16.5246C14.4387 16.5246 16.4256 14.5377 16.4256 12.0984C16.4256 9.65902 14.4387 7.67213 11.9994 7.67213Z"
+                                                    fill="#4B4848" />
                                             </svg>
+
                                         </button>
                                     </td>
                                 </tr>
@@ -202,7 +226,8 @@
     <div *ngIf="!isLoading && !plan" class="text-center py-20">
         <h2 class="text-xl font-semibold text-gray-700">Plan d'abonnement introuvable</h2>
         <p class="text-gray-500 mt-2">Veuillez vérifier l'identifiant du plan.</p>
-        <button (click)="router.navigate(['/abonnements'])" class="mt-4 text-[#FF5C01] hover:text-[#E54F00] font-medium">
+        <button (click)="router.navigate(['/abonnements'])"
+            class="mt-4 text-[#FF5C01] hover:text-[#E54F00] font-medium">
             Retourner à la liste des abonnements
         </button>
     </div>

@@ -33,7 +33,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
 
   // Statistiques principales
   dashboardInfos: DashboardInfos | null = null;
-  
+
   // Années disponibles pour le filtre
   selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [];
@@ -49,10 +49,10 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   revenuData: EvolutionData[] = [];
   planDistribution: PlanDistribution[] = [];
   profilDistribution: ProfilDistribution[] = [];
-  
+
   // Dernières factures
   dernieresFactures: Invoice[] = [];
-Math: any;
+  Math: any;
 
   constructor(private dashboardService: DashboardAdminService) {
     // Générer les 10 dernières années
@@ -82,17 +82,17 @@ Math: any;
    */
   loadAllData(): void {
     console.log('📊 Chargement de toutes les données du dashboard...');
-    
+
     // Charger les infos principales
     this.loadDashboardInfos();
-    
+
     // Charger les données de l'année sélectionnée
     this.loadYearData();
-    
+
     // Charger les distributions (indépendantes de l'année)
     this.loadPlanDistribution();
     this.loadProfilDistribution();
-    
+
     // Charger les factures
     this.loadInvoices();
   }
@@ -102,7 +102,7 @@ Math: any;
    */
   loadDashboardInfos(): void {
     this.isLoadingDashboard = true;
-    
+
     this.dashboardService.getInfosDashboard()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -133,10 +133,10 @@ Math: any;
       .subscribe({
         next: (results) => {
           console.log('✅ Données de l\'année chargées:', results);
-          
+
           this.evolutionData = results.evolution;
           this.revenuData = results.revenu;
-          
+
           this.isLoadingEvolution = false;
           this.isLoadingRevenu = false;
 
@@ -159,7 +159,7 @@ Math: any;
    */
   loadPlanDistribution(): void {
     this.isLoadingPlans = true;
-    
+
     this.dashboardService.getDistributionsPlan()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -184,7 +184,7 @@ Math: any;
    */
   loadProfilDistribution(): void {
     this.isLoadingProfils = true;
-    
+
     this.dashboardService.getRepartitionProfil()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -209,7 +209,7 @@ Math: any;
    */
   loadInvoices(): void {
     this.isLoadingInvoices = true;
-    
+
     this.dashboardService.getLastInvoices(this.currentPage, this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -278,12 +278,42 @@ Math: any;
     const ctx = this.abonnementsChart.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    // Détruire l'ancien graphique s'il existe
+    // Détruire l'ancien graphique
     if (this.chartInstances['abonnements']) {
       this.chartInstances['abonnements'].destroy();
     }
 
-    const labels = this.evolutionData.map(d => d.month);
+    // Map complet des mois → abréviations
+    const monthMap: Record<string, string> = {
+      "January": "Jan",
+      "February": "Fév",
+      "March": "Mar",
+      "April": "Avr",
+      "May": "Mai",
+      "June": "Juin",
+      "July": "Juil",
+      "August": "Août",
+      "September": "Sept",
+      "October": "Oct",
+      "November": "Nov",
+      "December": "Déc",
+
+      // Mois en français
+      "Janvier": "Jan",
+      "Février": "Fév",
+      "Mars": "Mar",
+      "Avril": "Avr",
+      "Mai": "Mai",
+      "Juin": "Juin",
+      "Juillet": "Juil",
+      "Août": "Août",
+      "Septembre": "Sept",
+      "Octobre": "Oct",
+      "Novembre": "Nov",
+      "Décembre": "Déc"
+    };
+
+    const labels = this.evolutionData.map(d => monthMap[d.month] || d.month);
     const data = this.evolutionData.map(d => d.total);
 
     this.chartInstances['abonnements'] = new Chart(ctx, {
@@ -293,52 +323,47 @@ Math: any;
         datasets: [{
           label: 'Abonnements',
           data: data,
-          backgroundColor: '#FF5C01',
+          backgroundColor: '#FF5C01'
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          },
+          legend: { display: false },
           tooltip: {
             backgroundColor: '#1E293B',
             titleColor: '#fff',
             bodyColor: '#fff',
             padding: 12,
-            cornerRadius: 8,
+            cornerRadius: 8
           }
         },
         scales: {
           y: {
             beginAtZero: true,
-            grid: {
-              color: '#E5E7EB',
-            },
+            grid: { color: '#E5E7EB' },
             ticks: {
               color: '#6B7280',
-              font: {
-                size: 12
-              }
+              font: { size: 12 }
             }
           },
           x: {
-            grid: {
-              display: false
-            },
+            grid: { display: false },
             ticks: {
               color: '#6B7280',
-              font: {
-                size: 12
-              }
+              font: { size: 12 },
+
+              // 🚀 Correction PC : labels horizontaux
+              maxRotation: 0,
+              minRotation: 0
             }
           }
         }
       }
     });
   }
+
 
   /**
    * Crée ou met à jour le graphique d'évolution des revenus
@@ -354,7 +379,36 @@ Math: any;
       this.chartInstances['revenus'].destroy();
     }
 
-    const labels = this.revenuData.map(d => d.month);
+    // Map des mois → abréviations (FR + EN)
+    const monthMap: Record<string, string> = {
+      "January": "Jan",
+      "February": "Fév",
+      "March": "Mar",
+      "April": "Avr",
+      "May": "Mai",
+      "June": "Juin",
+      "July": "Juil",
+      "August": "Août",
+      "September": "Sept",
+      "October": "Oct",
+      "November": "Nov",
+      "December": "Déc",
+
+      "Janvier": "Jan",
+      "Février": "Fév",
+      "Mars": "Mar",
+      "Avril": "Avr",
+      "Mai": "Mai",
+      "Juin": "Juin",
+      "Juillet": "Juil",
+      "Août": "Août",
+      "Septembre": "Sept",
+      "Octobre": "Oct",
+      "Novembre": "Nov",
+      "Décembre": "Déc"
+    };
+
+    const labels = this.revenuData.map(d => monthMap[d.month] || d.month);
     const data = this.revenuData.map(d => d.total);
 
     this.chartInstances['revenus'] = new Chart(ctx, {
@@ -364,16 +418,14 @@ Math: any;
         datasets: [{
           label: 'Revenus (F CFA)',
           data: data,
-          backgroundColor: '#0D47A1',
+          backgroundColor: '#0D47A1'
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          },
+          legend: { display: false },
           tooltip: {
             backgroundColor: '#1E293B',
             titleColor: '#fff',
@@ -389,34 +441,31 @@ Math: any;
         scales: {
           y: {
             beginAtZero: true,
-            grid: {
-              color: '#E5E7EB',
-            },
+            grid: { color: '#E5E7EB' },
             ticks: {
               color: '#6B7280',
-              font: {
-                size: 12
-              },
+              font: { size: 12 },
               callback: (value) => {
                 return `${value.toLocaleString('fr-FR')}`;
               }
             }
           },
           x: {
-            grid: {
-              display: false
-            },
+            grid: { display: false },
             ticks: {
               color: '#6B7280',
-              font: {
-                size: 12
-              }
+              font: { size: 12 },
+
+              // 🚀 Garde les labels horizontaux sur PC
+              maxRotation: 0,
+              minRotation: 0
             }
           }
         }
       }
     });
   }
+
 
   /**
    * Crée ou met à jour le graphique de répartition des profils (barres horizontales)
@@ -432,8 +481,12 @@ Math: any;
       this.chartInstances['profils'].destroy();
     }
 
-    const labels = this.profilDistribution.map(d => d.profil);
-    const data = this.profilDistribution.map(d => d.count);
+    // Filtrer uniquement les profils à afficher
+    const profilsToShow = ['PROMOTEUR', 'SITE_MANAGER', 'SUPPLIER', 'SUBCONTRACTOR', 'MOA', 'BET', 'WORKER'];
+    const filteredData = this.profilDistribution.filter(d => profilsToShow.includes(d.profil));
+
+    const labels = filteredData.map(d => d.profil);
+    const data = filteredData.map(d => d.count);
 
     this.chartInstances['profils'] = new Chart(ctx, {
       type: 'bar',
@@ -443,7 +496,7 @@ Math: any;
           label: 'Nombre d\'utilisateurs',
           data: data,
           backgroundColor: '#FF5C01',
-      
+
         }]
       },
       options: {
