@@ -432,8 +432,12 @@ Math: any;
       this.chartInstances['profils'].destroy();
     }
 
-    const labels = this.profilDistribution.map(d => d.profil);
-    const data = this.profilDistribution.map(d => d.count);
+    // Filtrer uniquement les profils à afficher
+    const profilsToShow = ['PROMOTEUR', 'SITE_MANAGER', 'SUPPLIER', 'SUBCONTRACTOR', 'MOA', 'BET', 'WORKER'];
+    const filteredData = this.profilDistribution.filter(d => profilsToShow.includes(d.profil));
+    
+    const labels = filteredData.map(d => d.profil);
+    const data = filteredData.map(d => d.count);
 
     this.chartInstances['profils'] = new Chart(ctx, {
       type: 'bar',

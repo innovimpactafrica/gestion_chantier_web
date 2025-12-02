@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interfaces pour le typage des réponses
 export interface DashboardInfos {
@@ -81,9 +82,8 @@ export interface InvoiceResponse {
   providedIn: 'root'
 })
 export class DashboardAdminService {
-  private baseUrl = 'https://wakana.online/api/subscriptions';
-  private baseUrlUser = 'https://wakana.online/api/v1/user';
-
+  private baseUrl = environment.endpoints.subscriptions;
+  private baseUrlUser = environment.endpoints.user;
   constructor(
     private http: HttpClient,
     private authService: AuthService

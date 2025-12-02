@@ -2,6 +2,7 @@
   import { HttpClient, HttpHeaders } from '@angular/common/http';
   import { Observable, tap, catchError, of } from 'rxjs';
   import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
   // Interface pour le plan d'abonnement
   interface SubscriptionPlan {
@@ -108,8 +109,8 @@
     providedIn: 'root'
   })
   export class AuthService {
-    private apiUrl = 'https://wakana.online/api/v1/auth';
-    private userApiUrl = 'https://wakana.online/api/v1/user';
+    private apiUrl = environment.endpoints.auth;
+    private userApiUrl = environment.endpoints.user;
     
     // Configuration des profils disponibles
     private readonly profilesConfig: ProfileConfig[] = [

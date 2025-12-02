@@ -91,7 +91,32 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
         }
       });
   }
-
+  // loadPlans(): void {
+  //   this.isLoading = true;
+    
+  //   // Charger les plans d'un type spécifique (ex: 'PREMIUM')
+  //   const planName = 'PROMOTEUR'; // Changez selon vos besoins
+    
+  //   this.planService.getPlansByName(planName)
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (plans) => {
+  //         console.log('✅ Plans par nom chargés:', plans);
+          
+  //         this.allPlans = plans;
+  //         this.filteredPlans = [...this.allPlans];
+  //         this.totalResults = this.allPlans.length;
+  //         this.isLoading = false;
+  
+  //         console.log('📊 Plans chargés:', this.allPlans.length);
+  //       },
+  //       error: (error) => {
+  //         console.error('❌ Erreur lors du chargement des plans:', error);
+  //         this.isLoading = false;
+  //         alert(error.userMessage || 'Erreur lors du chargement des plans');
+  //       }
+  //     });
+  // }
   searchPlans(): void {
     if (this.searchTerm.trim() === '') {
       this.filteredPlans = [...this.allPlans];
