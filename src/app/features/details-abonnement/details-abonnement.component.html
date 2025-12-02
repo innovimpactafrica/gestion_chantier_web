@@ -25,7 +25,7 @@
                     Modifier
                 </button>
                 <!-- Bouton Désactiver/Activer -->
-                <button (click)="deactivatePlan()" [disabled]="!plan.active"
+                <button (click)="openDeactivateModal()" [disabled]="!plan.active"
                     [ngClass]="{'opacity-50 cursor-not-allowed': !plan.active}"
                     class="border border-[#FF5C01] text-[#FF5C01] px-6 py-2 rounded-lg font-medium transition-colors duration-200 hover:bg-orange-50">
                     {{ plan.active ? 'Désactiver' : 'Activer' }}
@@ -123,14 +123,12 @@
                             </li>
                         </ul>
                     </div>
-                    <!-- Bouton Supprimer (Reste en dehors de la carte principale) -->
-                    <button (click)="deletePlan()"
+                    <!-- Bouton Supprimer -->
+                    <button (click)="openDeleteModal()"
                         class="w-full border border-orange-500 text-orange-500 px-6 py-3 rounded-lg font-medium transition-colors duration-200 hover:bg-orange-50">
                         Supprimer
                     </button>
                 </div>
-
-
             </div>
 
             <!-- Colonne de droite (Graphique et Utilisateurs) -->
@@ -182,7 +180,6 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
-                                                <!-- Placeholder pour l'avatar -->
                                                 <img class="h-10 w-10 rounded-full bg-gray-200" [src]="user.avatarUrl"
                                                     alt="Avatar"
                                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/40'">
@@ -210,7 +207,6 @@
                                                     d="M11.9994 6.68853C13.808 6.68251 15.5815 7.187 17.1162 8.144C18.6509 9.10099 19.8843 10.4716 20.6748 12.0984C19.0518 15.4131 15.7371 17.5082 11.9994 17.5082C8.26165 17.5082 4.9469 15.4131 3.32395 12.0984C4.11439 10.4716 5.34785 9.10099 6.88252 8.144C8.41719 7.187 10.1908 6.68251 11.9994 6.68853ZM11.9994 4.72131C7.08133 4.72131 2.88133 7.78033 1.17969 12.0984C2.88133 16.4164 7.08133 19.4754 11.9994 19.4754C16.9174 19.4754 21.1174 16.4164 22.819 12.0984C21.1174 7.78033 16.9174 4.72131 11.9994 4.72131ZM11.9994 9.63935C12.6515 9.63935 13.277 9.89842 13.7381 10.3596C14.1993 10.8207 14.4584 11.4462 14.4584 12.0984C14.4584 12.7505 14.1993 13.376 13.7381 13.8372C13.277 14.2983 12.6515 14.5574 11.9994 14.5574C11.3472 14.5574 10.7217 14.2983 10.2606 13.8372C9.79942 13.376 9.54034 12.7505 9.54034 12.0984C9.54034 11.4462 9.79942 10.8207 10.2606 10.3596C10.7217 9.89842 11.3472 9.63935 11.9994 9.63935ZM11.9994 7.67213C9.56001 7.67213 7.57313 9.65902 7.57313 12.0984C7.57313 14.5377 9.56001 16.5246 11.9994 16.5246C14.4387 16.5246 16.4256 14.5377 16.4256 12.0984C16.4256 9.65902 14.4387 7.67213 11.9994 7.67213Z"
                                                     fill="#4B4848" />
                                             </svg>
-
                                         </button>
                                     </td>
                                 </tr>
@@ -230,5 +226,136 @@
             class="mt-4 text-[#FF5C01] hover:text-[#E54F00] font-medium">
             Retourner à la liste des abonnements
         </button>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <!-- Overlay -->
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteModal()"></div>
+
+            <!-- Centre le modal -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Contenu du modal -->
+            <div
+                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-8 pt-8 pb-6">
+                    <!-- Icône d'avertissement -->
+                    <div class="flex justify-center mb-6">
+                        <svg width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M51.2422 58.166L43.8203 58.166L43.8203 28.4785L51.2422 28.4785L51.2422 58.166Z"
+                                fill="#EFBD8E" />
+                            <path
+                                d="M47.5 65.291C45.3685 65.291 43.6406 67.0189 43.6406 69.1504C43.6406 71.2819 45.3685 73.0098 47.5 73.0098C49.6315 73.0098 51.3594 71.2819 51.3594 69.1504C51.3594 67.0189 49.6315 65.291 47.5 65.291Z"
+                                fill="#EFBD8E" />
+                            <path
+                                d="M47.5 94.9776C59.6972 95.3703 71.5436 90.595 80.446 81.6968C89.3483 72.7986 94.5815 60.5025 95 47.5C94.5815 34.4975 89.3483 22.2014 80.446 13.3032C71.5436 4.40504 59.6972 -0.370316 47.5 0.0224457C35.3028 -0.370316 23.4564 4.40504 14.554 13.3032C5.65166 22.2014 0.418472 34.4975 0 47.5C0.418472 60.5025 5.65166 72.7986 14.554 81.6968C23.4564 90.595 35.3028 95.3703 47.5 94.9776ZM47.5 7.93537C57.7293 7.54133 67.6886 11.4827 75.1994 18.8972C82.7101 26.3117 87.1609 36.5959 87.5781 47.5C87.1609 58.4041 82.7101 68.6883 75.1994 76.1028C67.6886 83.5174 57.7293 87.4587 47.5 87.0646C37.2707 87.4587 27.3114 83.5174 19.8006 76.1028C12.2899 68.6883 7.83908 58.4041 7.42188 47.5C7.83908 36.5959 12.2899 26.3117 19.8006 18.8972C27.3114 11.4827 37.2707 7.54133 47.5 7.93537Z"
+                                fill="#EFBD8E" />
+                        </svg>
+
+                    </div>
+
+                    <!-- Titre -->
+                    <h3 class="text-2xl font-semibold text-gray-900 text-center mb-3" id="modal-title">
+                        Supprimer le plan
+                    </h3>
+
+                    <!-- Message de confirmation -->
+                    <div class="text-center mb-2">
+                        <p class="text-gray-600">
+                            Êtes-vous sûr de vouloir <span class="font-semibold text-gray-900">supprimer</span> le plan
+                            <span class="font-semibold text-gray-900">{{ plan?.label }}</span> ?
+                        </p>
+                    </div>
+
+                    <!-- Message d'avertissement -->
+                    <div class="text-center mb-6">
+                        <p class="text-sm text-gray-500">
+                            Cette action est irréversible et supprimera toutes les données associées.
+                        </p>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="flex gap-3">
+                        <button type="button" (click)="confirmDelete()"
+                            class="flex-1 bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md">
+                            Supprimer
+                        </button>
+                        <button type="button" (click)="closeDeleteModal()"
+                            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de désactivation -->
+    <div *ngIf="showDeactivateModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+        role="dialog" aria-modal="true">
+        <!-- Overlay -->
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeactivateModal()">
+            </div>
+
+            <!-- Centre le modal -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Contenu du modal -->
+            <div
+                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-8 pt-8 pb-6">
+                    <!-- Icône d'avertissement -->
+                    <div class="flex justify-center mb-6">
+                        <svg width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M51.2422 58.166L43.8203 58.166L43.8203 28.4785L51.2422 28.4785L51.2422 58.166Z"
+                                fill="#EFBD8E" />
+                            <path
+                                d="M47.5 65.291C45.3685 65.291 43.6406 67.0189 43.6406 69.1504C43.6406 71.2819 45.3685 73.0098 47.5 73.0098C49.6315 73.0098 51.3594 71.2819 51.3594 69.1504C51.3594 67.0189 49.6315 65.291 47.5 65.291Z"
+                                fill="#EFBD8E" />
+                            <path
+                                d="M47.5 94.9776C59.6972 95.3703 71.5436 90.595 80.446 81.6968C89.3483 72.7986 94.5815 60.5025 95 47.5C94.5815 34.4975 89.3483 22.2014 80.446 13.3032C71.5436 4.40504 59.6972 -0.370316 47.5 0.0224457C35.3028 -0.370316 23.4564 4.40504 14.554 13.3032C5.65166 22.2014 0.418472 34.4975 0 47.5C0.418472 60.5025 5.65166 72.7986 14.554 81.6968C23.4564 90.595 35.3028 95.3703 47.5 94.9776ZM47.5 7.93537C57.7293 7.54133 67.6886 11.4827 75.1994 18.8972C82.7101 26.3117 87.1609 36.5959 87.5781 47.5C87.1609 58.4041 82.7101 68.6883 75.1994 76.1028C67.6886 83.5174 57.7293 87.4587 47.5 87.0646C37.2707 87.4587 27.3114 83.5174 19.8006 76.1028C12.2899 68.6883 7.83908 58.4041 7.42188 47.5C7.83908 36.5959 12.2899 26.3117 19.8006 18.8972C27.3114 11.4827 37.2707 7.54133 47.5 7.93537Z"
+                                fill="#EFBD8E" />
+                        </svg>
+
+                    </div>
+
+                    <!-- Titre -->
+                    <h3 class="text-2xl font-semibold text-gray-900 text-center mb-3" id="modal-title">
+                        Désactiver le plan
+                    </h3>
+
+                    <!-- Message de confirmation -->
+                    <div class="text-center mb-2">
+                        <p class="text-gray-600">
+                            Êtes-vous sûr de vouloir <span class="font-semibold text-gray-900">désactiver</span> le plan
+                            <span class="font-semibold text-gray-900">{{ plan?.label }}</span> ?
+                        </p>
+                    </div>
+
+                    <!-- Message d'avertissement -->
+                    <div class="text-center mb-6">
+                        <p class="text-sm text-gray-500">
+                            Cette action est irréversible et il ne sera plus visible pour les utilisateurs.
+                        </p>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="flex gap-3">
+                        <button type="button" (click)="confirmDeactivate()"
+                            class="flex-1 bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md">
+                            Désactiver
+                        </button>
+                        <button type="button" (click)="closeDeactivateModal()"
+                            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

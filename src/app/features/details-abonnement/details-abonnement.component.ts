@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { PlanAbonnementService, SubscriptionPlan }   from './../../../services/plan-abonnement.service'; // Assurez-vous que le chemin est correct
+import { PlanAbonnementService, SubscriptionPlan }   from './../../../services/plan-abonnement.service';
 import { Subject, takeUntil } from 'rxjs'; 
 import Chart from 'chart.js/auto';
 
@@ -30,6 +30,8 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   plan: SubscriptionPlan | null = null;
   isLoading = true;
   chart: Chart | null = null;
+  showDeleteModal = false; // Contrôle l'affichage du modal de suppression
+  showDeactivateModal = false; // Contrôle l'affichage du modal de désactivation
 
   // Données pour le graphique (basées sur la capture d'écran)
   distributionData = {
@@ -37,7 +39,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     unpaid: 25
   };
 
-  // Données mockées pour les utilisateurs abonnés (basées sur la capture d'écran)
+  // Données mockées pour les utilisateurs abonnés
   subscribedUsers: SubscribedUser[] = [
     { id: 1, name: 'Alpha Dieye', email: 'ad1@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/alpha.png' },
     { id: 2, name: 'Aziz Diop', email: 'ad@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/aziz.png' },
@@ -52,7 +54,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.planId = +params['id']; // Récupère l'ID du plan depuis l'URL
+      this.planId = +params['id'];
       if (this.planId) {
         this.loadPlanDetails(this.planId);
       } else {
@@ -81,15 +83,12 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
         next: (plan) => {
           this.plan = plan;
           this.isLoading = false;
-          // Assurez-vous que le DOM est mis à jour avant de dessiner le graphique
           setTimeout(() => this.createChart(), 0);
         },
         error: (error) => {
           console.error('Erreur lors du chargement des détails du plan:', error);
           this.isLoading = false;
           alert(error.userMessage || 'Erreur lors du chargement des détails du plan');
-          // Optionnel: Rediriger si le plan n'existe pas
-          // this.router.navigate(['/abonnements']);
         }
       });
   }
@@ -105,7 +104,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (this.chart) {
-      this.chart.destroy(); // Détruit l'ancienne instance si elle existe
+      this.chart.destroy();
     }
 
     this.chart = new Chart(ctx, {
@@ -114,24 +113,18 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
         labels: ['Payé', 'Impayé'],
         datasets: [{
           data: [this.distributionData.paid, this.distributionData.unpaid],
-          backgroundColor: [
-            '#22c55f', // Vert pour Payé
-            '#f87171'  // Rouge pour Impayé
-          ],
-          hoverBackgroundColor: [
-            '#059669',
-            '#DC2626'
-          ],
+          backgroundColor: ['#22c55f', '#f87171'],
+          hoverBackgroundColor: ['#059669', '#DC2626'],
           borderWidth: 0,
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '60%', // Taille du trou pour le donut
+        cutout: '60%',
         plugins: {
           legend: {
-            display: false // La légende est affichée manuellement dans le HTML
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -152,7 +145,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
    */
   editPlan(): void {
     if (this.plan) {
-      // Redirection vers la route /create-plan/:id pour la modification
       this.router.navigate(['/create-plan', this.plan.id], {
         queryParams: { mode: 'edit' }
       });
@@ -161,52 +153,91 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
   /**
    * Désactive le plan d'abonnement
+   * @deprecated Utilisez openDeactivateModal() à la place
    */
   deactivatePlan(): void {
+    this.openDeactivateModal();
+  }
+
+  /**
+   * Ouvre le modal de confirmation de désactivation
+   */
+  openDeactivateModal(): void {
     if (!this.plan || !this.plan.active) return;
+    this.showDeactivateModal = true;
+  }
 
-    if (!confirm(`Voulez-vous vraiment désactiver le plan "${this.plan.label}" ?`)) {
-      return;
-    }
+  /**
+   * Ferme le modal de confirmation de désactivation
+   */
+  closeDeactivateModal(): void {
+    this.showDeactivateModal = false;
+  }
 
-    // Appel au service pour désactiver le plan
+  /**
+   * Confirme et exécute la désactivation du plan
+   */
+  confirmDeactivate(): void {
+    if (!this.plan) return;
+
     this.planService.putPlanAbonnement(this.plan.id, { active: false })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedPlan) => {
-          this.plan = updatedPlan; // Met à jour l'état local
+          this.plan = updatedPlan;
+          this.closeDeactivateModal();
           alert(`Plan "${this.plan?.label}" désactivé avec succès`);
         },
         error: (error) => {
           console.error('Erreur lors de la désactivation du plan:', error);
+          this.closeDeactivateModal();
           alert(error.userMessage || 'Erreur lors de la désactivation du plan');
         }
       });
   }
 
   /**
-   * Supprime le plan d'abonnement
+   * Ouvre le modal de confirmation de suppression
    */
-  deletePlan(): void {
+  openDeleteModal(): void {
+    this.showDeleteModal = true;
+  }
+
+  /**
+   * Ferme le modal de confirmation de suppression
+   */
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+  }
+
+  /**
+   * Confirme et exécute la suppression du plan
+   */
+  confirmDelete(): void {
     if (!this.plan) return;
 
-    if (!confirm(`Voulez-vous vraiment supprimer le plan "${this.plan.label}" ? Cette action est irréversible.`)) {
-      return;
-    }
-
-    // Appel au service pour supprimer le plan
     this.planService.deletePlanAbonnement(this.plan.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
+          this.closeDeleteModal();
           alert(`Plan "${this.plan?.label}" supprimé avec succès`);
-          this.router.navigate(['/abonnements']); // Redirige vers la liste
+          this.router.navigate(['/abonnements']);
         },
         error: (error) => {
           console.error('Erreur lors de la suppression du plan:', error);
+          this.closeDeleteModal();
           alert(error.userMessage || 'Erreur lors de la suppression du plan');
         }
       });
+  }
+
+  /**
+   * Ancienne méthode deletePlan (conservée pour compatibilité)
+   * Redirige vers openDeleteModal
+   */
+  deletePlan(): void {
+    this.openDeleteModal();
   }
 
   /**
@@ -242,7 +273,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
    */
   viewUser(user: SubscribedUser): void {
     console.log(`Navigation vers les détails de l'utilisateur: ${user.name}`);
-    // Implémenter la navigation réelle ici, par exemple:
-    // this.router.navigate(['/users', user.id]);
+    // Implémenter la navigation réelle ici
   }
 }
