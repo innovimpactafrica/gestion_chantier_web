@@ -145,7 +145,9 @@ export class LoginComponent implements OnInit {
   get emailLabel(): string {
     return 'Email ou Téléphone';
   }
-
+navigateToHome (){
+ this.router.navigate(['/'])
+}
   navigateToRegister(): void {
     this.router.navigateByUrl('/register');
   }

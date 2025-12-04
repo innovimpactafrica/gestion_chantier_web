@@ -33,7 +33,9 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
-
+  showSuccessModal: boolean = false;
+  deletedUserName: string = ''; // AJOUTÉ pour stocker le nom
+  
   // Historique des abonnements (à extraire de utilisateur.subscription)
   abonnements: Abonnement[] = [];
 
@@ -61,17 +63,17 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private userService: UserService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('🚀 Initialisation du composant Détails Utilisateur');
-    
+
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.utilisateurId = +params['id'];
         console.log('👤 ID utilisateur:', this.utilisateurId);
-        
+
         if (this.utilisateurId) {
           this.loadUserData();
         } else {
@@ -91,7 +93,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   loadUserData(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     console.log('📥 Chargement des données utilisateur:', this.utilisateurId);
 
     this.userService.getUserById(this.utilisateurId)
@@ -100,7 +102,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
         next: (user) => {
           console.log('✅ Utilisateur chargé:', user);
           this.utilisateur = user;
-          
+
           // Initialiser le formulaire avec les données
           this.userForm = {
             prenom: user.prenom,
@@ -113,7 +115,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
 
           // Charger l'historique des abonnements
           this.loadAbonnements();
-          
+
           this.isLoading = false;
         },
         error: (error) => {
@@ -134,7 +136,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     }
 
     const sub = this.utilisateur.subscription;
-    
+
     this.abonnements = [{
       plan: sub.subscriptionPlan.name || 'N/A',
       montant: `${sub.subscriptionPlan.totalCost} FCFA`,
@@ -171,7 +173,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
    */
   getUserStatus(): 'Actif' | 'Suspendu' | 'En attente' {
     if (!this.utilisateur) return 'En attente';
-    
+
     if (!this.utilisateur.enabled || !this.utilisateur.activated) return 'Suspendu';
     if (!this.utilisateur.accountNonLocked) return 'Suspendu';
     return this.utilisateur.subscription?.active ? 'Actif' : 'En attente';
@@ -182,7 +184,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
    */
   getUserAvatar(): string {
     if (!this.utilisateur) return '👤';
-    
+
     const avatarMap: { [key: string]: string } = {
       'PROMOTEUR': '👨🏾‍💼',
       'BET': '👷',
@@ -193,7 +195,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       'BANK': '🏦',
       'AGENCY': '🏢'
     };
-    
+
     return avatarMap[this.utilisateur.profil] || '👤';
   }
 
@@ -215,14 +217,14 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   }
 
   getStatutAbonnementClass(statut: string): string {
-    return statut === 'Actif' 
-      ? 'bg-green-100 text-green-700' 
+    return statut === 'Actif'
+      ? 'bg-green-100 text-green-700'
       : 'bg-red-100 text-red-700';
   }
 
   openEditModal(): void {
     if (!this.utilisateur) return;
-    
+
     this.userForm = {
       prenom: this.utilisateur.prenom,
       nom: this.utilisateur.nom,
@@ -231,7 +233,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       profil: this.utilisateur.profil,
       adress: this.utilisateur.adress
     };
-    
+
     this.showEditModal = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -245,7 +247,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
 
   saveUser(): void {
     if (!this.utilisateur) return;
-    
+
     this.errorMessage = '';
     this.successMessage = '';
     this.isLoading = true;
@@ -269,7 +271,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           this.successMessage = 'Utilisateur modifié avec succès';
           this.utilisateur = updatedUser;
           this.isLoading = false;
-          
+
           setTimeout(() => {
             this.closeEditModal();
           }, 1500);
@@ -292,13 +294,13 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
 
   confirmSuspension(): void {
     if (!this.utilisateur) return;
-    
+
     console.log('🔒 Suspension de l\'utilisateur:', this.utilisateur.id);
-    
+
     // Implémenter la logique de suspension via l'API
     // Pour l'instant, on simule juste
     this.successMessage = 'Utilisateur suspendu avec succès';
-    
+
     setTimeout(() => {
       this.closeSuspendModal();
       this.loadUserData();
@@ -313,12 +315,18 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     this.showDeleteModal = false;
   }
 
+  /**
+   * Supprime l'utilisateur - CORRIGÉ
+   */
   deleteUser(): void {
     if (!this.utilisateur) return;
-    
+
     this.isLoading = true;
     this.errorMessage = '';
-    
+
+    // IMPORTANT: Sauvegarder le nom avant la suppression
+    this.deletedUserName = `${this.utilisateur.prenom} ${this.utilisateur.nom}`;
+
     console.log('🗑️ Suppression de l\'utilisateur:', this.utilisateur.id);
 
     this.userService.deleteUser(this.utilisateur.id)
@@ -326,11 +334,19 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           console.log('✅ Utilisateur supprimé avec succès');
-          this.successMessage = 'Utilisateur supprimé avec succès';
           
+          // Fermer le modal de confirmation
+          this.closeDeleteModal();
+          this.isLoading = false;
+          
+          // Afficher le modal de succès
+          this.showSuccessModal = true;
+
+          // Après 2 secondes, rediriger vers la liste
           setTimeout(() => {
+            this.showSuccessModal = false;
             this.goBack();
-          }, 1500);
+          }, 2000);
         },
         error: (error) => {
           console.error('❌ Erreur suppression:', error);

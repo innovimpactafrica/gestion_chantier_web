@@ -96,7 +96,7 @@
           <!-- Bouton supprimer -->
           <button (click)="openDeleteModal()"
             class="w-full mt-8 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white py-3 rounded-lg transition-colors font-medium">
-            Supprimer le compte
+            Supprimer 
           </button>
         </div>
       </div>
@@ -333,7 +333,7 @@
   </div>
 </div>
 
-<!-- Modal de suppression -->
+<!-- Modal de suppression (fourni par l'utilisateur) -->
 <div *ngIf="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
     <div class="flex justify-center mb-6">
@@ -368,5 +368,22 @@
         Annuler
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Modal de succès après suppression (NOUVEAU) -->
+<div *ngIf="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+    <div class="flex justify-center mb-6">
+      <!-- Icône de succès (coche verte) - Basée sur l'image fournie -->
+      <svg width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="47.5" cy="47.5" r="47.5" fill="#E6F4EA"/>
+        <path d="M28.5 47.5L42.5 61.5L66.5 33.5" stroke="#34A853" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <p class="text-center text-lg text-gray-800 mb-0">
+      Compte "<span class="font-semibold">{{ deletedUserName }}</span>" a été <span class="font-semibold">supprimé</span>.
+    </p>
   </div>
 </div>

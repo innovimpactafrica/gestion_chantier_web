@@ -73,12 +73,12 @@ export class TeamListComponent implements OnInit {
   isLoadingDetails = false;
   detailsError: string | null = null;
 
-  // Date picker
+  // Date picker - Variables mises à jour
   showDatePicker = false;
   selectedDate: Date | null = null;
   currentDate = new Date();
-  calendarDays: Array<{day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date}> = [];
-  currentMonthYear = '';
+  currentMonth: number = new Date().getMonth();
+  currentYear: number = new Date().getFullYear();
 
   constructor(
     private utilisateurService: UtilisateurService,
@@ -88,7 +88,6 @@ export class TeamListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.generateCalendar();
     this.getPropertyIdAndLoadData();
   }
 
@@ -169,9 +168,9 @@ export class TeamListComponent implements OnInit {
     this.showViewModal = true;
     this.isLoadingDetails = true;
     this.detailsError = null;
+    this.selectedDate = null; // Réinitialiser la date sélectionnée
     document.body.style.overflow = 'hidden';
 
-    // Créer des observables avec gestion d'erreur pour chaque appel
     const performance$ = this.detailsWorkerService.getPerformanceAndTask(member.id).pipe(
       catchError(error => {
         console.warn('Erreur lors du chargement des performances:', error);
@@ -203,7 +202,6 @@ export class TeamListComponent implements OnInit {
       })
     );
 
-    // ✅ AJOUT: Observable pour la répartition des tâches
     const repartitions$ = this.detailsWorkerService.getRepartitions(member.id).pipe(
       catchError(error => {
         console.warn('Erreur lors du chargement de la répartition des tâches:', error);
@@ -211,26 +209,20 @@ export class TeamListComponent implements OnInit {
       })
     );
 
-    // Charger les détails du worker via les APIs avec gestion d'erreur individuelle
     forkJoin({
       performance: performance$,
       presence: presence$,
       dashboard: dashboard$,
-      repartitions: repartitions$ // ✅ AJOUT
+      repartitions: repartitions$
     }).subscribe({
       next: (results) => {
         if (this.selectedMember) {
-          // Mettre à jour les statistiques
           this.selectedMember.tasksCompleted = results.performance.completedTasks;
           this.selectedMember.performance = Math.round(results.performance.performancePercentage);
           this.selectedMember.daysPresent = results.dashboard.daysPresent;
           this.selectedMember.hoursWorked = Math.round(results.dashboard.totalWorkedHours);
-
-          // Transformer l'historique de présence
           this.selectedMember.presenceHistory = this.transformPresenceHistory(results.presence);
           this.selectedMember.totalWorkedTime = results.presence.totalWorkedTime;
-
-          // ✅ TRANSFORMATION: Convertir la répartition API en format pour le graphique
           this.selectedMember.taskDistribution = this.transformTaskDistribution(results.repartitions);
         }
         this.isLoadingDetails = false;
@@ -243,7 +235,6 @@ export class TeamListComponent implements OnInit {
     });
   }
 
-  // ✅ NOUVELLE MÉTHODE: Transformation de la répartition des tâches
   private transformTaskDistribution(distributions: StatusDistribution[]): { [key: string]: number } {
     const taskDistribution: { [key: string]: number } = {
       'À Faire': 0,
@@ -256,7 +247,6 @@ export class TeamListComponent implements OnInit {
       return taskDistribution;
     }
 
-    // Mapping des statuts API vers les labels affichés
     const statusMap: { [key: string]: string } = {
       'TODO': 'À Faire',
       'A_FAIRE': 'À Faire',
@@ -273,54 +263,11 @@ export class TeamListComponent implements OnInit {
     distributions.forEach(dist => {
       const mappedStatus = statusMap[dist.status.toUpperCase()];
       if (mappedStatus) {
-        taskDistribution[mappedStatus] = Math.round(dist.percentage * 10) / 10; // Arrondi à 1 décimale
+        taskDistribution[mappedStatus] = Math.round(dist.percentage * 10) / 10;
       }
     });
 
     return taskDistribution;
-  }
-
-  // ✅ MÉTHODES UTILITAIRES pour le graphique circulaire
-  getTaskDistributionTotal(): number {
-    if (!this.selectedMember?.taskDistribution) return 0;
-    return Object.values(this.selectedMember.taskDistribution).reduce((sum, val) => sum + val, 0);
-  }
-
-  calculateStrokeDasharray(percentage: number): string {
-    const circumference = 440; // 2 * PI * 70 (rayon)
-    const value = (percentage / 100) * circumference;
-    return `${value} ${circumference}`;
-  }
-
-  calculateStrokeDashoffset(startPercentage: number): number {
-    const circumference = 440;
-    return -(startPercentage / 100) * circumference;
-  }
-
-  // Calcul des offsets cumulés pour le graphique circulaire
-  getTaskOffsets(): { [key: string]: number } {
-    if (!this.selectedMember?.taskDistribution) return {};
-    
-    const offsets: { [key: string]: number } = {
-      'Terminées': 0,
-      'En Cours': 0,
-      'À Faire': 0,
-      'En Retard': 0
-    };
-
-    offsets['Terminées'] = 0;
-    offsets['En Cours'] = -(this.selectedMember.taskDistribution['Terminées'] || 0);
-    offsets['À Faire'] = -(
-      (this.selectedMember.taskDistribution['Terminées'] || 0) +
-      (this.selectedMember.taskDistribution['En Cours'] || 0)
-    );
-    offsets['En Retard'] = -(
-      (this.selectedMember.taskDistribution['Terminées'] || 0) +
-      (this.selectedMember.taskDistribution['En Cours'] || 0) +
-      (this.selectedMember.taskDistribution['À Faire'] || 0)
-    );
-
-    return offsets;
   }
 
   private transformPresenceHistory(presenceData: PresenceHistory): Array<{
@@ -332,7 +279,6 @@ export class TeamListComponent implements OnInit {
       return [];
     }
 
-    // Regrouper les logs par date
     const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
 
     presenceData.logs.forEach(log => {
@@ -350,7 +296,6 @@ export class TeamListComponent implements OnInit {
       });
     });
 
-    // Convertir en tableau avec calcul du temps total par jour
     const result: Array<{
       date: string;
       sessions: Array<{ entry: string; exit: string }>;
@@ -369,7 +314,6 @@ export class TeamListComponent implements OnInit {
       });
     });
 
-    // Trier par date décroissante
     result.sort((a, b) => {
       const dateA = this.parseDateString(a.date);
       const dateB = this.parseDateString(b.date);
@@ -432,11 +376,81 @@ export class TeamListComponent implements OnInit {
     this.selectedMember = null;
     this.detailsError = null;
     this.selectedDate = null;
+    this.showDatePicker = false;
     document.body.style.overflow = 'auto';
   }
 
   onViewBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) this.closeViewModal();
+  }
+
+  // ==================== MÉTHODES DU CALENDRIER ====================
+  
+  get currentMonthYear(): string {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
+                    'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return `${months[this.currentMonth]} ${this.currentYear}`;
+  }
+
+  toggleDatePicker(): void {
+    this.showDatePicker = !this.showDatePicker;
+  }
+
+  previousMonth(): void {
+    if (this.currentMonth === 0) {
+      this.currentMonth = 11;
+      this.currentYear--;
+    } else {
+      this.currentMonth--;
+    }
+  }
+
+  nextMonth(): void {
+    if (this.currentMonth === 11) {
+      this.currentMonth = 0;
+      this.currentYear++;
+    } else {
+      this.currentMonth++;
+    }
+  }
+
+  getEmptyDays(): number[] {
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+    // Ajuster pour que lundi soit le premier jour (0)
+    const adjusted = firstDay === 0 ? 6 : firstDay - 1;
+    return Array(adjusted).fill(0);
+  }
+
+  getCalendarDays(): number[] {
+    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  }
+
+  getDayClasses(day: number): string {
+    const date = new Date(this.currentYear, this.currentMonth, day);
+    const today = new Date();
+    
+    const isSelected = this.selectedDate && 
+                      this.selectedDate.getDate() === day &&
+                      this.selectedDate.getMonth() === this.currentMonth &&
+                      this.selectedDate.getFullYear() === this.currentYear;
+    
+    const isToday = today.getDate() === day &&
+                   today.getMonth() === this.currentMonth &&
+                   today.getFullYear() === this.currentYear;
+
+    if (isSelected) {
+      return 'bg-orange-500 text-white rounded-full font-semibold';
+    }
+    if (isToday) {
+      return 'border-2 border-orange-500 rounded-full font-semibold text-orange-600';
+    }
+    return 'hover:bg-gray-100 rounded cursor-pointer';
+  }
+
+  selectDate(day: number): void {
+    this.selectedDate = new Date(this.currentYear, this.currentMonth, day);
+    this.showDatePicker = false;
   }
 
   // Filtrage de l'historique par date sélectionnée
@@ -447,10 +461,12 @@ export class TeamListComponent implements OnInit {
   }> {
     if (!this.selectedMember?.presenceHistory) return [];
     
+    // Si aucune date n'est sélectionnée, afficher tout l'historique
     if (!this.selectedDate) {
       return this.selectedMember.presenceHistory;
     }
 
+    // Filtrer par la date sélectionnée
     const selectedDateStr = this.formatSelectedDate(this.selectedDate);
     return this.selectedMember.presenceHistory.filter(item => 
       item.date === selectedDateStr
@@ -465,7 +481,7 @@ export class TeamListComponent implements OnInit {
     return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
   }
 
-  // Calcul du temps total travaillé
+  // Calcul du temps total travaillé (filtré)
   getTotalWorkedTime(): string {
     if (!this.selectedMember?.presenceHistory) return '0h 00min';
     
@@ -479,106 +495,8 @@ export class TeamListComponent implements OnInit {
     return this.formatDuration(totalMinutes);
   }
 
-  // Méthodes du calendrier
-  toggleDatePicker(): void {
-    this.showDatePicker = !this.showDatePicker;
-    if (this.showDatePicker) {
-      this.generateCalendar();
-    }
-  }
-
-  generateCalendar(): void {
-    const year = this.currentDate.getFullYear();
-    const month = this.currentDate.getMonth();
-    
-    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    this.currentMonthYear = `${monthNames[month]} ${year}`;
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-    
-    const daysInMonth = lastDay.getDate();
-    const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
-    this.calendarDays = [];
-    
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      const day = daysInPrevMonth - i;
-      this.calendarDays.push({
-        day,
-        isCurrentMonth: false,
-        isToday: false,
-        isSelected: false,
-        date: new Date(year, month - 1, day)
-      });
-    }
-    
-    const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day);
-      const isToday = date.toDateString() === today.toDateString();
-      const isSelected = this.selectedDate ? date.toDateString() === this.selectedDate.toDateString() : false;
-      
-      this.calendarDays.push({
-        day,
-        isCurrentMonth: true,
-        isToday,
-        isSelected,
-        date
-      });
-    }
-    
-    const remainingDays = 35 - this.calendarDays.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      this.calendarDays.push({
-        day,
-        isCurrentMonth: false,
-        isToday: false,
-        isSelected: false,
-        date: new Date(year, month + 1, day)
-      });
-    }
-  }
-
-  previousMonth(): void {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
-    this.generateCalendar();
-  }
-
-  nextMonth(): void {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
-    this.generateCalendar();
-  }
-
-  selectDate(day: any): void {
-    if (!day.isCurrentMonth) return;
-    
-    this.selectedDate = day.date;
-    this.generateCalendar();
-    
-    setTimeout(() => {
-      this.showDatePicker = false;
-    }, 200);
-  }
-
-  getDayClasses(day: any): string {
-    const classes = [];
-    
-    if (!day.isCurrentMonth) {
-      classes.push('text-gray-300 cursor-not-allowed');
-    } else if (day.isToday) {
-      classes.push('bg-orange-500 text-white hover:bg-orange-600');
-    } else if (day.isSelected) {
-      classes.push('bg-orange-100 text-orange-600 hover:bg-orange-200');
-    } else {
-      classes.push('text-gray-700 hover:bg-gray-100');
-    }
-    
-    return classes.join(' ');
-  }
-
-  // Méthodes de pagination
+  // ==================== MÉTHODES DE PAGINATION ====================
+  
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
@@ -637,7 +555,8 @@ export class TeamListComponent implements OnInit {
     this.loadTeamMembers();
   }
 
-  // Méthodes pour l'ajout de membre
+  // ==================== MÉTHODES POUR L'AJOUT DE MEMBRE ====================
+  
   openAddMemberModal(): void {
     this.showAddMemberModal = true;
     this.resetNewMemberForm();

@@ -1,91 +1,86 @@
 <div class="flex min-h-screen bg-white">
   <!-- Partie gauche - Image -->
   <div class="w-1/2 hidden md:block">
-    <img src="assets/images/loginimg.png" alt="Outils de construction" class="object-cover w-[678] h-[910] mx-auto py-4" />
+    <img src="assets/images/loginimg.png" alt="Outils de construction"
+      class="object-cover w-[678] h-[910] mx-auto py-4" />
   </div>
-  
   <!-- Partie droite - Formulaire -->
   <div class="w-full md:w-1/2 flex flex-col justify-center px-8 py-12">
     <div class="max-w-lg mx-auto w-full">
       <!-- Alerte -->
-      <div *ngIf="currentAlert.show" 
-           class="mb-4 p-4 rounded-lg"
-           [ngClass]="{
+      <div *ngIf="currentAlert.show" class="mb-4 p-4 rounded-lg" [ngClass]="{
              'bg-green-100 border border-green-400 text-green-700': currentAlert.type === 'success',
              'bg-red-100 border border-red-400 text-red-700': currentAlert.type === 'error',
              'bg-yellow-100 border border-yellow-400 text-yellow-700': currentAlert.type === 'warning'
            }">
         {{ currentAlert.message }}
       </div>
-
       <!-- En-tête -->
+      <!-- Bouton de retour -->
+      <div class="mb-6">
+        <button (click)="navigateToHome()"
+          class="flex items-center bg-gray-100 justify-center w-10 h-10 lg:w-12 lg:h-12 border border-gray-300 rounded-lg  transition-colors">
+          <svg class="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+      </div>
       <div class="mx-auto mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-2">Bienvenue sur innovchantiers inc.</h1>
         <p class="text-lg text-gray-600">Simplifiez vos chantiers, boostez votre efficacité !</p>
       </div>
-      
+
       <!-- Onglets de navigation -->
       <div class="flex mb-8">
-        <button 
-          class="flex-1 py-2 px-4 text-center rounded-l-lg font-medium"
-          [class.bg-orange-500]="currentActiveTab === 'connexion'"
-          [class.text-white]="currentActiveTab === 'connexion'"
+        <button class="flex-1 py-2 px-4 text-center rounded-l-lg font-medium"
+          [class.bg-orange-500]="currentActiveTab === 'connexion'" [class.text-white]="currentActiveTab === 'connexion'"
           [class.bg-gray-100]="currentActiveTab !== 'connexion'"
-          [class.text-gray-600]="currentActiveTab !== 'connexion'"
-          (click)="setActiveTab('connexion')">
+          [class.text-gray-600]="currentActiveTab !== 'connexion'" (click)="setActiveTab('connexion')">
           Connexion
         </button>
-        <button 
-          class="flex-1 py-2 px-4 text-center rounded-r-lg font-medium"
+        <button class="flex-1 py-2 px-4 text-center rounded-r-lg font-medium"
           [class.bg-orange-500]="currentActiveTab === 'inscription'"
           [class.text-white]="currentActiveTab === 'inscription'"
           [class.bg-gray-100]="currentActiveTab !== 'inscription'"
-          [class.text-gray-600]="currentActiveTab !== 'inscription'"
-          (click)="setActiveTab('inscription')">
+          [class.text-gray-600]="currentActiveTab !== 'inscription'" (click)="setActiveTab('inscription')">
           Inscription
         </button>
       </div>
-      
+
       <!-- Formulaire de connexion -->
       <form [formGroup]="currentLoginForm" (ngSubmit)="onSubmit()" *ngIf="currentActiveTab === 'connexion'">
         <!-- Champ Email/Téléphone -->
         <div class="mb-4">
           <label for="email" class="block text-gray-700 font-medium mb-2">Numéro de téléphone</label>
-          <input 
-            type="tel" 
-            id="email" 
-            formControlName="email"
-            placeholder="Entrez votre numéro (ex: 771234567)" 
+          <input type="tel" id="email" formControlName="email" placeholder="Entrez votre numéro (ex: 771234567)"
             class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 border border-gray-300 focus:border-orange-500"
-            [class.border-red-500]="currentLoginForm.get('email')?.invalid && currentLoginForm.get('email')?.touched"
-          />
+            [class.border-red-500]="currentLoginForm.get('email')?.invalid && currentLoginForm.get('email')?.touched" />
           <div *ngIf="currentEmailError" class="text-red-500 text-sm mt-1">
             {{ currentEmailError }}
           </div>
         </div>
-        
+
         <!-- Champ Mot de passe -->
         <div class="mb-2">
           <label for="password" class="block text-gray-700 font-medium mb-2">Mot de passe</label>
           <div class="relative">
-            <input 
-              [type]="currentShowPassword ? 'text' : 'password'" 
-              id="password" 
-              formControlName="password"
-              placeholder="Entrez votre mot de passe (6 caractères min)" 
+            <input [type]="currentShowPassword ? 'text' : 'password'" id="password" formControlName="password"
+              placeholder="Entrez votre mot de passe (6 caractères min)"
               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 border-gray-300"
-              [class.border-red-500]="currentLoginForm.get('password')?.invalid && currentLoginForm.get('password')?.touched"
-            />
-            <button 
-              type="button"
-              (click)="togglePasswordVisibility()"
+              [class.border-red-500]="currentLoginForm.get('password')?.invalid && currentLoginForm.get('password')?.touched" />
+            <button type="button" (click)="togglePasswordVisibility()"
               class="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <svg *ngIf="!currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              <svg *ngIf="!currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" class="h-5 w-5 text-gray-500">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <svg *ngIf="currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 104.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              <svg *ngIf="currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" class="h-5 w-5 text-gray-500">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 104.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
               </svg>
             </button>
           </div>
@@ -93,85 +88,81 @@
             {{ currentPasswordError }}
           </div>
         </div>
-        
+
         <!-- Lien Mot de passe oublié -->
         <div class="text-right mb-6">
           <a href="#" class="text-sm text-gray-600 hover:text-orange-500 underline italic">Mot de passe oublié ?</a>
         </div>
-        
+
         <!-- Bouton de connexion -->
-        <button 
-          type="submit" 
-          [disabled]="currentIsLoading"
+        <button type="submit" [disabled]="currentIsLoading"
           class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <span *ngIf="!currentIsLoading">Se connecter</span>
           <span *ngIf="currentIsLoading" class="flex items-center justify-center">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
             </svg>
             Connexion...
           </span>
         </button>
-        
+
         <!-- Séparateur OU -->
-        <div class="flex items-center my-6">
+        <!-- <div class="flex items-center my-6">
           <div class="flex-grow border-t border-gray-300"></div>
           <span class="px-4 text-gray-500 text-sm">ou</span>
           <div class="flex-grow border-t border-gray-300"></div>
-        </div>
-        
+        </div> -->
+
         <!-- Boutons de connexion sociale -->
-        <div class="flex space-x-4">
+        <!-- <div class="flex space-x-4">
           <button type="button" class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
             <img src="assets/images/google.png" alt="Google" class="h-5 w-5" />
           </button>
           <button type="button" class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
             <img src="assets/images/apple.png" alt="Apple" class="h-5 w-5" />
           </button>
-        </div>
+        </div> -->
       </form>
-      
+
       <!-- Formulaire d'inscription -->
       <form [formGroup]="currentRegisterForm" (ngSubmit)="onSubmit()" *ngIf="currentActiveTab === 'inscription'">
         <!-- Champ Email/Téléphone -->
         <div class="mb-4">
           <label for="email-register" class="block text-gray-700 font-medium mb-2">Numéro de téléphone</label>
-          <input 
-            type="tel" 
-            id="email-register" 
-            formControlName="email"
-            placeholder="Entrez votre numéro (ex: 771234567)" 
+          <input type="tel" id="email-register" formControlName="email"
+            placeholder="Entrez votre numéro (ex: 771234567)"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 border-gray-300"
-            [class.border-red-500]="currentRegisterForm.get('email')?.invalid && currentRegisterForm.get('email')?.touched"
-          />
+            [class.border-red-500]="currentRegisterForm.get('email')?.invalid && currentRegisterForm.get('email')?.touched" />
           <div *ngIf="currentEmailError" class="text-red-500 text-sm mt-1">
             {{ currentEmailError }}
           </div>
         </div>
-        
+
         <!-- Champ Mot de passe -->
         <div class="mb-2">
           <label for="password-register" class="block text-gray-700 font-medium mb-2">Mot de passe</label>
           <div class="relative">
-            <input 
-              [type]="currentShowPassword ? 'text' : 'password'" 
-              id="password-register" 
-              formControlName="password"
-              placeholder="Entrez votre mot de passe (6 caractères min)" 
+            <input [type]="currentShowPassword ? 'text' : 'password'" id="password-register" formControlName="password"
+              placeholder="Entrez votre mot de passe (6 caractères min)"
               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 border-gray-300"
-              [class.border-red-500]="currentRegisterForm.get('password')?.invalid && currentRegisterForm.get('password')?.touched"
-            />
-            <button 
-              type="button"
-              (click)="togglePasswordVisibility()"
+              [class.border-red-500]="currentRegisterForm.get('password')?.invalid && currentRegisterForm.get('password')?.touched" />
+            <button type="button" (click)="togglePasswordVisibility()"
               class="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <svg *ngIf="!currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              <svg *ngIf="!currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" class="h-5 w-5 text-gray-500">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <svg *ngIf="currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 104.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              <svg *ngIf="currentShowPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" class="h-5 w-5 text-gray-500">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 104.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
               </svg>
             </button>
           </div>
@@ -179,46 +170,48 @@
             {{ currentPasswordError }}
           </div>
         </div>
-        
+
         <!-- Bouton d'inscription -->
-        <button 
-          type="submit"
-          class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors mt-6" routerLink="['/register']" routerLinkActive="router-link-active" >
+        <button type="submit"
+          class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors mt-6"
+          routerLink="['/register']" routerLinkActive="router-link-active">
           S'inscrire
         </button>
-        
+
         <!-- Séparateur OU -->
-        <div class="flex items-center my-6">
+        <!-- <div class="flex items-center my-6">
           <div class="flex-grow border-t border-gray-300"></div>
           <span class="px-4 text-gray-500 text-sm">ou</span>
           <div class="flex-grow border-t border-gray-300"></div>
-        </div>
-        
+        </div> -->
+
         <!-- Boutons de connexion sociale -->
-        <div class="flex space-x-4">
-          <button type="button" class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
+        <!-- <div class="flex space-x-4">
+          <button type="button"
+            class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
             <img src="assets/images/google.png" alt="Google" class="h-5 w-5" />
           </button>
-          <button type="button" class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
+          <button type="button"
+            class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
             <img src="assets/images/apple.png" alt="Apple" class="h-5 w-5" />
           </button>
-        </div>
-        
+        </div> -->
+
         <!-- Conditions d'utilisation -->
-        <div class="mt-6 text-center text-xs text-gray-600"> 
+        <!-- <div class="mt-6 text-center text-xs text-gray-600">
           <span>
-            En m'inscrivant pour créer un compte, j'accepte les 
-            <a href="#" class="text-orange-500 hover:underline">Conditions d'utilisation</a> 
-            et la 
-            <a href="#" class="text-orange-500 hover:underline">Politique de confidentialité</a> 
+            En m'inscrivant pour créer un compte, j'accepte les
+            <a href="#" class="text-orange-500 hover:underline">Conditions d'utilisation</a>
+            et la
+            <a href="#" class="text-orange-500 hover:underline">Politique de confidentialité</a>
             de l'entreprise.
           </span>
-        </div>
+        </div> -->
       </form>
 
       <!-- Logo en bas de page -->
       <div class="mt-12 text-center">
-        <img src="assets/images/logo.svg" alt="Logo Innovchantiers" class="mx-auto w-[254px] h-[29px]" />
+        <img src="assets/images/btp.png" alt="Logo Innovchantiers" class="mx-auto w-[74px] h-[39px]" />
       </div>
     </div>
   </div>

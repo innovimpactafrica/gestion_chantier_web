@@ -232,14 +232,14 @@
 </div>
 
 <!-- Modal de visualisation du membre -->
-<!-- Modal de visualisation du membre - Version améliorée -->
+
 <div *ngIf="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
   (click)="onViewBackdropClick($event)">
 
-  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+  <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
-    <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-800">Détails</h2>
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Détails</h2>
       <button (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -248,277 +248,253 @@
     </div>
 
     <!-- Modal Content -->
-    <!-- Modal de visualisation du membre - Version améliorée -->
-    <div *ngIf="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      (click)="onViewBackdropClick($event)">
+    <div class="p-6" *ngIf="selectedMember">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Colonne gauche - Informations principales -->
+        <div class="space-y-4">
+          <!-- Profil -->
+          <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+              <img [src]="selectedMember.avatar" [alt]="selectedMember.name" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1">
+              <h3 class="text-base font-semibold text-gray-900">{{ selectedMember.name }}</h3>
+              <p class="text-sm text-gray-600">{{ selectedMember.role }}</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-50 flex items-center justify-center transition-colors">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                  </path>
+                </svg>
+              </button>
+              <button class="w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-50 flex items-center justify-center transition-colors">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                  </path>
+                </svg>
+              </button>
+            </div>
+          </div>
 
-      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <!-- Modal Header -->
-        <div class="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 class="text-xl font-semibold text-gray-800">Détails</h2>
-          <button (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Modal Content -->
-        <div class="p-6" *ngIf="selectedMember">
-          <div class="grid grid-cols-2 gap-6">
-            <!-- Colonne gauche - Informations principales -->
-            <div class="space-y-6">
-              <!-- Profil -->
-              <div class="flex items-center mb-6 border border-gray-200 rounded-lg p-4">
-                <div class="w-16 h-16 rounded-full overflow-hidden mr-4 bg-gray-200">
-                  <img [src]="selectedMember.avatar" [alt]="selectedMember.name" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">{{ selectedMember.name }}</h3>
-                  <span class="text-sm text-gray-600">{{ selectedMember.role }}</span>
-                </div>
-                <div class="ml-auto flex gap-3">
-                  <button
-                    class="w-10 h-10 rounded-full border border-gray-200 hover:bg-gray-200 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                      </path>
-                    </svg>
-                  </button>
-                  <button
-                    class="w-10 h-10 rounded-full border border-gray-200 hover:bg-gray-200 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                      </path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Statistiques en grille -->
-              <div class="grid grid-cols-2 gap-4">
-                <!-- Jours présents -->
-                <div class=" p-4 rounded-lg border border-gray-200">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-sm text-gray-600">Jours présents</p>
-                      <p class="text-2xl font-bold text-gray-900">{{ selectedMember.daysPresent }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-md bg-orange-100 flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M12.7725 1.5285C12.5154 1.50952 12.2578 1.50001 12 1.5V0C12.2948 0.000143741 12.5895 0.0111512 12.8835 0.033L12.7725 1.5285ZM15.7785 2.2035C15.2977 2.01794 14.8038 1.86804 14.301 1.755L14.6295 0.291C15.2055 0.42 15.7685 0.591 16.3185 0.804L15.7785 2.2035ZM17.8335 3.2685C17.619 3.12546 17.3994 2.99037 17.175 2.8635L17.9145 1.5585C18.4274 1.84899 18.9183 2.17688 19.383 2.5395L18.4605 3.723C18.2571 3.56435 18.048 3.41325 17.8335 3.27V3.2685ZM20.5845 5.9535C20.2878 5.532 19.9604 5.13292 19.605 4.7595L20.691 3.7245C21.097 4.1535 21.4705 4.6085 21.8115 5.0895L20.5845 5.9535ZM21.7005 7.9815C21.6021 7.74365 21.4951 7.50949 21.3795 7.2795L22.719 6.6045C22.9838 7.13118 23.2094 7.67666 23.394 8.2365L21.969 8.706C21.8884 8.46129 21.7989 8.21962 21.7005 7.9815ZM22.4955 11.742C22.4833 11.2265 22.4332 10.7126 22.3455 10.2045L23.823 9.9495C23.923 10.5295 23.981 11.1145 23.997 11.7045L22.4955 11.742ZM22.299 14.049C22.349 13.795 22.3895 13.54 22.4205 13.284L23.91 13.4685C23.8377 14.0537 23.7224 14.6328 23.565 15.201L22.119 14.8005C22.188 14.5535 22.248 14.303 22.299 14.049ZM20.871 17.6175C21.147 17.1815 21.39 16.7275 21.6 16.2555L22.971 16.863C22.731 17.403 22.4535 17.922 22.1385 18.42L20.871 17.6175ZM19.425 19.425C19.608 19.242 19.783 19.053 19.95 18.858L21.087 19.8375C20.8945 20.0608 20.6939 20.277 20.4855 20.4855L19.425 19.425Z"
-                          fill="#F5A623" />
-                        <path
-                          d="M12.0008 1.5C10.2741 1.50012 8.5741 1.92607 7.05135 2.74011C5.5286 3.55415 4.2301 4.73115 3.27086 6.16687C2.31163 7.6026 1.72127 9.25272 1.55207 10.9711C1.38287 12.6895 1.64006 14.423 2.30084 16.0183C2.96163 17.6135 4.00563 19.0212 5.34037 20.1166C6.67511 21.212 8.25938 21.9613 9.95288 22.2982C11.6464 22.6351 13.3968 22.5492 15.0492 22.048C16.7015 21.5468 18.2048 20.6459 19.4258 19.425L20.4863 20.4855C19.0909 21.8817 17.3727 22.9121 15.4838 23.4855C13.595 24.0589 11.5939 24.1575 9.65788 23.7727C7.72182 23.3879 5.91056 22.5315 4.3846 21.2793C2.85864 20.0272 1.66508 18.418 0.909681 16.5943C0.15428 14.7707 -0.139641 12.7888 0.0539606 10.8244C0.247562 8.85999 0.922709 6.97365 2.01958 5.33253C3.11645 3.6914 4.60118 2.34617 6.34222 1.416C8.08326 0.485843 10.0268 -0.000523098 12.0008 4.22187e-07V1.5Z"
-                          fill="#F5A623" />
-                        <path
-                          d="M11.25 4.5C11.4489 4.5 11.6397 4.57902 11.7803 4.71967C11.921 4.86032 12 5.05109 12 5.25V13.065L16.872 15.849C17.0397 15.9502 17.1612 16.1129 17.2104 16.3024C17.2597 16.492 17.2329 16.6933 17.1358 16.8633C17.0386 17.0333 16.8788 17.1586 16.6905 17.2124C16.5022 17.2661 16.3003 17.2441 16.128 17.151L10.878 14.151C10.7632 14.0854 10.6678 13.9907 10.6014 13.8764C10.535 13.762 10.5 13.6322 10.5 13.5V5.25C10.5 5.05109 10.579 4.86032 10.7197 4.71967C10.8603 4.57902 11.0511 4.5 11.25 4.5Z"
-                          fill="#F5A623" />
-                      </svg>
-
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Heures travaillées -->
-                <div class=" p-4 rounded-lg border border-gray-200">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-sm text-gray-600 ">Heures travaillées</p>
-                      <p class="text-2xl font-bold text-gray-900">{{ selectedMember.hoursWorked }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-md bg-blue-100 flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M6.82524 21.75H17.1743C18.1024 21.75 18.8407 20.9864 18.7409 20.1066C18.0963 14.4375 14.2498 14.5312 14.2498 12C14.2498 9.46875 18.1455 9.60938 18.7404 3.89344C18.8341 3.01312 18.1024 2.25 17.1743 2.25H6.82524C5.89711 2.25 5.16727 3.01312 5.25914 3.89344C5.85399 9.60938 9.74977 9.42188 9.74977 12C9.74977 14.5781 5.90321 14.4375 5.25914 20.1066C5.15883 20.9864 5.89711 21.75 6.82524 21.75Z"
-                          stroke="#4C6EF5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                          d="M16.0924 20.25H7.92821C7.19696 20.25 6.99071 19.4062 7.50352 18.8831C8.74477 17.625 11.2502 16.7241 11.2502 15.2812V10.5C11.2502 9.56953 9.46899 8.85938 8.36696 7.35C8.18508 7.10109 8.20336 6.75 8.66555 6.75H15.356C15.7502 6.75 15.8356 7.09828 15.656 7.34766C14.5699 8.85938 12.7502 9.56484 12.7502 10.5V15.2812C12.7502 16.7123 15.3616 17.4844 16.519 18.8845C16.9854 19.4489 16.8223 20.25 16.0924 20.25Z"
-                          fill="#4C6EF5" />
-                      </svg>
-
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Tâches terminées -->
-                <div class=" p-4 rounded-lg border border-gray-200">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-sm text-gray-600">Tâches terminées</p>
-                      <p class="text-2xl font-bold text-gray-900">{{ selectedMember.tasksCompleted }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-md bg-green-100 flex items-center justify-center">
-                      <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Performance -->
-                <div class="p-4 rounded-lg border border-gray-200">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-sm text-gray-600">Performance</p>
-                      <p class="text-2xl font-bold text-gray-900">{{ selectedMember.performance }}%</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-md bg-pink-100 flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M22.875 5.25V11.25C22.875 11.5484 22.7564 11.8345 22.5455 12.0455C22.3345 12.2565 22.0483 12.375 21.75 12.375C21.4516 12.375 21.1654 12.2565 20.9545 12.0455C20.7435 11.8345 20.625 11.5484 20.625 11.25V7.96875L13.5459 15.0487C13.4414 15.1536 13.3172 15.2368 13.1804 15.2936C13.0437 15.3504 12.8971 15.3796 12.749 15.3796C12.601 15.3796 12.4543 15.3504 12.3176 15.2936C12.1809 15.2368 12.0567 15.1536 11.9521 15.0487L8.99996 12.0938L3.0459 18.0459C2.83455 18.2573 2.54791 18.376 2.24902 18.376C1.95014 18.376 1.66349 18.2573 1.45215 18.0459C1.2408 17.8346 1.12207 17.5479 1.12207 17.2491C1.12207 16.9502 1.2408 16.6635 1.45215 16.4522L8.20215 9.70219C8.30666 9.59731 8.43085 9.51409 8.5676 9.45731C8.70435 9.40053 8.85096 9.3713 8.99902 9.3713C9.14709 9.3713 9.2937 9.40053 9.43044 9.45731C9.56719 9.51409 9.69138 9.59731 9.7959 9.70219L12.75 12.6562L19.0312 6.375H15.75C15.4516 6.375 15.1654 6.25647 14.9545 6.0455C14.7435 5.83452 14.625 5.54837 14.625 5.25C14.625 4.95163 14.7435 4.66548 14.9545 4.4545C15.1654 4.24353 15.4516 4.125 15.75 4.125H21.75C22.0483 4.125 22.3345 4.24353 22.5455 4.4545C22.7564 4.66548 22.875 4.95163 22.875 5.25Z"
-                          fill="#EF4444" />
-                      </svg>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Répartition des tâches -->
-              <div class="border rounded-lg p-4">
-                <h4 class="text-sm font-semibold text-gray-800 mb-4">Répartition des tâches (%)</h4>
-                <div class="flex items-center justify-center mb-4">
-                  <div class="relative w-40 h-40">
-                    <svg class="w-full h-full transform -rotate-90">
-                      <circle cx="80" cy="80" r="70" fill="none" stroke="#e5e7eb" stroke-width="20"></circle>
-                      <!-- Terminées (50%) - vert -->
-                      <circle cx="80" cy="80" r="70" fill="none" stroke="#22c55e" stroke-width="20"
-                        stroke-dasharray="220 440" stroke-dashoffset="0"></circle>
-                      <!-- En Cours (28.9%) - orange -->
-                      <circle cx="80" cy="80" r="70" fill="none" stroke="#f97316" stroke-width="20"
-                        stroke-dasharray="127 440" stroke-dashoffset="-220"></circle>
-                      <!-- À Faire (15.8%) - jaune -->
-                      <circle cx="80" cy="80" r="70" fill="none" stroke="#eab308" stroke-width="20"
-                        stroke-dasharray="70 440" stroke-dashoffset="-347"></circle>
-                      <!-- En Retard (5.3%) - rouge -->
-                      <circle cx="80" cy="80" r="70" fill="none" stroke="#ef4444" stroke-width="20"
-                        stroke-dasharray="23 440" stroke-dashoffset="-417"></circle>
-                    </svg>
-                  </div>
-                </div>
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                      <span class="text-gray-600">À Faire</span>
-                    </div>
-                    <span class="font-medium">{{ selectedMember.taskDistribution?.['À Faire'] }}%</span>
-                  </div>
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
-                      <span class="text-gray-600">En Cours</span>
-                    </div>
-                    <span class="font-medium">{{ selectedMember.taskDistribution?.['En Cours'] }}%</span>
-                  </div>
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                      <span class="text-gray-600">Terminées</span>
-                    </div>
-                    <span class="font-medium">{{ selectedMember.taskDistribution?.['Terminées'] }}%</span>
-                  </div>
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center">
-                      <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                      <span class="text-gray-600">En retard</span>
-                    </div>
-                    <span class="font-medium">{{ selectedMember.taskDistribution?.['En Retard'] }}%</span>
-                  </div>
+          <!-- Statistiques en grille 2x2 -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Jours présents -->
+            <div class="p-4 rounded-lg border border-gray-200 bg-white">
+              <p class="text-xs text-gray-600 mb-1">Jours présents</p>
+              <div class="flex items-end justify-between">
+                <p class="text-3xl font-bold text-gray-900">{{ selectedMember.daysPresent }}</p>
+                <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1.5V0M15.7785 2.2035L16.3185 0.804M17.8335 3.2685L18.4605 3.723M20.5845 5.9535L21.8115 5.0895M21.7005 7.9815L23.394 8.2365M22.4955 11.742L23.997 11.7045M22.299 14.049L23.565 15.201M20.871 17.6175L22.138 18.42M19.425 19.425L20.4855 20.4855" stroke="#F5A623" stroke-width="1.5"/>
+                    <path d="M12 1.5C6.201 1.5 1.5 6.201 1.5 12C1.5 17.799 6.201 22.5 12 22.5C17.799 22.5 22.5 17.799 22.5 12" stroke="#F5A623" stroke-width="1.5"/>
+                    <path d="M11.25 4.5C11.25 4.30109 11.329 4.11032 11.4697 3.96967C11.6103 3.82902 11.8011 3.75 12 3.75C12.1989 3.75 12.3897 3.82902 12.5303 3.96967C12.671 4.11032 12.75 4.30109 12.75 4.5V13.5L16.872 15.849C17.0397 15.9502 17.1612 16.1129 17.2104 16.3024C17.2597 16.492 17.2329 16.6933 17.1358 16.8633C17.0386 17.0333 16.8788 17.1586 16.6905 17.2124C16.5022 17.2661 16.3003 17.2441 16.128 17.151L11.25 14.628V4.5Z" fill="#F5A623"/>
+                  </svg>
                 </div>
               </div>
             </div>
 
+            <!-- Heures travaillées -->
+            <div class="p-4 rounded-lg border border-gray-200 bg-white">
+              <p class="text-xs text-gray-600 mb-1">Heures travaillées</p>
+              <div class="flex items-end justify-between">
+                <p class="text-3xl font-bold text-gray-900">{{ selectedMember.hoursWorked }}</p>
+                <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.825 21.75H17.175C18.103 21.75 18.841 20.986 18.741 20.107C18.096 14.438 14.25 14.531 14.25 12C14.25 9.469 18.146 9.609 18.74 3.893C18.834 3.013 18.102 2.25 17.174 2.25H6.825C5.897 2.25 5.167 3.013 5.259 3.893C5.854 9.609 9.75 9.422 9.75 12C9.75 14.578 5.903 14.438 5.259 20.107C5.159 20.986 5.897 21.75 6.825 21.75Z" stroke="#4C6EF5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.092 20.25H7.928C7.197 20.25 6.991 19.406 7.504 18.883C8.745 17.625 11.25 16.724 11.25 15.281V10.5C11.25 9.57 9.469 8.859 8.367 7.35C8.185 7.101 8.203 6.75 8.666 6.75H15.356C15.75 6.75 15.836 7.098 15.656 7.348C14.57 8.859 12.75 9.565 12.75 10.5V15.281C12.75 16.712 15.362 17.484 16.519 18.884C16.985 19.449 16.822 20.25 16.092 20.25Z" fill="#4C6EF5"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tâches terminées -->
+            <div class="p-4 rounded-lg border border-gray-200 bg-white">
+              <p class="text-xs text-gray-600 mb-1">Tâches terminées</p>
+              <div class="flex items-end justify-between">
+                <p class="text-3xl font-bold text-gray-900">{{ selectedMember.tasksCompleted }}</p>
+                <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="p-4 rounded-lg border border-gray-200 bg-white">
+              <p class="text-xs text-gray-600 mb-1">Performance</p>
+              <div class="flex items-end justify-between">
+                <p class="text-3xl font-bold text-gray-900">{{ selectedMember.performance }}%</p>
+                <div class="w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.875 5.25V11.25C22.875 11.548 22.756 11.834 22.545 12.045C22.334 12.256 22.048 12.375 21.75 12.375C21.452 12.375 21.165 12.256 20.954 12.045C20.744 11.834 20.625 11.548 20.625 11.25V7.969L13.546 15.049C13.337 15.257 13.056 15.374 12.763 15.374C12.47 15.374 12.189 15.257 11.98 15.049L9.028 12.094L3.074 18.046C2.863 18.257 2.576 18.376 2.277 18.376C1.978 18.376 1.691 18.257 1.48 18.046C1.269 17.835 1.15 17.548 1.15 17.249C1.15 16.95 1.269 16.664 1.48 16.452L8.23 9.702C8.439 9.494 8.72 9.377 9.013 9.377C9.306 9.377 9.587 9.494 9.796 9.702L12.75 12.656L19.031 6.375H15.75C15.452 6.375 15.165 6.256 14.954 6.045C14.744 5.834 14.625 5.548 14.625 5.25C14.625 4.952 14.744 4.665 14.954 4.454C15.165 4.244 15.452 4.125 15.75 4.125H21.75C22.048 4.125 22.334 4.244 22.545 4.454C22.756 4.665 22.875 4.952 22.875 5.25Z" fill="#EF4444"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Répartition des tâches -->
+          <div class="border border-gray-200 rounded-lg p-4 bg-white">
+            <h4 class="text-sm font-semibold text-gray-900 mb-4">Répartition des tâches (%)</h4>
+            <div class="flex items-center gap-8">
+              <!-- Donut Chart -->
+              <div class="relative w-32 h-32 flex-shrink-0">
+                <svg class="w-full h-full transform -rotate-90">
+                  <circle cx="64" cy="64" r="52" fill="none" stroke="#e5e7eb" stroke-width="24"></circle>
+                  <!-- Terminées (50%) - vert -->
+                  <circle cx="64" cy="64" r="52" fill="none" stroke="#22c55e" stroke-width="24"
+                    [attr.stroke-dasharray]="164 * 0.50 + ' 328'" stroke-dashoffset="0"></circle>
+                  <!-- En Cours (28.9%) - orange -->
+                  <circle cx="64" cy="64" r="52" fill="none" stroke="#f97316" stroke-width="24"
+                    [attr.stroke-dasharray]="164 * 0.289 + ' 328'" [attr.stroke-dashoffset]="-164 * 0.50"></circle>
+                  <!-- À Faire (15.8%) - jaune clair -->
+                  <circle cx="64" cy="64" r="52" fill="none" stroke="#e5e7eb" stroke-width="24"
+                    [attr.stroke-dasharray]="164 * 0.158 + ' 328'" [attr.stroke-dashoffset]="-164 * 0.789"></circle>
+                  <!-- En Retard (5.3%) - rouge -->
+                  <circle cx="64" cy="64" r="52" fill="none" stroke="#ef4444" stroke-width="24"
+                    [attr.stroke-dasharray]="164 * 0.053 + ' 328'" [attr.stroke-dashoffset]="-164 * 0.947"></circle>
+                </svg>
+              </div>
+              <!-- Légende -->
+              <div class="space-y-2 flex-1">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-gray-200"></div>
+                    <span class="text-gray-700">À Faire</span>
+                  </div>
+                  <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['À Faire'] || 15.8 }}%</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span class="text-gray-700">En cours</span>
+                  </div>
+                  <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['En Cours'] || 28.9 }}%</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-gray-700">Terminés</span>
+                  </div>
+                  <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['Terminées'] || 50 }}%</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span class="text-gray-700">En retard</span>
+                  </div>
+                  <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['En Retard'] || 5.3 }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Colonne droite - Historique des présences -->
-<div class="space-y-4">
-  <div class="flex items-center justify-between mb-4">
-    <h4 class="text-base font-semibold text-gray-900">Historique des présences</h4>
-    <button (click)="toggleDatePicker()"
-      class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-      </svg>
-      Filtrer par date
-    </button>
-  </div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-semibold text-gray-900">Historique des présences</h4>
+            <div class="relative">
+              <button (click)="toggleDatePicker()" class="text-sm text-gray-700 hover:text-gray-900 flex items-center gap-1.5 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Filtrer par date
+              </button>
 
-  <!-- Date Picker Modal -->
-  <div *ngIf="showDatePicker" class="relative">
-    ... (le code du date picker reste inchangé)
-  </div>
+              <!-- Date Picker Popup -->
+              <div *ngIf="showDatePicker" class="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50 w-80">
+                <div class="flex items-center justify-between mb-4">
+                  <button (click)="previousMonth()" class="p-1 hover:bg-gray-100 rounded transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                  </button>
+                  <span class="font-semibold text-gray-900">{{ currentMonthYear }}</span>
+                  <button (click)="nextMonth()" class="p-1 hover:bg-gray-100 rounded transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="grid grid-cols-7 gap-1">
+                  <div class="text-center text-xs font-medium text-gray-600 py-2" *ngFor="let day of ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']">{{ day }}</div>
+                  <!-- Empty cells for alignment -->
+                  <div *ngFor="let empty of getEmptyDays()" class="text-center text-sm py-2"></div>
+                  <!-- Calendar days -->
+                  <div *ngFor="let day of getCalendarDays()" 
+                       (click)="selectDate(day)"
+                       [class]="getDayClasses(day)"
+                       class="text-center text-sm py-2 hover:bg-gray-100 rounded cursor-pointer transition-colors">
+                    {{ day }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <!-- Historique des présences dynamique -->
-  <div class="space-y-4" *ngIf="selectedMember.presenceHistory && selectedMember.presenceHistory.length > 0">
-    <!-- Groupe de présences par date -->
-    <div *ngFor="let day of getFilteredPresenceHistory()" class="border-l-4 border-orange-500 pl-4 space-y-3">
-      <div class="flex items-center justify-between">
-        <span class="text-sm font-semibold text-gray-700">{{ day.date }}</span>
-        <span class="text-sm text-gray-600">Total: {{ day.totalTime }}</span>
+          <!-- Historique des présences -->
+          <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2" *ngIf="selectedMember.presenceHistory && selectedMember.presenceHistory.length > 0">
+            <div *ngFor="let day of getFilteredPresenceHistory()" class="border-l-4 border-orange-500 pl-4 pb-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-semibold text-gray-900">{{ day.date }}</span>
+                <span class="text-sm text-gray-600">Total: {{ day.totalTime }}</span>
+              </div>
+
+              <div *ngFor="let session of day.sessions" class="bg-white border border-gray-200 rounded-lg p-3 mb-2">
+                <div class="flex items-center gap-3 mb-2">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5" d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625" stroke="#1EA438" stroke-width="1.125" stroke-linecap="round"/>
+                    <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125" stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="flex-1">
+                    <span class="text-sm text-gray-600">Entrée:</span>
+                    <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.entry }}</span>
+                  </div>
+                  <span class="text-xs px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5" d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625" stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round"/>
+                    <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125" stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="flex-1">
+                    <span class="text-sm text-gray-600">Sortie:</span>
+                    <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.exit }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si pas d'historique -->
+          <div *ngIf="!selectedMember.presenceHistory || selectedMember.presenceHistory.length === 0" class="text-center py-12 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-sm">Aucun historique de présence disponible</p>
+          </div>
+
+          <!-- Total heures travaillées -->
+          <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-900">Total Heures travaillées</span>
+              <span class="text-xl font-bold text-gray-900">{{ getTotalWorkedTime() }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Sessions pour cette date -->
-      <div *ngFor="let session of day.sessions" class="bg-white border border-gray-200 rounded-lg p-3 space-y-2">
-        <div class="flex items-start gap-3">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path opacity="0.5"
-              d="M6.5625 12.5625C8.1538 12.5625 9.67992 11.9304 10.8051 10.8051C11.9304 9.67992 12.5625 8.1538 12.5625 6.5625C12.5625 4.9712 11.9304 3.44508 10.8051 2.31986C9.67992 1.19464 8.1538 0.5625 6.5625 0.5625"
-              stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" />
-            <path d="M0.5625 6.5625H8.0625M8.0625 6.5625L5.8125 4.3125M8.0625 6.5625L5.8125 8.8125"
-              stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <div class="flex-1">
-            <span class="text-sm font-medium text-gray-700">Entrée:</span>
-            <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.entry }}</span>
-          </div>
-          <span
-            class="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
-        </div>
-        <div class="flex items-start gap-3">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path opacity="0.5"
-              d="M6.5625 0.5625C4.9712 0.5625 3.44508 1.19464 2.31986 2.31986C1.19464 3.44508 0.5625 4.9712 0.5625 6.5625C0.5625 8.1538 1.19464 9.67992 2.31986 10.8051C3.44508 11.9304 4.9712 12.5625 6.5625 12.5625"
-              stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" />
-            <path d="M12.5625 6.5625L5.0625 6.5625M5.0625 6.5625L7.3125 8.8125M5.0625 6.5625L7.3125 4.3125"
-              stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <div class="flex-1">
-            <span class="text-sm font-medium text-gray-700">Sortie:</span>
-            <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.exit }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message si pas d'historique -->
-  <div *ngIf="!selectedMember.presenceHistory || selectedMember.presenceHistory.length === 0" class="text-center py-8 text-gray-500">
-    <p>Aucun historique de présence disponible</p>
-  </div>
-
-  <!-- Total heures travaillées -->
-  <div class="bg-gray-100 p-4 rounded-lg mt-4">
-    <div class="flex items-center justify-between">
-      <span class="text-sm font-medium text-gray-700">Total Heures travaillées</span>
-      <span class="text-xl font-bold text-gray-900">{{ getTotalWorkedTime() }}</span>
-    </div>
-  </div>
-</div>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex justify-between pt-6 border-t mt-6">
-            <button type="button" (click)="closeViewModal()"
-              class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-              Fermer
-            </button>
-          </div>
-        </div>
+      <!-- Actions -->
+      <div class="flex justify-start pt-6 border-t mt-6">
+        <button type="button" (click)="closeViewModal()"
+          class="px-6 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+          Fermer
+        </button>
       </div>
     </div>
   </div>
