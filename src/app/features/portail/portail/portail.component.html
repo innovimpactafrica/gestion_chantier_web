@@ -163,121 +163,60 @@
     </section>
 
 
-    <!-- Profils utilisateurs Section -->
-    <section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
-        <div class="max-w-7xl mx-auto relative ">
-            <div class="text-center mb-16 animate-fade-in-up">
-                <div
-                    class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
-                    Profils utilisateurs
-                </div>
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Une solution adaptée à chaque intervenant</h2>
-                <p class="text-lg text-gray-600">Innovachantiers inc. propose des fonctionnalités spécifiques pour
-                    chaque profil impliqué dans vos projets de construction</p>
+   <!-- Profils utilisateurs Section -->
+<section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
+    <div class="max-w-7xl mx-auto relative">
+        <div class="text-center mb-16 animate-fade-in-up">
+            <div class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
+                Profils utilisateurs
             </div>
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Une solution adaptée à chaque intervenant</h2>
+            <p class="text-lg text-gray-600">Innovachantiers inc. propose des fonctionnalités spécifiques pour
+                chaque profil impliqué dans vos projets de construction</p>
+        </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 ">
-                <!-- MOA Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier1.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card dynamique pour chaque profil -->
+            <div *ngFor="let profil of profils; let i = index"
+                class="bg-white border-2 border-gray-100 hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <div class="mb-6">
+                    <!-- Image -->
+                    <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden mb-4">
+                        <img [src]="profil.image" [alt]="profil.titre" class="w-full h-full object-cover">
                     </div>
-                </div>
-
-                <!-- BET Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier2.png" alt="">
+                    
+                    <div class="px-6">
+                        <!-- Titre et sous-titre -->
+                        <h3 class="text-xl font-bold text-orange-500 mb-2">{{ profil.titre }}</h3>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ profil.sousTitre }}</h4>
+                        
+                        <!-- Description avec transition fluide -->
+                        <div class="overflow-hidden transition-all duration-500 ease-in-out">
+                            <p class="text-gray-600 text-sm mb-4 transition-all duration-300"
+                               [class.line-clamp-2]="!profil.expanded">
+                                <span *ngIf="!profil.expanded">{{ profil.descriptionCourte }}</span>
+                                <span *ngIf="profil.expanded">{{ profil.descriptionComplete }}</span>
+                            </p>
                         </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Chef de chantier Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier3.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-                <!-- Ouvrier Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier4.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
+                        
+                        <!-- Bouton Lire plus / Lire moins -->
+                        <button (click)="toggleDescription(i)"
+                            class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm transition-colors focus:outline-none">
+                            <span *ngIf="!profil.expanded">Lire plus</span>
+                            <span *ngIf="profil.expanded">Lire moins</span>
+                            <svg class="w-4 h-4 ml-2 transition-transform duration-300"
+                                [class.rotate-90]="profil.expanded"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
