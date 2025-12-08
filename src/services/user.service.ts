@@ -143,7 +143,49 @@ export class UserService {
         catchError(error => this.handleError(error, 'getUserById'))
       );
   }
+/**
+ * Récupère tous les utilisateurs avec possibilité de recherche et filtrage par profil
+ */
+getAllUsers(keyword?: string, profil?: string, page: number = 0, size: number = 10): Observable<UserPageResponse> {
+  const headers = this.getAuthHeaders();
+  
+  // Construction des paramètres de requête
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString());
+  
+  // Ajout du keyword s'il est fourni
+  if (keyword && keyword.trim() !== '') {
+    params = params.set('keyword', keyword.trim());
+  }
+  
+  // Ajout du profil s'il est fourni
+  if (profil && profil.trim() !== '') {
+    params = params.set('profil', profil.trim());
+  }
 
+  const url = `${this.baseUrl}/user/search`;
+  
+  console.log('📡 API Call: getAllUsers');
+  console.log('🔗 URL:', url);
+  console.log('🔍 Keyword:', keyword || 'Aucun');
+  console.log('👔 Profil:', profil || 'Tous');
+  console.log('📄 Page:', page);
+  console.log('📊 Size:', size);
+  
+  return this.http.get<UserPageResponse>(url, { headers, params })
+    .pipe(
+      tap(response => {
+        console.log('✅ Utilisateurs récupérés:');
+        console.log('  - Total éléments:', response.totalElements);
+        console.log('  - Pages totales:', response.totalPages);
+        console.log('  - Page actuelle:', response.number);
+        console.log('  - Utilisateurs:', response.content.length);
+        console.log('  - Utilisateurs avec abonnement:', response.content.filter(u => u.subscription).length);
+      }),
+      catchError(error => this.handleError(error, 'getAllUsers'))
+    );
+}
   /**
    * Met à jour un utilisateur
    */

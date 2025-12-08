@@ -215,6 +215,24 @@ export class PlanAbonnementService {
         catchError(error => this.handleError(error, 'getPlansByName'))
       );
   }
+  getAllPlans(): Observable<SubscriptionPlan[]> {
+    const headers = this.getAuthHeaders();
+    const url = `${this.baseUrl}/subscription-plans`;
+    
+    console.log('📡 API Call: getPlansByName');
+    console.log('🔗 URL:', url);
+    console.log('🔍 Nom recherché:', name);
+    
+    return this.http.get<SubscriptionPlan[]>(url, { headers })
+      .pipe(
+        tap(plans => {
+          console.log('✅ Plans par nom récupérés:');
+          console.log('  - Nombre de plans:', plans.length);
+          console.log('  - Plans:', plans.map(p => p.label));
+        }),
+        catchError(error => this.handleError(error, 'getPlansByName'))
+      );
+  }
 
   /**
    * Récupère les headers d'authentification

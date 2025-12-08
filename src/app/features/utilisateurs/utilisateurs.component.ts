@@ -21,16 +21,13 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   
   Math = Math;
   
-  profilsToLoad = ['PROMOTEUR', 'MOA', 'BET', 'NOTAIRE', 'RESERVATAIRE', 'BANK', 
-                   'AGENCY', 'ADMIN', 'PROPRIETAIRE', 'SYNDIC', 'LOCATAIRE', 
-                   'PRESTATAIRE', 'TOM', 'SITE_MANAGER', 'SUPPLIER', 'SUBCONTRACTOR', 
-                   'WORKER'];
+
 
   // Modals existants
   showCreateModal: boolean = false;
   showEditModal: boolean = false;
   
-  // 🆕 Nouveaux modals pour bloquer/débloquer
+  // Nouveaux modals pour bloquer/débloquer
   showBlockModal: boolean = false;
   showNotification: boolean = false;
   modalAction: 'block' | 'activate' = 'block';
@@ -83,36 +80,29 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
   loadAllUsers(): void {
     this.isLoading = true;
     this.errorMessage = '';
     console.log('📥 Chargement de tous les utilisateurs...');
-
-    const requests = this.profilsToLoad.map(profil => 
-      this.userService.getUserByProfil(profil, this.searchTerm, this.currentPage, 1000)
-    );
-
-    forkJoin(requests)
+  
+    // Utilisation de getAllUsers avec pagination côté serveur
+    this.userService.getAllUsers(this.searchTerm, undefined, this.currentPage, this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (responses: UserPageResponse[]) => {
-          console.log('✅ Réponses reçues:', responses.length);
+        next: (response: UserPageResponse) => {
+          console.log('✅ Réponse reçue:', response);
           
-          this.utilisateurs = [];
-          responses.forEach(response => {
-            if (response && response.content) {
-              this.utilisateurs.push(...response.content);
-            }
-          });
-
-          this.totalResults = this.utilisateurs.length;
-          this.totalPages = Math.ceil(this.totalResults / this.pageSize);
-
+          this.utilisateurs = response.content;
+          this.totalResults = response.totalElements;
+          this.totalPages = response.totalPages;
+  
           console.log('📊 Total utilisateurs chargés:', this.totalResults);
+          console.log('📊 Pages totales:', this.totalPages);
           
+          // Plus besoin de filtrage local ni de pagination locale
           this.filteredUtilisateurs = [...this.utilisateurs];
-          this.applyPagination();
+          this.paginatedUtilisateurs = [...this.utilisateurs];
+          
           this.isLoading = false;
         },
         error: (error) => {
@@ -143,18 +133,12 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.totalPages = Math.ceil(this.totalResults / this.pageSize);
     this.applyPagination();
   }
-
+ 
   applyPagination(): void {
-    const start = this.currentPage * this.pageSize;
-    const end = start + this.pageSize;
-    this.paginatedUtilisateurs = this.filteredUtilisateurs.slice(start, end);
-    console.log('📄 Pagination:', {
-      page: this.currentPage,
-      start,
-      end,
-      total: this.filteredUtilisateurs.length,
-      displayed: this.paginatedUtilisateurs.length
-    });
+    // const start = this.currentPage * this.pageSize;
+    // const end = start + this.pageSize;
+    // this.paginatedUtilisateurs = this.filteredUtilisateurs.slice(start, end);
+    this.loadAllUsers();
   }
 
   getUserStatus(user: User): 'Actif' | 'Suspendu' | 'En attente' {
@@ -469,20 +453,20 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   // Méthodes de pagination
   goToPage(page: number): void {
     this.currentPage = page;
-    this.applyPagination();
+    this.loadAllUsers(); // Recharge avec la nouvelle page
   }
-
+  
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
-      this.applyPagination();
+      this.loadAllUsers();
     }
   }
-
+  
   previousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;
-      this.applyPagination();
+      this.loadAllUsers();
     }
   }
 }

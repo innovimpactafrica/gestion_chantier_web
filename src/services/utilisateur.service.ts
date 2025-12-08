@@ -67,6 +67,7 @@ export interface Worker {
   activated: boolean;
   notifiable: boolean;
   telephone: string;
+  present:boolean;
   subscriptions: Subscription[];
   company: Company | null;
   createdAt: string | number[]; // Peut être string ou array selon l'endpoint
@@ -112,7 +113,7 @@ export interface CreateWorkerRequest {
   lieunaissance: string;
   adress: string;
   profil: string;
-  managerId?: number; // Ajoutez ce champ optionnel
+  propertyId?: number; // Ajoutez ce champ optionnel
 }
 
 @Injectable({
@@ -238,7 +239,19 @@ export class UtilisateurService {
       { headers: this.getAuthHeaders() }
     );
   }
+  createWorker(workerData: CreateWorkerRequest,propertyId: number): Observable<Worker> {
+ 
+    
+    if (!propertyId) {
+      throw new Error('Utilisateur non connecté');
+    }
 
+    return this.http.post<Worker>(
+      `${this.apiUrl}/create/${propertyId}`,
+      workerData,
+      { headers: this.getAuthHeaders() }
+    );
+  }
   /**
    * Crée un nouveau fournisseur (worker avec profil SUPPLIER)
    * @param supplierData Données du fournisseur à créer

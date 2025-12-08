@@ -169,6 +169,27 @@ export class CompteComponent implements OnInit, OnDestroy {
       });
     }
   }
+  /**
+ * Vérifie si l'utilisateur est un administrateur
+ */
+isAdmin(): boolean {
+  const user = this.currentUser();
+  if (!user) return false;
+  
+  let userProfile = '';
+  
+  if (Array.isArray(user.profil) && user.profil.length > 0) {
+    userProfile = user.profil[0];
+  } 
+  else if (user.profils && typeof user.profils === 'string') {
+    userProfile = user.profils;
+  }
+  else if (typeof user.profil === 'string') {
+    userProfile = user.profil as any;
+  }
+  
+  return userProfile.toUpperCase() === 'ADMIN';
+}
 
   /**
    * Vérifie si l'utilisateur a un abonnement actif

@@ -1,5 +1,6 @@
 <div class="min-h-screen bg-gray-50">
     <!-- Header -->
+    <!-- Header avec Navigation adaptée -->
     <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center w-full">
@@ -10,16 +11,26 @@
 
                 <!-- Navigation Desktop -->
                 <nav class="hidden md:flex items-center space-x-8 flex-grow justify-center">
-                    <a href="#accueil"
-                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Accueil</a>
-                    <a href="#apropos" class="text-gray-700 hover:text-orange-500 transition-colors font-medium">À
-                        propos</a>
-                    <a href="#fonctionnalites"
-                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Fonctionnalités</a>
-                    <a href="#profils"
-                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Profils</a>
-                    <a href="#contact"
-                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium">Contact</a>
+                    <a (click)="scrollToSection('accueil', $event)"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium cursor-pointer">
+                        Accueil
+                    </a>
+                    <a (click)="scrollToSection('apropos', $event)"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium cursor-pointer">
+                        À propos
+                    </a>
+                    <a (click)="scrollToSection('fonctionnalites', $event)"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium cursor-pointer">
+                        Fonctionnalités
+                    </a>
+                    <a (click)="scrollToSection('profils', $event)"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium cursor-pointer">
+                        Profils
+                    </a>
+                    <a (click)="scrollToSection('contact', $event)"
+                        class="text-gray-700 hover:text-orange-500 transition-colors font-medium cursor-pointer">
+                        Contact
+                    </a>
                 </nav>
 
                 <!-- CTA Buttons -->
@@ -35,7 +46,7 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button class="md:hidden flex-shrink-0" onclick="toggleMobileMenu()">
+                <button class="md:hidden flex-shrink-0" (click)="toggleMobileMenu()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -45,22 +56,37 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t mt-4">
+        <div *ngIf="mobileMenuOpen" [@slideDown] class="md:hidden bg-white border-t mt-4">
             <nav class="flex flex-col space-y-4 px-4 py-6">
-                <a href="#accueil" class="text-gray-700 hover:text-orange-500 transition-colors">Accueil</a>
-                <a href="#apropos" class="text-gray-700 hover:text-orange-500 transition-colors">À propos</a>
-                <a href="#fonctionnalites"
-                    class="text-gray-700 hover:text-orange-500 transition-colors">Fonctionnalités</a>
-                <a href="#profils" class="text-gray-700 hover:text-orange-500 transition-colors">Profils</a>
-                <a href="#contact" class="text-gray-700 hover:text-orange-500 transition-colors">Contact</a>
-                <button (click)="goToLogin()" class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg">Se
-                    connecter</button>
-                <button (click)="goToLogin()" class="px-6 py-2 bg-orange-500 text-white rounded-lg">Essayer
-                    gratuitement</button>
+                <a (click)="scrollToSection('accueil', $event)"
+                    class="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    Accueil
+                </a>
+                <a (click)="scrollToSection('apropos', $event)"
+                    class="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    À propos
+                </a>
+                <a (click)="scrollToSection('fonctionnalites', $event)"
+                    class="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    Fonctionnalités
+                </a>
+                <a (click)="scrollToSection('profils', $event)"
+                    class="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    Profils
+                </a>
+                <a (click)="scrollToSection('contact', $event)"
+                    class="text-gray-700 hover:text-orange-500 transition-colors cursor-pointer">
+                    Contact
+                </a>
+                <button (click)="goToLogin()" class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg">
+                    Se connecter
+                </button>
+                <button (click)="goToLogin()" class="px-6 py-2 bg-orange-500 text-white rounded-lg">
+                    Essayer gratuitement
+                </button>
             </nav>
         </div>
     </header>
-
     <!-- Hero Section -->
     <section id="accueil" class="pt-32 py-20 pb-20 px-4 sm:px-6 lg:px-8">
         <div class="container mx-auto">
@@ -164,120 +190,59 @@
 
 
     <!-- Profils utilisateurs Section -->
-    <section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
-        <div class="max-w-7xl mx-auto relative ">
-            <div class="text-center mb-16 animate-fade-in-up">
-                <div
-                    class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
-                    Profils utilisateurs
-                </div>
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Une solution adaptée à chaque intervenant</h2>
-                <p class="text-lg text-gray-600">Innovachantiers inc. propose des fonctionnalités spécifiques pour
-                    chaque profil impliqué dans vos projets de construction</p>
+<section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
+    <div class="max-w-7xl mx-auto relative">
+        <div class="text-center mb-16 animate-fade-in-up">
+            <div class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
+                Profils utilisateurs
             </div>
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Une solution adaptée à chaque intervenant</h2>
+            <p class="text-lg text-gray-600">Innovachantiers inc. propose des fonctionnalités spécifiques pour
+                chaque profil impliqué dans vos projets de construction</p>
+        </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 ">
-                <!-- MOA Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier1.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card dynamique pour chaque profil -->
+            <div *ngFor="let profil of profils; let i = index"
+                class="bg-white border-2 border-gray-100 hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                <div class="mb-6">
+                    <!-- Image -->
+                    <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden mb-4">
+                        <img [src]="profil.image" [alt]="profil.titre" class="w-full h-full object-cover">
                     </div>
-                </div>
-
-                <!-- BET Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier2.png" alt="">
+                    
+                    <div class="px-6">
+                        <!-- Titre et sous-titre -->
+                        <h3 class="text-xl font-bold text-orange-500 mb-2">{{ profil.titre }}</h3>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ profil.sousTitre }}</h4>
+                        
+                        <!-- Description avec transition fluide -->
+                        <div class="overflow-hidden transition-all duration-500 ease-in-out">
+                            <p class="text-gray-600 text-sm mb-4 transition-all duration-300"
+                               [class.line-clamp-2]="!profil.expanded">
+                                <span *ngIf="!profil.expanded">{{ profil.descriptionCourte }}</span>
+                                <span *ngIf="profil.expanded">{{ profil.descriptionComplete }}</span>
+                            </p>
                         </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Chef de chantier Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier3.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-                <!-- Ouvrier Card -->
-                <div
-                    class="bg-white border-2 border-gray-100   hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300  overflow-hidden mb-4">
-                            <img src="assets/images/ouvrier4.png" alt="">
-                        </div>
-                        <div class="px-6">
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">BET (Bureau d'Études Techniques)</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Coordination technique</h4>
-                            <p class="text-gray-600 text-sm mb-4">Documents, visas, plans, conformité, fil de
-                                validation.</p>
-                            <a href="#"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm">
-                                Découvrir plus
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        </div>
-
+                        
+                        <!-- Bouton Lire plus / Lire moins -->
+                        <button (click)="toggleDescription(i)"
+                            class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm transition-colors focus:outline-none">
+                            <span *ngIf="!profil.expanded">Lire plus</span>
+                            <span *ngIf="profil.expanded">Lire moins</span>
+                            <svg class="w-4 h-4 ml-2 transition-transform duration-300"
+                                [class.rotate-90]="profil.expanded"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
@@ -390,24 +355,6 @@
     </section>
 
 
-    <!-- CTA Section -->
-    <!-- <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-orange-500">
-        <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
-            <h2 class="text-4xl font-bold text-white mb-6">Prêt à transformer votre gestion de chantiers ?</h2>
-            <p class="text-xl text-white mb-8 opacity-90">Commencez votre essai gratuit dès aujourd'hui</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                    class="px-8 py-4 bg-white text-orange-500 rounded-lg hover:bg-gray-100 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
-                    Essayer gratuitement
-                </button>
-                <button
-                    class="px-8 py-4 border-2 border-white text-white rounded-lg hover:bg-white hover:text-orange-500 transition-all font-medium">
-                    Nous contacter
-                </button>
-            </div>
-        </div>
-    </section> -->
-
     <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div class="max-w-7xl mx-auto">
             <!-- Badge -->
@@ -424,9 +371,14 @@
                     entreprise et à vos projets</p>
             </div>
 
+            <!-- Loading state -->
+            <div *ngIf="isLoadingPlans" class="flex justify-center items-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+            </div>
+
             <!-- Cartes de pricing -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <!-- Gratuit (essai) -->
+            <div *ngIf="!isLoadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Gratuit (essai) - Statique -->
                 <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 mb-2">Gratuit (essai)</h3>
                     <p class="text-gray-600 mb-6">Essai limité à 1 projet</p>
@@ -460,28 +412,45 @@
                             </svg>
                             <span class="text-gray-700">Rapports PDF</span>
                         </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">Autres Rapports</span>
+                        </div>
                     </div>
 
-                    <button
-                        class="w-full py-3 px-6 border-2 border-orange-500 text-orange-500 rounded-lg font-medium hover:bg-orange-50 transition-colors">
+                    <button (click)="goToLogin()"
+                        class="w-full py-3 px-6 border-2 border-orange-500 text-orange-500 mt-6 rounded-lg font-medium hover:bg-orange-50 transition-colors">
                         Commencer gratuitement
                     </button>
                 </div>
 
-                <!-- Pro (Recommandé) -->
-                <div class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
+                <!-- Plan PREMIUM (Dynamique avec animation - Recommandé) -->
+                <div *ngIf="currentPremiumPlan" [@planFade]="animationKey"
+                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
                     <div class="absolute top-0 right-6 transform -translate-y-1/2">
                         <span class="inline-block px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-medium">
                             Recommandé
                         </span>
                     </div>
 
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
-                    <p class="text-gray-600 mb-6">Pour les petites et moyennes entreprises</p>
+                    <!-- Badge du type de plan avec animation -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ currentPremiumPlan.label }}</h3>
+                        <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                            {{ getCurrentName() }}
+                        </span>
+                    </div>
+
+                    <p class="text-gray-600 mb-6">{{ truncateDescription(currentPremiumPlan.description) }}</p>
 
                     <div class="mb-8">
-                        <span class="text-4xl font-bold text-gray-900">16 990 FCFA</span>
-                        <span class="text-gray-600 ml-2">mois</span>
+                        <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentPremiumPlan.totalCost)
+                            }}</span>
+                        <span class="text-gray-600 ml-2">/ {{ currentPremiumPlan.installmentCount }} mois</span>
                     </div>
 
                     <div class="space-y-3 mb-8">
@@ -491,7 +460,11 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <span class="text-gray-700">Projets illimités</span>
+                            <span class="text-gray-700" *ngIf="currentPremiumPlan.unlimitedProjects">Projets
+                                illimités</span>
+                            <span class="text-gray-700" *ngIf="!currentPremiumPlan.unlimitedProjects">
+                                {{ currentPremiumPlan.projectLimit }} projets
+                            </span>
                         </div>
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
@@ -509,21 +482,47 @@
                             </svg>
                             <span class="text-gray-700">Support prioritaire</span>
                         </div>
+                        <div class="flex items-center gap-2" *ngIf="currentPremiumPlan.yearlyDiscountRate > 0">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">-{{ currentPremiumPlan.yearlyDiscountRate * 100 }}% sur
+                                l'abonnement annuel</span>
+                        </div>
                     </div>
 
-                    <button
+                    <button (click)="goToLogin()"
                         class="w-full py-3 px-6 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-md">
                         Souscrire
                     </button>
                 </div>
 
-                <!-- Entreprise -->
-                <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Entreprise</h3>
-                    <p class="text-gray-600 mb-6">Pour les grandes entreprises</p>
+                <!-- Placeholder si PREMIUM non disponible -->
+                <div *ngIf="!currentPremiumPlan && !isLoadingPlans"
+                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-gray-200 relative">
+                    <p class="text-center text-gray-500">Plan Premium non disponible</p>
+                </div>
+
+                <!-- Plan BASIC (Dynamique avec animation) -->
+                <div *ngIf="currentBasicPlan" [@planFade]="animationKey"
+                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+
+                    <!-- Badge du type de plan avec animation -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ currentBasicPlan.label }}</h3>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                            {{ getCurrentName() }}
+                        </span>
+                    </div>
+
+                    <p class="text-gray-600 mb-6">{{ truncateDescription(currentBasicPlan.description) }}</p>
 
                     <div class="mb-8">
-                        <span class="text-4xl font-bold text-gray-900">Sur devis</span>
+                        <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentBasicPlan.totalCost)
+                            }}</span>
+                        <span class="text-gray-600 ml-2">/ {{ currentBasicPlan.installmentCount }} mois</span>
                     </div>
 
                     <div class="space-y-3 mb-8">
@@ -533,7 +532,11 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <span class="text-gray-700">SSO & rôles avancés</span>
+                            <span class="text-gray-700" *ngIf="currentBasicPlan.unlimitedProjects">Projets
+                                illimités</span>
+                            <span class="text-gray-700" *ngIf="!currentBasicPlan.unlimitedProjects">
+                                {{ currentBasicPlan.projectLimit }} projets
+                            </span>
                         </div>
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
@@ -541,7 +544,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <span class="text-gray-700">Statistiques & export</span>
+                            <span class="text-gray-700">Fonctionnalités de base</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
@@ -549,14 +552,29 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <span class="text-gray-700">Accompagnement dédié</span>
+                            <span class="text-gray-700">Support standard</span>
+                        </div>
+                        <div class="flex items-center gap-2" *ngIf="currentBasicPlan.yearlyDiscountRate > 0">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">-{{ currentBasicPlan.yearlyDiscountRate * 100 }}% sur
+                                l'abonnement annuel</span>
                         </div>
                     </div>
 
-                    <button
+                    <button (click)="goToLogin()"
                         class="w-full py-3 px-6 border-2 border-orange-500 text-orange-500 rounded-lg font-medium hover:bg-orange-50 transition-colors">
                         Nous contacter
                     </button>
+                </div>
+
+                <!-- Placeholder si BASIC non disponible -->
+                <div *ngIf="!currentBasicPlan && !isLoadingPlans"
+                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+                    <p class="text-center text-gray-500">Plan Basic non disponible</p>
                 </div>
             </div>
         </div>
@@ -936,7 +954,7 @@
         </div>
     </section>
     <!-- Footer -->
-    <!-- Footer -->
+    <!-- Footer avec Navigation adaptée -->
     <footer class="bg-[#1a1f2e] text-white py-16 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
@@ -980,35 +998,39 @@
                     </div>
                 </div>
 
-                <!-- Colonne 2 - Produit -->
+                <!-- Colonne 2 - Produit avec liens adaptés -->
                 <div>
                     <h4 class="text-lg font-bold mb-6">Produit</h4>
                     <ul class="space-y-3">
                         <li>
-                            <a href="#fonctionnalites" class="text-gray-400 hover:text-white transition-colors">
+                            <a (click)="scrollToSection('fonctionnalites', $event)"
+                                class="text-gray-400 hover:text-white transition-colors cursor-pointer">
                                 Fonctionnalités
                             </a>
                         </li>
                         <li>
-                            <a href="#tarifs" class="text-gray-400 hover:text-white transition-colors">
-                                Tarifs
+                            <a (click)="scrollToSection('profils', $event)"
+                                class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                                Profils
                             </a>
                         </li>
                         <li>
-                            <a href="#temoignages" class="text-gray-400 hover:text-white transition-colors">
-                                Témoignages
+                            <a (click)="scrollToSection('apropos', $event)"
+                                class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                                À propos
                             </a>
                         </li>
                         <li>
-                            <a href="#faq" class="text-gray-400 hover:text-white transition-colors">
-                                FAQ
+                            <a (click)="scrollToSection('contact', $event)"
+                                class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                                Contact
                             </a>
                         </li>
                     </ul>
                 </div>
 
                 <!-- Colonne 3 - Contact -->
-                <div>
+                <div id="contact">
                     <h4 class="text-lg font-bold mb-6">Contact</h4>
                     <ul class="space-y-4">
                         <li class="flex items-center gap-3">
@@ -1029,7 +1051,6 @@
                             </svg>
                             <a href="mailto:contact@btp.sn" class="text-gray-400 hover:text-white transition-colors">
                                 contact&#64;btp.sn
-
                             </a>
                         </li>
                         <li class="flex items-start gap-3">

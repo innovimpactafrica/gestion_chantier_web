@@ -51,23 +51,26 @@
                     <div class="border-b border-gray-200 px-8 pt-6">
                         <nav class="flex space-x-8" aria-label="Tabs">
                             <button type="button" (click)="setActiveTab('informations')" [class]="activeTab() === 'informations' 
-                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
                                 Informations personnelles
                             </button>
+
+                            @if (!isAdmin()) {
                             <button type="button" (click)="setActiveTab('abonnements')" [class]="activeTab() === 'abonnements' 
-                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
                                 Abonnements
                             </button>
                             <button type="button" (click)="setActiveTab('factures')" [class]="activeTab() === 'factures' 
-                    ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
                                 Factures
                             </button>
+                            }
                         </nav>
                     </div>
 
@@ -325,24 +328,37 @@
                             </div>
                             } @else {
                             <!-- Sélecteur de période -->
-                            <div class="flex justify-center mb-8">
-                                <div class="bg-gray-100 rounded-lg p-1 inline-flex relative">
-                                    @if (basicPlan() && basicPlan()!.yearlyDiscountRate > 0) {
-                                    <div
-                                        class="absolute -top-2 -right-2 bg-[#ff5c01] text-white text-xs font-bold px-2 py-1 rounded-full">
-                                        -{{ basicPlan()!.yearlyDiscountRate }}%
-                                    </div>
-                                    }
+                            <div class="flex items-center justify-center gap-4 mb-8">
 
-                                    <button type="button" (click)="toggleBillingPeriod()"
-                                        [class]="!isYearlyBilling() ? 'px-6 py-2 rounded-md bg-white shadow-sm text-gray-900 font-medium' : 'px-6 py-2 rounded-md text-gray-600 font-medium'">
-                                        Mensuel
-                                    </button>
-                                    <button type="button" (click)="toggleBillingPeriod()"
-                                        [class]="isYearlyBilling() ? 'px-6 py-2 rounded-md bg-white shadow-sm text-gray-900 font-medium' : 'px-6 py-2 rounded-md text-gray-600 font-medium'">
-                                        Annuel
-                                    </button>
-                                </div>
+                                <!-- Label Mensuel -->
+                                <span class="text-sm font-medium text-gray-700"
+                                    [class.text-gray-900]="!isYearlyBilling()">
+                                    Mensuel
+                                </span>
+
+                                <!-- TOGGLE SIMPLIFIÉ AVEC SLIDER -->
+                                <button type="button" (click)="toggleBillingPeriod()"
+                                    class="relative w-14 h-7 rounded-full transition-colors duration-300"
+                                    [ngClass]="isYearlyBilling() ? 'bg-orange-500' : 'bg-gray-200'">
+
+                                    <div class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                                        [class.translate-x-7]="isYearlyBilling()">
+                                    </div>
+                                </button>
+
+                                <!-- Label Annuel + Remise -->
+                                <span class="text-sm font-medium text-gray-700 flex items-center gap-2"
+                                    [class.text-gray-900]="isYearlyBilling()">
+
+                                    Annuel
+
+                                    @if (basicPlan() && basicPlan()!.yearlyDiscountRate > 0) {
+                                    <span
+                                        class="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded">
+                                        -{{ basicPlan()!.yearlyDiscountRate }}%
+                                    </span>
+                                    }
+                                </span>
                             </div>
 
                             <!-- Cartes d'abonnement -->

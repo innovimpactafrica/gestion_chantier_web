@@ -28,7 +28,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   // Propriété pour suivre l'état de chargement de l'image de profil
   profileImageLoading = true;
-
+showWindowsScroll = false;
   constructor(
     private router: Router,
     private breadcrumbService: BreadcrumbService,

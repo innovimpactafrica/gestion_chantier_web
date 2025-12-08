@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../app/features/auth/services/auth.service';  // Ajustez le chemin selon votre structure
+import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interfaces pour les types de retour des APIs
-
 export interface TasksKpi {
   totalTasks: number;
   pendingTasks: number;
@@ -25,8 +25,8 @@ export interface BudgetKpi {
 }
 
 export interface CriticalMaterial {
-property: any;
-unit: any;
+  property: any;
+  unit: any;
   id: number;
   label: string;
   quantity: number;
@@ -80,7 +80,7 @@ export interface IncidentStatistic {
 
 export interface CriticalTask {
   id: number;
-  endDate: number[]; // [year, month, day]
+  endDate: number[];
   title: string;
   status: string;
   priority: string;
@@ -102,25 +102,65 @@ export interface RecentPhoto {
   providedIn: 'root'
 })
 export class DashboardService {
-  private baseUrl = 'https://wakana.online/api';
+  // ✅ Utilisation de l'environment pour les URLs
+  private readonly baseUrl = environment.apiUrl;
+  private readonly endpoints = {
+    tasks: environment.endpoints.tasks,
+    indicators: environment.endpoints.indicators,
+    budgets: environment.endpoints.budgets,
+    materials: environment.endpoints.materials,
+    incidents: environment.endpoints.incidents,
+    progressAlbum: environment.endpoints.progressAlbum,
+    workers: environment.endpoints.workers
+  };
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) {
+    console.log('🔧 DashboardService initialisé');
+    console.log('📍 Base URL:', this.baseUrl);
+    console.log('📍 Endpoints configurés:', this.endpoints);
+  }
 
   /**
    * Obtient les headers d'authentification
    */
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
+    
+    if (!token) {
+      console.error('❌ Aucun token disponible pour DashboardService');
+    }
+    
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
   }
 
-  
+  /**
+   * Récupère l'ID de l'utilisateur connecté
+   */
+  private getCurrentUserId(): number | null {
+    const currentUser = this.authService.currentUser();
+    console.log('👤 Current user from auth service:', currentUser);
+    return currentUser?.id || null;
+  }
+
+  /**
+   * Vérifie si un utilisateur est connecté
+   */
+  isUserConnected(): boolean {
+    const token = this.authService.getToken();
+    const hasToken = !!token;
+    const hasUser = !!this.authService.currentUser();
+    
+    console.log('🔍 Token exists:', hasToken);
+    console.log('🔍 User exists:', hasUser);
+    
+    return hasToken && hasUser;
+  }
 
   /**
    * Vue d'ensemble des tâches (KPIs)
@@ -128,14 +168,18 @@ export class DashboardService {
    */
   vueEnsemble(): Observable<TasksKpi> {
     const userId = this.getCurrentUserId();
-    console.log('utilisateur recuperer', userId)
+    console.log('📊 vueEnsemble - utilisateur:', userId);
+    
     if (!userId) {
       throw new Error('Utilisateur non connecté');
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.tasks}/kpis`;
     
-    return this.http.get<TasksKpi>(`${this.baseUrl}/tasks/kpis`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<TasksKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -152,8 +196,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.indicators}/global`;
     
-    return this.http.get<GlobalIndicator>(`${this.baseUrl}/indicators/global`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<GlobalIndicator>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -170,8 +217,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.budgets}/dashboard/kpi`;
     
-    return this.http.get<BudgetKpi>(`${this.baseUrl}/budgets/dashboard/kpi`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<BudgetKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -192,7 +242,11 @@ export class DashboardService {
       .set('page', page.toString())
       .set('size', size.toString());
     
-    return this.http.get<PageableResponse<CriticalMaterial>>(`${this.baseUrl}/materials/critical`, {
+    const url = `${this.endpoints.materials}/critical`;
+    
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<PageableResponse<CriticalMaterial>>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -209,8 +263,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.indicators}/by-phase`;
     
-    return this.http.get<PhaseIndicator[]>(`${this.baseUrl}/indicators/by-phase`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<PhaseIndicator[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -227,8 +284,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.incidents}/kpi`;
     
-    return this.http.get<IncidentStatistic[]>(`${this.baseUrl}/incidents/kpi`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<IncidentStatistic[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -245,8 +305,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.tasks}/critical`;
     
-    return this.http.get<CriticalTask[]>(`${this.baseUrl}/tasks/critical`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<CriticalTask[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -267,7 +330,11 @@ export class DashboardService {
       .set('page', page.toString())
       .set('size', size.toString());
     
-    return this.http.get<PageableResponse<RecentPhoto>>(`${this.baseUrl}/progress-album/recent`, {
+    const url = `${this.endpoints.progressAlbum}/recent`;
+    
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<PageableResponse<RecentPhoto>>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -276,7 +343,6 @@ export class DashboardService {
   /**
    * Nombre de tâches en retard
    * Endpoint: api/tasks/late/count?promoterId={userId}
-   * Retourne directement un nombre
    */
   tacheEnRetard(): Observable<number> {
     const userId = this.getCurrentUserId();
@@ -285,8 +351,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.tasks}/late/count`;
     
-    return this.http.get<number>(`${this.baseUrl}/tasks/late/count`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -295,7 +364,6 @@ export class DashboardService {
   /**
    * Nombre d'incidents des 7 derniers jours
    * Endpoint: api/incidents/count-last-7-days?promoterId={userId}
-   * Retourne directement un nombre
    */
   incidents(): Observable<number> {
     const userId = this.getCurrentUserId();
@@ -304,8 +372,11 @@ export class DashboardService {
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.endpoints.incidents}/count-last-7-days`;
     
-    return this.http.get<number>(`${this.baseUrl}/incidents/count-last-7-days`, {
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -314,7 +385,6 @@ export class DashboardService {
   /**
    * Taux de présence moyen des ouvriers
    * Endpoint: api/workers/manager/{managerId}/precense-rate
-   * Retourne directement un nombre (entier)
    */
   presenceMoyenne(): Observable<number> {
     const userId = this.getCurrentUserId();
@@ -322,14 +392,17 @@ export class DashboardService {
       throw new Error('Utilisateur non connecté');
     }
     
-    return this.http.get<number>(`${this.baseUrl}/workers/manager/${userId}/precense-rate`, {
+    const url = `${this.endpoints.workers}/manager/${userId}/precense-rate`;
+    
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<number>(url, {
       headers: this.getAuthHeaders()
     });
   }
 
   /**
-   * Matériaux en alerte (même endpoint que materiauxCritique)
-   * Endpoint: api/materials/critical?promoterId={userId}&page=0&size=10
+   * Matériaux en alerte (alias de materiauxCritique)
    */
   materiauxEnAlerte(page: number = 0, size: number = 10): Observable<PageableResponse<CriticalMaterial>> {
     return this.materiauxCritique(page, size);
@@ -347,45 +420,19 @@ export class DashboardService {
     return new Date(year, month - 1, day, hour, minute, second);
   }
 
-// Dans DashboardService
-private getCurrentUserId(): number | null {
-  const currentUser = this.authService.currentUser();
-  console.log('Current user from auth service:', currentUser); // Debug
-  return currentUser?.id || null;
-}
-
-// Modifiez la méthode isUserConnected pour qu'elle soit plus fiable
-isUserConnected(): boolean {
-  const token = this.authService.getToken();
-  const hasToken = !!token;
-  const hasUser = !!this.authService.currentUser();
-  
-  console.log('Token exists:', hasToken);
-  console.log('User exists:', hasUser);
-  
-  return hasToken && hasUser;
-}
-
   /**
-   * Méthode utilitaire pour obtenir toutes les données du dashboard en une seule fois
+   * Méthode de debug pour afficher la configuration
    */
-  getAllDashboardData(): Observable<{
-    vueEnsemble: TasksKpi;
-    tauxMoyenAvancement: GlobalIndicator;
-    budget: BudgetKpi;
-    materiauxCritique: PageableResponse<CriticalMaterial>;
-    etatAvancement: PhaseIndicator[];
-    statistiqueSignalement: IncidentStatistic[];
-    tacheCritique: CriticalTask[];
-    photoRecent: PageableResponse<RecentPhoto>;
-    tacheEnRetard: number;
-    incidents: number;
-    presenceMoyenne: number;
-  }> {
-    // Cette méthode pourrait utiliser forkJoin pour récupérer toutes les données en parallèle
-    // mais nécessiterait l'import de forkJoin depuis rxjs
-    throw new Error('Méthode à implémenter avec forkJoin si nécessaire');
+  debugConfiguration(): void {
+    console.log('=== DASHBOARD SERVICE DEBUG ===');
+    console.log('🔧 Environment:', environment.production ? 'PRODUCTION' : 'DEVELOPMENT');
+    console.log('📍 Base URL:', this.baseUrl);
+    console.log('📍 Endpoints:');
+    Object.entries(this.endpoints).forEach(([key, value]) => {
+      console.log(`  - ${key}: ${value}`);
+    });
+    console.log('👤 User ID:', this.getCurrentUserId());
+    console.log('🔑 Has Token:', !!this.authService.getToken());
+    console.log('================================');
   }
-
-  
 }

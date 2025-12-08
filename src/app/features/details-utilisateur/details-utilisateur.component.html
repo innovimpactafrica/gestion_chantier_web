@@ -358,11 +358,12 @@
     </p>
 
     <div class="flex gap-4">
-      <button (click)="deleteUser()" [disabled]="isLoading"
-        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-        <span *ngIf="!isLoading">Supprimer</span>
-        <span *ngIf="isLoading">Suppression...</span>
-      </button>
+ <!-- Dans le modal de suppression -->
+<button (click)="deleteUser()" [disabled]="isLoading"
+class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+<span *ngIf="!isLoading">Supprimer</span>
+<span *ngIf="isLoading">Suppression...</span>
+</button> 
       <button (click)="closeDeleteModal()" [disabled]="isLoading"
         class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
         Annuler

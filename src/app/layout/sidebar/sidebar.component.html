@@ -21,102 +21,172 @@
   </div>
 
   <!-- Main Navigation -->
-  <nav class="flex-1">
-    <ul class="space-y-2">
-  <!-- ========== MENU ADMIN ========== -->
-<!-- Dashboard Admin -->
-<li *ngIf="isADMINProfile()">
-  <a (click)="navigateTo('/dashboard-admin', 'Dashboard-admin', 'dashboard-admin')" 
-     [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+  <nav class="flex-1 overflow-y-auto ">
+    <ul class="space-y-2 py-4">
+      <!-- ========== MENU ADMIN ========== -->
+      <!-- Dashboard Admin -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/dashboard-admin', 'Dashboard-admin', 'dashboard-admin')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('dashboard-admin') ? 'bg-[#FF5C02] text-white' : '')">
-    <div class="flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           [class]="'w-5 h-5 mr-2 transition-all duration-200'" 
-           viewBox="0 0 24 24" 
-           fill="none">
-        <path
-          d="M11.25 18C11.25 18.1989 11.329 18.3897 11.4697 18.5303C11.6103 18.671 11.8011 18.75 12 18.75C12.1989 18.75 12.3897 18.671 12.5303 18.5303C12.671 18.3897 12.75 18.1989 12.75 18V15C12.75 14.8011 12.671 14.6103 12.5303 14.4697C12.3897 14.329 12.1989 14.25 12 14.25C11.8011 14.25 11.6103 14.329 11.4697 14.4697C11.329 14.6103 11.25 14.8011 11.25 15V18Z"
-          [attr.fill]="isActive('dashboard-admin') ? '#FFFFFF' : '#2C3E50'" />
-        <path fill-rule="evenodd" clip-rule="evenodd"
-          d="M12 1.25C11.292 1.25 10.649 1.453 9.95 1.792C9.276 2.12 8.496 2.604 7.523 3.208L5.456 4.491C4.536 5.063 3.797 5.521 3.229 5.956C2.64 6.406 2.188 6.866 1.861 7.463C1.535 8.058 1.389 8.692 1.318 9.441C1.25 10.166 1.25 11.054 1.25 12.167V13.78C1.25 15.684 1.25 17.187 1.403 18.362C1.559 19.567 1.889 20.54 2.633 21.309C3.38 22.082 4.33 22.428 5.508 22.591C6.648 22.75 8.106 22.75 9.942 22.75H14.058C15.894 22.75 17.352 22.75 18.492 22.591C19.669 22.428 20.62 22.082 21.368 21.309C22.111 20.54 22.441 19.567 22.598 18.362C22.75 17.187 22.75 15.684 22.75 13.78V12.167C22.75 11.054 22.75 10.167 22.682 9.441C22.612 8.691 22.465 8.058 22.139 7.463C21.812 6.866 21.359 6.407 20.771 5.956C20.203 5.52 19.465 5.063 18.544 4.491L16.477 3.208C15.504 2.604 14.724 2.12 14.049 1.792C13.352 1.452 12.709 1.25 12 1.25ZM8.28 4.504C9.295 3.874 10.01 3.432 10.607 3.141C11.188 2.858 11.6 2.75 12 2.75C12.4 2.75 12.812 2.858 13.393 3.141C13.991 3.431 14.705 3.874 15.72 4.504L17.72 5.745C18.681 6.342 19.356 6.761 19.86 7.147C20.349 7.522 20.63 7.831 20.823 8.183C21.016 8.536 21.129 8.949 21.188 9.581C21.249 10.229 21.25 11.046 21.25 12.204V13.725C21.25 15.695 21.248 17.101 21.11 18.168C20.974 19.216 20.717 19.824 20.29 20.267C19.865 20.706 19.287 20.967 18.286 21.106C17.26 21.248 15.907 21.25 14 21.25H10C8.092 21.25 6.74 21.248 5.714 21.106C4.713 20.966 4.135 20.706 3.711 20.266C3.283 19.824 3.026 19.216 2.891 18.168C2.751 17.101 2.75 15.696 2.75 13.725V12.204C2.75 11.046 2.75 10.229 2.812 9.581C2.871 8.949 2.984 8.536 3.177 8.183C3.37 7.831 3.651 7.522 4.141 7.147C4.644 6.761 5.319 6.342 6.28 5.745L8.28 4.504Z"
-          [attr.fill]="isActive('dashboard-admin') ? '#FFFFFF' : '#2C3E50'" />
-      </svg>
-      <span class="text-sm">Tableau Admin</span>
-    </div>
-  </a>
-</li>
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+              viewBox="0 0 24 24" fill="none">
+              <path
+                d="M11.25 18C11.25 18.1989 11.329 18.3897 11.4697 18.5303C11.6103 18.671 11.8011 18.75 12 18.75C12.1989 18.75 12.3897 18.671 12.5303 18.5303C12.671 18.3897 12.75 18.1989 12.75 18V15C12.75 14.8011 12.671 14.6103 12.5303 14.4697C12.3897 14.329 12.1989 14.25 12 14.25C11.8011 14.25 11.6103 14.329 11.4697 14.4697C11.329 14.6103 11.25 14.8011 11.25 15V18Z"
+                [attr.fill]="isActive('dashboard-admin') ? '#FFFFFF' : '#2C3E50'" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12 1.25C11.292 1.25 10.649 1.453 9.95 1.792C9.276 2.12 8.496 2.604 7.523 3.208L5.456 4.491C4.536 5.063 3.797 5.521 3.229 5.956C2.64 6.406 2.188 6.866 1.861 7.463C1.535 8.058 1.389 8.692 1.318 9.441C1.25 10.166 1.25 11.054 1.25 12.167V13.78C1.25 15.684 1.25 17.187 1.403 18.362C1.559 19.567 1.889 20.54 2.633 21.309C3.38 22.082 4.33 22.428 5.508 22.591C6.648 22.75 8.106 22.75 9.942 22.75H14.058C15.894 22.75 17.352 22.75 18.492 22.591C19.669 22.428 20.62 22.082 21.368 21.309C22.111 20.54 22.441 19.567 22.598 18.362C22.75 17.187 22.75 15.684 22.75 13.78V12.167C22.75 11.054 22.75 10.167 22.682 9.441C22.612 8.691 22.465 8.058 22.139 7.463C21.812 6.866 21.359 6.407 20.771 5.956C20.203 5.52 19.465 5.063 18.544 4.491L16.477 3.208C15.504 2.604 14.724 2.12 14.049 1.792C13.352 1.452 12.709 1.25 12 1.25ZM8.28 4.504C9.295 3.874 10.01 3.432 10.607 3.141C11.188 2.858 11.6 2.75 12 2.75C12.4 2.75 12.812 2.858 13.393 3.141C13.991 3.431 14.705 3.874 15.72 4.504L17.72 5.745C18.681 6.342 19.356 6.761 19.86 7.147C20.349 7.522 20.63 7.831 20.823 8.183C21.016 8.536 21.129 8.949 21.188 9.581C21.249 10.229 21.25 11.046 21.25 12.204V13.725C21.25 15.695 21.248 17.101 21.11 18.168C20.974 19.216 20.717 19.824 20.29 20.267C19.865 20.706 19.287 20.967 18.286 21.106C17.26 21.248 15.907 21.25 14 21.25H10C8.092 21.25 6.74 21.248 5.714 21.106C4.713 20.966 4.135 20.706 3.711 20.266C3.283 19.824 3.026 19.216 2.891 18.168C2.751 17.101 2.75 15.696 2.75 13.725V12.204C2.75 11.046 2.75 10.229 2.812 9.581C2.871 8.949 2.984 8.536 3.177 8.183C3.37 7.831 3.651 7.522 4.141 7.147C4.644 6.761 5.319 6.342 6.28 5.745L8.28 4.504Z"
+                [attr.fill]="isActive('dashboard-admin') ? '#FFFFFF' : '#2C3E50'" />
+            </svg>
+            <span class="text-sm">Tableau Admin</span>
+          </div>
+        </a>
+      </li>
 
-<!-- Utilisateurs (ADMIN uniquement) -->
-<li *ngIf="isADMINProfile()">
-  <a (click)="navigateTo('/utilisateurs', 'Utilisateurs', 'utilisateurs')" 
-     [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <!-- Utilisateurs (ADMIN uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/utilisateurs', 'Utilisateurs', 'utilisateurs')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('utilisateurs') ? 'bg-[#FF5C02] text-white' : '')">
-    <div class="flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           [class]="'w-5 h-5 mr-2 transition-all duration-200'" 
-           viewBox="0 0 24 24" 
-           fill="none"
-           [attr.stroke]="isActive('utilisateurs') ? '#FFFFFF' : '#2C3E50'"
-           stroke-width="2">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="9" cy="7" r="4"></circle>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-      </svg>
-      <span class="text-sm">Utilisateurs</span>
-    </div>
-  </a>
-</li>
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+              viewBox="0 0 24 24" fill="none" [attr.stroke]="isActive('utilisateurs') ? '#FFFFFF' : '#2C3E50'"
+              stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span class="text-sm">Utilisateurs</span>
+          </div>
+        </a>
+      </li>
 
-<!-- Abonnements (ADMIN uniquement) -->
-<li *ngIf="isADMINProfile()">
-  <a (click)="navigateTo('/abonnements', 'Abonnements', 'abonnements')" 
-     [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <!-- Abonnements (ADMIN uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/abonnements', 'Abonnements', 'abonnements')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('abonnements') ? 'bg-[#FF5C02] text-white' : '')">
-    <div class="flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           [class]="'w-5 h-5 mr-2 transition-all duration-200'" 
-           viewBox="0 0 24 24" 
-           fill="none">
-        <path
-          d="M16.5 8.25C16.5 8.05109 16.579 7.86032 16.7197 7.71967C16.8603 7.57902 17.0511 7.5 17.25 7.5H20.25C20.4489 7.5 20.6397 7.57902 20.7803 7.71967C20.921 7.86032 21 8.05109 21 8.25V9.75C21 9.94891 20.921 10.1397 20.7803 10.2803C20.6397 10.421 20.4489 10.5 20.25 10.5H17.25C17.0511 10.5 16.8603 10.421 16.7197 10.2803C16.579 10.1397 16.5 9.94891 16.5 9.75V8.25Z"
-          [attr.fill]="isActive('abonnements') ? '#FFFFFF' : '#2C3E50'" />
-        <path
-          d="M3 3C2.20435 3 1.44129 3.31607 0.87868 3.87868C0.316071 4.44129 0 5.20435 0 6L0 18C0 18.7956 0.316071 19.5587 0.87868 20.1213C1.44129 20.6839 2.20435 21 3 21H21C21.7956 21 22.5587 20.6839 23.1213 20.1213C23.6839 19.5587 24 18.7956 24 18V6C24 5.20435 23.6839 4.44129 23.1213 3.87868C22.5587 3.31607 21.7956 3 21 3H3ZM22.5 6V13.5H1.5V6C1.5 5.60218 1.65804 5.22064 1.93934 4.93934C2.22064 4.65804 2.60218 4.5 3 4.5H21C21.3978 4.5 21.7794 4.65804 22.0607 4.93934C22.342 5.22064 22.5 5.60218 22.5 6ZM21 19.5H3C2.60218 19.5 2.22064 19.342 1.93934 19.0607C1.65804 18.7794 1.5 18.3978 1.5 18V16.5H22.5V18C22.5 18.3978 22.342 18.7794 22.0607 19.0607C21.7794 19.342 21.3978 19.5 21 19.5Z"
-          [attr.fill]="isActive('abonnements') ? '#FFFFFF' : '#2C3E50'" />
-      </svg>
-      <span class="text-sm">Plan abonnements</span>
-    </div>
-  </a>
-</li>
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+              viewBox="0 0 24 24" fill="none">
+              <path
+                d="M16.5 8.25C16.5 8.05109 16.579 7.86032 16.7197 7.71967C16.8603 7.57902 17.0511 7.5 17.25 7.5H20.25C20.4489 7.5 20.6397 7.57902 20.7803 7.71967C20.921 7.86032 21 8.05109 21 8.25V9.75C21 9.94891 20.921 10.1397 20.7803 10.2803C20.6397 10.421 20.4489 10.5 20.25 10.5H17.25C17.0511 10.5 16.8603 10.421 16.7197 10.2803C16.579 10.1397 16.5 9.94891 16.5 9.75V8.25Z"
+                [attr.fill]="isActive('abonnements') ? '#FFFFFF' : '#2C3E50'" />
+              <path
+                d="M3 3C2.20435 3 1.44129 3.31607 0.87868 3.87868C0.316071 4.44129 0 5.20435 0 6L0 18C0 18.7956 0.316071 19.5587 0.87868 20.1213C1.44129 20.6839 2.20435 21 3 21H21C21.7956 21 22.5587 20.6839 23.1213 20.1213C23.6839 19.5587 24 18.7956 24 18V6C24 5.20435 23.6839 4.44129 23.1213 3.87868C22.5587 3.31607 21.7956 3 21 3H3ZM22.5 6V13.5H1.5V6C1.5 5.60218 1.65804 5.22064 1.93934 4.93934C2.22064 4.65804 2.60218 4.5 3 4.5H21C21.3978 4.5 21.7794 4.65804 22.0607 4.93934C22.342 5.22064 22.5 5.60218 22.5 6ZM21 19.5H3C2.60218 19.5 2.22064 19.342 1.93934 19.0607C1.65804 18.7794 1.5 18.3978 1.5 18V16.5H22.5V18C22.5 18.3978 22.342 18.7794 22.0607 19.0607C21.7794 19.342 21.3978 19.5 21 19.5Z"
+                [attr.fill]="isActive('abonnements') ? '#FFFFFF' : '#2C3E50'" />
+            </svg>
+            <span class="text-sm">Plan abonnements</span>
+          </div>
+        </a>
+      </li>
 
-<!-- Réclamations (ADMIN uniquement) -->
-<li *ngIf="isADMINProfile()">
-  <a (click)="navigateTo('/reclamations', 'Reclamations', 'reclamations')" 
-     [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <!-- Réclamations (ADMIN uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/reclamations', 'Reclamations', 'reclamations')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('reclamations') ? 'bg-[#FF5C02] text-white' : '')">
-    <div class="flex items-center">
-      <svg [class]="'w-5 h-5 mr-2 transition-all duration-200'" 
-           width="24" 
-           height="24" 
-           viewBox="0 0 24 24" 
-           fill="none" 
-           xmlns="http://www.w3.org/2000/svg">
-        <path 
-          d="M4 4H20V16H5.17L4 17.17V4ZM4 2C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2H4ZM6 12H14V14H6V12ZM6 9H18V11H6V9ZM6 6H18V8H6V6Z" 
-          [attr.fill]="isActive('reclamations') ? '#FFFFFF' : '#2C3E50'"/>
-      </svg>
-      <span class="text-sm">Réclamations</span>
-    </div>
-  </a>
-</li>
+          <div class="flex items-center">
+            <svg [class]="'w-5 h-5 mr-2 transition-all duration-200'" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 4H20V16H5.17L4 17.17V4ZM4 2C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2H4ZM6 12H14V14H6V12ZM6 9H18V11H6V9ZM6 6H18V8H6V6Z"
+                [attr.fill]="isActive('reclamations') ? '#FFFFFF' : '#2C3E50'" />
+            </svg>
+            <span class="text-sm">Réclamations</span>
+          </div>
+        </a>
+      </li>
+      <!-- HR (Standard uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+               (isActive('hr') ? 'bg-[#FF5C02] text-white' : '')">
+          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                   (isActive('hr') ? 'brightness-0 invert' : '')" srcset="">
+          <span class="text-sm">Ressources humaines</span>
+        </a>
+      </li>
 
+      <!-- Sous-traitant (Standard uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+               (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : '')">
+          <img src="assets/images/humain.png" [class]="'mr-2 transition-all duration-200 ' + 
+                   (isActive('subcontractor') ? 'brightness-0 invert' : '')" alt="">
+          <span class="text-sm">Sous-traitants</span>
+        </a>
+      </li>
+
+      <!-- Fournisseurs (Standard uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+               (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : '')">
+          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+                   (isActive('suppliers') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')"
+            srcset="">
+          <span class="text-sm">Fournisseurs</span>
+        </a>
+      </li>
+
+      <!-- Settings with Dropdown (Standard uniquement) -->
+      <li *ngIf="isADMINProfile()">
+        <div>
+          <!-- Menu principal Paramètres -->
+          <a (click)="toggleParametres()"
+            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                 (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
+            <div class="flex items-center">
+              <img src="assets/images/solar_settings.png"
+                [class]="'mr-2 transition-all duration-200 ' + 
+                       (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : '')"
+                alt="" srcset="">
+              <span class="text-sm">Paramètres</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'h-4 w-4 transition-transform duration-200 ' + (showParametres ? 'rotate-180' : '')"
+              viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+
+          <!-- Sous-menu Paramètres -->
+          <div *ngIf="showParametres" class="mt-2 ml-6 space-y-1 border-l-2 border-gray-200 pl-4">
+            <!-- Unité de mesure -->
+            <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+                   (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Unité de mesure</span>
+            </a>
+
+            <!-- Documents -->
+            <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+                   (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Documents</span>
+            </a>
+
+            <!-- Property Type -->
+            <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+                   (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Type de Bien</span>
+            </a>
+
+            <!-- Catégories de matériel -->
+            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+                   (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Catégories de matériel</span>
+            </a>
+          </div>
+        </div>
+      </li>
 
 
       <!-- ========== MENU STANDARD (Non-BET, Non-SUPPLIER, Non-ADMIN) ========== -->
       <!-- Dashboard -->
-<li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-	        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
+        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
 	                   (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
@@ -166,6 +236,7 @@
         </a>
       </li>
 
+
       <!-- Projects Section (Standard uniquement) -->
       <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
         <a (click)="navigateTo('/projects', 'Projets', 'projects')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
@@ -177,92 +248,7 @@
         </a>
       </li>
 
-      <!-- HR (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                   (isActive('hr') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                       (isActive('hr') ? 'brightness-0 invert' : '')" srcset="">
-          <span class="text-sm">Ressources humaines</span>
-        </a>
-      </li>
 
-      <!-- Sous-traitant (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                   (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" [class]="'mr-2 transition-all duration-200 ' + 
-                       (isActive('subcontractor') ? 'brightness-0 invert' : '')" alt="">
-          <span class="text-sm">Sous-traitants</span>
-        </a>
-      </li>
-
-      <!-- Fournisseurs (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                   (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : '')">
-          <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
-                       (isActive('suppliers') ? 'brightness-0 invert' : 'group-hover:brightness-0 group-hover:invert')"
-            srcset="">
-          <span class="text-sm">Fournisseurs</span>
-        </a>
-      </li>
-
-      <!-- Settings with Dropdown (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <div>
-          <!-- Menu principal Paramètres -->
-          <a (click)="toggleParametres()"
-            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                     (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
-            <div class="flex items-center">
-              <img src="assets/images/solar_settings.png"
-                [class]="'mr-2 transition-all duration-200 ' + 
-                           (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'brightness-0 invert' : '')"
-                alt="" srcset="">
-              <span class="text-sm">Paramètres</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg"
-              [class]="'h-4 w-4 transition-transform duration-200 ' + (showParametres ? 'rotate-180' : '')"
-              viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd" />
-            </svg>
-          </a>
-
-          <!-- Sous-menu Paramètres -->
-          <div *ngIf="showParametres" class="mt-2 ml-6 space-y-1 border-l-2 border-gray-200 pl-4">
-            <!-- Unité de mesure -->
-            <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Unité de mesure</span>
-            </a>
-
-            <!-- Documents -->
-            <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Documents</span>
-            </a>
-
-            <!-- Property Type -->
-            <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Type de Bien</span>
-            </a>
-
-            <!-- Catégories de matériel -->
-            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
-                       (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Catégories de matériel</span>
-            </a>
-          </div>
-        </div>
-      </li>
 
       <!-- ========== MENU SUPPLIER ========== -->
       <!-- Dashboard Fournisseur -->
@@ -301,21 +287,16 @@
 
       <!-- ========== MON COMPTE (Tous sauf SUPPLIER) ========== -->
       <li *ngIf="!isSUPPLIERProfile()">
-        <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" 
-        [class]="'flex items-center py-3 px-4 gap-2 rounded-lg cursor-pointer transition-all duration-200 ' + 
+        <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" [class]="'flex items-center py-3 px-4 gap-2 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('mon-compte') ? 'bg-[#FF5C02] text-white' : '')">
-       <svg [class]="'transition-all duration-200'" 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
+          <svg [class]="'transition-all duration-200'" width="24" height="24" viewBox="0 0 24 24" fill="none"
             xmlns="http://www.w3.org/2000/svg">
-         <path
-           d="M5.85 17.1C6.7 16.45 7.65 15.9377 8.7 15.563C9.75 15.1883 10.85 15.0007 12 15C13.15 14.9993 14.25 15.187 15.3 15.563C16.35 15.939 17.3 16.4513 18.15 17.1C18.7333 16.4167 19.1877 15.6417 19.513 14.775C19.8383 13.9083 20.0007 12.9833 20 12C20 9.78333 19.221 7.89567 17.663 6.337C16.105 4.77833 14.2173 3.99933 12 4C9.78267 4.00067 7.895 4.78 6.337 6.338C4.779 7.896 4 9.78333 4 12C4 12.9833 4.16267 13.9083 4.488 14.775C4.81333 15.6417 5.26733 16.4167 5.85 17.1ZM12 13C11.0167 13 10.1873 12.6627 9.512 11.988C8.83667 11.3133 8.49933 10.484 8.5 9.5C8.50067 8.516 8.83833 7.68667 9.513 7.012C10.1877 6.33733 11.0167 6 12 6C12.9833 6 13.8127 6.33767 14.488 7.013C15.1633 7.68833 15.5007 8.51733 15.5 9.5C15.4993 10.4827 15.162 11.312 14.488 11.988C13.814 12.664 12.9847 13.0013 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22ZM12 20C12.8833 20 13.7167 19.871 14.5 19.613C15.2833 19.355 16 18.984 16.65 18.5C16 18.0167 15.2833 17.646 14.5 17.388C13.7167 17.13 12.8833 17.0007 12 17C11.1167 16.9993 10.2833 17.1287 9.5 17.388C8.71667 17.6473 8 18.018 7.35 18.5C8 18.9833 8.71667 19.3543 9.5 19.613C10.2833 19.8717 11.1167 20.0007 12 20ZM12 11C12.4333 11 12.7917 10.8583 13.075 10.575C13.3583 10.2917 13.5 9.93333 13.5 9.5C13.5 9.06667 13.3583 8.70833 13.075 8.425C12.7917 8.14167 12.4333 8 12 8C11.5667 8 11.2083 8.14167 10.925 8.425C10.6417 8.70833 10.5 9.06667 10.5 9.5C10.5 9.93333 10.6417 10.2917 10.925 10.575C11.2083 10.8583 11.5667 11 12 11Z"
-           [attr.fill]="isActive('mon-compte') ? '#FFFFFF' : '#2C3E50'" />
-       </svg>
-       <span class="text-sm">Mon Compte</span>
-     </a>
+            <path
+              d="M5.85 17.1C6.7 16.45 7.65 15.9377 8.7 15.563C9.75 15.1883 10.85 15.0007 12 15C13.15 14.9993 14.25 15.187 15.3 15.563C16.35 15.939 17.3 16.4513 18.15 17.1C18.7333 16.4167 19.1877 15.6417 19.513 14.775C19.8383 13.9083 20.0007 12.9833 20 12C20 9.78333 19.221 7.89567 17.663 6.337C16.105 4.77833 14.2173 3.99933 12 4C9.78267 4.00067 7.895 4.78 6.337 6.338C4.779 7.896 4 9.78333 4 12C4 12.9833 4.16267 13.9083 4.488 14.775C4.81333 15.6417 5.26733 16.4167 5.85 17.1ZM12 13C11.0167 13 10.1873 12.6627 9.512 11.988C8.83667 11.3133 8.49933 10.484 8.5 9.5C8.50067 8.516 8.83833 7.68667 9.513 7.012C10.1877 6.33733 11.0167 6 12 6C12.9833 6 13.8127 6.33767 14.488 7.013C15.1633 7.68833 15.5007 8.51733 15.5 9.5C15.4993 10.4827 15.162 11.312 14.488 11.988C13.814 12.664 12.9847 13.0013 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22ZM12 20C12.8833 20 13.7167 19.871 14.5 19.613C15.2833 19.355 16 18.984 16.65 18.5C16 18.0167 15.2833 17.646 14.5 17.388C13.7167 17.13 12.8833 17.0007 12 17C11.1167 16.9993 10.2833 17.1287 9.5 17.388C8.71667 17.6473 8 18.018 7.35 18.5C8 18.9833 8.71667 19.3543 9.5 19.613C10.2833 19.8717 11.1167 20.0007 12 20ZM12 11C12.4333 11 12.7917 10.8583 13.075 10.575C13.3583 10.2917 13.5 9.93333 13.5 9.5C13.5 9.06667 13.3583 8.70833 13.075 8.425C12.7917 8.14167 12.4333 8 12 8C11.5667 8 11.2083 8.14167 10.925 8.425C10.6417 8.70833 10.5 9.06667 10.5 9.5C10.5 9.93333 10.6417 10.2917 10.925 10.575C11.2083 10.8583 11.5667 11 12 11Z"
+              [attr.fill]="isActive('mon-compte') ? '#FFFFFF' : '#2C3E50'" />
+          </svg>
+          <span class="text-sm">Mon Compte</span>
+        </a>
       </li>
 
       <!-- ========== LOGOUT (Tous les profils) ========== -->

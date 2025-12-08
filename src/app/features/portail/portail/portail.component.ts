@@ -1,8 +1,18 @@
-// portail.component.ts
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { PlanAbonnementService, SubscriptionPlan } from '../../../../services/plan-abonnement.service';
+import { Subject, takeUntil, interval } from 'rxjs';
+
+interface Profil {
+  titre: string;
+  sousTitre: string;
+  descriptionCourte: string;
+  descriptionComplete: string;
+  image: string;
+  expanded: boolean;
+}
 
 @Component({
   selector: 'app-portail',
@@ -37,12 +47,31 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
       transition(':leave', [
         animate('300ms ease-in', style({ height: 0, opacity: 0 }))
       ])
+    ]),
+    trigger('planFade', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'scale(0.95)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+      ])
     ])
   ]
 })
-export class PortailComponent {
+export class PortailComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
   isScrolled = false;
   mobileMenuOpen = false;
+  isLoadingPlans = true;
+
+  // Plans d'abonnement actuels affichés
+  currentPremiumPlan: SubscriptionPlan | null = null;
+  currentBasicPlan: SubscriptionPlan | null = null;
+
+  // Tous les plans groupés par name
+  allPlansByName: { [key: string]: { premium: SubscriptionPlan | null, basic: SubscriptionPlan | null } } = {};
+  planNames: string[] = [];
+  currentNameIndex: number = 0;
+  animationKey: number = 0;
 
   features = [
     {
@@ -77,16 +106,157 @@ export class PortailComponent {
     }
   ];
 
-  profiles = [
-    { title: 'MOA', initial: 'M', description: 'Maître d\'ouvrage' },
-    { title: 'BET', initial: 'B', description: 'Bureau d\'études' },
-    { title: 'Chef de chantier', initial: 'C', description: 'Supervision terrain' },
-    { title: 'Équipes', initial: 'E', description: 'Personnel terrain' }
+  // Profils avec descriptions courtes et complètes
+  profils: Profil[] = [
+    {
+      titre: 'MOA (Maître d\'Ouvrage)',
+      sousTitre: 'Pilotage de projet',
+      descriptionCourte: 'Suivi budgétaire, planning, validation des phases...',
+      descriptionComplete: 'Le Maître d\'Ouvrage pilote l\'ensemble du projet de construction. Il bénéficie d\'un tableau de bord complet pour le suivi budgétaire, la gestion du planning, la validation des différentes phases du projet, le contrôle qualité et la coordination entre tous les intervenants. Des outils de reporting et d\'analyse permettent une prise de décision éclairée à chaque étape.',
+      image: 'assets/images/ouvrier1.png',
+      expanded: false
+    },
+    {
+      titre: 'BET (Bureau d\'Études Techniques)',
+      sousTitre: 'Coordination technique',
+      descriptionCourte: 'Documents, visas, plans, conformité, fil de validation.',
+      descriptionComplete: 'Le Bureau d\'Études Techniques assure la coordination technique du projet. Il gère l\'ensemble des documents techniques, les visas et approbations, les plans de construction, la vérification de conformité aux normes, le suivi du fil de validation et la coordination avec les différents corps de métier. Un système de gestion documentaire centralisé facilite le partage et le versioning des documents.',
+      image: 'assets/images/ouvrier2.png',
+      expanded: false
+    },
+    {
+      titre: 'Chef de Chantier',
+      sousTitre: 'Gestion opérationnelle',
+      descriptionCourte: 'Suivi équipes, sécurité, avancement, planning terrain...',
+      descriptionComplete: 'Le Chef de Chantier gère les opérations quotidiennes sur le terrain. Il supervise les équipes, assure le respect des normes de sécurité, suit l\'avancement des travaux en temps réel, gère le planning terrain, coordonne les approvisionnements, rédige les rapports d\'activité et communique avec tous les intervenants. Des outils mobiles permettent un suivi en direct depuis le chantier.',
+      image: 'assets/images/ouvrier3.png',
+      expanded: false
+    },
+    {
+      titre: 'Ouvrier / Artisan',
+      sousTitre: 'Exécution des travaux',
+      descriptionCourte: 'Tâches assignées, matériaux, pointage, sécurité...',
+      descriptionComplete: 'Les Ouvriers et Artisans accèdent facilement à leurs tâches assignées, consultent les plans et instructions, gèrent les demandes de matériaux, effectuent leur pointage quotidien, signalent les problèmes ou incidents, consultent les consignes de sécurité et communiquent avec leur chef d\'équipe. Une interface simplifiée et mobile facilite l\'utilisation au quotidien.',
+      image: 'assets/images/ouvrier4.png',
+      expanded: false
+    }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private planService: PlanAbonnementService
+  ) {}
 
-  // Méthode pour naviguer vers la page login
+  ngOnInit(): void {
+    console.log('🚀 PortailComponent initialisé');
+    this.loadPlans();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Toggle la description d'un profil (Lire plus / Lire moins)
+   */
+  toggleDescription(index: number): void {
+    this.profils[index].expanded = !this.profils[index].expanded;
+  }
+
+  /**
+   * Charge tous les plans d'abonnement et lance l'animation
+   */
+  loadPlans(): void {
+    this.isLoadingPlans = true;
+    
+    this.planService.getAllPlans()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (plans) => {
+          console.log('✅ Tous les plans chargés:', plans);
+          
+          this.groupPlansByName(plans);
+          this.planNames = Object.keys(this.allPlansByName);
+          console.log('📋 Names disponibles:', this.planNames);
+          
+          if (this.planNames.length > 0) {
+            this.showPlansForName(0);
+            this.startPlanRotation();
+          }
+          
+          this.isLoadingPlans = false;
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des plans:', error);
+          this.isLoadingPlans = false;
+        }
+      });
+  }
+
+  private groupPlansByName(plans: SubscriptionPlan[]): void {
+    this.allPlansByName = {};
+    
+    plans.forEach(plan => {
+      if (!this.allPlansByName[plan.name]) {
+        this.allPlansByName[plan.name] = {
+          premium: null,
+          basic: null
+        };
+      }
+      
+      if (plan.label === 'PREMIUM') {
+        this.allPlansByName[plan.name].premium = plan;
+      } else if (plan.label === 'BASIC') {
+        this.allPlansByName[plan.name].basic = plan;
+      }
+    });
+    
+    console.log('📊 Plans groupés par name:', this.allPlansByName);
+  }
+
+  private showPlansForName(index: number): void {
+    const name = this.planNames[index];
+    if (!name) return;
+    
+    const planGroup = this.allPlansByName[name];
+    this.currentPremiumPlan = planGroup.premium;
+    this.currentBasicPlan = planGroup.basic;
+    this.currentNameIndex = index;
+    this.animationKey++;
+    
+    console.log(`🔄 Affichage des plans pour: ${name}`, {
+      premium: this.currentPremiumPlan?.label,
+      basic: this.currentBasicPlan?.label
+    });
+  }
+
+  private startPlanRotation(): void {
+    interval(2000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const nextIndex = (this.currentNameIndex + 1) % this.planNames.length;
+        this.showPlansForName(nextIndex);
+      });
+  }
+
+  getCurrentName(): string {
+    return this.planNames[this.currentNameIndex] || '';
+  }
+
+  truncateDescription(description: string): string {
+    if (!description) return '';
+    
+    const lines = description.split('\n').filter(line => line.trim() !== '');
+    const truncated = lines.slice(0, 2).join('\n');
+    
+    return truncated;
+  }
+
+  formatAmount(amount: number): string {
+    return `${amount.toLocaleString('fr-FR')} FCFA`;
+  }
+
   goToLogin(): void {
     this.router.navigate(['/login']);
   }
@@ -113,10 +283,7 @@ export class PortailComponent {
         behavior: 'smooth'
       });
 
-      // Fermer le menu mobile après le clic
       this.mobileMenuOpen = false;
     }
   }
-  
 }
-  
