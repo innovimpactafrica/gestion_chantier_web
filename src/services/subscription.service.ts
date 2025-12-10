@@ -25,12 +25,40 @@ declare function sendPaymentInfos(
 export interface Invoice {
   id: number;
   invoiceNumber: string;
-  amount: number;
   createdAt: string;
-  paid: boolean;
-  paymentMethod: string;
+  amount: number;
   planLabel: string;
-  userName: string;
+  startDate: string;
+  endDate: string;
+  paid: boolean;
+  user?: {
+    id: number;
+    nom: string;
+    prenom: string;
+    email: string;
+    telephone: string;
+    adress: string;
+    company?: {
+      name: string;
+      logo: string;
+    };
+  };
+  subscriptionPlan?: {
+    name: string;
+    label: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    totalCost: number;
+    installmentCount: number;
+    projectLimit: number;
+  };
+  subscription?: {
+    startDate: string;
+    endDate: string;
+    paidAmount: number;
+    installmentCount: number;
+  };
 }
 
 export interface InvoiceResponse {
@@ -68,6 +96,8 @@ export interface SubscriptionPlan {
   label: string;
   description: string;
   totalCost: number;
+  startDate: string;
+  endDate: string;
   installmentCount: number;
   projectLimit: number;
   unlimitedProjects: boolean;
@@ -78,11 +108,24 @@ export interface UserSubscription {
   id: number;
   user: {
     id: number;
-    // autres propriétés utilisateur si nécessaires...
+    nom: string;
+    prenom: string;
+    email: string;
+    // autres propriétés utilisateur...
   };
   subscriptionPlan: SubscriptionPlan;
-  createdAt: string;
-  // autres propriétés de subscription si nécessaires...
+  startDate: string; // Format: "YYYY-MM-DD"
+  endDate: string;   // Format: "YYYY-MM-DD" - C'EST CE CHAMP QUI MANQUAIT
+  active: boolean;
+  paidAmount: number;
+  installmentCount: number;
+  dateInvoice: string;
+  status: 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED'; // Ajustez selon vos statuts
+  renewed: boolean;
+  currentProjectCount: number;
+  remainingProjects: number;
+  createdAt?: string;
+  properties?: any[]; // Ou définissez une interface Property si nécessaire
 }
 
 export interface CreateSubscriptionParams {
@@ -162,7 +205,26 @@ export class SubscriptionService {
         catchError(error => this.handleError(error, 'seeActive'))
       );
   }
+  
+/**
+ * Récupère une facture par son ID
+ */
+getFactureById(invoiceId: number, userId: number): Observable<Invoice> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.baseUrl}/invoices/${userId}/${invoiceId}`;
+  
+  console.log('📡 API Call: getFactureById');
+  console.log('🔗 URL:', url);
+  console.log('🧾 InvoiceId:', invoiceId);
 
+  return this.http.get<Invoice>(url, { headers })
+    .pipe(
+      tap(invoice => {
+        console.log('✅ Facture récupérée:', invoice);
+      }),
+      catchError(error => this.handleError(error, 'getFactureById'))
+    );
+}
   /**
    * Vérifie si l'utilisateur peut créer un projet
    */
@@ -286,6 +348,7 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
         console.log('  - ID Abonnement:', subscription.id);
         console.log('  - Plan:', subscription.subscriptionPlan?.name);
         console.log('  - Date création:', subscription.createdAt);
+        
       }),
       catchError(error => this.handleError(error, 'getSubscriptionByUser'))
     );

@@ -62,4 +62,5 @@ export class ProjectDetailHeaderComponent implements OnInit {
   closeQrModal(): void {
     this.showQrModal = false;
   }
+  
 }

@@ -198,7 +198,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Ascenseur
     if (this.projet.hasElevator) {
       equipements.push({
-        icon: 'assets/images/project-icons/escalier.svg',
+        icon: 'assets/images/project-icons/elevator.png',
         nom: 'Ascenseur',
         description: 'Accès aux différents niveaux'
       });
@@ -216,7 +216,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Piscine
     if (this.projet.hasSwimmingPool) {
       equipements.push({
-        icon: 'assets/images/project-icons/piscine.png', // Assurez-vous d'avoir cette icône
+        icon: 'assets/images/project-icons/swimming.png', // Assurez-vous d'avoir cette icône
         nom: 'Piscine',
         description: 'Bassin de natation'
       });
@@ -225,7 +225,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Gym
     if (this.projet.hasGym) {
       equipements.push({
-        icon: 'assets/images/project-icons/gym.png',
+        icon: 'assets/images/project-icons/muscle.png',
         nom: 'Salle de sport',
         description: 'Espace fitness équipé'
       });
@@ -252,7 +252,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Jardin
     if (this.projet.hasGarden) {
       equipements.push({
-        icon: 'assets/images/project-icons/garden.png',
+        icon: 'assets/images/project-icons/park.png',
         nom: 'Jardin',
         description: 'Espace vert paysager'
       });
@@ -261,7 +261,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Terrasse partagée
     if (this.projet.hasSharedTerrace) {
       equipements.push({
-        icon: 'assets/images/project-icons/terrace.png',
+        icon: 'assets/images/project-icons/hall.png',
         nom: 'Terrasse partagée',
         description: 'Espace extérieur commun'
       });
@@ -270,7 +270,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Stockage vélos
     if (this.projet.hasBicycleStorage) {
       equipements.push({
-        icon: 'assets/images/project-icons/bicycle.png',
+        icon: 'assets/images/project-icons/bike-parking.png',
         nom: 'Local à vélos',
         description: 'Stationnement sécurisé pour vélos'
       });
@@ -279,7 +279,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Laverie
     if (this.projet.hasLaundryRoom) {
       equipements.push({
-        icon: 'assets/images/project-icons/laundry.png',
+        icon: 'assets/images/project-icons/washing-machine.png',
         nom: 'Laverie',
         description: 'Espace buanderie commun'
       });
@@ -288,7 +288,7 @@ export class ProjectPresentationComponent implements OnInit {
     // Locaux de stockage
     if (this.projet.hasStorageRooms) {
       equipements.push({
-        icon: 'assets/images/project-icons/storage.png',
+        icon: 'assets/images/project-icons/boxes.png',
         nom: 'Locaux de stockage',
         description: 'Espaces de rangement individuels'
       });
