@@ -880,10 +880,7 @@ private genererFacturePDF(facture: Invoice, printWindow: Window): void {
 
   printWindow.document.close();
 }
-
-
-
-  private construireHTMLFacture(facture: Invoice): string {
+private construireHTMLFacture(facture: Invoice): string {
     const formatDate = (date: string) =>
       new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 
@@ -990,7 +987,7 @@ private genererFacturePDF(facture: Invoice, printWindow: Window): void {
         </div>
       </div>
     `;
-  }
+}
 
   
   onSubmit(): void {
