@@ -246,11 +246,7 @@ class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-g
   <div *ngIf="projects().length === 0 && !loading()" 
        class="text-center py-12">
     <div class="text-gray-400 text-lg mb-2">Aucun projet trouvé</div>
-    <div class="text-gray-500 text-sm">Essayez de modifier vos critères de recherche</div>
-    <button (click)="onClearSearch()" 
-            class="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">
-      Effacer les filtres
-    </button>
+
   </div>
 </div>  
 

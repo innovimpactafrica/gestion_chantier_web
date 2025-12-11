@@ -1,142 +1,31 @@
-/* material-category.component.css */
+/* material-category.component.css - Optimisé */
 
-/* Animation pour l'apparition des éléments */
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  /* Animation pour la suppression */
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-  }
-  
-  .fade-out {
-    animation: fadeOut 0.3s ease-in;
-  }
-  
-  /* Style pour les cartes de catégories */
-  .category-card {
-    @apply transition-all duration-200 ease-in-out;
-  }
-  
-  .category-card:hover {
-    @apply shadow-sm transform translate-y-0;
-  }
-  
-  /* Focus styles pour l'accessibilité */
-  .focus-visible {
-    @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
-  }
-  
-  /* Style pour les boutons d'action */
-  .action-button {
-    @apply transition-all duration-150 ease-in-out transform;
-  }
-  
-  .action-button:hover {
-    @apply scale-110;
-  }
-  
-  .action-button:active {
-    @apply scale-95;
-  }
-  
-  /* Style pour le mode édition */
-  .editing-mode {
-    @apply bg-orange-50 border-orange-200;
-  }
-  
-  /* Animation pour le changement d'état */
-  .state-transition {
-    @apply transition-all duration-300 ease-in-out;
-  }
-  
-  /* Style responsive */
-  @media (max-width: 768px) {
-    .category-item {
-      @apply flex-col items-start space-y-2;
-    }
-    
-    .category-actions {
-      @apply self-end;
-    }
-    
-    .mobile-stack {
-      @apply flex flex-col space-y-4;
-    }
-    
-    .mobile-stack > div {
-      @apply w-full;
-    }
-  }
-  
-  /* Style pour les icônes */
-  .icon-hover {
-    @apply transition-colors duration-150;
-  }
-  
-  /* Style pour les messages d'état */
-  .empty-state {
-    @apply text-center py-12;
-  }
-  
-  .empty-state svg {
-    @apply mx-auto mb-4 text-gray-300;
-    width: 3rem;
-    height: 3rem;
-  }
-  
-  /* Animation de pulsation pour les éléments de chargement */
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-  
-  .pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  /* Style pour les tooltips personnalisés */
-  .tooltip {
-    @apply invisible absolute z-10 py-1 px-2 text-xs font-medium text-white bg-gray-900 rounded-md opacity-0 transition-opacity duration-300;
-  }
-  
-  .tooltip-trigger:hover .tooltip {
-    @apply visible opacity-100;
-  }
-  
-  /* Amélioration des contrastes pour l'accessibilité */
-  .high-contrast {
-    @apply text-gray-900 bg-white border-gray-400;
-  }
-  
-  /* Style pour les états de validation */
-  .valid-input {
-    @apply border-green-300 focus:border-green-500 focus:ring-green-500;
-  }
-  
-  .invalid-input {
-    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
-  }
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-20px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.fade-out { animation: fadeOut 0.3s ease-in; }
+.pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* Cartes et boutons */
+.category-card { @apply transition-all duration-200 ease-in-out; }
+.category-card:hover { @apply shadow-sm; }
+.action-button { @apply transition-all duration-150 ease-in-out transform; }
+.action-button:hover { @apply scale-110; }
+.action-button:active { @apply scale-95; }
+
+/* États */
+.editing-mode { @apply bg-orange-50 border-orange-200; }
+.valid-input { @apply border-green-300 focus:border-green-500 focus:ring-green-500; }
+.invalid-input { @apply border-red-300 focus:border-red-500 focus:ring-red-500; }
+
+/* Accessibilité */
+.focus-visible { @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-item { @apply flex-col items-start space-y-2; }
+  .category-actions { @apply self-end; }
+}

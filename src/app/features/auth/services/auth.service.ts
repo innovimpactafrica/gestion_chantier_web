@@ -633,17 +633,31 @@ userProfile = computed(() => {
       return this.getCurrentUser();
     }
 
-    // Méthode pour mettre à jour le profil utilisateur
-    updateUserProfile(userData: Partial<User>): Observable<User> {
-      return this.http.put<User>(`${this.userApiUrl}/profile`, userData, { 
-        headers: this.getAuthHeaders() 
-      }).pipe(
-        tap(updatedUser => {
-          this._currentUser.set(updatedUser);
-          console.log('✅ Profil utilisateur mis à jour:', updatedUser);
-        })
-      );
-    }
+ // Méthode pour mettre à jour le profil utilisateur (avec ou sans photo)
+updateUserProfile(userData: Partial<User> | FormData, id: number): Observable<User> {
+  // Vérifier si userData est un FormData
+  const isFormData = userData instanceof FormData;
+  
+  // Préparer les headers en fonction du type de données
+  let headers: HttpHeaders;
+  
+  if (isFormData) {
+    // Pour FormData, ne pas définir Content-Type (le navigateur le fait automatiquement)
+    headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+  } else {
+    // Pour JSON, utiliser les headers standards
+    headers = this.getAuthHeaders();
+  }
+
+  return this.http.put<User>(`${this.userApiUrl}/${id}`, userData, { headers }).pipe(
+    tap(updatedUser => {
+      this._currentUser.set(updatedUser);
+      console.log('✅ Profil utilisateur mis à jour:', updatedUser);
+    })
+  );
+}
 
     // Méthodes utilitaires pour les informations utilisateur
     getUserInitials(): string {

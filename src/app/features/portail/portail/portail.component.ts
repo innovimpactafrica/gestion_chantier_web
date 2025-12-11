@@ -106,7 +106,6 @@ export class PortailComponent implements OnInit, OnDestroy {
     }
   ];
 
-  // Profils avec descriptions courtes et complètes
   profils: Profil[] = [
     {
       titre: 'MOA (Maître d\'Ouvrage)',
@@ -157,16 +156,10 @@ export class PortailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Toggle la description d'un profil (Lire plus / Lire moins)
-   */
   toggleDescription(index: number): void {
     this.profils[index].expanded = !this.profils[index].expanded;
   }
 
-  /**
-   * Charge tous les plans d'abonnement et lance l'animation
-   */
   loadPlans(): void {
     this.isLoadingPlans = true;
     
@@ -257,6 +250,31 @@ export class PortailComponent implements OnInit, OnDestroy {
     return `${amount.toLocaleString('fr-FR')} FCFA`;
   }
 
+  /**
+   * Marque l'intention de souscrire à un abonnement et redirige vers login
+   */
+  goToSubscription(planType: 'free' | 'basic' | 'premium'): void {
+    console.log('🎯 Intention d\'abonnement:', planType);
+    
+    // Sauvegarder l'intention dans sessionStorage
+    sessionStorage.setItem('subscription_intent', planType);
+    sessionStorage.setItem('redirect_after_login', '/mon-compte');
+    sessionStorage.setItem('compte_tab', 'abonnements');
+    
+    // Vérification immédiate
+    console.log('✅ SessionStorage enregistré:', {
+      subscription_intent: sessionStorage.getItem('subscription_intent'),
+      redirect_after_login: sessionStorage.getItem('redirect_after_login'),
+      compte_tab: sessionStorage.getItem('compte_tab')
+    });
+    
+    // Rediriger vers login
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Redirection standard vers login
+   */
   goToLogin(): void {
     this.router.navigate(['/login']);
   }

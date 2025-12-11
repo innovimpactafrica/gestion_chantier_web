@@ -1,70 +1,28 @@
-/* document.component.css */
+/* document.component.css - Optimisé */
 
-/* Styles personnalisés pour améliorer l'apparence */
+/* Checkbox personnalisé */
 .checkbox-custom {
-    @apply appearance-none h-4 w-4 border border-gray-300 rounded bg-white checked:bg-orange-500 checked:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
-  }
-  
-  .checkbox-custom:checked {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
-  }
-  
-  /* Animation pour les boutons */
-  .btn-hover-scale {
-    transition: transform 0.1s ease-in-out;
-  }
-  
-  .btn-hover-scale:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Style pour les icônes de statut */
-  .status-icon {
-    transition: all 0.2s ease-in-out;
-  }
-  
-  /* Amélioration de l'accessibilité */
-  .focus-visible {
-    @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
-  }
-  
-  /* Style pour les lignes du tableau au survol */
-  tbody tr:hover {
-    @apply bg-gray-50 transition-colors duration-150;
-  }
-  
-  /* Animation pour l'ajout de nouveaux éléments */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  /* Responsive improvements */
-  @media (max-width: 768px) {
-    .table-responsive {
-      font-size: 0.875rem;
-    }
-    
-    .table-responsive th,
-    .table-responsive td {
-      padding: 0.5rem;
-    }
-    
-    .mobile-stack {
-      @apply flex flex-col space-y-4;
-    }
-    
-    .mobile-stack > div {
-      @apply w-full;
-    }
-  }
+  @apply appearance-none h-4 w-4 border border-gray-300 rounded bg-white checked:bg-orange-500 checked:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+}
+
+.checkbox-custom:checked {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+}
+
+/* Transition pour les boutons et lignes */
+.btn-hover-scale { transition: transform 0.1s ease-in-out; }
+.btn-hover-scale:hover { transform: scale(1.05); }
+tbody tr:hover { @apply bg-gray-50 transition-colors duration-150; }
+
+/* Accessibilité */
+.focus-visible { @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2; }
+
+/* Animation fade-in */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-responsive { font-size: 0.875rem; }
+  .table-responsive th, .table-responsive td { padding: 0.5rem; }
+}

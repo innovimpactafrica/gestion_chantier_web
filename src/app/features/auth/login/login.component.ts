@@ -323,7 +323,7 @@ navigateToHome (){
       });
       return;
     }
-
+    
     // ✅ PRIORITÉ 3: Redirection SUPPLIER
     if (isSUPPLIER) {
       console.log('✅ Redirection vers dashboard fournisseur');

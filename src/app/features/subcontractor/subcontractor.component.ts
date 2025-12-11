@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UtilisateurService, Worker, WorkersResponse } from '../../../services/utilisateur.service';
+import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
 
 interface SubcontractorMember {
   id: number;
@@ -11,7 +11,7 @@ interface SubcontractorMember {
   email: string;
   status: 'active' | 'inactive';
   selected: boolean;
-  originalWorker?: Worker;
+  originalUser?: User;
 }
 
 @Component({
@@ -26,55 +26,81 @@ export class SubcontractorComponent implements OnInit {
   searchTerm = '';
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   nouveauSousTraitant = {
     raisonSociale: '',
     nomContact: '',
+    prenom: '',
     telephone: '',
-    email: ''
+    email: '',
+    password: '',
+    dateNaissance: '',
+    lieuNaissance: '',
+    adresse: ''
   };
 
   allSubcontractors: SubcontractorMember[] = [];
   displayedMembers: SubcontractorMember[] = [];
   currentPage = 1;
   totalPages = 1;
-  itemsPerPage = 5; // Changé de 10 à 5
+  itemsPerPage = 5;
   selectAll = false;
   totalMembers = 0;
   startIndex = 1;
-  endIndex = 5; // Changé de 10 à 5
+  endIndex = 5;
   searchQuery: string = '';
 
-  constructor(private utilisateurService: UtilisateurService) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit() {
     this.loadSubcontractors();
   }
 
   /**
-   * Charge les sous-traitants depuis l'API
+   * Charge les sous-traitants depuis l'API en utilisant getUserByProfil
    */
   loadSubcontractors() {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.utilisateurService.getSubcontractors(this.currentPage - 1, this.itemsPerPage)
-      .subscribe({
-        next: (response: WorkersResponse) => {
-          this.allSubcontractors = response.content.map(worker => 
-            UtilisateurService.workerToSubcontractor(worker)
-          );
-          this.totalMembers = response.totalElements;
-          this.totalPages = response.totalPages;
-          this.updatePaginationData();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des sous-traitants:', error);
-          this.errorMessage = 'Erreur lors du chargement des sous-traitants';
-          this.isLoading = false;
-        }
-      });
+    this.userService.getUserByProfil(
+      'SUBCONTRACTOR', 
+      this.searchQuery || undefined,
+      this.currentPage - 1, 
+      this.itemsPerPage
+    ).subscribe({
+      next: (response: UserPageResponse) => {
+        console.log('✅ Sous-traitants chargés:', response);
+        
+        this.allSubcontractors = response.content.map(user => this.userToSubcontractor(user));
+        this.totalMembers = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.updatePaginationData();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des sous-traitants:', error);
+        this.errorMessage = error.userMessage || 'Erreur lors du chargement des sous-traitants';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Convertit un User en SubcontractorMember
+   */
+  private userToSubcontractor(user: User): SubcontractorMember {
+    return {
+      id: user.id,
+      raisonSociale: user.company?.nom || user.nom + ' ' + user.prenom,
+      nomContact: user.nom + ' ' + user.prenom,
+      telephone: user.telephone,
+      email: user.email,
+      status: user.activated ? 'active' : 'inactive',
+      selected: false,
+      originalUser: user
+    };
   }
 
   /**
@@ -92,21 +118,11 @@ export class SubcontractorComponent implements OnInit {
   }
 
   /**
-   * Filtre les sous-traitants affichés selon le terme de recherche
+   * Recherche les sous-traitants
    */
-  filterDisplayedMembers() {
-    if (!this.searchQuery.trim()) {
-      this.displayedMembers = this.allSubcontractors;
-    } else {
-      const query = this.searchQuery.toLowerCase();
-      this.displayedMembers = this.allSubcontractors.filter(member =>
-        member.nomContact.toLowerCase().includes(query) ||
-        member.raisonSociale.toLowerCase().includes(query) ||
-        member.email.toLowerCase().includes(query) ||
-        member.telephone.includes(query)
-      );
-    }
-    this.updateSelectAllState();
+  searchProjects(): void {
+    this.currentPage = 1;
+    this.loadSubcontractors();
   }
 
   toggleSelectAll() {
@@ -180,81 +196,204 @@ export class SubcontractorComponent implements OnInit {
     return pages;
   }
 
-  // Recherche 
-  searchProjects(): void {
-    this.filterDisplayedMembers();
-  }
-
-  // Ouvrir le modal
+  /**
+   * Ouvre le modal
+   */
   openModal() {
     this.showModal = true;
+    this.errorMessage = '';
+    this.successMessage = '';
     this.nouveauSousTraitant = {
       raisonSociale: '',
       nomContact: '',
+      prenom: '',
       telephone: '',
-      email: ''
+      email: '',
+      password: '',
+      dateNaissance: '',
+      lieuNaissance: '',
+      adresse: ''
     };
   }
 
-  // Fermer le modal
+  /**
+   * Ferme le modal
+   */
   closeModal() {
     this.showModal = false;
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
-  // Ajouter un nouveau sous-traitant
+  /**
+   * Ajoute un nouveau sous-traitant en utilisant createUser du UserService
+   */
   ajouterSousTraitant() {
-    if (this.nouveauSousTraitant.raisonSociale && 
-        this.nouveauSousTraitant.nomContact && 
-        this.nouveauSousTraitant.telephone && 
-        this.nouveauSousTraitant.email) {
+    // Validation des champs obligatoires
+    if (!this.nouveauSousTraitant.nomContact || 
+        !this.nouveauSousTraitant.prenom ||
+        !this.nouveauSousTraitant.telephone || 
+        !this.nouveauSousTraitant.email ||
+        !this.nouveauSousTraitant.password ||
+        !this.nouveauSousTraitant.dateNaissance ||
+        !this.nouveauSousTraitant.lieuNaissance ||
+        !this.nouveauSousTraitant.adresse) {
       
-      // TODO: Implémenter l'appel API pour créer un nouveau sous-traitant
-      // Pour l'instant, on simule l'ajout local
-      const nouveauMembre: SubcontractorMember = {
-        id: Date.now(), // ID temporaire
-        raisonSociale: this.nouveauSousTraitant.raisonSociale,
-        nomContact: this.nouveauSousTraitant.nomContact,
-        telephone: this.nouveauSousTraitant.telephone,
-        email: this.nouveauSousTraitant.email,
-        status: 'active',
-        selected: false
-      };
-
-      this.allSubcontractors.push(nouveauMembre);
-      this.totalMembers++;
-      this.filterDisplayedMembers();
-      this.closeModal();
-      
-      console.log('Sous-traitant ajouté avec succès !');
-    } else {
-      console.log('Veuillez remplir tous les champs obligatoires');
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
+      return;
     }
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.nouveauSousTraitant.email)) {
+      this.errorMessage = 'Veuillez saisir une adresse email valide';
+      return;
+    }
+
+    // Validation téléphone (format simple)
+    if (this.nouveauSousTraitant.telephone.length < 9) {
+      this.errorMessage = 'Veuillez saisir un numéro de téléphone valide';
+      return;
+    }
+
+    // Validation mot de passe
+    if (this.nouveauSousTraitant.password.length < 6) {
+      this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Création de l'objet CreateUserRequest avec le profil SUBCONTRACTOR
+    const createUserData: CreateUserRequest = {
+      nom: this.nouveauSousTraitant.nomContact,
+      prenom: this.nouveauSousTraitant.prenom,
+      email: this.nouveauSousTraitant.email,
+      password: this.nouveauSousTraitant.password,
+      telephone: this.nouveauSousTraitant.telephone,
+      date: this.nouveauSousTraitant.dateNaissance,
+      lieunaissance: this.nouveauSousTraitant.lieuNaissance,
+      adress: this.nouveauSousTraitant.adresse,
+      profil: 'SUBCONTRACTOR' // Profil par défaut
+    };
+
+    console.log('📤 Création d\'un sous-traitant:', createUserData);
+
+    this.userService.createUser(createUserData).subscribe({
+      next: (response) => {
+        console.log('✅ Sous-traitant créé avec succès:', response);
+        this.successMessage = 'Sous-traitant ajouté avec succès !';
+        
+        // Recharger la liste
+        this.loadSubcontractors();
+        
+        // Fermer le modal après 1.5 secondes
+        setTimeout(() => {
+          this.closeModal();
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la création du sous-traitant:', error);
+        this.errorMessage = error.userMessage || 'Erreur lors de la création du sous-traitant';
+        this.isLoading = false;
+      }
+    });
   }
 
   /**
    * Supprime les sous-traitants sélectionnés
    */
   deleteSelectedSubcontractors() {
-    const selectedIds = this.displayedMembers
-      .filter(member => member.selected)
-      .map(member => member.id);
+    const selectedMembers = this.displayedMembers.filter(member => member.selected);
 
-    if (selectedIds.length > 0) {
-      // TODO: Implémenter l'appel API pour supprimer
-      this.allSubcontractors = this.allSubcontractors.filter(
-        member => !selectedIds.includes(member.id)
-      );
-      this.totalMembers = this.allSubcontractors.length;
-      this.filterDisplayedMembers();
-      console.log(`${selectedIds.length} sous-traitant(s) supprimé(s)`);
+    if (selectedMembers.length === 0) {
+      this.errorMessage = 'Veuillez sélectionner au moins un sous-traitant à supprimer';
+      return;
     }
+
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedMembers.length} sous-traitant(s) ?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    let deletedCount = 0;
+    let errorCount = 0;
+
+    selectedMembers.forEach((member, index) => {
+      this.userService.deleteUser(member.id).subscribe({
+        next: () => {
+          deletedCount++;
+          console.log(`✅ Sous-traitant ${member.nomContact} supprimé`);
+          
+          // Si c'est le dernier élément traité
+          if (index === selectedMembers.length - 1) {
+            this.finishDeletion(deletedCount, errorCount);
+          }
+        },
+        error: (error) => {
+          errorCount++;
+          console.error(`❌ Erreur suppression ${member.nomContact}:`, error);
+          
+          // Si c'est le dernier élément traité
+          if (index === selectedMembers.length - 1) {
+            this.finishDeletion(deletedCount, errorCount);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Finalise la suppression
+   */
+  private finishDeletion(deletedCount: number, errorCount: number) {
+    this.isLoading = false;
+    
+    if (deletedCount > 0) {
+      this.successMessage = `${deletedCount} sous-traitant(s) supprimé(s) avec succès`;
+      this.loadSubcontractors();
+    }
+    
+    if (errorCount > 0) {
+      this.errorMessage = `${errorCount} erreur(s) lors de la suppression`;
+    }
+
+    setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }, 3000);
   }
 
   /**
    * Exporte les données des sous-traitants
    */
   exportData() {
-    // TODO: Implémenter l'export (CSV, Excel, etc.)
-    console.log('Export des données des sous-traitants');
+    console.log('📊 Export des données des sous-traitants');
+    
+    // Créer le contenu CSV
+    const headers = ['ID', 'Raison Sociale', 'Nom Contact', 'Téléphone', 'Email', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...this.allSubcontractors.map(sub => 
+        `${sub.id},"${sub.raisonSociale}","${sub.nomContact}",${sub.telephone},${sub.email},${sub.status}`
+      )
+    ].join('\n');
+
+    // Créer un blob et télécharger
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `sous-traitants_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.successMessage = 'Export réussi !';
+    setTimeout(() => this.successMessage = '', 3000);
   }
 }

@@ -12,7 +12,8 @@ interface TeamMember {
   id: number;
   name: string;
   role: string;
-  phone: string;
+  telephone: string;
+  present: boolean;
   address: string;
   email: string;
   avatar: string;
@@ -52,7 +53,7 @@ export class TeamListComponent implements OnInit {
 
   // Variables pour le popup d'ajout
   showAddMemberModal = false;
-  newMember: any = {
+  newMember: CreateWorkerRequest = {
     nom: '',
     prenom: '',
     email: '',
@@ -73,10 +74,13 @@ export class TeamListComponent implements OnInit {
   isLoadingDetails = false;
   detailsError: string | null = null;
 
-  // Date picker - Variables mises à jour
+  // Date picker
   showDatePicker = false;
   selectedDate: Date | null = null;
   currentDate = new Date();
+  calendarDays: Array<{day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date}> = [];
+  currentMonthYear = '';
+
   currentMonth: number = new Date().getMonth();
   currentYear: number = new Date().getFullYear();
 
@@ -88,6 +92,7 @@ export class TeamListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.generateCalendar();
     this.getPropertyIdAndLoadData();
   }
 
@@ -118,10 +123,10 @@ export class TeamListComponent implements OnInit {
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
         this.isLoading = false;
-        console.log(response.content);
+        console.log('Workers chargés:', response.content);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des utilisateurs:', error);
+        console.error('Erreur lors du chargement des workers:', error);
         this.error = 'Erreur lors du chargement des membres de l\'équipe';
         this.isLoading = false;
       }
@@ -133,7 +138,8 @@ export class TeamListComponent implements OnInit {
       id: worker.id,
       name: `${worker.prenom} ${worker.nom}`,
       role: this.mapRole(worker.profil),
-      phone: worker.telephone,
+      telephone: worker.telephone,
+      present: worker.present,
       address: worker.adress,
       email: worker.email,
       avatar: worker.photo || this.getDefaultAvatar(),
@@ -163,12 +169,23 @@ export class TeamListComponent implements OnInit {
     return defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
   }
 
+  // Méthode pour convertir boolean en Oui/Non
+  getPresentText(present: boolean): string {
+    return present ? 'Oui' : 'Non';
+  }
+
+  // Méthode pour obtenir la classe CSS selon le statut de présence
+  getPresentClass(present: boolean): string {
+    return present 
+      ? 'inline-block px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full'
+      : 'inline-block px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full';
+  }
+
   viewMember(member: TeamMember): void {
     this.selectedMember = { ...member };
     this.showViewModal = true;
     this.isLoadingDetails = true;
     this.detailsError = null;
-    this.selectedDate = null; // Réinitialiser la date sélectionnée
     document.body.style.overflow = 'hidden';
 
     const performance$ = this.detailsWorkerService.getPerformanceAndTask(member.id).pipe(
@@ -270,92 +287,48 @@ export class TeamListComponent implements OnInit {
     return taskDistribution;
   }
 
-  private transformPresenceHistory(presenceData: PresenceHistory): Array<{
-    date: string;
-    sessions: Array<{ entry: string; exit: string }>;
-    totalTime: string;
-  }> {
-    if (!presenceData.logs || presenceData.logs.length === 0) {
-      return [];
-    }
-
-    const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
-
-    presenceData.logs.forEach(log => {
-      const dateStr = this.formatDateFromArray(log.checkInTime);
-      const entryTime = this.formatTimeFromArray(log.checkInTime);
-      const exitTime = this.formatTimeFromArray(log.checkOutTime);
-
-      if (!groupedByDate.has(dateStr)) {
-        groupedByDate.set(dateStr, []);
-      }
-
-      groupedByDate.get(dateStr)!.push({
-        entry: entryTime,
-        exit: exitTime
-      });
-    });
-
-    const result: Array<{
-      date: string;
-      sessions: Array<{ entry: string; exit: string }>;
-      totalTime: string;
-    }> = [];
-
-    groupedByDate.forEach((sessions, date) => {
-      const totalMinutes = sessions.reduce((total, session) => {
-        return total + this.calculateMinutesBetween(session.entry, session.exit);
-      }, 0);
-
-      result.push({
-        date,
-        sessions,
-        totalTime: this.formatDuration(totalMinutes)
-      });
-    });
-
-    result.sort((a, b) => {
-      const dateA = this.parseDateString(a.date);
-      const dateB = this.parseDateString(b.date);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    return result;
+  getTaskDistributionTotal(): number {
+    if (!this.selectedMember?.taskDistribution) return 0;
+    return Object.values(this.selectedMember.taskDistribution).reduce((sum, val) => sum + val, 0);
   }
 
-  private formatDateFromArray(timeArray: number[]): string {
-    if (!timeArray || timeArray.length < 3) return '';
+  calculateStrokeDasharray(percentage: number): string {
+    const circumference = 440;
+    const value = (percentage / 100) * circumference;
+    return `${value} ${circumference}`;
+  }
+
+  calculateStrokeDashoffset(startPercentage: number): number {
+    const circumference = 440;
+    return -(startPercentage / 100) * circumference;
+  }
+
+  getTaskOffsets(): { [key: string]: number } {
+    if (!this.selectedMember?.taskDistribution) return {};
     
-    const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
-    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
-                    'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
-    
-    return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+    const offsets: { [key: string]: number } = {
+      'Terminées': 0,
+      'En Cours': 0,
+      'À Faire': 0,
+      'En Retard': 0
+    };
+
+    offsets['Terminées'] = 0;
+    offsets['En Cours'] = -(this.selectedMember.taskDistribution['Terminées'] || 0);
+    offsets['À Faire'] = -(
+      (this.selectedMember.taskDistribution['Terminées'] || 0) +
+      (this.selectedMember.taskDistribution['En Cours'] || 0)
+    );
+    offsets['En Retard'] = -(
+      (this.selectedMember.taskDistribution['Terminées'] || 0) +
+      (this.selectedMember.taskDistribution['En Cours'] || 0) +
+      (this.selectedMember.taskDistribution['À Faire'] || 0)
+    );
+
+    return offsets;
   }
 
-  private formatTimeFromArray(timeArray: number[]): string {
-    if (!timeArray || timeArray.length < 5) return '00:00';
-    const hours = timeArray[3].toString().padStart(2, '0');
-    const minutes = timeArray[4].toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
 
-  private calculateMinutesBetween(entry: string, exit: string): number {
-    const [entryH, entryM] = entry.split(':').map(Number);
-    const [exitH, exitM] = exit.split(':').map(Number);
-    
-    const entryMinutes = entryH * 60 + entryM;
-    const exitMinutes = exitH * 60 + exitM;
-    
-    return exitMinutes - entryMinutes;
-  }
-
-  private formatDuration(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins.toString().padStart(2, '0')}min`;
-  }
 
   private parseDateString(dateStr: string): Date {
     const parts = dateStr.split(' ');
@@ -376,7 +349,6 @@ export class TeamListComponent implements OnInit {
     this.selectedMember = null;
     this.detailsError = null;
     this.selectedDate = null;
-    this.showDatePicker = false;
     document.body.style.overflow = 'auto';
   }
 
@@ -384,94 +356,25 @@ export class TeamListComponent implements OnInit {
     if (event.target === event.currentTarget) this.closeViewModal();
   }
 
-  // ==================== MÉTHODES DU CALENDRIER ====================
-  
-  get currentMonthYear(): string {
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
-                    'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    return `${months[this.currentMonth]} ${this.currentYear}`;
-  }
-
-  toggleDatePicker(): void {
-    this.showDatePicker = !this.showDatePicker;
-  }
-
-  previousMonth(): void {
-    if (this.currentMonth === 0) {
-      this.currentMonth = 11;
-      this.currentYear--;
-    } else {
-      this.currentMonth--;
-    }
-  }
-
-  nextMonth(): void {
-    if (this.currentMonth === 11) {
-      this.currentMonth = 0;
-      this.currentYear++;
-    } else {
-      this.currentMonth++;
-    }
-  }
-
-  getEmptyDays(): number[] {
-    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
-    // Ajuster pour que lundi soit le premier jour (0)
-    const adjusted = firstDay === 0 ? 6 : firstDay - 1;
-    return Array(adjusted).fill(0);
-  }
-
-  getCalendarDays(): number[] {
-    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  }
-
-  getDayClasses(day: number): string {
-    const date = new Date(this.currentYear, this.currentMonth, day);
-    const today = new Date();
-    
-    const isSelected = this.selectedDate && 
-                      this.selectedDate.getDate() === day &&
-                      this.selectedDate.getMonth() === this.currentMonth &&
-                      this.selectedDate.getFullYear() === this.currentYear;
-    
-    const isToday = today.getDate() === day &&
-                   today.getMonth() === this.currentMonth &&
-                   today.getFullYear() === this.currentYear;
-
-    if (isSelected) {
-      return 'bg-orange-500 text-white rounded-full font-semibold';
-    }
-    if (isToday) {
-      return 'border-2 border-orange-500 rounded-full font-semibold text-orange-600';
-    }
-    return 'hover:bg-gray-100 rounded cursor-pointer';
-  }
-
-  selectDate(day: number): void {
-    this.selectedDate = new Date(this.currentYear, this.currentMonth, day);
-    this.showDatePicker = false;
-  }
-
-  // Filtrage de l'historique par date sélectionnée
   getFilteredPresenceHistory(): Array<{
     date: string;
     sessions: Array<{ entry: string; exit: string }>;
     totalTime: string;
   }> {
     if (!this.selectedMember?.presenceHistory) return [];
-    
+   
     // Si aucune date n'est sélectionnée, afficher tout l'historique
     if (!this.selectedDate) {
       return this.selectedMember.presenceHistory;
     }
-
+ 
     // Filtrer par la date sélectionnée
     const selectedDateStr = this.formatSelectedDate(this.selectedDate);
-    return this.selectedMember.presenceHistory.filter(item => 
+    return this.selectedMember.presenceHistory.filter(item =>
       item.date === selectedDateStr
     );
   }
+
 
   private formatSelectedDate(date: Date): string {
     const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -481,22 +384,290 @@ export class TeamListComponent implements OnInit {
     return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
   }
 
-  // Calcul du temps total travaillé (filtré)
-  getTotalWorkedTime(): string {
-    if (!this.selectedMember?.presenceHistory) return '0h 00min';
-    
-    const history = this.getFilteredPresenceHistory();
-    const totalMinutes = history.reduce((total, day) => {
-      return total + day.sessions.reduce((dayTotal, session) => {
-        return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
-      }, 0);
-    }, 0);
-    
-    return this.formatDuration(totalMinutes);
+ 
+/**
+ * Transforme l'historique de présence depuis l'API
+ */
+private transformPresenceHistory(presenceData: PresenceHistory): Array<{
+  date: string;
+  sessions: Array<{ entry: string; exit: string }>;
+  totalTime: string;
+}> {
+  console.log('📊 Transformation de l\'historique de présence:', presenceData);
+  
+  if (!presenceData.logs || presenceData.logs.length === 0) {
+    console.log('⚠️ Aucun log de présence trouvé');
+    return [];
   }
 
-  // ==================== MÉTHODES DE PAGINATION ====================
+  const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
+
+  presenceData.logs.forEach(log => {
+    console.log('🔍 Processing log:', log);
+    
+    const dateStr = this.formatDateFromArray(log.checkInTime);
+    const entryTime = this.formatTimeFromArray(log.checkInTime);
+    const exitTime =this.formatTimeFromArray(log.checkOutTime);
+    
+    console.log(`📅 Date: ${dateStr}, Entrée: ${entryTime}, Sortie: ${exitTime}`);
+
+    if (!groupedByDate.has(dateStr)) {
+      groupedByDate.set(dateStr, []);
+    }
+
+    groupedByDate.get(dateStr)!.push({
+      entry: entryTime,
+      exit: exitTime
+    });
+  });
+
+  const result: Array<{
+    date: string;
+    sessions: Array<{ entry: string; exit: string }>;
+    totalTime: string;
+  }> = [];
+
+  groupedByDate.forEach((sessions, date) => {
+    // Calculer le temps total uniquement pour les sessions complètes (avec sortie)
+    const totalMinutes = sessions.reduce((total, session) => {
+      if (session.exit === 'En cours') return total;
+      return total + this.calculateMinutesBetween(session.entry, session.exit);
+    }, 0);
+
+    result.push({
+      date,
+      sessions,
+      totalTime: this.formatDuration(totalMinutes)
+    });
+  });
+
+  // Trier par date décroissante (plus récent d'abord)
+  result.sort((a, b) => {
+    const dateA = this.parseDateString(a.date);
+    const dateB = this.parseDateString(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  console.log('✅ Historique transformé:', result);
+  return result;
+}
+
+/**
+ * Formate une date depuis un tableau de nombres [année, mois, jour, heure?, minute?]
+ * Exemple: [2024, 12, 8] → "Dim. 8 déc. 2024"
+ */
+private formatDateFromArray(timeArray: number[]): string {
+  if (!timeArray || timeArray.length < 3) {
+    console.error('❌ Tableau de date invalide:', timeArray);
+    return 'Date invalide';
+  }
   
+  const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+  const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
+                  'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+  
+  const formattedDate = `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+  console.log(`📅 Date formatée: ${formattedDate} depuis`, timeArray);
+  
+  return formattedDate;
+}
+
+/**
+ * Formate une heure depuis un tableau de nombres [heure, minute, seconde, nanosecondes]
+ * Exemple: [10, 38, 3, 935000000] → "10:38"
+ */
+private formatTimeFromArray(timeArray: number[]): string {
+  console.log('🕐 Formatage de l\'heure depuis:', timeArray);
+  
+  if (!timeArray || timeArray.length < 2) {
+    console.error('❌ Tableau d\'heure invalide ou incomplet:', timeArray);
+    return '--:--';
+  }
+  
+  // timeArray = [heure, minute, seconde, nanosecondes]
+  const hours = timeArray[0].toString().padStart(2, '0');
+  const minutes = timeArray[1].toString().padStart(2, '0');
+  const formattedTime = `${hours}:${minutes}`;
+  
+  console.log(`🕐 Heure formatée: ${formattedTime}`);
+  return formattedTime;
+}
+
+/**
+ * Calcule la différence en minutes entre deux heures au format HH:mm
+ */
+private calculateMinutesBetween(entry: string, exit: string): number {
+  console.log(`⏱️ Calcul durée entre ${entry} et ${exit}`);
+  
+  // Si l'heure de sortie est "En cours" ou invalide, retourner 0
+  if (exit === 'En cours' || exit === '--:--' || !exit.includes(':')) {
+    console.log('⚠️ Sortie en cours ou invalide, durée = 0');
+    return 0;
+  }
+  
+  const [entryH, entryM] = entry.split(':').map(Number);
+  const [exitH, exitM] = exit.split(':').map(Number);
+  
+  // Vérifier que les valeurs sont valides
+  if (isNaN(entryH) || isNaN(entryM) || isNaN(exitH) || isNaN(exitM)) {
+    console.error('❌ Heures invalides:', { entry, exit });
+    return 0;
+  }
+  
+  const entryMinutes = entryH * 60 + entryM;
+  const exitMinutes = exitH * 60 + exitM;
+  
+  const duration = exitMinutes - entryMinutes;
+  console.log(`✅ Durée calculée: ${duration} minutes`);
+  
+  return duration > 0 ? duration : 0;
+}
+
+/**
+ * Formate une durée en minutes vers le format "Xh XXmin"
+ */
+private formatDuration(minutes: number): string {
+  if (minutes <= 0) {
+    return '0h 00min';
+  }
+  
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}h ${mins.toString().padStart(2, '0')}min`;
+}
+
+/**
+ * Obtient le temps total travaillé (filtré ou complet)
+ */
+getTotalWorkedTime(): string {
+  console.log('📊 Calcul du temps total travaillé');
+  
+  // Si le selectedMember a déjà le totalWorkedTime de l'API, l'utiliser
+  if (this.selectedMember?.totalWorkedTime && !this.selectedDate) {
+    console.log('✅ Utilisation du temps total depuis l\'API:', this.selectedMember.totalWorkedTime);
+    return this.selectedMember.totalWorkedTime;
+  }
+  
+  // Sinon, calculer depuis l'historique filtré
+  if (!this.selectedMember?.presenceHistory) {
+    console.log('⚠️ Pas d\'historique de présence');
+    return '0h 00min';
+  }
+  
+  const history = this.getFilteredPresenceHistory();
+  const totalMinutes = history.reduce((total, day) => {
+    return total + day.sessions.reduce((dayTotal, session) => {
+      // Ne compter que les sessions terminées
+      if (session.exit === 'En cours' || session.exit === '--:--') {
+        return dayTotal;
+      }
+      return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
+    }, 0);
+  }, 0);
+  
+  const result = this.formatDuration(totalMinutes);
+  console.log(`✅ Temps total calculé: ${result}`);
+  return result;
+}
+  toggleDatePicker(): void {
+    this.showDatePicker = !this.showDatePicker;
+    if (this.showDatePicker) {
+      this.generateCalendar();
+    }
+  }
+
+  generateCalendar(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    this.currentMonthYear = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    
+    const daysInMonth = lastDay.getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    this.calendarDays = [];
+    
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: false,
+        isToday: false,
+        isSelected: false,
+        date: new Date(year, month - 1, day)
+      });
+    }
+    
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const isToday = date.toDateString() === today.toDateString();
+      const isSelected = this.selectedDate ? date.toDateString() === this.selectedDate.toDateString() : false;
+      
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: true,
+        isToday,
+        isSelected,
+        date
+      });
+    }
+    
+    const remainingDays = 35 - this.calendarDays.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: false,
+        isToday: false,
+        isSelected: false,
+        date: new Date(year, month + 1, day)
+      });
+    }
+  }
+
+  previousMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  selectDate(day: any): void {
+    if (!day.isCurrentMonth) return;
+    
+    this.selectedDate = day.date;
+    this.generateCalendar();
+    
+    setTimeout(() => {
+      this.showDatePicker = false;
+    }, 200);
+  }
+
+  getDayClasses(day: any): string {
+    const classes = [];
+    
+    if (!day.isCurrentMonth) {
+      classes.push('text-gray-300 cursor-not-allowed');
+    } else if (day.isToday) {
+      classes.push('bg-orange-500 text-white hover:bg-orange-600');
+    } else if (day.isSelected) {
+      classes.push('bg-orange-100 text-orange-600 hover:bg-orange-200');
+    } else {
+      classes.push('text-gray-700 hover:bg-gray-100');
+    }
+    
+    return classes.join(' ');
+  }
+
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
@@ -555,8 +726,6 @@ export class TeamListComponent implements OnInit {
     this.loadTeamMembers();
   }
 
-  // ==================== MÉTHODES POUR L'AJOUT DE MEMBRE ====================
-  
   openAddMemberModal(): void {
     this.showAddMemberModal = true;
     this.resetNewMemberForm();
@@ -632,6 +801,18 @@ export class TeamListComponent implements OnInit {
     return emailRegex.test(email);
   }
 
+  getEmptyDays(): number[] {
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+    // Ajuster pour que lundi soit le premier jour (0)
+    const adjusted = firstDay === 0 ? 6 : firstDay - 1;
+    return Array(adjusted).fill(0);
+  }
+ 
+  getCalendarDays(): number[] {
+    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  }
+
   private formatDateForAPI(dateString: string): string {
     if (!dateString) return '';
     if (dateString.match(/^\d{2}-\d{2}-\d{4}$/)) return dateString;
@@ -645,11 +826,16 @@ export class TeamListComponent implements OnInit {
   submitAddMember(): void {
     if (!this.validateForm()) return;
 
+    if (this.currentPropertyId === null) {
+      this.submitError = 'ID de propriété non disponible';
+      return;
+    }
+  
     this.isSubmitting = true;
     this.submitError = null;
     this.submitSuccess = null;
-
-    const userData = {
+  
+    const userData: CreateWorkerRequest = {
       nom: this.newMember.nom.trim(),
       prenom: this.newMember.prenom.trim(),
       email: this.newMember.email.trim(),
@@ -660,22 +846,37 @@ export class TeamListComponent implements OnInit {
       adress: this.newMember.adress.trim(),
       profil: this.newMember.profil
     };
-
-    this.utilisateurService.createUser(userData).subscribe({
+  
+    console.log('📤 Création du worker pour propertyId:', this.currentPropertyId);
+    console.log('📤 Données du worker:', userData);
+  
+    this.utilisateurService.createWorker(userData, this.currentPropertyId).subscribe({
       next: (response) => {
+        console.log('✅ Worker créé avec succès:', response);
         this.isSubmitting = false;
         this.submitSuccess = 'Membre ajouté avec succès!';
+        
         setTimeout(() => {
           this.closeAddMemberModal();
+          this.currentPage = 1;
           this.loadTeamMembers();
         }, 1500);
       },
       error: (error) => {
         this.isSubmitting = false;
-        console.error('Erreur lors de la création du membre:', error);
-        if (error.status === 400) this.submitError = 'Données invalides. Vérifiez les informations saisies.';
-        else if (error.status === 409) this.submitError = 'Un utilisateur avec cet email existe déjà.';
-        else this.submitError = 'Erreur lors de l\'ajout du membre. Veuillez réessayer.';
+        console.error('❌ Erreur lors de la création du worker:', error);
+        
+        if (error.status === 400) {
+          this.submitError = 'Données invalides. Vérifiez les informations saisies.';
+        } else if (error.status === 409) {
+          this.submitError = 'Un utilisateur avec cet email existe déjà.';
+        } else if (error.status === 401) {
+          this.submitError = 'Session expirée. Veuillez vous reconnecter.';
+        } else if (error.status === 403) {
+          this.submitError = 'Vous n\'avez pas les permissions nécessaires.';
+        } else {
+          this.submitError = error.error?.message || 'Erreur lors de l\'ajout du membre. Veuillez réessayer.';
+        }
       }
     });
   }

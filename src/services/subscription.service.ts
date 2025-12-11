@@ -104,6 +104,7 @@ export interface SubscriptionPlan {
   yearlyDiscountRate: number;
   active: boolean;
 }
+
 export interface UserSubscription {
   id: number;
   user: {
@@ -115,7 +116,7 @@ export interface UserSubscription {
   };
   subscriptionPlan: SubscriptionPlan;
   startDate: string; // Format: "YYYY-MM-DD"
-  endDate: string;   // Format: "YYYY-MM-DD" - C'EST CE CHAMP QUI MANQUAIT
+  endDate: string;   // Format: "YYYY-MM-DD"
   active: boolean;
   paidAmount: number;
   installmentCount: number;
@@ -172,7 +173,6 @@ export class SubscriptionService {
     private authService: AuthService
   ) {
     console.log('🔧 SubscriptionService initialisé');
-    // Vérification du script OneTouch au démarrage
     this.checkOneTouchScript();
   }
 
@@ -391,7 +391,21 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
   }
 
   /**
-   * Lance le processus de paiement OneTouch
+   * ✨ NOUVELLE MÉTHODE : Construit l'URL de callback après paiement
+   */
+  private buildCallbackUrl(userId: number, planId: number, months: number): string {
+    const baseUrl = window.location.origin;
+    
+    // URL de succès : redirige vers /mon-compte avec les paramètres de paiement
+    const successUrl = `${baseUrl}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`;
+    
+    console.log('🔗 URL de succès construite:', successUrl);
+    
+    return successUrl;
+  }
+
+  /**
+   * ✨ MODIFIÉ : Lance le processus de paiement OneTouch avec redirection vers /mon-compte
    */
   callTouchPay(
     amount: number,
@@ -404,8 +418,6 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
     months: number
   ): Promise<void> {
     return new Promise((resolve, reject) => {
-    
-
       // Vérification que la fonction sendPaymentInfos existe
       if (typeof sendPaymentInfos !== 'function') {
         const errorMsg = 'Le système de paiement OneTouch n\'est pas chargé. Veuillez rafraîchir la page et réessayer.';
@@ -418,11 +430,15 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
       const currentOrigin = window.location.origin;
       const orderNumber = new Date().getTime().toString();
       
-      // URLs de redirection
-      const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}`;
-      const failedUrl = `${currentOrigin}/#/settings/accounts`;
+      // ✨ MODIFICATION : URLs de redirection vers /mon-compte
+      const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}?redirect=${encodeURIComponent(`${currentOrigin}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`)}`;
+      const failedUrl = `${currentOrigin}/#/mon-compte?payment=failed&userId=${userId}&planId=${planId}`;
 
-     
+      console.log('💳 Paramètres de paiement OneTouch:');
+      console.log('  - Order Number:', orderNumber);
+      console.log('  - Amount:', amount);
+      console.log('  - Success URL:', successUrl);
+      console.log('  - Failed URL:', failedUrl);
 
       try {
         // Appel de la fonction OneTouch
@@ -433,12 +449,12 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
           this.oneTouchConfig.domainName,
           successUrl,
           failedUrl,
-          20,// amount,
+          10,
           'Dakar',
           email,
           clientFirstName,
           clientLastName,
-          ''
+          clientPhone
         );
         
         console.log('✅ Redirection vers OneTouch en cours...');
@@ -451,14 +467,17 @@ getSubscriptionByUser(userId: number): Observable<UserSubscription> {
   }
 
   /**
-   * Méthode simplifiée pour initier un paiement d'abonnement
+   * ✨ MODIFIÉ : Méthode simplifiée pour initier un paiement d'abonnement
    */
   async initiateSubscriptionPayment(
     user: any,
     plan: SubscriptionPlan,
     isYearly: boolean
   ): Promise<void> {
-   
+    console.log('🚀 Initiation du paiement d\'abonnement');
+    console.log('👤 Utilisateur:', user.id, user.email);
+    console.log('📦 Plan:', plan.id, plan.label);
+    console.log('📅 Type:', isYearly ? 'Annuel' : 'Mensuel');
 
     // Calcul du montant et des mois
     const months = isYearly ? 12 : 1;

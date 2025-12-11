@@ -239,6 +239,8 @@ export class UtilisateurService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+
   createWorker(workerData: CreateWorkerRequest,propertyId: number): Observable<Worker> {
  
     
@@ -247,7 +249,7 @@ export class UtilisateurService {
     }
 
     return this.http.post<Worker>(
-      `${this.apiUrl}/create/${propertyId}`,
+      `${this.apiUrl}/save/${propertyId}`,
       workerData,
       { headers: this.getAuthHeaders() }
     );

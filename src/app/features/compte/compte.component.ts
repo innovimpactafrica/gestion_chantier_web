@@ -2,15 +2,11 @@ import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../auth/services/auth.service';
-import {
-  SubscriptionService,
-  Invoice,
-  InvoiceResponse,
-  SubscriptionPlan,
-  UserSubscription
-} from '../../../services/subscription.service';
+import { SubscriptionService, Invoice, InvoiceResponse, SubscriptionPlan, UserSubscription } from '../../../services/subscription.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+ 
 @Component({
   selector: 'app-compte',
   standalone: true,
@@ -19,6 +15,9 @@ import html2canvas from 'html2canvas';
   styleUrls: ['./compte.component.css']
 })
 export class CompteComponent implements OnInit, OnDestroy {
+  // Constante pour le répertoire de base des photos
+  private readonly PHOTO_BASE_URL = 'https://wakana.online/repertoire_samater/';
+  
   activeTab = signal<'informations' | 'abonnements' | 'factures'>('informations');
   userForm!: FormGroup;
   currentUser = signal<User | null>(null);
@@ -34,7 +33,12 @@ export class CompteComponent implements OnInit, OnDestroy {
   hasActiveSubscription = signal(false);
   isCheckingSubscription = signal(false);
   currentSubscription = signal<UserSubscription | null>(null);
-  photoLoadError = false;
+  photoLoadError = signal(false);
+
+  // Gestion de la photo de profil
+  selectedPhotoFile = signal<File | null>(null);
+  photoPreviewUrl = signal<string | null>(null);
+  isUploadingPhoto = signal(false);
 
   // Plans
   subscriptionPlans = signal<SubscriptionPlan[]>([]);
@@ -51,7 +55,7 @@ export class CompteComponent implements OnInit, OnDestroy {
   totalPages = signal(0);
   isLoadingFactures = signal(false);
 
-  // Paiement
+  // État du traitement de paiement
   isProcessingBasic = signal(false);
   isProcessingPremium = signal(false);
 
@@ -63,13 +67,108 @@ export class CompteComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private subscriptionService = inject(SubscriptionService);
-
-  ngOnInit(): void {
-    this.initializeForm();
-    this.loadUserData();
-    this.loadOneTouchScript();
-    this.startOneTouchMonitoring();
+// Dans compte.component.ts, ajouter cette logique dans ngOnInit() :
+private route = inject(ActivatedRoute);
+private router = inject(Router);
+ngOnInit(): void {
+  this.initializeForm();
+  this.loadUserData();
+  this.loadOneTouchScript();
+  this.startOneTouchMonitoring();
+  
+  // ✅ GÉRER LE RETOUR DE PAIEMENT EN PRIORITÉ
+  this.handlePaymentReturn();
+  
+  // ✅ VÉRIFIER SI ON VIENT D'UNE INTENTION D'ABONNEMENT
+  const targetTab = sessionStorage.getItem('compte_tab');
+  
+  if (targetTab === 'abonnements') {
+    console.log('🎯 Ouverture automatique de l\'onglet Abonnements');
+    this.activeTab.set('abonnements');
+    
+    // Nettoyer le sessionStorage après utilisation
+    sessionStorage.removeItem('compte_tab');
   }
+}
+
+/**
+ * ✨ NOUVELLE MÉTHODE : Gère le retour après paiement OneTouch
+ */
+private handlePaymentReturn(): void {
+  // Écouter les changements de paramètres d'URL
+  this.route.queryParams.subscribe(params => {
+    const paymentStatus = params['payment'];
+    
+    if (!paymentStatus) {
+      return; // Pas de retour de paiement
+    }
+    
+    console.log('💳 Détection de retour de paiement:', paymentStatus);
+    
+    if (paymentStatus === 'success') {
+      console.log('✅ Retour de paiement réussi');
+      
+      const userId = params['userId'];
+      const planId = params['planId'];
+      const months = params['months'];
+      
+      if (userId && planId && months) {
+        // Afficher un message de succès
+        this.showSuccess('🎉 Paiement effectué avec succès ! Votre abonnement est maintenant actif.');
+        
+        // Ouvrir l'onglet abonnements
+        this.activeTab.set('abonnements');
+        
+        // Recharger les données d'abonnement après un court délai
+        setTimeout(() => {
+          const user = this.currentUser();
+          if (user) {
+            console.log('🔄 Rechargement des données d\'abonnement...');
+            this.checkUserSubscription(user.id);
+            this.loadFactures(user.id);
+          }
+        }, 1000);
+      }
+      
+      // Nettoyer l'URL
+      this.cleanUrl();
+      
+    } else if (paymentStatus === 'failed') {
+      console.log('❌ Paiement échoué');
+      this.showError('❌ Le paiement a échoué. Veuillez réessayer ou contacter le support.');
+      
+      // Ouvrir l'onglet abonnements
+      this.activeTab.set('abonnements');
+      
+      // Nettoyer l'URL
+      this.cleanUrl();
+      
+    } else if (paymentStatus === 'cancelled') {
+      console.log('⚠️ Paiement annulé');
+      this.showError('⚠️ Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.');
+      
+      // Ouvrir l'onglet abonnements
+      this.activeTab.set('abonnements');
+      
+      // Nettoyer l'URL
+      this.cleanUrl();
+    }
+  });
+}
+/**
+ * ✨ NOUVELLE MÉTHODE : Nettoie les paramètres de l'URL sans recharger la page
+ */
+private cleanUrl(): void {
+  // Navigation vers la même route sans les query params
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {},
+    queryParamsHandling: 'merge',
+    replaceUrl: true
+  });
+  
+  console.log('🧹 URL nettoyée');
+}
 
   private loadOneTouchScript(): void {
     const existingScript = document.querySelector('script[src*="form.js"]');
@@ -96,6 +195,10 @@ export class CompteComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopOneTouchMonitoring();
+    // Nettoyer l'URL de prévisualisation
+    if (this.photoPreviewUrl()) {
+      URL.revokeObjectURL(this.photoPreviewUrl()!);
+    }
   }
 
   private startOneTouchMonitoring(): void {
@@ -130,6 +233,159 @@ export class CompteComponent implements OnInit, OnDestroy {
       clearInterval(this.oneTouchCheckInterval);
       this.oneTouchCheckInterval = null;
     }
+  }
+  
+  private genererFacturePDF(facture: Invoice, printWindow: Window): void {
+    const htmlContent = this.construireHTMLFacture(facture);
+   
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head>
+        <meta charset="UTF-8">
+        <title>Facture ${facture.invoiceNumber}</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+          body { font-family: 'Inter', sans-serif; margin:0; padding:0; background:white; }
+          @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 0; }
+          }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+        <script>
+    function waitForReady() {
+      const hasContent = document.body.innerHTML.length > 1000; // Vérifier si le contenu est chargé
+      const tailwindLoaded = window.tailwind !== undefined;     // Vérifier si Tailwind est chargé
+     
+      if (hasContent && tailwindLoaded) {
+        setTimeout(() => window.print(), 800); // Délai avant impression
+      } else {
+        setTimeout(waitForReady, 400); // Réessayer tant que non prêt
+      }
+    }
+   
+    window.onload = () => {
+      setTimeout(waitForReady, 500); // On attend un peu
+    };
+   
+    // ❌ ON DÉSACTIVE TOUTE FERMETURE
+    window.onafterprint = null;
+  </script>
+   
+      </body>
+      </html>
+    `);
+   
+    printWindow.document.close();
+  }
+  private construireHTMLFacture(facture: Invoice): string {
+      const formatDate = (date: string) =>
+        new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+   
+      const formatAmount = (amount: number) =>
+        new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
+   
+      const user = this.authService.currentUser();
+      const sousTotal = facture.amount || 0;
+      const tva = sousTotal * 0.18;
+      const totalTTC = sousTotal + tva;
+   
+      return `
+        <div class="min-h-screen bg-white p-10">
+          <div class="max-w-4xl mx-auto">
+            <!-- Bande orange -->
+            <div class="bg-gradient-to-r from-[#FF5C02] to-[#FF7A33] h-3 rounded-t-lg"></div>
+   
+            <div class="border-2 border-gray-200 rounded-b-lg p-12 bg-white">
+              <!-- Header -->
+              <div class="flex justify-between items-start mb-12 pb-8 border-b-2 border-gray-100">
+                <div class="flex items-center gap-6">
+                  <div class="w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
+    <img src="assets/images/btp.png" alt="Logo BTP" class="w-full h-full object-cover" crossOrigin="anonymous">
+  </div>
+   
+                  <div>
+                    <h1 class="text-3xl font-bold">BTP</h1>
+                    <p class="text-gray-600">La solution complète</p>
+                    <p class="text-sm text-gray-500">Dakar, Sénégal • contact@BTP.sn</p>
+                  </div>
+                </div>
+   
+                <div class="text-right">
+                  <div class="inline-block bg-[#FF5C02] text-white px-4 py-2 rounded-lg mb-4">
+                    <p class="text-sm font-medium">FACTURE</p>
+                  </div>
+                  <p class="text-2xl font-bold">${facture.invoiceNumber}</p>
+                  <p class="text-sm text-gray-600">Date d'émission : ${formatDate(facture.createdAt)}</p>
+                  ${facture.paid
+                    ? `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">PAYÉE</span>`
+                    : `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">EN ATTENTE</span>`}
+                </div>
+              </div>
+   
+              <!-- Client -->
+              <div class="mb-12">
+                <h2 class="text-lg font-semibold mb-4">Facturé à</h2>
+                <div class="bg-gray-50 p-6 rounded-xl border">
+                  <p class="text-xl font-bold">${user?.prenom || ''} ${user?.nom || ''}</p>
+                  ${user?.company?.name ? `<p class="font-medium mt-2">${user.company.name}</p>` : ''}
+                  <div class="text-sm text-gray-600 mt-3 space-y-1">
+                    <p>${user?.email || ''}</p>
+                    <p>${user?.telephone || ''}</p>
+                    <p>${user?.adress || ''}</p>
+                  </div>
+                </div>
+              </div>
+   
+              <!-- Tableau abonnement -->
+              <div class="mb-8">
+                <h2 class="text-lg font-semibold mb-4">Détails de l'abonnement</h2>
+                <table class="w-full border-collapse">
+                  <thead>
+                    <tr class="bg-gradient-to-r from-[#FF5C02] to-[#FF7A33] text-white">
+                      <th class="text-left p-4">Description</th>
+                      <th class="text-center p-4">Période</th>
+                      <th class="text-right p-4">Montant HT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="bg-gray-50">
+                      <td class="p-5">
+                        <span class="font-semibold">${facture.planLabel || 'Abonnement'}</span><br>
+                        <span class="text-sm text-gray-600">Abonnement annuel</span>
+                      </td>
+                  
+                      <td class="text-right p-5 font-semibold">${formatAmount(sousTotal)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+   
+              <!-- Résumé -->
+              <div class="flex justify-end">
+                <div class="w-96 space-y-3">
+                  <div class="flex justify-between"><span>Sous-total HT :</span><span>${formatAmount(sousTotal)}</span></div>
+                 
+                  <div class="border-t-2 border-gray-300 my-2"></div>
+                  <div class="flex justify-between text-xl font-bold text-[#FF5C02]">
+                    <span>Total TTC :</span>
+                    <span>${formatAmount(sousTotal)}</span>
+                  </div>
+                </div>
+              </div>
+   
+              <!-- Footer -->
+              <div class="text-center text-sm text-gray-500 mt-16">
+                <p>BTP © 2025 • Document généré électroniquement – Aucune signature requise</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
   }
 
   private isOneTouchScriptLoaded(): boolean {
@@ -176,6 +432,7 @@ export class CompteComponent implements OnInit, OnDestroy {
       });
     }
   }
+
   /**
  * Retourne le nombre de jours restants avant expiration
  */
@@ -261,23 +518,104 @@ getSubscriptionProgress(): number {
  * Vérifie si l'utilisateur est un administrateur
  */
 isAdmin(): boolean {
-  const user = this.currentUser();
-  if (!user) return false;
-  
-  let userProfile = '';
-  
-  if (Array.isArray(user.profil) && user.profil.length > 0) {
-    userProfile = user.profil[0];
-  } 
-  else if (user.profils && typeof user.profils === 'string') {
-    userProfile = user.profils;
-  }
-  else if (typeof user.profil === 'string') {
-    userProfile = user.profil as any;
-  }
-  
-  return userProfile.toUpperCase() === 'ADMIN';
+  return this.authService.isADMINProfile(); // ou votre logique
 }
+
+onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    
+    if (input?.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Validation du type
+      if (!file.type.startsWith('image/')) {
+        console.error('Veuillez sélectionner une image');
+        return;
+      }
+      
+      // Validation de la taille (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        console.error('L\'image ne doit pas dépasser 5MB');
+        return;
+      }
+      
+      // Lecture de l'image
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        // Stockez l'image ou affichez-la
+        console.log('Image chargée:', e.target.result);
+        // Exemple: this.photoUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  /**
+   * Déclenche le sélecteur de fichier
+   */
+  triggerPhotoInput(): void {
+    const fileInput = document.getElementById('photoInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  /**
+   * Gère l'erreur de chargement de la photo
+   */
+  onPhotoError(): void {
+    console.warn('Erreur lors du chargement de la photo de profil');
+    this.photoLoadError.set(true);
+  }
+
+  /**
+   * Réinitialise l'erreur de photo
+   */
+  resetPhotoError(): void {
+    this.photoLoadError.set(false);
+  }
+
+  /**
+   * Obtient les initiales de l'utilisateur
+   */
+  getUserInitials(): string {
+    const user = this.currentUser();
+    if (!user) return 'U';
+    
+    const firstInitial = user.prenom?.charAt(0)?.toUpperCase() || '';
+    const lastInitial = user.nom?.charAt(0)?.toUpperCase() || '';
+    
+    return `${firstInitial}${lastInitial}` || 'U';
+  }
+
+  /**
+   * Vérifie si l'utilisateur a une photo de profil valide
+   */
+  hasUserPhoto(): boolean {
+    // Priorité à la prévisualisation si disponible
+    if (this.photoPreviewUrl()) {
+      return true;
+    }
+    
+    const user = this.currentUser();
+    return !!(user?.photo) && !this.photoLoadError();
+  }
+
+  /**
+   * Obtient l'URL complète de la photo de profil
+   */
+  getUserPhotoUrl(): string {
+    // Priorité à la prévisualisation si disponible
+    if (this.photoPreviewUrl()) {
+      return this.photoPreviewUrl()!;
+    }
+    
+    const user = this.currentUser();
+    if (user?.photo && !this.photoLoadError()) {
+      return `${this.PHOTO_BASE_URL}${user.photo}`;
+    }
+    return '';
+  }
 
   /**
    * Vérifie si l'utilisateur a un abonnement actif
@@ -292,10 +630,8 @@ isAdmin(): boolean {
         this.hasActiveSubscription.set(isActive);
         
         if (isActive) {
-          // Charger les détails de l'abonnement en cours
           this.loadCurrentSubscription(userId);
         } else {
-          // Charger les plans disponibles
           const user = this.currentUser();
           if (user) {
             this.loadSubscriptionPlans(user);
@@ -309,7 +645,6 @@ isAdmin(): boolean {
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
         
-        // En cas d'erreur, charger les plans par défaut
         const user = this.currentUser();
         if (user) {
           this.loadSubscriptionPlans(user);
@@ -363,9 +698,6 @@ getExpirationDate(): string {
   }
 }
 
-  /**
-   * Formatte la période de l'abonnement
-   */
   getSubscriptionPeriod(): string {
     const subscription = this.currentSubscription();
     if (!subscription || !subscription.createdAt) {
@@ -385,25 +717,16 @@ getExpirationDate(): string {
     return `Du ${formatDate(startDate)} au ${formatDate(endDate)}`;
   }
 
-  /**
-   * Retourne le nom du plan de l'abonnement en cours
-   */
   getCurrentPlanName(): string {
     const subscription = this.currentSubscription();
     return subscription?.subscriptionPlan?.name || 'N/A';
   }
 
-  /**
-   * Retourne le label du plan (BASIC/PREMIUM)
-   */
   getCurrentPlanLabel(): string {
     const subscription = this.currentSubscription();
     return subscription?.subscriptionPlan?.label || 'N/A';
   }
 
-  /**
-   * Retourne le montant payé
-   */
   getCurrentPlanAmount(): string {
     const subscription = this.currentSubscription();
     if (!subscription?.subscriptionPlan?.totalCost) {
@@ -412,32 +735,20 @@ getExpirationDate(): string {
     return `${subscription.subscriptionPlan.totalCost.toLocaleString('fr-FR')} F CFA`;
   }
 
-  /**
-   * Retourne le mode de paiement (à adapter selon vos données)
-   */
   getPaymentMethod(): string {
-    return 'Carte bancaire'; // À adapter selon vos données
+    return 'Carte bancaire';
   }
 
-  /**
-   * Vérifie si le plan est illimité
-   */
   isUnlimitedProjects(): boolean {
     const subscription = this.currentSubscription();
     return subscription?.subscriptionPlan?.unlimitedProjects || false;
   }
 
-  /**
-   * Retourne la limite de projets
-   */
   getProjectLimit(): number {
     const subscription = this.currentSubscription();
     return subscription?.subscriptionPlan?.projectLimit || 0;
   }
 
-  /**
-   * Retourne le nombre d'échéances
-   */
   getInstallmentCount(): number {
     const subscription = this.currentSubscription();
     return subscription?.subscriptionPlan?.installmentCount || 1;
@@ -462,7 +773,6 @@ getExpirationDate(): string {
     }
     
     if (tab === 'abonnements' && this.currentUser()) {
-      // Recharger le statut de l'abonnement
       this.checkUserSubscription(this.currentUser()!.id);
     }
   }
@@ -475,8 +785,6 @@ getExpirationDate(): string {
     };
     return titles[this.activeTab()];
   }
-
-
 
   getUserFullName(): string {
     const user = this.currentUser();
@@ -515,58 +823,6 @@ getExpirationDate(): string {
     
     return profileMap[profile] || profile;
   }
-/**
- * Gère l'erreur de chargement de la photo
- */
-onPhotoError(): void {
-  console.warn('Erreur lors du chargement de la photo de profil');
-  this.photoLoadError = true;
-}
-
-/**
- * Réinitialise l'erreur de photo (utile lors du changement de photo)
- */
-resetPhotoError(): void {
-  this.photoLoadError = false;
-}
-
-/**
- * Obtient les initiales de l'utilisateur pour le placeholder
- * @returns string - Les initiales (ex: "AD", "CG")
- */
-getUserInitials(): string {
-  const user = this.currentUser();
-  if (!user) return 'U';
-  
-  const firstInitial = user.prenom?.charAt(0)?.toUpperCase() || '';
-  const lastInitial = user.nom?.charAt(0)?.toUpperCase() || '';
-  
-  return `${firstInitial}${lastInitial}` || 'U';
-}
-
-/**
- * Vérifie si l'utilisateur a une photo de profil valide
- * @returns boolean
- */
-hasUserPhoto(): boolean {
-  const user = this.currentUser();
-  return !!(user?.photo);
-}
-
-/**
- * Obtient l'URL complète de la photo de profil
- * @returns string - L'URL de la photo ou une chaîne vide
- */
-getUserPhotoUrl(): string {
-  const user = this.currentUser();
-  if (user?.photo) {
-    // Utiliser la méthode du service ou construire l'URL
-    return this.authService.getUserPhotoUrl(user.id);
-    // const baseUrl = 'https://wakana.online/repertoire_samater/';
-  }
-  return '';
-}
-
 
   private loadSubscriptionPlans(user: User): void {
     this.isLoadingPlans.set(true);
@@ -833,161 +1089,7 @@ telechargerFacturePDF(facture: Invoice): void {
     });
   };
 }
-private genererFacturePDF(facture: Invoice, printWindow: Window): void {
-  const htmlContent = this.construireHTMLFacture(facture);
 
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-      <meta charset="UTF-8">
-      <title>Facture ${facture.invoiceNumber}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Inter', sans-serif; margin:0; padding:0; background:white; }
-        @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          @page { margin: 0; }
-        }
-      </style>
-    </head>
-    <body>
-      ${htmlContent}
-      <script>
-  function waitForReady() {
-    const hasContent = document.body.innerHTML.length > 1000; // Vérifier si le contenu est chargé
-    const tailwindLoaded = window.tailwind !== undefined;     // Vérifier si Tailwind est chargé
-    
-    if (hasContent && tailwindLoaded) {
-      setTimeout(() => window.print(), 800); // Délai avant impression
-    } else {
-      setTimeout(waitForReady, 400); // Réessayer tant que non prêt
-    }
-  }
-
-  window.onload = () => {
-    setTimeout(waitForReady, 500); // On attend un peu
-  };
-
-  // ❌ ON DÉSACTIVE TOUTE FERMETURE
-  window.onafterprint = null;
-</script>
-
-    </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-}
-private construireHTMLFacture(facture: Invoice): string {
-    const formatDate = (date: string) =>
-      new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-
-    const formatAmount = (amount: number) =>
-      new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
-
-    const user = this.authService.currentUser();
-    const sousTotal = facture.amount || 0;
-    const tva = sousTotal * 0.18;
-    const totalTTC = sousTotal + tva;
-
-    return `
-      <div class="min-h-screen bg-white p-10">
-        <div class="max-w-4xl mx-auto">
-          <!-- Bande orange -->
-          <div class="bg-gradient-to-r from-[#FF5C02] to-[#FF7A33] h-3 rounded-t-lg"></div>
-
-          <div class="border-2 border-gray-200 rounded-b-lg p-12 bg-white">
-            <!-- Header -->
-            <div class="flex justify-between items-start mb-12 pb-8 border-b-2 border-gray-100">
-              <div class="flex items-center gap-6">
-                <div class="w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
-  <img src="assets/images/btp.png" alt="Logo BTP" class="w-full h-full object-cover" crossOrigin="anonymous">
-</div>
-
-                <div>
-                  <h1 class="text-3xl font-bold">BTP</h1>
-                  <p class="text-gray-600">La solution complète</p>
-                  <p class="text-sm text-gray-500">Dakar, Sénégal • contact@BTP.sn</p>
-                </div>
-              </div>
-
-              <div class="text-right">
-                <div class="inline-block bg-[#FF5C02] text-white px-4 py-2 rounded-lg mb-4">
-                  <p class="text-sm font-medium">FACTURE</p>
-                </div>
-                <p class="text-2xl font-bold">${facture.invoiceNumber}</p>
-                <p class="text-sm text-gray-600">Date d'émission : ${formatDate(facture.createdAt)}</p>
-                ${facture.paid
-                  ? `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">PAYÉE</span>`
-                  : `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">EN ATTENTE</span>`}
-              </div>
-            </div>
-
-            <!-- Client -->
-            <div class="mb-12">
-              <h2 class="text-lg font-semibold mb-4">Facturé à</h2>
-              <div class="bg-gray-50 p-6 rounded-xl border">
-                <p class="text-xl font-bold">${user?.prenom || ''} ${user?.nom || ''}</p>
-                ${user?.company?.name ? `<p class="font-medium mt-2">${user.company.name}</p>` : ''}
-                <div class="text-sm text-gray-600 mt-3 space-y-1">
-                  <p>${user?.email || ''}</p>
-                  <p>${user?.telephone || ''}</p>
-                  <p>${user?.adress || ''}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tableau abonnement -->
-            <div class="mb-8">
-              <h2 class="text-lg font-semibold mb-4">Détails de l'abonnement</h2>
-              <table class="w-full border-collapse">
-                <thead>
-                  <tr class="bg-gradient-to-r from-[#FF5C02] to-[#FF7A33] text-white">
-                    <th class="text-left p-4">Description</th>
-                    <th class="text-center p-4">Période</th>
-                    <th class="text-right p-4">Montant HT</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="bg-gray-50">
-                    <td class="p-5">
-                      <span class="font-semibold">${facture.planLabel || 'Abonnement'}</span><br>
-                      <span class="text-sm text-gray-600">Abonnement annuel</span>
-                    </td>
-                    <td class="text-center p-5 text-gray-700">
-                      ${facture.startDate ? formatDate(facture.startDate) : 'N/A'} → 
-                      ${facture.endDate ? formatDate(facture.endDate) : 'N/A'}
-                    </td>
-                    <td class="text-right p-5 font-semibold">${formatAmount(sousTotal)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Résumé -->
-            <div class="flex justify-end">
-              <div class="w-96 space-y-3">
-                <div class="flex justify-between"><span>Sous-total HT :</span><span>${formatAmount(sousTotal)}</span></div>
-                
-                <div class="border-t-2 border-gray-300 my-2"></div>
-                <div class="flex justify-between text-xl font-bold text-[#FF5C02]">
-                  <span>Total TTC :</span>
-                  <span>${formatAmount(sousTotal)}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="text-center text-sm text-gray-500 mt-16">
-              <p>BTP © 2025 • Document généré électroniquement – Aucune signature requise</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-}
 
   
   onSubmit(): void {
@@ -1002,12 +1104,38 @@ private construireHTMLFacture(facture: Invoice): string {
       return;
     }
 
-    this.isSaving.set(true);
-    const formData = this.userForm.value;
+    const user = this.currentUser();
+    if (!user) {
+      this.showError('Utilisateur non trouvé');
+      return;
+    }
 
-    this.authService.updateUserProfile(formData).subscribe({
+    this.isSaving.set(true);
+
+    // Créer un FormData pour envoyer toutes les données (y compris la photo)
+    const formData = new FormData();
+    
+    // Ajouter les champs du formulaire
+    Object.keys(this.userForm.value).forEach(key => {
+      const value = this.userForm.value[key];
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    });
+
+    // Ajouter la photo si elle a été sélectionnée
+    if (this.selectedPhotoFile()) {
+      formData.append('photo', this.selectedPhotoFile()!);
+      console.log('📸 Photo ajoutée au FormData');
+    }
+
+    // Utiliser l'ID de l'utilisateur connecté
+    this.authService.updateUserProfile(formData, user.id).subscribe({
       next: (updatedUser) => {
         this.currentUser.set(updatedUser);
+        this.selectedPhotoFile.set(null);
+        this.photoPreviewUrl.set(null);
+        this.photoLoadError.set(false);
         this.showSuccess('Vos informations ont été mises à jour avec succès');
         this.isSaving.set(false);
       },
@@ -1023,6 +1151,9 @@ private construireHTMLFacture(facture: Invoice): string {
     const user = this.currentUser();
     if (user) {
       this.populateForm(user);
+      this.selectedPhotoFile.set(null);
+      this.photoPreviewUrl.set(null);
+      this.photoLoadError.set(false);
       this.showInfo('Modifications annulées');
     }
   }

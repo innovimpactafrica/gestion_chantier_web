@@ -1,137 +1,181 @@
 <!-- subcontractor.component.html -->
-<div class="bg-gray-50 rounded-xl shadow-sm p-4 md:p-6 lg:p-8 min-h-screen">
+<div class="rounded-lg shadow-sm p-6 bg-[#F5F7FA] min-h-screen">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Sous-Traitants</h1>
+  <div class="flex justify-between">
+    <div class="pb-4 border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-800">Sous-Traitants</h1>
       <p class="text-gray-600 text-sm mt-1">
         Retrouvez en un clin d'œil tous vos sous-traitants et partenaires.
       </p>
     </div>
-
-    <button
-      (click)="openModal()"
-      [disabled]="isLoading"
-      class="flex items-center justify-center gap-2 px-5 py-3 text-white bg-orange-500 rounded-lg hover:bg-orange-600 disabled:opacity-60 transition font-medium shadow-md">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    
+    <!-- Bouton Nouveau Sous-Traitant -->
+    <button 
+      (click)="openModal()" 
+      class="flex items-center justify-between text-white bg-orange-500 rounded-md hover:bg-orange-600 btn-subcontrator"
+      [disabled]="isLoading">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
       Nouveau Sous-Traitant
     </button>
   </div>
 
+  <!-- Message de succès -->
+  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+    <div class="flex">
+      <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <p class="ml-2 text-sm text-green-700">{{ successMessage }}</p>
+    </div>
+  </div>
+
   <!-- Message d'erreur -->
-  <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center">
-    <svg class="h-5 w-5 text-red-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-    </svg>
-    <span>{{ errorMessage }}</span>
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+    <div class="flex">
+      <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+      </svg>
+      <p class="ml-2 text-sm text-red-700">{{ errorMessage }}</p>
+    </div>
   </div>
 
-  <!-- Chargement -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
-    <span class="ml-3 text-gray-600">Chargement en cours...</span>
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+    <span class="ml-2 text-gray-600">Chargement...</span>
   </div>
 
-  <!-- Filtres + Actions -->
-  <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <!-- Recherche -->
-    <div class="flex flex-col sm:flex-row gap-3">
-      <div class="relative flex-1 max-w-md">
+  <!-- Controls -->
+  <div class="flex justify-between items-center py-4 border-b" *ngIf="!isLoading">
+    <div class="flex flex-wrap gap-4 mb-8">
+      <!-- Barre de recherche -->
+      <div class="relative flex-grow max-w-xs">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <input
-          type="text"
+        <input 
+          type="text" 
           [(ngModel)]="searchQuery"
           (input)="searchProjects()"
-          placeholder="Rechercher par raison sociale, contact, email..."
-          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+          class="block w-[302px] h-[48px] pl-10 px-4 py-2 border border-gray-300 rounded-[8px] p-12 leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+          placeholder="Rechercher par nom, email...">
       </div>
     </div>
 
-    <!-- Boutons d'action -->
-    <div class="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-      <button
+    <div class="flex flex-wrap gap-4 mb-8">
+      <button 
         (click)="deleteSelectedSubcontractors()"
-        class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+        class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 hover:bg-gray-50 focus:outline-none p-12">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         Supprimer
       </button>
-
-      <button class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-        <img src="assets/images/filter-lines.svg" alt="Filtres" class="h-5 w-5">
-        Filtres
+      
+      <button class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 hover:bg-gray-50 focus:outline-none p-12 ml-4">
+        <img src="assets/images/filter-lines.svg" alt="" class="mr-2">
+        <p class="mr-8">Filtres</p>
       </button>
 
-      <button
-        (click)="exportData()"
-        class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-        <img src="assets/images/download-cloud-02.svg" alt="Exporter" class="h-5 w-5">
-        Exporter
-      </button>
+      <div class="flex mb-8">
+        <button 
+          (click)="exportData()"
+          class="flex items-center text- px-4 py-2 mx-8 border border-gray-300 bg-white rounded-md hover:bg-gray-50">
+          <img src="assets/images/download-cloud-02.svg" alt="download" class="mr-2">
+          Exporter
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Tableau -->
-  <div *ngIf="!isLoading" class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-4 py-4 text-left">
-            <input
-              type="checkbox"
-              class="h-4 w-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
-              [checked]="selectAll"
-              (change)="toggleSelectAll()">
+  <!-- Table -->
+  <div class="mt-6 overflow-x-auto" *ngIf="!isLoading">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200">
+          <th class="py-3 px-2 text-left w-12">
+            <div class="flex items-center">
+              <input 
+                type="checkbox" 
+                class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
+                [checked]="selectAll"
+                (change)="toggleSelectAll()">
+            </div>
           </th>
-          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Raison Sociale</th>
-          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
-          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-          <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>RAISON SOCIALE</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>NOM CONTACT</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>TÉLÉPHONE</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>EMAIL</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
+            <div class="flex items-center">
+              <span>STATUS</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </th>
+          <th class="py-3 px-2"></th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <tr *ngFor="let subcontractor of displayedMembers" class="hover:bg-gray-50 transition">
-          <td class="px-4 py-4">
-            <input
-              type="checkbox"
-              class="h-4 w-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
+      <tbody>
+        <tr *ngFor="let subcontractor of displayedMembers" class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="py-3 px-2">
+            <input 
+              type="checkbox" 
+              class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
               [checked]="subcontractor.selected"
               (change)="toggleMemberSelection(subcontractor)">
           </td>
-          <td class="px-6 py-4 font-medium text-gray-900">{{ subcontractor.raisonSociale }}</td>
-          <td class="px-6 py-4 text-gray-700">{{ subcontractor.nomContact }}</td>
-          <td class="px-6 py-4 text-gray-600">{{ subcontractor.telephone }}</td>
-          <td class="px-6 py-4 text-gray-600">{{ subcontractor.email }}</td>
-          <td class="px-6 py-4">
+          <td class="py-3 px-2 font-medium">{{ subcontractor.raisonSociale }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ subcontractor.nomContact }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ subcontractor.telephone }}</td>
+          <td class="py-3 px-2 text-gray-600">{{ subcontractor.email }}</td>
+          <td class="py-3 px-2">
             <div class="flex items-center">
-              <span class="h-2.5 w-2.5 rounded-full mr-2" [ngClass]="getStatusDot(subcontractor.status)"></span>
-              <span class="font-medium" [ngClass]="subcontractor.status === 'active' ? 'text-green-700' : 'text-red-700'">
+              <span class="h-2 w-2 rounded-full mr-2" [ngClass]="getStatusDot(subcontractor.status)"></span>
+              <span [ngClass]="getStatusColor(subcontractor.status)">
                 {{ subcontractor.status === 'active' ? 'Actif' : 'Inactif' }}
               </span>
             </div>
           </td>
-          <td class="px-6 py-4 text-right">
-            <button class="text-gray-400 hover:text-gray-700 transition">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <td class="py-3 px-2 text-right">
+            <button class="text-gray-400 hover:text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
               </svg>
             </button>
-          </td>
-        </tr>
-
-        <!-- Aucun résultat -->
-        <tr *ngIf="displayedMembers.length === 0">
-          <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-            Aucun sous-traitant trouvé
           </td>
         </tr>
       </tbody>
@@ -139,117 +183,211 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="!isLoading && totalMembers > 0" class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-700">
+  <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
     <div>
-      Affichage de {{ startIndex }} à {{ endIndex }} sur {{ totalMembers }} sous-traitants
+      Voir de {{ startIndex }} à {{ endIndex }} sur {{ totalMembers }} ({{ totalPages }} pages)
     </div>
-    <div class="flex items-center gap-2">
-      <button
-        (click)="goToPreviousPage()"
-        [disabled]="currentPage === 1"
-        class="p-2 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    <div class="flex space-x-1">
+      <button 
+        (click)="goToPreviousPage()" 
+        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
+        [class.opacity-50]="currentPage === 1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-
-      <button
-        *ngFor="let page of getPageNumbers()"
-        (click)="goToPage(page)"
-        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-100'"
-        class="w-10 h-10 rounded border font-medium transition">
+      <button 
+        *ngFor="let page of getPageNumbers()" 
+        (click)="goToPage(page)" 
+        class="w-8 h-8 flex items-center justify-center border rounded-md"
+        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-50'">
         {{ page }}
       </button>
-
-      <button
-        (click)="goToNextPage()"
-        [disabled]="currentPage === totalPages"
-        class="p-2 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      <button 
+        (click)="goToNextPage()" 
+        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
+        [class.opacity-50]="currentPage === totalPages">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
     </div>
   </div>
-</div>
 
-<!-- Modal Nouveau Sous-Traitant -->
-<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" (click)="closeModal()">
-  <div
-    class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[95vh] overflow-y-auto"
-    (click)="$event.stopPropagation()"
-    [@fadeIn]>
-
-    <div class="p-6 border-b border-gray-200">
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-900">Nouveau Sous-Traitant</h2>
-        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
-          <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+  <!-- Modal Popup -->
+  <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
+    <!-- Overlay -->
+    <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-lg p-6 w-full max-w-2xl mx-4 z-10 max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Nouveau Sous-traitant</h2>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-    </div>
 
-    <form (ngSubmit)="ajouterSousTraitant()" class="p-6 space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Raison sociale *</label>
-          <input
-            type="text"
-            [(ngModel)]="nouveauSousTraitant.raisonSociale"
-            name="raisonSociale"
-            required
-            placeholder="Ex: Gueye Pro Construction"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+      <!-- Message d'erreur dans le modal -->
+      <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+        <div class="flex">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+          <p class="ml-2 text-sm text-red-700">{{ errorMessage }}</p>
         </div>
+      </div>
 
+      <!-- Message de succès dans le modal -->
+      <div *ngIf="successMessage" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+        <div class="flex">
+          <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <p class="ml-2 text-sm text-green-700">{{ successMessage }}</p>
+        </div>
+      </div>
+
+      <!-- Modal Form -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Nom (obligatoire) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Nom du contact *</label>
+          <label for="nomContact" class="block text-sm font-medium text-gray-700 mb-2">
+            Nom <span class="text-red-500">*</span>
+          </label>
           <input
+            id="nomContact"
             type="text"
             [(ngModel)]="nouveauSousTraitant.nomContact"
-            name="nomContact"
-            required
-            placeholder="Ex: Cheikh Gueye"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+            placeholder="Ex: Gueye"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
         </div>
 
+        <!-- Prénom (obligatoire) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone *</label>
+          <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+            Prénom <span class="text-red-500">*</span>
+          </label>
           <input
+            id="prenom"
+            type="text"
+            [(ngModel)]="nouveauSousTraitant.prenom"
+            placeholder="Ex: Cheikh"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
+        </div>
+
+        <!-- Téléphone (obligatoire) -->
+        <div>
+          <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="telephone"
             type="tel"
             [(ngModel)]="nouveauSousTraitant.telephone"
-            name="telephone"
-            required
-            placeholder="77 123 45 67"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+            placeholder="Ex: 771234567"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
         </div>
 
+        <!-- Email (obligatoire) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
           <input
+            id="email"
             type="email"
             [(ngModel)]="nouveauSousTraitant.email"
-            name="email"
-            placeholder="contact@gueyepro.com"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+            placeholder="Ex: cgueye@gmail.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
+        </div>
+
+        <!-- Mot de passe (obligatoire) -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Mot de passe <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="password"
+            type="password"
+            [(ngModel)]="nouveauSousTraitant.password"
+            placeholder="Min. 6 caractères"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
+        </div>
+
+        <!-- Date de naissance (obligatoire) -->
+        <div>
+          <label for="dateNaissance" class="block text-sm font-medium text-gray-700 mb-2">
+            Date de naissance <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="dateNaissance"
+            type="date"
+            [(ngModel)]="nouveauSousTraitant.dateNaissance"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
+        </div>
+
+        <!-- Lieu de naissance (obligatoire) -->
+        <div>
+          <label for="lieuNaissance" class="block text-sm font-medium text-gray-700 mb-2">
+            Lieu de naissance <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="lieuNaissance"
+            type="text"
+            [(ngModel)]="nouveauSousTraitant.lieuNaissance"
+            placeholder="Ex: Dakar"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
+        </div>
+
+        <!-- Adresse (obligatoire) -->
+        <div>
+          <label for="adresse" class="block text-sm font-medium text-gray-700 mb-2">
+            Adresse <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="adresse"
+            type="text"
+            [(ngModel)]="nouveauSousTraitant.adresse"
+            placeholder="Ex: Parcelles Assainies"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+            required>
         </div>
       </div>
 
-      <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+      <!-- Note sur le profil -->
+      <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-sm text-blue-700">
+          <strong>Note:</strong> Ce sous-traitant sera automatiquement créé avec le profil "SUBCONTRACTOR"
+        </p>
+      </div>
+
+      <!-- Modal Buttons -->
+      <div class="flex justify-end space-x-4 mt-8">
         <button
-          type="button"
           (click)="closeModal()"
-          class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          [disabled]="isLoading">
           Annuler
         </button>
-         <button
+        <button
           (click)="ajouterSousTraitant()"
-          class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-          Enregistrer
+          class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center"
+          [disabled]="isLoading">
+          <span *ngIf="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer' }}
         </button>
       </div>
-    </form>
+    </div>
   </div>
 </div>

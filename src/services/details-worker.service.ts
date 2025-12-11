@@ -31,7 +31,7 @@ export interface InfoDashboard {
 export interface StatusDistribution {
   status: string;
   percentage: number;
-}
+} 
 
 @Injectable({
   providedIn: 'root'
