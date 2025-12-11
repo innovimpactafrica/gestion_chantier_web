@@ -1,20 +1,78 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA]">
-  <!-- Titre et bouton Nouveau Projet -->
+  <!-- ========== POPUP DE PROJET BLOQUÉ ========== -->
+  <div *ngIf="isBlockedPopupVisible()" 
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn"
+       (click)="closeBlockedPopup()">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all animate-slideIn"
+         (click)="$event.stopPropagation()">
+      
+  
+
+      <!-- Titre -->
+      <h3 class="text-2xl font-bold text-gray-900 text-center mb-3">
+       Projet Bloqué
+      </h3>
+
+      <!-- Message principal -->
+      <div class="text-center mb-6">
+        <p class="text-gray-700 mb-4 text-lg">
+          Le projet <span class="font-bold text-red-600">"{{ blockedProjectName() }}"</span> 
+          est actuellement verrouillé.
+        </p>
+        
+        <!-- Message d'explication -->
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+          <div class="flex items-start">
+          
+            <div class="text-left">
+              <p class="text-sm font-medium text-red-800 mb-1">
+                Accès restreint
+              </p>
+              <p class="text-sm text-red-700">
+                Ce projet est bloqué jusqu'au renouvellement de votre abonnement. 
+                Veuillez mettre à jour votre plan pour y accéder.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button 
+          (click)="goToSubscription()"
+          class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+             abonnements
+          </span>
+        </button>
+        
+        <button 
+          (click)="closeBlockedPopup()"
+          class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== EN-TÊTE ET NOUVEAU PROJET ========== -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Projets en cours</h1>
     
-    <!-- Modal toggle -->
     <button
-    *ngIf="canCreateProject() && !checkingPermission()"
-    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[10px] flex items-center w-full sm:w-[192px] h-[51px] justify-center transition-colors duration-200"
-    [routerLink]="['/nouveau-projet']" 
-    type="button">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-    </svg>
-    Nouveau Projet
-  </button>
-  
+      *ngIf="canCreateProject() && !checkingPermission()"
+      class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[10px] flex items-center w-full sm:w-[192px] h-[51px] justify-center transition-colors duration-200"
+      [routerLink]="['/nouveau-projet']" 
+      type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Nouveau Projet
+    </button>
   </div>
 
   <!-- Description -->
@@ -22,7 +80,7 @@
     Consultez la liste de vos chantiers actuellement en cours et suivez leur avancement en temps réel.
   </p>
 
-  <!-- Formulaire de recherche et filtres -->
+  <!-- ========== FORMULAIRE DE RECHERCHE ========== -->
   <form [formGroup]="searchForm" class="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
     <!-- Barre de recherche -->
     <div class="relative flex-grow max-w-full sm:max-w-xs">
@@ -70,10 +128,7 @@
         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
       </svg>
     </div>
-
-
   </form>
-
 
   <!-- Message d'erreur -->
   <div *ngIf="error() as errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
@@ -83,180 +138,188 @@
     </button>
   </div>
 
-<!-- Contrôles de pagination en haut -->
-<div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-  <!-- Sélecteur de taille de page -->
-  <div class="flex items-center gap-2">
-    <label for="pageSize" class="text-sm font-medium text-gray-700">Projets par page:</label>
-    <select 
-      id="pageSize"
-      (change)="onPageSizeChange($event)" 
-      [value]="pagination().pageSize"
-      class="border border-gray-300 rounded px-2 py-1 text-sm">
-      <option value="2">2 projets</option>
-      <option value="5">5 projets</option>
-      <option value="10">10 projets</option>
-      <option value="20">20 projets</option>
-    </select>
+  <!-- ========== CONTRÔLES DE PAGINATION ========== -->
+  <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+    <div class="flex items-center gap-2">
+      <label for="pageSize" class="text-sm font-medium text-gray-700">Projets par page:</label>
+      <select 
+        id="pageSize"
+        (change)="onPageSizeChange($event)" 
+        [value]="pagination().pageSize"
+        class="border border-gray-300 rounded px-2 py-1 text-sm">
+        <option value="2">2 projets</option>
+        <option value="5">5 projets</option>
+        <option value="10">10 projets</option>
+        <option value="20">20 projets</option>
+      </select>
+    </div>
+
+    <div class="text-sm text-gray-600">
+      {{ getPaginationInfo() }}
+    </div>
   </div>
 
-  <!-- Informations de pagination -->
-  <div class="text-sm text-gray-600">
-    {{ getPaginationInfo() }}
-  </div>
-</div>
-
-
-<!-- Liste des projets -->
-<div class="projects-container">
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-    <!-- Carte projet responsive -->
-    <div *ngFor="let project of projects(); trackBy: trackByProjectId" 
-         class="bg-white rounded-[10px] overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 w-full max-w-[410px] mx-auto h-full"
-         [ngClass]="getStatusClass(project)"
-         (click)="onProjectClick(project)">
-
-      <div class="h-40 sm:h-48 overflow-hidden">
-        <ng-container *ngIf="project; else loading">
-          <div *ngIf="project.plan" class="mt-3 w-full h-full">
-            <img 
-              [src]="project.plan"
-              (error)="onImageError($event)"
-              (load)="onImageLoad($event)"
-              alt="plan" 
-              class="w-full h-full object-cover rounded-lg">
-          </div>
-          
-          <!-- Aucun visuel disponible -->
-          <div *ngIf="!project.plan" class="w-full h-full bg-gray-100 flex items-center justify-center">
-            <p class="text-gray-500 text-sm">Aucune image disponible</p>
-          </div>
-        </ng-container>
-
-        <!-- Chargement en cours -->
-        <ng-template #loading>
-          <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-            <img
-              src="assets/images/architecte.png"
-              alt="Chargement en cours..."
-              class="w-full h-full object-cover opacity-50">
-          </div>
-        </ng-template>
-      </div>
-
-      <!-- Informations du projet -->
-      <div class="p-3 sm:p-4 flex flex-col">
-        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {{ project.title }}
-        </h2>
+  <!-- ========== LISTE DES PROJETS ========== -->
+  <div class="projects-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      
+      <!-- Carte projet -->
+      <div *ngFor="let project of projects(); trackBy: trackByProjectId" 
+           [ngClass]="getProjectCardClass(project)"
+           (click)="onProjectClick(project)">
         
-        <!-- Info flex container responsive -->
-        <div class="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 mb-4">
-          <!-- Localisation -->
-          <div class="flex items-start">
-            <img src="assets/images/eva_pin-fill.png" alt="" class="mr-2 mt-1 flex-shrink-0">
-            <span class="text-gray-600 text-xs sm:text-sm line-clamp-1">
-              {{ project.location }}{{ project.address }}
-            </span>
-          </div>
-          
-          <!-- Période -->
-          <div class="flex items-center">
-            <img src="assets/images/Group.png" alt="" class="mr-2 mt-1 flex-shrink-0">
-            <span class="text-gray-600 text-xs sm:text-sm whitespace-nowrap">
-              {{ project.startDate[2] }}/{{ project.startDate[1] }}/{{ project.startDate[0] }}
-              -
-              {{ project.endDate[2] }}/{{ project.endDate[1] }}/{{ project.endDate[0] }}
-            </span>
-          </div>
+        <!-- Badge "BLOQUÉ" si le projet est bloqué -->
+        <div *ngIf="isProjectBlocked(project)" 
+             class="absolute top-3 right-3 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          BLOQUÉ
         </div>
-        
-        <!-- Barre de progression -->
-        <div class="mb-1">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-xs sm:text-sm font-medium text-gray-700">Progression</span>
-            <span class="text-xs sm:text-sm font-medium text-gray-700">{{ formatProgress(project.progress) }}</span>
+
+        <!-- Image du projet -->
+        <div class="h-40 sm:h-48 overflow-hidden relative">
+          <!-- Overlay pour les projets bloqués -->
+          <div *ngIf="isProjectBlocked(project)" 
+               class="absolute inset-0 bg-gray-900 bg-opacity-40 z-5 flex items-center justify-center">
+            <svg class="w-16 h-16 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
           </div>
-          <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              [style.width.%]="project.progress"
-              [ngStyle]="{ 'background': getGradientBackground(project.progress) }"
-              [ngClass]="getProgressBarClass(project.progress)"
-              class="h-full rounded-full transition-all duration-500">
+
+          <ng-container *ngIf="project; else loading">
+            <div *ngIf="project.plan" class="mt-3 w-full h-full">
+              <img 
+                [src]="project.plan"
+                (error)="onImageError($event)"
+                (load)="onImageLoad($event)"
+                alt="plan" 
+                class="w-full h-full object-cover rounded-lg">
+            </div>
+            
+            <div *ngIf="!project.plan" class="w-full h-full bg-gray-100 flex items-center justify-center">
+              <p class="text-gray-500 text-sm">Aucune image disponible</p>
+            </div>
+          </ng-container>
+
+          <ng-template #loading>
+            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+              <img
+                src="assets/images/architecte.png"
+                alt="Chargement en cours..."
+                class="w-full h-full object-cover opacity-50">
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Informations du projet -->
+        <div class="p-3 sm:p-4 flex flex-col">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+            {{ project.title }}
+          </h2>
+          
+          <!-- Localisation et période -->
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 mb-4">
+            <div class="flex items-start">
+              <img src="assets/images/eva_pin-fill.png" alt="" class="mr-2 mt-1 flex-shrink-0">
+              <span class="text-gray-600 text-xs sm:text-sm line-clamp-1">
+                {{ project.location }}{{ project.address }}
+              </span>
+            </div>
+            
+            <div class="flex items-center">
+              <img src="assets/images/Group.png" alt="" class="mr-2 mt-1 flex-shrink-0">
+              <span class="text-gray-600 text-xs sm:text-sm whitespace-nowrap">
+                {{ project.startDate[2] }}/{{ project.startDate[1] }}/{{ project.startDate[0] }}
+                -
+                {{ project.endDate[2] }}/{{ project.endDate[1] }}/{{ project.endDate[0] }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Barre de progression -->
+          <div class="mb-1">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs sm:text-sm font-medium text-gray-700">Progression</span>
+              <span class="text-xs sm:text-sm font-medium text-gray-700">{{ formatProgress(project.progress) }}</span>
+            </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                [style.width.%]="project.progress"
+                [ngStyle]="{ 'background': getGradientBackground(project.progress) }"
+                [ngClass]="getProgressBarClass(project.progress)"
+                class="h-full rounded-full transition-all duration-500">
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Loading indicator pendant le chargement -->
-  <div *ngIf="loading()" class="flex justify-center items-center py-8">
-    <div class="flex items-center gap-2">
-      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-      <span class="text-gray-600">Chargement des projets...</span>
+    <!-- Loading indicator -->
+    <div *ngIf="loading()" class="flex justify-center items-center py-8">
+      <div class="flex items-center gap-2">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+        <span class="text-gray-600">Chargement des projets...</span>
+      </div>
+    </div>
+
+    <!-- ========== NAVIGATION PAR FLÈCHES ========== -->
+    <div *ngIf="!loading() && projects().length > 0" class="flex justify-center items-center py-6 gap-4">
+      <!-- Flèche précédente -->
+      <button 
+        (click)="goToPreviousPage()"
+        [disabled]="pagination().currentPage === 0"
+        [ngClass]="{
+          'opacity-50 cursor-not-allowed': pagination().currentPage === 0,
+          'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage > 0
+        }"
+        class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 bg-white transition-all duration-200">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <!-- Informations de pagination -->
+      <div class="flex flex-col items-center text-sm text-gray-600">
+        <span class="font-medium">
+          Page {{ pagination().currentPage + 1 }} sur {{ pagination().totalPages }}
+        </span>
+        <span class="text-xs">
+          {{ pagination().currentPage * pagination().pageSize + 1 }} - 
+          {{ Math.min((pagination().currentPage + 1) * pagination().pageSize, pagination().totalElements) }}
+          sur {{ pagination().totalElements }} projets
+        </span>
+      </div>
+
+      <!-- Flèche suivante -->
+      <button 
+        (click)="goToNextPage()"
+        [disabled]="pagination().currentPage >= pagination().totalPages - 1"
+        [ngClass]="{
+          'opacity-50 cursor-not-allowed': pagination().currentPage >= pagination().totalPages - 1,
+          'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage < pagination().totalPages - 1
+        }"
+        class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 bg-white transition-all duration-200">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Message aucun résultat -->
+    <div *ngIf="projects().length === 0 && !loading()" 
+         class="text-center py-12">
+      <div class="text-gray-400 text-lg mb-2">Aucun projet trouvé</div>
     </div>
   </div>
 
-  <!-- Navigation par flèches -->
-  <div *ngIf="!loading() && projects().length > 0" class="flex justify-center items-center py-6 gap-4">
-    <!-- Flèche précédente -->
-  <!-- Flèche précédente -->
-<button 
-(click)="goToPreviousPage()"
-[disabled]="pagination().currentPage === 0"
-[ngClass]="{
-  'opacity-50 cursor-not-allowed': pagination().currentPage === 0,
-  'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage > 0
-}"
-class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 bg-white transition-all duration-200">
-<svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-</svg>
-</button>
-
-    <!-- Informations de pagination -->
-    <div class="flex flex-col items-center text-sm text-gray-600">
-      <span class="font-medium">
-        Page {{ pagination().currentPage + 1 }} sur {{ pagination().totalPages }}
-      </span>
-      <span class="text-xs">
-        {{ pagination().currentPage * pagination().pageSize + 1 }} - 
-        {{ getLoadingPercentage() }}% des projets chargés
-        sur {{ pagination().totalElements }} projets
-      </span>
-    </div>
-
-    <!-- Flèche suivante -->
-    <button 
-      (click)="goToNextPage()"
-      [disabled]="pagination().currentPage >= pagination().totalPages - 1"
-      [ngClass]="{
-        'opacity-50 cursor-not-allowed': pagination().currentPage >= pagination().totalPages - 1,
-        'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage < pagination().totalPages - 1
-      }"
-      class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 bg-white transition-all duration-200">
-      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-      </svg>
-    </button>
-  </div>
-
-  <!-- No results message -->
-  <div *ngIf="projects().length === 0 && !loading()" 
-       class="text-center py-12">
-    <div class="text-gray-400 text-lg mb-2">Aucun projet trouvé</div>
-
-  </div>
-</div>  
-
-  <!-- Pagination info -->
+  <!-- ========== INFO PAGINATION FINALE ========== -->
   <div class="mt-6 flex justify-between items-center text-sm text-gray-600">
     <div>
       Affichage de {{ projects().length }} sur {{ pagination().totalElements }} projets
     </div>
     
-    <!-- Options de taille de page -->
     <div class="flex items-center gap-2">
       <span>Projets par page :</span>
       <select (change)="onPageSizeChange($event)" 
@@ -267,11 +330,6 @@ class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-g
         </option>
       </select>
     </div>
-    <div *ngIf="loading()" class="flex justify-center items-center py-6">
-      <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-solid"></div>
-    </div>
-    
   </div>
-
-  
 </div>
+

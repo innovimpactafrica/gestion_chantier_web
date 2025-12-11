@@ -93,28 +93,39 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string = '';
   
-// Injection de dépendances 
-private readonly router = inject(Router);
-public readonly realestateService = inject(RealestateService);
-public readonly subscriptionService = inject(SubscriptionService);
-private readonly fb = inject(FormBuilder);
-private apiImagesService = inject(RealestateService);
-private readonly authservice = inject(AuthService);
+  // Ajoutez Math pour le template
+  readonly Math = Math;
+  
+  // Signal pour gérer l'affichage du popup de blocage
+  private readonly showBlockedPopup = signal<boolean>(false);
+  private readonly blockedProjectTitle = signal<string>('');
 
-private readonly canCreateProjectSignal = signal<boolean>(false);
-private readonly isCheckingPermission = signal<boolean>(true);
+  // Computed signals pour le template
+  readonly isBlockedPopupVisible = computed(() => this.showBlockedPopup());
+  readonly blockedProjectName = computed(() => this.blockedProjectTitle());
+  
+  // Injection de dépendances 
+  private readonly router = inject(Router);
+  public readonly realestateService = inject(RealestateService);
+  public readonly subscriptionService = inject(SubscriptionService);
+  private readonly fb = inject(FormBuilder);
+  private apiImagesService = inject(RealestateService);
+  private readonly authservice = inject(AuthService);
 
-// Computed signal pour l'accès dans le template
-readonly canCreateProject = computed(() => this.canCreateProjectSignal());
-readonly checkingPermission = computed(() => this.isCheckingPermission());
+  private readonly canCreateProjectSignal = signal<boolean>(false);
+  private readonly isCheckingPermission = signal<boolean>(true);
+
+  // Computed signal pour l'accès dans le template
+  readonly canCreateProject = computed(() => this.canCreateProjectSignal());
+  readonly checkingPermission = computed(() => this.isCheckingPermission());
 
   promoterId: number = 0;
 
   @Input() project: any;
-  filebaseUrl = "https://wakana.online/repertoire_chantier/";
+  filebaseUrl = environment.filebaseUrl;
 
   // Configuration pour pagination dynamique
-  private readonly DEFAULT_PAGE_SIZE = 6; // Changé à 2 pour charger par groupes de 2
+  private readonly DEFAULT_PAGE_SIZE = 6;
   private readonly SEARCH_DEBOUNCE_TIME = 300;
   private readonly REQUEST_TIMEOUT = 15000;
   private readonly MAX_RETRIES = 2;
@@ -152,12 +163,12 @@ readonly checkingPermission = computed(() => this.isCheckingPermission());
 
   // Subjects pour la gestion des événements
   private readonly searchSubject = new Subject<ProjectFilters>();
-  private readonly loadMoreSubject = new Subject<void>(); // Nouveau subject pour "Charger plus"
+  private readonly loadMoreSubject = new Subject<void>();
   private readonly refreshSubject = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
 
   // Options de configuration dynamique
-  readonly pageSizeOptions = [2, 5, 10, 20] as const; // Commencer par 2
+  readonly pageSizeOptions = [2, 5, 10, 20] as const;
 
   constructor() {
     effect(() => {
@@ -209,8 +220,8 @@ readonly checkingPermission = computed(() => this.isCheckingPermission());
           // Vérifier les permissions de création de projet
           this.checkCanCreateProject();
           
-          this.loadInitialData();
-          this.AfficherListeProjetByPrompter();
+          // Déclencher le chargement initial des projets
+          this.searchSubject.next(this.mapFormToFilters(this.searchForm.value));
         } else {
           this.updateState({ 
             loading: false, 
@@ -227,43 +238,45 @@ readonly checkingPermission = computed(() => this.isCheckingPermission());
       }
     });
   }
-/**
- * Vérifie si l'utilisateur peut créer un nouveau projet
- */
-private checkCanCreateProject(): void {
-  if (!this.promoterId || this.promoterId <= 0) {
-    console.warn("Impossible de vérifier les permissions: ID promoteur invalide");
-    this.canCreateProjectSignal.set(false);
-    this.isCheckingPermission.set(false);
-    return;
+
+  /**
+   * Vérifie si l'utilisateur peut créer un nouveau projet
+   */
+  private checkCanCreateProject(): void {
+    if (!this.promoterId || this.promoterId <= 0) {
+      console.warn("Impossible de vérifier les permissions: ID promoteur invalide");
+      this.canCreateProjectSignal.set(false);
+      this.isCheckingPermission.set(false);
+      return;
+    }
+
+    console.log("🔍 Vérification des permissions de création de projet pour userId:", this.promoterId);
+    
+    this.isCheckingPermission.set(true);
+
+    this.subscriptionService.canCreateProject(this.promoterId).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      retry(1),
+      catchError(error => {
+        console.error("❌ Erreur lors de la vérification des permissions:", error);
+        // En cas d'erreur, on considère que l'utilisateur ne peut pas créer
+        this.canCreateProjectSignal.set(false);
+        return of(false);
+      }),
+      finalize(() => this.isCheckingPermission.set(false)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (canCreate: boolean) => {
+        console.log("✅ Permission de créer un projet:", canCreate);
+        this.canCreateProjectSignal.set(canCreate);
+      },
+      error: (error) => {
+        console.error("❌ Erreur finale lors de la vérification:", error);
+        this.canCreateProjectSignal.set(false);
+      }
+    });
   }
 
-  console.log("🔍 Vérification des permissions de création de projet pour userId:", this.promoterId);
-  
-  this.isCheckingPermission.set(true);
-
-  this.subscriptionService.canCreateProject(this.promoterId).pipe(
-    timeout(this.REQUEST_TIMEOUT),
-    retry(1),
-    catchError(error => {
-      console.error("❌ Erreur lors de la vérification des permissions:", error);
-      // En cas d'erreur, on considère que l'utilisateur ne peut pas créer
-      this.canCreateProjectSignal.set(false);
-      return of(false);
-    }),
-    finalize(() => this.isCheckingPermission.set(false)),
-    takeUntil(this.destroy$)
-  ).subscribe({
-    next: (canCreate: boolean) => {
-      console.log("✅ Permission de créer un projet:", canCreate);
-      this.canCreateProjectSignal.set(canCreate);
-    },
-    error: (error) => {
-      console.error("❌ Erreur finale lors de la vérification:", error);
-      this.canCreateProjectSignal.set(false);
-    }
-  });
-}
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -317,7 +330,7 @@ private checkCanCreateProject(): void {
     // Combinaison des flux
     merge(initialSearchFlow$, loadMoreFlow$)
       .pipe(
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
         tap(({ isLoadMore }) => {
           if (!isLoadMore) {
             this.updateState({ loading: true, error: null });
@@ -327,60 +340,17 @@ private checkCanCreateProject(): void {
         }),
         switchMap(({ filters, page, isRefresh, isLoadMore }) => 
           this.loadProjectsWithRetry(filters, page, isRefresh, isLoadMore)
-        )
+        ),
+        catchError(error => {
+          console.error('Erreur dans le flux principal:', error);
+          this.handleLoadError(error);
+          return EMPTY;
+        })
       )
       .subscribe();
   }
 
-  AfficherListeProjetByPrompter(): void {
-    if (!this.promoterId || this.promoterId <= 0) {
-      console.warn("ID promoteur invalide:", this.promoterId);
-      this.updateState({ 
-        loading: false, 
-        error: "ID promoteur invalide" 
-      });
-      return;
-    }
-
-    console.log("ID utilisateur avant envoi:", this.promoterId);
-    
-    this.realestateService.getlisteProjectsByPromoters(this.promoterId).pipe(
-      timeout(this.REQUEST_TIMEOUT),
-      retry(1),
-      catchError(error => {
-        console.error("Erreur lors de la récupération des projets:", error);
-        let errorMessage = "Erreur lors de la récupération des projets";
-        
-        if (error.error && typeof error.error === 'string' && error.error.includes('<!DOCTYPE')) {
-          errorMessage = "Le serveur retourne du HTML au lieu de JSON. Vérifiez l'URL de l'API.";
-        } else if (error.status === 0) {
-          errorMessage = "Impossible de contacter le serveur. Vérifiez l'URL de l'API et la connexion.";
-        } else if (error.status === 404) {
-          errorMessage = "Endpoint non trouvé. Vérifiez l'URL de l'API.";
-        }
-        
-        this.updateState({ 
-          loading: false, 
-          error: errorMessage 
-        });
-        return EMPTY;
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response) => {
-        console.log('Liste des projets récupérée:', response);
-        this.updateState({ loading: false });
-      }
-    });
-  }
-
   // ============ CHARGEMENT DES DONNÉES AVEC PAGINATION DYNAMIQUE ============
-
-  private loadInitialData(): void {
-    if (this.promoterId && this.promoterId > 0) {
-      this.searchSubject.next(this.mapFormToFilters(this.searchForm.value));
-    }
-  }
 
   private loadProjectsWithRetry(
     filters: ProjectFilters, 
@@ -390,7 +360,11 @@ private checkCanCreateProject(): void {
   ): Observable<void> {
     if (!this.promoterId || this.promoterId <= 0) {
       console.warn("Tentative de chargement avec ID promoteur invalide:", this.promoterId);
-      return of(void 0);
+      this.updateState({ 
+        loading: false, 
+        error: "ID promoteur invalide" 
+      });
+      return EMPTY;
     }
 
     return this.realestateService
@@ -420,7 +394,10 @@ private checkCanCreateProject(): void {
     isRefresh: boolean,
     isLoadMore: boolean
   ): void {
-    const newProjects = this.filterProjectsLocally(response.content || [], filters);
+    // Filtrer les projets localement si nécessaire
+    const newProjects = response.content || [];
+    const filteredProjects = this.filterProjectsLocally(newProjects, filters);
+    
     const currentState = this.stateSignal();
     
     let updatedProjects: any[];
@@ -428,14 +405,14 @@ private checkCanCreateProject(): void {
     
     if (isRefresh || page === 0) {
       // Nouveau chargement ou rafraîchissement
-      updatedProjects = newProjects;
+      updatedProjects = filteredProjects;
       newCurrentPage = 0;
     } else if (isLoadMore) {
       // Ajout de nouveaux projets à la liste existante
-      updatedProjects = [...currentState.projects, ...newProjects];
+      updatedProjects = [...currentState.projects, ...filteredProjects];
       newCurrentPage = page;
     } else {
-      updatedProjects = newProjects;
+      updatedProjects = filteredProjects;
     }
 
     // Calcul des états de pagination
@@ -463,7 +440,7 @@ private checkCanCreateProject(): void {
       error: null
     });
 
-    console.log(`Page ${page} chargée: ${newProjects.length} nouveaux projets. Total: ${loadedCount}/${totalElements}. Peut charger plus: ${canLoadMore}`);
+    console.log(`Page ${page} chargée: ${filteredProjects.length} nouveaux projets. Total: ${loadedCount}/${totalElements}. Peut charger plus: ${canLoadMore}`);
   }
 
   // ============ MÉTHODES PUBLIQUES POUR LA PAGINATION DYNAMIQUE ============
@@ -663,11 +640,58 @@ private checkCanCreateProject(): void {
   }
 
   onProjectClick(project: any): void {
-    if (project && project.id) {
-      this.router.navigate(['/detailprojet', project.id]);
+    if (!project || !project.id) {
+      return;
     }
+  
+    // Vérifier si le projet est bloqué
+    if (project.blocked === true) {
+      console.warn('⚠️ Projet bloqué:', project.title);
+      this.blockedProjectTitle.set(project.title || 'Ce projet');
+      this.showBlockedPopup.set(true);
+      return;
+    }
+  
+    // Si le projet n'est pas bloqué, naviguer normalement
+    this.router.navigate(['/detailprojet', project.id]);
   }
-
+  
+  /**
+   * Ferme le popup de projet bloqué
+   */
+  closeBlockedPopup(): void {
+    this.showBlockedPopup.set(false);
+    this.blockedProjectTitle.set('');
+  }
+  
+  /**
+   * Redirige vers la page d'abonnement depuis le popup
+   */
+  goToSubscription(): void {
+    this.closeBlockedPopup();
+    this.router.navigate(['/mon-compte']);
+  }
+  
+  /**
+   * Vérifie si un projet est bloqué
+   */
+  isProjectBlocked(project: any): boolean {
+    return project?.blocked === true;
+  }
+  
+  /**
+   * Obtient la classe CSS pour un projet bloqué
+   */
+  getProjectCardClass(project: any): string {
+    const baseClass = 'bg-white rounded-[10px] overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 w-full max-w-[410px] mx-auto h-full';
+    
+    if (this.isProjectBlocked(project)) {
+      return `${baseClass} opacity-60 cursor-not-allowed hover:shadow-md`;
+    }
+    
+    return baseClass;
+  }
+  
   onImageLoad(event: Event): void {
     console.log('Image chargée avec succès:', (event.target as HTMLImageElement).src);
   }
@@ -686,134 +710,135 @@ private checkCanCreateProject(): void {
     if (project.progress > 0) return 'status-in-progress';
     return 'status-pending';
   }
+  
   // Dans votre composant
-getLoadingPercentage(): number {
-  return Math.round((this.pagination().loadedCount / this.pagination().totalElements) * 100);
-}
-
-// Remplacez les méthodes goToPreviousPage et goToNextPage existantes par celles-ci :
-
-// Remplacez les méthodes goToPreviousPage et goToNextPage existantes par celles-ci :
-
-goToPreviousPage(): void {
-  const currentState = this.stateSignal();
-  if (currentState.currentPage > 0) {
-    const targetPage = currentState.currentPage - 1;
-    console.log(`Navigation vers la page précédente: ${targetPage + 1}`);
-    this.loadSpecificPage(targetPage);
-  } else {
-    console.log("Déjà sur la première page");
-  }
-}
-
-goToNextPage(): void {
-  const currentState = this.stateSignal();
-  if (currentState.currentPage < currentState.totalPages - 1) {
-    const targetPage = currentState.currentPage + 1;
-    this.loadSpecificPage(targetPage);
-  }
-}
-
-// Nouvelle méthode pour charger une page spécifique
-private loadSpecificPage(page: number): void {
-  if (!this.promoterId || this.promoterId <= 0) {
-    console.warn("ID promoteur invalide:", this.promoterId);
-    return;
+  getLoadingPercentage(): number {
+    const totalElements = this.pagination().totalElements;
+    const loadedCount = this.pagination().loadedCount;
+    
+    if (totalElements === 0) return 0;
+    return Math.round((loadedCount / totalElements) * 100);
   }
 
-  console.log(`Chargement de la page ${page + 1}...`);
+  goToPreviousPage(): void {
+    const currentState = this.stateSignal();
+    if (currentState.currentPage > 0) {
+      const targetPage = currentState.currentPage - 1;
+      console.log(`Navigation vers la page précédente: ${targetPage + 1}`);
+      this.loadSpecificPage(targetPage);
+    } else {
+      console.log("Déjà sur la première page");
+    }
+  }
 
-  // Mettre à jour l'état pour indiquer le chargement
-  this.updateState({ 
-    loading: true, 
-    error: null 
-  });
+  goToNextPage(): void {
+    const currentState = this.stateSignal();
+    if (currentState.currentPage < currentState.totalPages - 1) {
+      const targetPage = currentState.currentPage + 1;
+      this.loadSpecificPage(targetPage);
+    }
+  }
 
-  const filters = this.mapFormToFilters(this.searchForm.value);
-  
-  this.realestateService
-    .getAllProjectsPaginated(this.promoterId, page, this.stateSignal().pageSize)
-    .pipe(
-      timeout(this.REQUEST_TIMEOUT),
-      retry({
-        count: this.MAX_RETRIES,
-        delay: (error, retryCount) => {
-          console.warn(`Tentative ${retryCount + 1}/${this.MAX_RETRIES + 1} échouée:`, error.message);
-          return timer(1000 * Math.pow(2, retryCount));
-        }
-      }),
-      tap((response) => {
-        console.log(`Page ${page + 1} chargée avec succès, response:`, response);
-        this.processSpecificPageResponse(response, filters, page);
-      }),
-      catchError(error => this.handleLoadError(error)),
-      finalize(() => this.updateState({ loading: false })),
-      takeUntil(this.destroy$)
-    )
-    .subscribe({
-      next: () => {
-        console.log(`Navigation vers la page ${page + 1} terminée`);
-      },
-      error: (error) => {
-        console.error(`Erreur lors du chargement de la page ${page + 1}:`, error);
-      }
+  // Nouvelle méthode pour charger une page spécifique
+  private loadSpecificPage(page: number): void {
+    if (!this.promoterId || this.promoterId <= 0) {
+      console.warn("ID promoteur invalide:", this.promoterId);
+      return;
+    }
+
+    console.log(`Chargement de la page ${page + 1}...`);
+
+    // Mettre à jour l'état pour indiquer le chargement
+    this.updateState({ 
+      loading: true, 
+      error: null 
     });
-}
 
-// Nouvelle méthode spécifique pour traiter la réponse d'une page donnée
-private processSpecificPageResponse(
-  response: PaginatedResponse<any>,
-  filters: ProjectFilters,
-  page: number
-): void {
-  const newProjects = this.filterProjectsLocally(response.content || [], filters);
-  
-  // Pour la navigation par pages, on remplace complètement les projets
-  const updatedProjects = newProjects;
-
-  // Calcul des états de pagination
-  const totalElements = response.totalElements ?? 0;
-  const totalPages = response.totalPages ?? 0;
-  
-  // Mise à jour de l'état avec la nouvelle page
-  this.updateState({
-    projects: updatedProjects,
-    totalElements,
-    totalPages,
-    currentPage: page,
-    hasMore: page < totalPages - 1,
-    allProjectsLoaded: false,
-    canLoadMore: false, // Désactiver le "charger plus" en mode pagination normale
-    loading: false,
-    error: null
-  });
-
-  console.log(`Page ${page + 1} traitée: ${updatedProjects.length} projets. Total: ${totalElements}, Pages: ${totalPages}`);
-}
-
-// Méthode utilitaire pour obtenir le nombre total de pages
-getTotalPages(): number {
-  return this.pagination().totalPages;
-}
-
-// Méthode utilitaire pour vérifier si on peut naviguer vers la page précédente
-canGoPrevious(): boolean {
-  return this.pagination().currentPage > 0;
-}
-
-// Méthode utilitaire pour vérifier si on peut naviguer vers la page suivante
-canGoNext(): boolean {
-  const pag = this.pagination();
-  return pag.currentPage < pag.totalPages - 1;
-}
-
-// Méthode pour aller directement à une page spécifique (utile pour une pagination numérotée)
-goToPage(page: number): void {
-  const currentState = this.stateSignal();
-  if (page >= 0 && page < currentState.totalPages && page !== currentState.currentPage) {
-    this.loadSpecificPage(page);
+    const filters = this.mapFormToFilters(this.searchForm.value);
+    
+    this.realestateService
+      .getAllProjectsPaginated(this.promoterId, page, this.stateSignal().pageSize)
+      .pipe(
+        timeout(this.REQUEST_TIMEOUT),
+        retry({
+          count: this.MAX_RETRIES,
+          delay: (error, retryCount) => {
+            console.warn(`Tentative ${retryCount + 1}/${this.MAX_RETRIES + 1} échouée:`, error.message);
+            return timer(1000 * Math.pow(2, retryCount));
+          }
+        }),
+        tap((response) => {
+          console.log(`Page ${page + 1} chargée avec succès, response:`, response);
+          this.processSpecificPageResponse(response, filters, page);
+        }),
+        catchError(error => this.handleLoadError(error)),
+        finalize(() => this.updateState({ loading: false })),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: () => {
+          console.log(`Navigation vers la page ${page + 1} terminée`);
+        },
+        error: (error) => {
+          console.error(`Erreur lors du chargement de la page ${page + 1}:`, error);
+        }
+      });
   }
-}
+
+  // Nouvelle méthode spécifique pour traiter la réponse d'une page donnée
+  private processSpecificPageResponse(
+    response: PaginatedResponse<any>,
+    filters: ProjectFilters,
+    page: number
+  ): void {
+    const newProjects = this.filterProjectsLocally(response.content || [], filters);
+    
+    // Pour la navigation par pages, on remplace complètement les projets
+    const updatedProjects = newProjects;
+
+    // Calcul des états de pagination
+    const totalElements = response.totalElements ?? 0;
+    const totalPages = response.totalPages ?? 0;
+    
+    // Mise à jour de l'état avec la nouvelle page
+    this.updateState({
+      projects: updatedProjects,
+      totalElements,
+      totalPages,
+      currentPage: page,
+      hasMore: page < totalPages - 1,
+      allProjectsLoaded: false,
+      canLoadMore: false, // Désactiver le "charger plus" en mode pagination normale
+      loading: false,
+      error: null
+    });
+
+    console.log(`Page ${page + 1} traitée: ${updatedProjects.length} projets. Total: ${totalElements}, Pages: ${totalPages}`);
+  }
+
+  // Méthode utilitaire pour obtenir le nombre total de pages
+  getTotalPages(): number {
+    return this.pagination().totalPages;
+  }
+
+  // Méthode utilitaire pour vérifier si on peut naviguer vers la page précédente
+  canGoPrevious(): boolean {
+    return this.pagination().currentPage > 0;
+  }
+
+  // Méthode utilitaire pour vérifier si on peut naviguer vers la page suivante
+  canGoNext(): boolean {
+    const pag = this.pagination();
+    return pag.currentPage < pag.totalPages - 1;
+  }
+
+  // Méthode pour aller directement à une page spécifique (utile pour une pagination numérotée)
+  goToPage(page: number): void {
+    const currentState = this.stateSignal();
+    if (page >= 0 && page < currentState.totalPages && page !== currentState.currentPage) {
+      this.loadSpecificPage(page);
+    }
+  }
 
   getProgressBarClass(progress: number): string {
     if (progress < 30) return 'progress-low';

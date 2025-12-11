@@ -72,6 +72,7 @@ export interface RealEstateProject {
   plan?: string;
   averageProgess?: number;
   qrcode:string;
+  blocked: boolean;
 }
 
 export interface PropertyType {
@@ -354,22 +355,23 @@ export class RealestateService {
       );
   }
 
-  /**
-   * Transform API projects to display format
-   */
-  private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
-    return apiProjects.map(project => ({
-      id: project.id || 0,
-      title: project.name,
-      location: this.extractLocationFromAddress(project.address),
-      address: project.address,
-      startDate: this.formatDisplayDate(project.startDate),
-      endDate: this.formatDisplayDate(project.endDate),
-      progress: this.calculateProgress(project.startDate, project.endDate),
-      plan: this.apiImageUrl + (project.plan || ''),
-      available: project.available
-    }));
-  }
+
+
+private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
+  return apiProjects.map(project => ({
+    id: project.id || 0,
+    title: project.name,
+    location: this.extractLocationFromAddress(project.address),
+    address: project.address,
+    startDate: this.formatDisplayDate(project.startDate),
+    endDate: this.formatDisplayDate(project.endDate),
+    progress: this.calculateProgress(project.startDate, project.endDate),
+    plan: this.apiImageUrl + (project.plan || ''),
+    available: project.available,
+    blocked: project.blocked === true, 
+    name: project.name // Garder aussi le nom original
+  }));
+}
 
   /**
    * Extract location from address

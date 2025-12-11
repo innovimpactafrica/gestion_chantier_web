@@ -185,9 +185,10 @@
 
       <!-- ========== MENU STANDARD (Non-BET, Non-SUPPLIER, Non-ADMIN) ========== -->
       <!-- Dashboard -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-	                   (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile() && canAccessDashboard()">
+        <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" 
+           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                    (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
                          (isActive('dashboard') ? 'brightness-0 invert' : '')" srcset="">
@@ -203,9 +204,10 @@
 
       <!-- ========== MENU BET ========== -->
       <!-- Dashboard Etude -->
-      <li *ngIf="isBETProfile()">
-        <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                   (isActive('dashboard-etude') ? 'bg-[#FF5C02] text-white' : '')">
+      <li *ngIf="isBETProfile() && canAccessDashboard()">
+        <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" 
+           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                    (isActive('dashboard-etude') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
                          (isActive('dashboard-etude') ? 'brightness-0 invert' : '')" srcset="">
@@ -252,9 +254,10 @@
 
       <!-- ========== MENU SUPPLIER ========== -->
       <!-- Dashboard Fournisseur -->
-      <li *ngIf="isSUPPLIERProfile()">
-        <a (click)="navigateTo('/dashboardf', 'Tableau de bord', 'dashboardf')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                   (isActive('dashboardf') ? 'bg-[#FF5C02] text-white' : '')">
+      <li *ngIf="isSUPPLIERProfile() && canAccessDashboard()">
+        <a (click)="navigateTo('/dashboardf', 'Tableau de bord', 'dashboardf')" 
+           [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                    (isActive('dashboardf') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
                          (isActive('dashboardf') ? 'brightness-0 invert' : '')" srcset="">

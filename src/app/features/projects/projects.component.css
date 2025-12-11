@@ -94,3 +94,30 @@
   .animate-spin {
     animation: spin 1s linear infinite;
   }
+
+
+  /* Animation pour le popup */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fixed > div {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Style pour les projets bloqués */
+.opacity-60 {
+  position: relative;
+}
+
+/* Effet de survol désactivé pour les projets bloqués */
+.cursor-not-allowed:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}

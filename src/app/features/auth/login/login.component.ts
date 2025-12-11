@@ -67,7 +67,34 @@ export class LoginComponent implements OnInit {
       ]]
     });
   }
+  isADMINProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
+    }
 
+    if (typeof user.profil === 'string') {
+      return user.profil === 'ADMIN';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('ADMIN' as any);
+    }
+
+    return false;
+  }
+
+  // Signals pour la gestion de l'abonnement
+  private readonly hasActiveSubscription = signal<boolean>(false);
+  private readonly isCheckingSubscription = signal<boolean>(true);
+
+  // Computed signals pour le template
+  readonly canAccessDashboard = computed(() => {
+    // Les ADMIN ont toujours accès
+    if (this.isADMINProfile()) {
+      return true;
+    }
+    // Les autres profils doivent avoir un abonnement actif
+    return this.hasActiveSubscription();
+  });
   ngOnInit(): void {
     // Vérifier si l'utilisateur est déjà connecté
     if (this.authService.isAuthenticated()) {
