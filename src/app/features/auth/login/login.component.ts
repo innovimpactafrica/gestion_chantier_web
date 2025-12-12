@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, profil, UserProfile } from '../../../features/auth/services/auth.service';
+import { SubscriptionService } from '../../../../services/subscription.service';
 
 interface AlertMessage {
   type: 'success' | 'error' | 'warning';
@@ -29,6 +30,20 @@ export class LoginComponent implements OnInit {
     show: false
   });
 
+  // Signals pour la gestion de l'abonnement
+  private readonly hasActiveSubscription = signal<boolean>(false);
+  private readonly isCheckingSubscription = signal<boolean>(false);
+
+  // Computed signals pour le template
+  readonly canAccessDashboard = computed(() => {
+    // Les ADMIN ont toujours accès
+    if (this.isADMINProfile()) {
+      return true;
+    }
+    // Les autres profils doivent avoir un abonnement actif
+    return this.hasActiveSubscription();
+  });
+
   // Regex pour validation
   private readonly phoneRegex = /^7[05678]\d{7}$/;
   private readonly emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -41,7 +56,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private subscriptionService: SubscriptionService
   ) {
     // Formulaire de connexion - utilise un validateur personnalisé
     this.loginForm = this.fb.group({
@@ -67,6 +83,7 @@ export class LoginComponent implements OnInit {
       ]]
     });
   }
+
   isADMINProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {
@@ -82,23 +99,40 @@ export class LoginComponent implements OnInit {
     return false;
   }
 
-  // Signals pour la gestion de l'abonnement
-  private readonly hasActiveSubscription = signal<boolean>(false);
-  private readonly isCheckingSubscription = signal<boolean>(true);
-
-  // Computed signals pour le template
-  readonly canAccessDashboard = computed(() => {
-    // Les ADMIN ont toujours accès
-    if (this.isADMINProfile()) {
-      return true;
+  isBETProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
     }
-    // Les autres profils doivent avoir un abonnement actif
-    return this.hasActiveSubscription();
-  });
+
+    if (typeof user.profil === 'string') {
+      return user.profil === 'BET';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('BET' as any);
+    }
+
+    return false;
+  }
+
+  isSUPPLIERProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    if (typeof user.profil === 'string') {
+      return user.profil === 'SUPPLIER';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('SUPPLIER' as any);
+    }
+
+    return false;
+  }
+
   ngOnInit(): void {
     // Vérifier si l'utilisateur est déjà connecté
     if (this.authService.isAuthenticated()) {
-      this.redirectToDashboard();
+      this.redirectBasedOnSubscription();
     }
   }
 
@@ -172,9 +206,11 @@ export class LoginComponent implements OnInit {
   get emailLabel(): string {
     return 'Email ou Téléphone';
   }
-navigateToHome (){
- this.router.navigate(['/'])
-}
+
+  navigateToHome(): void {
+    this.router.navigate(['/']);
+  }
+
   navigateToRegister(): void {
     this.router.navigateByUrl('/register');
   }
@@ -264,57 +300,138 @@ navigateToHome (){
     try {
       console.log('📥 Réponse serveur complète:', response);
 
-      // Indicateurs de profil
-      let isBET = false;
-      let isSUPPLIER = false;
-      let isADMIN = false;
+      // ✅ ÉTAPE 1: Attendre que l'AuthService rafraîchisse l'utilisateur
+      this.authService.refreshUser().subscribe({
+        next: (user) => {
+          console.log('✅ Utilisateur rafraîchi:', user);
+          
+          // Vérifier que le token est bien présent
+          const token = this.authService.getToken();
+          console.log('🔑 Token présent après refresh:', !!token);
 
-      try {
-        // ✅ Décoder le token JWT
-        const tokenParts = response?.token?.split('.');
-        if (!tokenParts || tokenParts.length < 2) {
-          throw new Error('Token JWT invalide ou manquant');
-        }
+          // Indicateurs de profil
+          let isBET = false;
+          let isSUPPLIER = false;
+          let isADMIN = false;
 
-        const payload = JSON.parse(atob(tokenParts[1]));
-        console.log('🔍 Payload JWT:', payload);
+          try {
+            // ✅ Décoder le token JWT
+            const tokenParts = response?.token?.split('.');
+            if (!tokenParts || tokenParts.length < 2) {
+              throw new Error('Token JWT invalide ou manquant');
+            }
 
-        // ✅ Lecture flexible du profil
-        const profile = payload.profil || payload.profile || payload.role;
-        isBET = profile === 'BET';
-        isSUPPLIER = profile === 'SUPPLIER';
-        isADMIN = profile === 'ADMIN';
+            const payload = JSON.parse(atob(tokenParts[1]));
+            console.log('🔍 Payload JWT:', payload);
 
-        console.log('✅ Profil détecté:', profile, '| isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
+            // ✅ Lecture flexible du profil
+            const profile = payload.profil || payload.profile || payload.role;
+            isBET = profile === 'BET';
+            isSUPPLIER = profile === 'SUPPLIER';
+            isADMIN = profile === 'ADMIN';
 
-      } catch (tokenError) {
-        console.error('❌ Impossible de lire le token, utilisation du service:', tokenError);
+            console.log('✅ Profil détecté:', profile, '| isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
 
-        // 🔁 Fallback: vérifier via le service Auth
-        setTimeout(() => {
-          const isBETFallback = this.authService.isBETProfile();
-          const isSUPPLIERFallback = this.authService.isSUPPLIERProfile();
-          const isADMINFallback = this.authService.isADMINProfile();
-          console.log('🔄 Fallback - Vérification via service:', { 
-            isBETFallback, 
-            isSUPPLIERFallback, 
-            isADMINFallback 
-          });
+          } catch (tokenError) {
+            console.error('❌ Impossible de lire le token, utilisation du service:', tokenError);
+
+            // 🔁 Fallback: vérifier via le service Auth
+            isBET = this.authService.isBETProfile();
+            isSUPPLIER = this.authService.isSUPPLIERProfile();
+            isADMIN = this.authService.isADMINProfile();
+            console.log('🔄 Fallback - Vérification via service:', { 
+              isBET, 
+              isSUPPLIER, 
+              isADMIN 
+            });
+          }
+
+          // ✅ Redirection basée sur l'abonnement
+          this.redirectBasedOnSubscription(isBET, isSUPPLIER, isADMIN);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du refresh utilisateur:', error);
           this.isLoading.set(false);
-          this.redirectToDashboard(isBETFallback, isSUPPLIERFallback, isADMINFallback);
-        }, 300);
-        return;
-      }
-
-      // ✅ Redirection principale
-      this.isLoading.set(false);
-      this.redirectToDashboard(isBET, isSUPPLIER, isADMIN);
+          // Tenter une redirection par défaut
+          this.redirectBasedOnSubscription(false, false, false);
+        }
+      });
 
     } catch (error) {
       console.error('❌ Erreur critique lors du traitement:', error);
       this.isLoading.set(false);
-      this.redirectToDashboard(false, false, false);
+      this.redirectBasedOnSubscription(false, false, false);
     }
+  }
+
+  /**
+   * Vérifie l'abonnement et redirige l'utilisateur en conséquence
+   */
+  private redirectBasedOnSubscription(isBET?: boolean, isSUPPLIER?: boolean, isADMIN?: boolean): void {
+    // 🔄 Valeurs par défaut si non définies
+    if (isBET === undefined) isBET = this.authService.isBETProfile();
+    if (isSUPPLIER === undefined) isSUPPLIER = this.authService.isSUPPLIERProfile();
+    if (isADMIN === undefined) isADMIN = this.authService.isADMINProfile();
+
+    console.log('🎯 Vérification redirection - isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
+
+    // ✅ PRIORITÉ 1: Les ADMIN ont toujours accès au dashboard
+    if (isADMIN) {
+      this.isLoading.set(false);
+      this.redirectToDashboard(isBET, isSUPPLIER, isADMIN);
+      return;
+    }
+
+    // ✅ PRIORITÉ 2: Vérifier l'abonnement pour les autres profils
+    const user = this.authService.currentUser();
+    if (!user || !user.id) {
+      console.error('❌ Utilisateur non trouvé ou ID manquant');
+      this.isLoading.set(false);
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    console.log('🔍 Vérification de l\'abonnement pour userId:', user.id);
+    this.isCheckingSubscription.set(true);
+
+    this.subscriptionService.seeActive(user.id).subscribe({
+      next: (isActive: boolean) => {
+        console.log('✅ Statut abonnement actif:', isActive);
+        this.hasActiveSubscription.set(isActive);
+        this.isCheckingSubscription.set(false);
+        this.isLoading.set(false);
+
+        if (isActive) {
+          // L'utilisateur a un abonnement actif, redirection vers le dashboard
+          this.redirectToDashboard(isBET, isSUPPLIER, isADMIN);
+        } else {
+          // Pas d'abonnement actif, redirection vers mon-compte (onglet abonnements)
+          console.log('⚠️ Pas d\'abonnement actif, redirection vers mon-compte');
+          this.router.navigate(['/mon-compte'], { 
+            queryParams: { tab: 'abonnements' }
+          }).then(success => {
+            if (success) {
+              this.showAlert('warning', 'Veuillez souscrire à un abonnement pour accéder au dashboard.');
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur vérification abonnement:', error);
+        this.hasActiveSubscription.set(false);
+        this.isCheckingSubscription.set(false);
+        this.isLoading.set(false);
+        
+        // En cas d'erreur, redirection vers mon-compte par sécurité
+        this.router.navigate(['/mon-compte'], { 
+          queryParams: { tab: 'abonnements' }
+        }).then(success => {
+          if (success) {
+            this.showAlert('error', 'Erreur lors de la vérification de votre abonnement. Veuillez réessayer.');
+          }
+        });
+      }
+    });
   }
 
   private redirectToDashboard(isBET?: boolean, isSUPPLIER?: boolean, isADMIN?: boolean): void {

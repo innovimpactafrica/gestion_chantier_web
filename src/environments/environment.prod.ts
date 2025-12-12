@@ -3,7 +3,7 @@ export const environment = {
   production: true,
   apiBaseUrl: 'https://wakana.online',
   apiUrl: 'https://wakana.online/api',
-
+  apiUrlAddress:'https://wakana.online/api/pointing-addresses',
   filebaseUrl: 'https://wakana.online/repertoire_chantier/',
   endpoints: {
     // Dashboard Admin & Subscriptions

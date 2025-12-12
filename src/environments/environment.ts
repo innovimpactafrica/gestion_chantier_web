@@ -3,11 +3,13 @@ export const environment = {
   production: false,
   apiBaseUrl: 'https://wakana.online',
   apiUrl: 'https://wakana.online/api',
+  apiUrlAddress:'https://wakana.online/api/pointing-addresses',
   filebaseUrl: 'https://wakana.online/repertoire_chantier/',
   endpoints: {
     // Dashboard Admin & Subscriptions
     subscriptions: 'https://wakana.online/api/subscriptions',
     users: 'https://wakana.online/api/v1/user',
+  
     
     // Pharma Delivery Auth (ancien système)
     pharmaAuth: 'https://wakana.online/pharma-delivery/api/auth',

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface PointingAddress {
   id?: number;
@@ -28,7 +29,7 @@ export interface CreatePointingAddressRequest {
   providedIn: 'root'
 })
 export class PointingAddressService {
-  private apiUrl = 'https://wakana.online/api/pointing-addresses';
+  private apiUrl = environment.apiUrlAddress;
 
   constructor(private http: HttpClient) {}
 

@@ -23,6 +23,7 @@ export interface UpdateUserProfileData {
   profil?: string;
   photo?: File;
 }
+
   // Interface pour l'abonnement
   interface Subscription {
     id: number;
@@ -68,6 +69,8 @@ export interface UpdateUserProfileData {
     prenom: string;
     email: string;
     password: string;
+    date:string,
+    lieunaissance:string;
     adress: string;
     technicalSheet: string | null;
     profil: profil[]; // ⚠️ CORRECTION: array de profils
@@ -309,6 +312,46 @@ userProfile = computed(() => {
     ) {
       this.initializeAuthState();
     }
+    updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
+      console.log('🔄 Mise à jour de l\'utilisateur ID:', userId, 'avec FormData');
+    
+      // Log pour debug
+      console.log('📋 FormData contient:');
+      formData.forEach((value, key) => {
+        if (value instanceof File) {
+          console.log(`  - ${key}: [File] ${value.name} (${value.size} bytes)`);
+        } else {
+          console.log(`  - ${key}: ${value}`);
+        }
+      });
+    
+      // Headers avec uniquement Authorization
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${this.getToken()}`
+      });
+    
+      const updateUrl = `${this.userApiUrl}/update/${userId}`;
+      console.log('🌐 Endpoint:', updateUrl);
+    
+      return this.http.put<User>(updateUrl, formData, { headers }).pipe(
+        tap(updatedUser => {
+          console.log('✅ Utilisateur mis à jour avec succès:', updatedUser);
+          
+          // Mettre à jour l'utilisateur dans le state
+          this._currentUser.set(updatedUser);
+          
+          // Mettre à jour aussi dans localStorage
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            console.log('💾 Utilisateur mis à jour dans localStorage');
+          }
+        }),
+        catchError(error => {
+          console.error('❌ Erreur lors de la mise à jour:', error);
+          throw error;
+        })
+      );
+    }
 
     private initializeAuthState(): void {
       if (isPlatformBrowser(this.platformId)) {
@@ -373,11 +416,11 @@ userProfile = computed(() => {
         }
       });
 
-      return this.http.post(`${this.apiUrl}/signup`, formData);
+      return this.http.put(`${this.apiUrl}/signup`, formData);
     }
 
     registerWithFormData(data: FormData): Observable<any> {
-      return this.http.post(`${this.apiUrl}/signup`, data);
+      return this.http.put(`${this.apiUrl}/signup`, data);
     }
 
     login(credentials: { email: string; password: string }): Observable<LoginResponse> {

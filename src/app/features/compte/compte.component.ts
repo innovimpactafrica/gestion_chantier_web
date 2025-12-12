@@ -1054,42 +1054,69 @@ getUserPhotoUrl(): string {
     // Créer un FormData pour envoyer toutes les données
     const formData = new FormData();
     
-    // Liste des champs à envoyer (selon l'API)
-    const fieldsToSend = [
-      'nom',
-      'prenom', 
-      'email',
-      'telephone',
-      'date',
-      'lieunaissance',
-      'adress',
-      'profil'
-    ];
+    // ✅ Ajouter tous les champs du formulaire (incluant ceux modifiés)
+    const formValues = this.userForm.value;
+    
+    // Ajouter les champs obligatoires
+    if (formValues.nom) formData.append('nom', formValues.nom);
+    if (formValues.prenom) formData.append('prenom', formValues.prenom);
+    if (formValues.email) formData.append('email', formValues.email);
+    if (formValues.telephone) formData.append('telephone', formValues.telephone);
+    
+    // Ajouter les champs optionnels seulement s'ils ont une valeur
+    if (formValues.adress) formData.append('adress', formValues.adress);
+    
+    // ✅ Gérer le champ company correctement
+    if (formValues.company) {
+      // Si company existe et n'est pas vide, envoyer l'objet complet
+      const companyData = {
+        name: formValues.company
+      };
+      formData.append('company', JSON.stringify(companyData));
+    }
+    
+    // ✅ Ajouter les champs non modifiables mais nécessaires
+    if (user.date) formData.append('date', user.date);
+    if (user.lieunaissance) formData.append('lieunaissance', user.lieunaissance);
+    
+    // ✅ Gérer le profil correctement
+    let userProfile = '';
+    if (Array.isArray(user.profil) && user.profil.length > 0) {
+      userProfile = user.profil[0];
+    } else if (user.profils && typeof user.profils === 'string') {
+      userProfile = user.profils;
+    } else if (typeof user.profil === 'string') {
+      userProfile = user.profil as any;
+    }
+    
+    if (userProfile) {
+      formData.append('profil', userProfile);
+    }
   
-    // Ajouter les champs du formulaire
-    fieldsToSend.forEach(key => {
-      const value = this.userForm.get(key)?.value;
-      if (value !== null && value !== undefined && value !== '') {
-        formData.append(key, value);
-        console.log(`📝 Ajout ${key}:`, value);
-      }
-    });
-  
-    // Ajouter la photo si elle a été sélectionnée
+    // ✅ Ajouter la photo si elle a été sélectionnée
     if (this.selectedPhotoFile()) {
       formData.append('photo', this.selectedPhotoFile()!, this.selectedPhotoFile()!.name);
       console.log('📸 Photo ajoutée au FormData:', this.selectedPhotoFile()!.name);
     }
   
+    // 🔍 Debug: Afficher le contenu du FormData
+    console.log('📦 Contenu du FormData envoyé:');
+    formData.forEach((value, key) => {
+      console.log(`  ${key}:`, value instanceof File ? `[Fichier: ${value.name}]` : value);
+    });
+  
     console.log('🚀 Envoi de la mise à jour pour l\'utilisateur:', user.id);
   
     // Utiliser l'ID de l'utilisateur connecté
-    this.authService.updateUserProfile(formData, user.id).subscribe({
+    this.authService.updateUserWithFormData(user.id, formData).subscribe({
       next: (updatedUser) => {
         console.log('✅ Profil mis à jour avec succès:', updatedUser);
         
         // Mettre à jour l'état local
         this.currentUser.set(updatedUser);
+        
+        // Mettre à jour le formulaire avec les nouvelles données
+        this.populateForm(updatedUser);
         
         // Réinitialiser les états de la photo
         this.selectedPhotoFile.set(null);
@@ -1101,22 +1128,30 @@ getUserPhotoUrl(): string {
           this.loadUserPhoto();
         }
         
-        this.showSuccess('Vos informations ont été mises à jour avec succès');
+        this.showSuccess('✅ Vos informations ont été mises à jour avec succès');
         this.isSaving.set(false);
       },
       error: (error) => {
         console.error('❌ Erreur mise à jour profil:', error);
+        console.error('Détails de l\'erreur:', error.error);
         
         // Message d'erreur plus détaillé
         let errorMessage = 'Une erreur est survenue lors de la mise à jour';
+        
         if (error.error?.message) {
           errorMessage = error.error.message;
         } else if (error.status === 413) {
           errorMessage = 'La photo est trop volumineuse. Veuillez en choisir une plus petite.';
         } else if (error.status === 400) {
           errorMessage = 'Données invalides. Vérifiez les informations saisies.';
+          // Afficher les détails de validation s'ils existent
+          if (error.error?.errors) {
+            console.error('Erreurs de validation:', error.error.errors);
+          }
         } else if (error.status === 401) {
           errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+        } else if (error.status === 404) {
+          errorMessage = 'Utilisateur non trouvé.';
         }
         
         this.showError(errorMessage);
