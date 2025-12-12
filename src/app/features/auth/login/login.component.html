@@ -32,19 +32,19 @@
 
       <!-- Onglets de navigation -->
       <div class="flex mb-8">
-        <button class="flex-1 py-2 px-4 text-center rounded-l-lg font-medium"
+        <button class="flex-1 py-2 px-4 text-center rounded-lg font-medium"
           [class.bg-orange-500]="currentActiveTab === 'connexion'" [class.text-white]="currentActiveTab === 'connexion'"
           [class.bg-gray-100]="currentActiveTab !== 'connexion'"
           [class.text-gray-600]="currentActiveTab !== 'connexion'" (click)="setActiveTab('connexion')">
           Connexion
         </button>
-        <button class="flex-1 py-2 px-4 text-center rounded-r-lg font-medium"
+        <!-- <button class="flex-1 py-2 px-4 text-center rounded-r-lg font-medium"
           [class.bg-orange-500]="currentActiveTab === 'inscription'"
           [class.text-white]="currentActiveTab === 'inscription'"
           [class.bg-gray-100]="currentActiveTab !== 'inscription'"
           [class.text-gray-600]="currentActiveTab !== 'inscription'" (click)="setActiveTab('inscription')">
           Inscription
-        </button>
+        </button> -->
       </div>
 
       <!-- Formulaire de connexion -->
@@ -89,10 +89,17 @@
           </div>
         </div>
 
-        <!-- Lien Mot de passe oublié -->
-        <div class="text-right mb-6">
-          <a href="#" class="text-sm text-gray-600 hover:text-orange-500 underline italic">Mot de passe oublié ?</a>
-        </div>
+        <div class="flex justify-between items-center mb-6">
+  <!-- Lien Register -->
+  <a href="/register" class="text-sm text-orange-500 hover:text-orange-500 underline italic">
+    Créer un compte
+  </a>
+   <!-- Lien Mot de passe oublié -->
+  <a href="/resetpassword" class="text-sm text-gray-600 hover:text-orange-500 underline italic">
+    Mot de passe oublié ?
+  </a>
+</div>
+
 
         <!-- Bouton de connexion -->
         <button type="submit" [disabled]="currentIsLoading"
@@ -178,35 +185,7 @@
           S'inscrire
         </button>
 
-        <!-- Séparateur OU -->
-        <!-- <div class="flex items-center my-6">
-          <div class="flex-grow border-t border-gray-300"></div>
-          <span class="px-4 text-gray-500 text-sm">ou</span>
-          <div class="flex-grow border-t border-gray-300"></div>
-        </div> -->
-
-        <!-- Boutons de connexion sociale -->
-        <!-- <div class="flex space-x-4">
-          <button type="button"
-            class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
-            <img src="assets/images/google.png" alt="Google" class="h-5 w-5" />
-          </button>
-          <button type="button"
-            class="flex-1 border py-3 rounded-lg flex justify-center items-center hover:bg-gray-50 border-gray-300">
-            <img src="assets/images/apple.png" alt="Apple" class="h-5 w-5" />
-          </button>
-        </div> -->
-
-        <!-- Conditions d'utilisation -->
-        <!-- <div class="mt-6 text-center text-xs text-gray-600">
-          <span>
-            En m'inscrivant pour créer un compte, j'accepte les
-            <a href="#" class="text-orange-500 hover:underline">Conditions d'utilisation</a>
-            et la
-            <a href="#" class="text-orange-500 hover:underline">Politique de confidentialité</a>
-            de l'entreprise.
-          </span>
-        </div> -->
+       
       </form>
 
       <!-- Logo en bas de page -->

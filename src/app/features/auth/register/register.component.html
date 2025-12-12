@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-white flex flex-col">
   <!-- En-tête -->
-  <div class="flex items-center p-4 ">
-    <button class="text-orange-500 flex items-center mb-4" routerLink="/dashboard">
+  <div class="flex items-center p-4">
+    <button class="text-orange-500 flex items-center mb-4" routerLink="/login">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
@@ -9,8 +9,7 @@
     </button>
     <div class="flex-grow text-center">
       <div class="flex justify-center items-center mt-10">
-        <img src="assets/images/logo.svg" alt="Logo Innovchantiers" class="h-6 mr-2" />
-        <!-- <span class="text-lg font-medium">Innovchantiers inc.</span> -->
+        <img src="assets/images/btp.png" alt="Logo Innovchantiers" class="h-12 mr-2" />
       </div>
     </div>
     <div class="w-20"></div> <!-- Espacement pour centrer le logo -->
@@ -19,259 +18,196 @@
   <!-- Indicateur de progression -->
   <div class="w-full max-w-lg mx-auto mt-8 px-4">
     <div class="flex h-1 bg-gray-200 rounded-full overflow-hidden">
-      <div class="bg-orange-500" [ngClass]="{'w-1/2': currentStep === 1, 'w-full': currentStep === 2}"></div>
+      <div class="bg-orange-500 w-full"></div>
     </div>
   </div>
 
   <!-- Contenu principal -->
   <div class="flex-grow flex flex-col items-center justify-center p-4 mb-4">
     <div class="w-full max-w-lg mb-48">
-      <h1 class="text-3xl font-bold text-center mb-3">Personnalisez votre profil</h1>
-      <p class="text-center text-gray-600 mb-2">Un profil complet, une organisation prête à accueillir tous les membres.</p>
+      <h1 class="text-3xl font-bold text-center mb-3">Créer votre compte</h1>
+      <p class="text-center text-gray-600 mb-6">Rejoignez Innovchantiers et gérez vos projets efficacement.</p>
 
-      <!-- Étape 1: Informations personnelles -->
-      <div *ngIf="currentStep === 1" >
-
-        <div *ngIf="successMessage" class="bg-green-100 text-green-800 p-3 rounded mb-4">
-          {{ successMessage }}
-        </div>
-        
-        <div *ngIf="errorMessage" class="bg-red-100 text-red-800 p-3 rounded mb-4">
-          {{ errorMessage }}
-        </div>
-
-        <!-- Affichage des erreurs de validation -->
-        <div *ngIf="validationErrors.length > 0" class="bg-red-100 text-red-800 p-3 rounded mb-4">
-          <ul>
-            <li *ngFor="let error of validationErrors">{{ error }}</li>
-          </ul>
-        </div>
-        
-        <form [formGroup]="profileForm" (ngSubmit)="nextStep()">
-          <!-- Nom -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Nom <span class="text-red-500">*</span>
-            </label>
-            <input 
-              formControlName="nom" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Entrez votre nom" 
-            />
-          </div>
-        
-          <!-- Prénom -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Prénom <span class="text-red-500">*</span>
-            </label>
-            <input 
-              formControlName="prenom" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Entrez votre prénom" 
-            />
-          </div>
-        
-          <!-- Email -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Email <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="email" 
-              formControlName="email" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Adresse email" 
-            />
-          </div>
-        
-          <!-- Mot de passe -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Mot de passe <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="password" 
-              formControlName="password" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Mot de passe" 
-            />
-          </div>
-
-          <!-- Confirmation mot de passe -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Confirmer le mot de passe <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="password" 
-              formControlName="confirmPassword" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Confirmer le mot de passe" 
-            />
-          </div>
-        
-          <!-- Téléphone -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Téléphone <span class="text-red-500">*</span>
-            </label>
-            <input 
-              formControlName="telephone" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Numéro de téléphone" 
-            />
-          </div>
-
-          <!-- Profil utilisateur -->
-          <!-- <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Profil <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <select 
-                formControlName="profil"
-                (change)="onProfileChange($event)"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none"
-              >
-                <option value="" disabled selected>Sélectionnez votre profil</option>
-                <option *ngFor="let profile of availableProfiles" [value]="profile['profile']">
-                  {{ profile['displayName'] }}
-                </option>
-              </select>
-              <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div> -->
-          <div class="mb-4">
-                <label for="profil">Profil :</label>
-               <select id="profil" formControlName="profil" name="profil" class="form-select">
-               <option *ngFor="let profil of profils" [value]="profil">{{ profil }}</option>
-              </select>
-          </div>
-
-          <!-- Entreprise (conditionnel) -->
-          <div *ngIf="showCompanyField" class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
-              Nom de votre entreprise <span class="text-red-500">*</span>
-            </label>
-            <input 
-              formControlName="company" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Entrez le nom de votre entreprise" 
-            />
-          </div>
-
-          <!-- Poste -->
-          <div class="mb-6">
-            <label class="block text-gray-700 font-medium mb-2">
-              Poste
-            </label>
-            <div class="relative">
-              <select 
-                formControlName="jobTitle"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none"
-              >
-                <option value="">Précisez le poste occupé</option>
-                <option *ngFor="let job of jobTitles" [value]="job">{{ job }}</option>
-              </select>
-              <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        
-          <!-- Date de naissance -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Date de naissance</label>
-            <input 
-              type="date" 
-              formControlName="date" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            />
-          </div>
-        
-          <!-- Lieu de naissance -->
-          <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Lieu de naissance</label>
-            <input 
-              formControlName="lieunaissance" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Lieu de naissance" 
-            />
-          </div>
-        
-          <!-- Adresse -->
-          <div class="mb-6">
-            <label class="block text-gray-700 font-medium mb-2">
-              Adresse <span class="text-red-500">*</span>
-            </label>
-            <input 
-              formControlName="adress" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-              placeholder="Adresse" 
-            />
-          </div>
-        
-          <!-- Bouton Continuer -->
-          <button 
-            type="submit" 
-            class="w-[210px] h-[48px] bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed mt-10 mx-auto block">
-            S inscrire 
-          </button>
-        </form>
-        
+      <!-- Messages de succès -->
+      <div *ngIf="successMessage" class="bg-green-100 text-green-800 p-3 rounded mb-4">
+        {{ successMessage }}
+      </div>
+      
+      <!-- Messages d'erreur -->
+      <div *ngIf="errorMessage" class="bg-red-100 text-red-800 p-3 rounded mb-4">
+        {{ errorMessage }}
       </div>
 
-      <!-- Étape 2: Photo de profil -->
-      <div *ngIf="currentStep === 2" class="flex flex-col items-center" hidden>
-        <!-- Zone de téléchargement d'image -->
-        <div class="mb-8 flex flex-col items-center">
-          <div class="w-32 h-32 rounded-full bg-orange-50 border-2 border-orange-100 flex items-center justify-center overflow-hidden mb-6">
-            <ng-container *ngIf="!selectedImage">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </ng-container>
-            <img *ngIf="selectedImage" [src]="selectedImage" alt="Photo de profil" class="w-full h-full object-cover" />
-          </div>
-          
-          <!-- Bouton télécharger -->
-          <label for="fileInput" class="flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
-            </svg>
-            Télécharger une image
-            <input 
-              type="file" 
-              id="fileInput" 
-              accept="image/*"
-              class="hidden"
-              (change)="onFileSelected($event)"
-            />
+      <!-- Affichage des erreurs de validation -->
+      <div *ngIf="validationErrors.length > 0" class="bg-red-100 text-red-800 p-3 rounded mb-4">
+        <ul class="list-disc list-inside">
+          <li *ngFor="let error of validationErrors">{{ error }}</li>
+        </ul>
+      </div>
+      
+      <!-- Formulaire d'inscription -->
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Nom -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Nom <span class="text-red-500">*</span>
           </label>
+          <input 
+            formControlName="nom" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="Entrez votre nom" 
+          />
+          <div *ngIf="f['nom'].touched && f['nom'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['nom'].errors?.['required']">Le nom est requis</span>
+            <span *ngIf="f['nom'].errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+          </div>
+        </div>
+      
+        <!-- Prénom -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Prénom <span class="text-red-500">*</span>
+          </label>
+          <input 
+            formControlName="prenom" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="Entrez votre prénom" 
+          />
+          <div *ngIf="f['prenom'].touched && f['prenom'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['prenom'].errors?.['required']">Le prénom est requis</span>
+            <span *ngIf="f['prenom'].errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+          </div>
+        </div>
+      
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="email" 
+            formControlName="email" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="exemple@email.com" 
+          />
+          <div *ngIf="f['email'].touched && f['email'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['email'].errors?.['required']">L'email est requis</span>
+            <span *ngIf="f['email'].errors?.['email']">Format d'email invalide</span>
+          </div>
+        </div>
+      
+        <!-- Mot de passe -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Mot de passe <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="password" 
+            formControlName="password" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="Au moins 6 caractères" 
+          />
+          <div *ngIf="f['password'].touched && f['password'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['password'].errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="f['password'].errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+          </div>
+        </div>
+      
+        <!-- Téléphone -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
+          <input 
+            formControlName="telephone" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="771234567" 
+          />
+          <div *ngIf="f['telephone'].touched && f['telephone'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['telephone'].errors?.['required']">Le téléphone est requis</span>
+            <span *ngIf="f['telephone'].errors?.['pattern']">Format invalide (ex: 771234567)</span>
+          </div>
         </div>
 
-        <!-- Messages d'erreur pour l'étape 2 -->
-        <div *ngIf="errorMessage" class="bg-red-100 text-red-800 p-3 rounded mb-4 w-full max-w-md">
-          {{ errorMessage }}
+        <!-- Profil utilisateur -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Profil <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <select 
+              formControlName="profil"
+              (change)="onProfileChange($event)"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none"
+            >
+              <option value="" disabled selected>Sélectionnez votre profil</option>
+              <option *ngFor="let profile of availableProfiles" [value]="profile.value">
+                {{ profile.displayName }}
+              </option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+              <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+          <div *ngIf="f['profil'].touched && f['profil'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['profil'].errors?.['required']">Le profil est requis</span>
+          </div>
         </div>
 
-        <!-- Bouton Commençons ! -->
+        <!-- Adresse -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            Adresse <span class="text-red-500">*</span>
+          </label>
+          <input 
+            formControlName="adress" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="Votre adresse complète" 
+          />
+          <div *ngIf="f['adress'].touched && f['adress'].invalid" class="text-red-500 text-sm mt-1">
+            <span *ngIf="f['adress'].errors?.['required']">L'adresse est requise</span>
+          </div>
+        </div>
+      
+        <!-- Date de naissance (optionnel) -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">Date de naissance</label>
+          <input 
+            type="date" 
+            formControlName="date" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+          />
+        </div>
+      
+        <!-- Lieu de naissance (optionnel) -->
+        <div class="mb-6">
+          <label class="block text-gray-700 font-medium mb-2">Lieu de naissance</label>
+          <input 
+            formControlName="lieunaissance" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
+            placeholder="Ville de naissance" 
+          />
+        </div>
+      
+        <!-- Bouton S'inscrire -->
         <button 
-          type="button" 
+          type="submit" 
           [disabled]="isLoading"
-          class="w-full max-w-md bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed"
-          (click)="onSubmit()">
-          <span *ngIf="!isLoading">Commençons !</span>
-          <span *ngIf="isLoading">Création en cours...</span>
+          class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed mt-6">
+          <span *ngIf="!isLoading">S'inscrire</span>
+          <span *ngIf="isLoading">Inscription en cours...</span>
         </button>
-      </div>
+
+        <!-- Lien vers la connexion -->
+        <div class="text-center mt-4">
+          <p class="text-gray-600">
+            Vous avez déjà un compte ? 
+            <a routerLink="/login" class="text-orange-500 hover:text-orange-600 font-medium">Se connecter</a>
+          </p>
+        </div>
+      </form>
     </div>
   </div>
 </div>

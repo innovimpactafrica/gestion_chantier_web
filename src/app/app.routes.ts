@@ -28,6 +28,7 @@ import { ReclamationsComponent } from './features/reclamations/reclamations.comp
 import { DetailsReclamationComponent } from './features/details-reclamation/details-reclamation.component';
 import { DetailsUtilisateurComponent } from './features/details-utilisateur/details-utilisateur.component';
 import { DetailsAbonnementComponent } from './features/details-abonnement/details-abonnement.component';
+import { ResetpasswordComponent } from './features/auth/resetpassword/resetpassword.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
@@ -42,6 +43,11 @@ export const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent,
+    data: { authRequired: false }
+  },
+  {
+    path: 'resetpassword',
+    component: ResetpasswordComponent,
     data: { authRequired: false }
   },
 

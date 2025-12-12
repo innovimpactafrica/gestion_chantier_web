@@ -71,6 +71,7 @@ export interface RealEstateProject {
   constructionStatus?: string;
   plan?: string;
   averageProgess?: number;
+  qrcode:string;
 }
 
 export interface PropertyType {
@@ -144,139 +145,7 @@ export class RealestateService {
     return headers;
   }
 
-  
-// /**
-//  * Create a new real estate project
-//  */
-// createProject(
-//   projectData: RealEstateProject,
-//   planFile?: File,
-//   useBase64: boolean = true // Toggle between Base64 and raw file upload
-// ): Observable<ApiResponse<RealEstateProject>> {
-//   // Check authentication synchronously
-//   const isAuthenticated = this.authService.isAuthenticated();
-//   if (!isAuthenticated) {
-//     console.error('Utilisateur non authentifié');
-//     return throwError(() => new Error('Utilisateur non authentifié'));
-//   }
 
-//   // Build FormData based on useBase64 flag
-//   const formData = useBase64
-//     ? this.buildFormDataWithBase64(projectData, planFile)
-//     : this.buildFormDataWithRawFile(projectData, planFile);
-
-//   console.log('FormData prêt pour l\'envoi:', { formData });
-
-//   return this.http.post<ApiResponse<RealEstateProject>>(
-//     this.endpoints.save,
-//     formData,
-//     { headers: this.getHeaders() }
-//   ).pipe(
-//     timeout(30000),
-//     retry({
-//       count: 2,
-//       delay: (error: HttpErrorResponse, retryCount: number) => {
-//         if (error.status === 401 && retryCount === 1) {
-//           console.log('Tentative de rafraîchissement du token...');
-//           return this.authService.refreshUser().pipe(
-//             switchMap(() => throwError(() => error)) // Retry with new token
-//           );
-//         }
-//         return throwError(() => error);
-//       }
-//     }),
-//     catchError(this.handleError.bind(this))
-//   );
-// }
-
-
-  // /**
-  //  * Build FormData with Base64-encoded file
-  //  */
-  // private async buildFormDataWithBase64(
-  //   projectData: RealEstateProject,
-  //   planFile?: File
-  // ): Promise<FormData> {
-  //   const formData = new FormData();
-
-  //   console.log('=== CONSTRUCTION DU FORMDATA (BASE64) ===');
-  //   console.log('Données reçues:', projectData);
-  //   console.log('Fichier plan:', planFile ? {
-  //     name: planFile.name,
-  //     size: planFile.size,
-  //     type: planFile.type
-  //   } : 'Aucun');
-
-  //   if (planFile) {
-  //     const validation = this.validateFile(planFile, 'image');
-  //     if (!validation.valid) {
-  //       throw new Error(validation.error || 'Fichier plan invalide');
-  //     }
-
-  //     try {
-  //       const planBase64 = await this.fileToBase64(planFile);
-  //       formData.append('plan', planBase64);
-  //       console.log('✅ Fichier plan encodé en Base64:', {
-  //         originalSize: planFile.size,
-  //         base64Length: planBase64.length
-  //       });
-  //     } catch (error) {
-  //       console.error('Erreur lors de l\'encodage du fichier plan:', error);
-  //       throw new Error('Impossible d\'encoder le fichier plan');
-  //     }
-  //   } else {
-  //     console.warn('⚠️ Aucun fichier plan fourni');
-  //   }
-
-  //   const dataToSend = {
-  //     name: projectData.name || '',
-  //     number: projectData.number || this.generateProjectNumber().toString(),
-  //     address: projectData.address || '',
-  //     price: projectData.price?.toString() || '0',
-  //     numberOfRooms: projectData.numberOfRooms?.toString() || '1',
-  //     area: projectData.area?.toString() || '0',
-  //     latitude: projectData.latitude?.toString() || '0',
-  //     longitude: projectData.longitude?.toString() || '0',
-  //     description: projectData.description || '',
-  //     numberOfLots: projectData.numberOfLots?.toString() || '1',
-  //     promoterId: projectData.promoterId?.toString() || '1',
-  //     moaId: projectData.moaId?.toString() || '',
-  //     managerId: projectData.managerId?.toString() || '',
-  //     propertyTypeId: projectData.propertyTypeId?.toString() || '1',
-  //     startDate: this.formatDateForApi(projectData.startDate),
-  //     endDate: this.formatDateForApi(projectData.endDate),
-  //     hasHall: projectData.hasHall ? 'true' : 'false',
-  //     hasParking: projectData.hasParking ? 'true' : 'false',
-  //     hasElevator: projectData.hasElevator ? 'true' : 'false',
-  //     hasSwimmingPool: projectData.hasSwimmingPool ? 'true' : 'false',
-  //     hasGym: projectData.hasGym ? 'true' : 'false',
-  //     hasPlayground: projectData.hasPlayground ? 'true' : 'false',
-  //     hasSecurityService: projectData.hasSecurityService ? 'true' : 'false',
-  //     hasGarden: projectData.hasGarden ? 'true' : 'false',
-  //     hasSharedTerrace: projectData.hasSharedTerrace ? 'true' : 'false',
-  //     hasBicycleStorage: projectData.hasBicycleStorage ? 'true' : 'false',
-  //     hasLaundryRoom: projectData.hasLaundryRoom ? 'true' : 'false',
-  //     hasStorageRooms: projectData.hasStorageRooms ? 'true' : 'false',
-  //     hasWasteDisposalArea: projectData.hasWasteDisposalArea ? 'true' : 'false',
-  //     mezzanine: projectData.mezzanine ? 'true' : 'false'
-  //   };
-
-  //   Object.entries(dataToSend).forEach(([key, value]) => {
-  //     if (value !== null && value !== undefined && value !== '') {
-  //       formData.append(key, value);
-  //       console.log(`✅ Champ ajouté: ${key} = ${key === 'plan' ? '[Base64]' : value}`);
-  //     } else {
-  //       console.log(`⚠️ Champ ignoré (vide/null): ${key}`);
-  //     }
-  //   });
-
-  //   console.log('=== FORMDATA FINAL (BASE64) ===');
-  //   formData.forEach((value, key) => {
-  //     console.log(`${key}: ${typeof value === 'string' && value.length > 100 ? '[Base64]' : value}`);
-  //   });
-
-  //   return formData;
-  // }
 
   /**
    * Build FormData with raw file
@@ -472,27 +341,7 @@ export class RealestateService {
       );
   }
 
-  // /**
-  //  * Update a project
-  //  */
-  // updateProject(
-  //   id: number,
-  //   projectData: RealEstateProject,
-  //   planFile?: File
-  // ): Observable<ApiResponse<RealEstateProject>> {
-  //   const formData = planFile
-  //     ? this.buildFormDataWithRawFile(projectData, planFile)
-  //     : this.buildFormDataWithBase64(projectData);
-  //   return this.http.put<ApiResponse<RealEstateProject>>(
-  //     `${this.endpoints.projects}/${id}`,
-  //     formData,
-  //     { headers: this.getHeaders() }
-  //   ).pipe(
-  //     timeout(30000),
-  //     retry({ count: 2, delay: 1000 }),
-  //     catchError(this.handleError.bind(this))
-  //   );
-  // }
+
 
   /**
    * Delete a project
@@ -609,22 +458,7 @@ export class RealestateService {
     };
   }
 
-  // /**
-  //  * Format date for API (MM-DD-YYYY)
-  //  */
-  // private formatDateForApi(date: string | Date): string {
-  //   if (!date) return '';
-  //   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  //   if (isNaN(dateObj.getTime())) {
-  //     console.warn('Date invalide:', date);
-  //     return '';
-  //   }
-  //   const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-  //   const day = dateObj.getDate().toString().padStart(2, '0');
-  //   const year = dateObj.getFullYear();
-  //   return `${month}-${day}-${year}`;
-  // }
-
+ 
   /**
    * Generate unique project number
    */
@@ -733,22 +567,7 @@ export class RealestateService {
     (userError as any).technicalDetails = technicalDetails;
     return throwError(() => userError);
   }
-// getlisteProjectsByPromoters(promoterId:number ,page:number=0 ,size:number=10):Observable<any>{
-//   const headers = new HttpHeaders({
-//     'Content-Type': 'application/json',
-//     'Accept': 'application/json'
-//   });
-//   const params =new HttpParams()
-//     .set('promoterId', promoterId.toString())
-//     .set('page', page.toString())
-//     .set('size', size.toString());
-//   const url = '/realestate/search-by-promoter';
-//   return this.http.get<any>(url, { params });
 
-
-// }
-
-// Corrections dans la méthode createProject du service
 
 createProject(
   projectData: RealEstateProject,

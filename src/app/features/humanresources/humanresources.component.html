@@ -1,198 +1,152 @@
 <!-- human-resources.component.html -->
-<div class="bg-[#F5F7FA] rounded-lg shadow-sm p-6">
+<div class="bg-gray-50 rounded-xl shadow-sm p-4 md:p-6 lg:p-8 min-h-screen">
   <!-- Header -->
-  <div class="flex justify-between">
-    <div class="pb-4 border-gray-200">
-      <h1 class="text-xl font-semibold text-gray-800">Équipe de construction</h1>
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Équipe de construction</h1>
       <p class="text-gray-600 text-sm mt-1">
         Retrouvez en un clin d'œil tous les membres de votre équipe de construction.
       </p>
     </div>
-    <button 
-      class="flex items-center justify-between text-white bg-orange-500 rounded-md hover:bg-orange-600 btn-ajout"
-      (click)="openCreateUserModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+
+    <button
+      (click)="openCreateUserModal()"
+      class="flex items-center justify-center gap-2 px-5 py-3 text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition font-medium shadow-md">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
-      Nouveau Membre
+      Nouveau membre
     </button>
   </div>
 
-  <div class="flex justify-between items-center py-4 border-b">
-    <!-- Controls -->
-    <div class="flex flex-wrap gap-4 mb-8">
-      <!-- Barre de recherche -->
-      <div class="relative flex-grow max-w-xs">
+  <!-- Filtres et actions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Barre de recherche + filtres -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <!-- Recherche -->
+      <div class="relative flex-1 max-w-md">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <input 
-          type="text" 
+        <input
+          type="text"
           [(ngModel)]="searchQuery"
           (input)="searchProjects()"
-          class="block w-[302px] h-[48px] pl-10 px-4 py-2 border border-gray-300 rounded-[8px] p-12 leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-          placeholder="Rechercher par nom, email ou téléphone">
+          placeholder="Rechercher par nom, email ou téléphone"
+          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
       </div>
 
-      <!-- Filtre par période -->
+      <!-- Filtre statut -->
       <div class="relative">
-        <button 
-          class="flex justify-between items-center w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12"
-          (click)="filterByPeriod('')">
-          <span>Période</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Filtre par statut -->
-      <div class="relative">
-        <select 
+        <select
           [(ngModel)]="selectedStatus"
           (change)="filterByStatus(selectedStatus)"
-          class="flex justify-between items-center w-[139px] h-[48px] px-4 py-2 border border-gray-300 rounded-[10px] bg-white text-gray-700 focus:outline-none p-12 appearance-none">
+          class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
           <option *ngFor="let option of getStatusOptions()" [value]="option.value">
             {{ option.label }}
           </option>
         </select>
         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <svg class="h-5 w-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-wrap gap-4 mb-8">
-      <button 
-        class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12"
-        (click)="deleteSelectedUsers()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+    <!-- Boutons d'action -->
+    <div class="flex flex-wrap items-center justify-start sm:justify-end gap-3">
+      <button
+        (click)="deleteSelectedUsers()"
+        class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         Supprimer
       </button>
-      <button class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none p-12 ml-4">
-        <img src="assets/images/filter-lines.svg" alt="" srcset="" class="mr-2">
-        <p class="mr-8">Filtres</p>
+
+      <button class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+        <img src="assets/images/filter-lines.svg" alt="Filtres" class="h-5 w-5">
+        Filtres
       </button>
 
-      <div class="flex mb-8">
-        <button 
-          class="flex items-center text-gray-600 px-4 py-2 mx-8 border border-gray-300 rounded-md hover:bg-white bg-white"
-          (click)="exportData()">
-          <img src="assets/images/download-cloud-02.svg" alt="download" srcset="" class="mr-2">
-          Exporter
-        </button>
-      </div>
+      <button
+        (click)="exportData()"
+        class="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+        <img src="assets/images/download-cloud-02.svg" alt="Exporter" class="h-5 w-5">
+        Exporter
+      </button>
     </div>
   </div>
 
   <!-- Message d'erreur -->
-  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
     {{ errorMessage }}
   </div>
 
-  <!-- Indicateur de chargement -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-    <span class="ml-2 text-gray-600">Chargement...</span>
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+    <span class="ml-3 text-gray-600">Chargement en cours...</span>
   </div>
 
-  <!-- Table -->
-  <div class="mt-6 overflow-x-auto" *ngIf="!isLoading">
-    <table class="min-w-full">
-      <thead>
-        <tr class="border-b border-gray-200">
-          <th class="py-3 px-2 text-left w-12">
-            <div class="flex items-center">
-              <input 
-                type="checkbox" 
-                class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
-                [checked]="selectAll"
-                (change)="toggleSelectAll()">
-            </div>
+  <!-- Tableau -->
+  <div *ngIf="!isLoading" class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-4 text-left">
+            <input
+              type="checkbox"
+              class="h-4 w-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
+              [checked]="selectAll"
+              (change)="toggleSelectAll()">
           </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>NOM</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>Téléphone</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>Email</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>Poste Occupé</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>Status</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2"></th>
+          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
+          <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+          <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let member of displayedMembers" class="border-b border-gray-100 hover:bg-gray-50">
-          <td class="py-3 px-2">
-            <input 
-              type="checkbox" 
-              class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500" 
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let member of displayedMembers" class="hover:bg-gray-50 transition">
+          <td class="px-4 py-4">
+            <input
+              type="checkbox"
+              class="h-4 w-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
               [checked]="member.selected"
               (change)="toggleMemberSelection(member)">
           </td>
-          <td class="py-3 px-2 font-medium">{{ member.name }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ member.phone }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ member.email }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ member.position }}</td>
-          <td class="py-3 px-2">
+          <td class="px-6 py-4 font-medium text-gray-900">{{ member.name }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ member.phone }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ member.email }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ member.position }}</td>
+          <td class="px-6 py-4">
             <div class="flex items-center">
-              <span class="h-2 w-2 rounded-full mr-2" [ngClass]="getStatusDot(member.status)"></span>
-              <span [ngClass]="getStatusColor(member.status)">
+              <span class="h-2.5 w-2.5 rounded-full mr-2" [ngClass]="getStatusDot(member.status)"></span>
+              <span [ngClass]="getStatusColor(member.status)" class="font-medium">
                 {{ member.status === 'affecté' ? 'Affecté' :
-                   member.status === 'non-affecté' ? 'Non-affecté' :
-                   member.status === 'en mission' ? 'En mission' : 'Inactive' }}
+                   member.status === 'non-affecté' ? 'Non affecté' :
+                   member.status === 'en mission' ? 'En mission' : 'Inactif' }}
               </span>
             </div>
           </td>
-          <td class="py-3 px-2 text-right">
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <td class="px-6 py-4 text-right">
+            <button class="text-gray-400 hover:text-gray-700 transition">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
               </svg>
             </button>
           </td>
         </tr>
-        <!-- Message quand aucune donnée -->
-        <tr *ngIf="displayedMembers.length === 0 && !isLoading">
-          <td colspan="7" class="py-8 text-center text-gray-500">
+
+        <!-- Aucune donnée -->
+        <tr *ngIf="displayedMembers.length === 0">
+          <td colspan="7" class="px-6 py-12 text-center text-gray-500">
             Aucun membre d'équipe trouvé
           </td>
         </tr>
@@ -201,183 +155,130 @@
   </div>
 
   <!-- Pagination -->
-  <div class="flex justify-between items-center mt-4 text-sm text-gray-600" *ngIf="!isLoading && totalMembers > 0">
+  <div *ngIf="!isLoading && totalMembers > 0" class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-700">
     <div>
-      Voir de {{ startIndex }} à {{ endIndex }} sur {{ totalMembers }} ({{ totalPages }} pages)
+      Affichage de {{ startIndex }} à {{ endIndex }} sur {{ totalMembers }} membres
     </div>
-    <div class="flex space-x-1">
-      <button 
-        (click)="goToPreviousPage()" 
-        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-        [class.opacity-50]="currentPage === 1"
-        [disabled]="currentPage === 1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    <div class="flex items-center gap-2">
+      <button
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage === 1"
+        class="p-2 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
       </button>
-      <button 
-        *ngFor="let page of getPageNumbers()" 
-        (click)="goToPage(page)" 
-        class="w-8 h-8 flex items-center justify-center border rounded-md"
-        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-50'">
+
+      <button
+        *ngFor="let page of getPageNumbers()"
+        (click)="goToPage(page)"
+        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-100'"
+        class="w-10 h-10 rounded border font-medium transition">
         {{ page }}
       </button>
-      <button 
-        (click)="goToNextPage()" 
-        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-        [class.opacity-50]="currentPage === totalPages"
-        [disabled]="currentPage === totalPages">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+
+      <button
+        (click)="goToNextPage()"
+        [disabled]="currentPage === totalPages"
+        class="p-2 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
         </svg>
       </button>
     </div>
   </div>
 </div>
 
-<!-- Modal de création d'utilisateur -->
-<div *ngIf="showCreateUserModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeCreateUserModal()">
-  <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
-    <!-- Header du modal -->
-    <div class="flex justify-between items-center pb-3 border-b">
-      <h3 class="text-lg font-semibold text-gray-900">Créer un nouveau membre</h3>
-      <button 
-        (click)="closeCreateUserModal()" 
-        class="text-gray-400 hover:text-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<!-- Modal Création Membre -->
+<div *ngIf="showCreateUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" (click)="closeCreateUserModal()">
+  <div
+    class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto"
+    (click)="$event.stopPropagation()"
+    [@fadeIn]>
+    
+    <div class="p-6 border-b">
+      <div class="flex justify-between items-center">
+        <h3 class="text-2xl font-bold text-gray-900">Créer un nouveau membre</h3>
+        <button (click)="closeCreateUserModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Corps du modal -->
-    <div class="mt-4">
-      <form (ngSubmit)="createUser()">
-        <!-- Message d'erreur -->
-        <div *ngIf="createUserErrors.length > 0" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <ul>
-            <li *ngFor="let error of createUserErrors">{{ error }}</li>
-          </ul>
+    <form (ngSubmit)="createUser()" class="p-6">
+      <!-- Erreurs -->
+      <div *ngIf="createUserErrors.length > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <li *ngFor="let error of createUserErrors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Prénom *</label>
+          <input type="text" [(ngModel)]="newUser.prenom" name="prenom" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+          <input type="text" [(ngModel)]="newUser.nom" name="nom" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
         </div>
 
-        <!-- Nom et Prénom -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-            <input 
-              type="text" 
-              id="prenom" 
-              [(ngModel)]="newUser.prenom"
-              name="prenom"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez le prénom">
-          </div>
-          <div>
-            <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-            <input 
-              type="text" 
-              id="nom" 
-              [(ngModel)]="newUser.nom"
-              name="nom"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez le nom">
-          </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+          <input type="email" [(ngModel)]="newUser.email" name="email" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+          <input type="tel" [(ngModel)]="newUser.telephone" name="telephone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
         </div>
 
-        <!-- Email et Téléphone -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              [(ngModel)]="newUser.email"
-              name="email"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez l'email">
-          </div>
-          <div>
-            <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-            <input 
-              type="tel" 
-              id="telephone" 
-              [(ngModel)]="newUser.telephone"
-              name="telephone"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez le numéro de téléphone">
-          </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe *</label>
+          <input type="password" [(ngModel)]="newUser.password" name="password" required minlength="6"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance</label>
+          <input type="date" [(ngModel)]="newUser.date" name="date"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
         </div>
 
-        <!-- Mot de passe et Date de naissance -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-            <input 
-              type="password" 
-              id="password" 
-              [(ngModel)]="newUser.password"
-              name="password"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez le mot de passe">
-          </div>
-          <div>
-            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
-            <input 
-              type="date" 
-              id="date" 
-              [(ngModel)]="newUser.date"
-              name="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-          </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Lieu de naissance</label>
+          <input type="text" [(ngModel)]="newUser.lieunaissance" name="lieunaissance"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
         </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+          <input type="text" [(ngModel)]="newUser.adress" name="adress"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+        </div>
+      </div>
 
-        <!-- Lieu de naissance et Adresse -->
-        <div class="grid grid-cols-1 gap-4 mb-4">
-          <div>
-            <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-1">Lieu de naissance</label>
-            <input 
-              type="text" 
-              id="lieunaissance" 
-              [(ngModel)]="newUser.lieunaissance"
-              name="lieunaissance"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez le lieu de naissance">
-          </div>
-          <div>
-            <label for="adress" class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-            <input 
-              type="text" 
-              id="adress" 
-              [(ngModel)]="newUser.adress"
-              name="adress"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Entrez l'adresse">
-          </div>
-        </div>
-
-        <!-- Pied du modal -->
-        <div class="flex justify-end pt-4 border-t mt-6">
-          <button 
-            type="button" 
-            (click)="closeCreateUserModal()"
-            class="mr-3 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-            Annuler
-          </button>
-          <button 
-            type="submit" 
-            [disabled]="isCreatingUser"
-            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
-            <span *ngIf="!isCreatingUser">Créer le membre</span>
-            <span *ngIf="isCreatingUser">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Création en cours...
-            </span>
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="flex justify-end gap-4 mt-8 pt-6 border-t">
+        <button
+          type="button"
+          (click)="closeCreateUserModal()"
+          class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isCreatingUser"
+          class="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center gap-2">
+          <svg *ngIf="isCreatingUser" class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isCreatingUser ? 'Création...' : 'Créer le membre' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>

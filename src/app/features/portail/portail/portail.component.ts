@@ -5,6 +5,15 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { PlanAbonnementService, SubscriptionPlan } from '../../../../services/plan-abonnement.service';
 import { Subject, takeUntil, interval } from 'rxjs';
 
+interface Profil {
+  titre: string;
+  sousTitre: string;
+  descriptionCourte: string;
+  descriptionComplete: string;
+  image: string;
+  expanded: boolean;
+}
+
 @Component({
   selector: 'app-portail',
   standalone: true,
@@ -62,7 +71,7 @@ export class PortailComponent implements OnInit, OnDestroy {
   allPlansByName: { [key: string]: { premium: SubscriptionPlan | null, basic: SubscriptionPlan | null } } = {};
   planNames: string[] = [];
   currentNameIndex: number = 0;
-  animationKey: number = 0; // Pour forcer la ré-animation
+  animationKey: number = 0;
 
   features = [
     {
@@ -97,11 +106,39 @@ export class PortailComponent implements OnInit, OnDestroy {
     }
   ];
 
-  profiles = [
-    { title: 'MOA', initial: 'M', description: 'Maître d\'ouvrage' },
-    { title: 'BET', initial: 'B', description: 'Bureau d\'études' },
-    { title: 'Chef de chantier', initial: 'C', description: 'Supervision terrain' },
-    { title: 'Équipes', initial: 'E', description: 'Personnel terrain' }
+  profils: Profil[] = [
+    {
+      titre: 'MOA (Maître d\'Ouvrage)',
+      sousTitre: 'Pilotage de projet',
+      descriptionCourte: 'Suivi budgétaire, planning, validation des phases...',
+      descriptionComplete: 'Le Maître d\'Ouvrage pilote l\'ensemble du projet de construction. Il bénéficie d\'un tableau de bord complet pour le suivi budgétaire, la gestion du planning, la validation des différentes phases du projet, le contrôle qualité et la coordination entre tous les intervenants. Des outils de reporting et d\'analyse permettent une prise de décision éclairée à chaque étape.',
+      image: 'assets/images/ouvrier1.png',
+      expanded: false
+    },
+    {
+      titre: 'BET (Bureau d\'Études Techniques)',
+      sousTitre: 'Coordination technique',
+      descriptionCourte: 'Documents, visas, plans, conformité, fil de validation.',
+      descriptionComplete: 'Le Bureau d\'Études Techniques assure la coordination technique du projet. Il gère l\'ensemble des documents techniques, les visas et approbations, les plans de construction, la vérification de conformité aux normes, le suivi du fil de validation et la coordination avec les différents corps de métier. Un système de gestion documentaire centralisé facilite le partage et le versioning des documents.',
+      image: 'assets/images/ouvrier2.png',
+      expanded: false
+    },
+    {
+      titre: 'Chef de Chantier',
+      sousTitre: 'Gestion opérationnelle',
+      descriptionCourte: 'Suivi équipes, sécurité, avancement, planning terrain...',
+      descriptionComplete: 'Le Chef de Chantier gère les opérations quotidiennes sur le terrain. Il supervise les équipes, assure le respect des normes de sécurité, suit l\'avancement des travaux en temps réel, gère le planning terrain, coordonne les approvisionnements, rédige les rapports d\'activité et communique avec tous les intervenants. Des outils mobiles permettent un suivi en direct depuis le chantier.',
+      image: 'assets/images/ouvrier3.png',
+      expanded: false
+    },
+    {
+      titre: 'Ouvrier / Artisan',
+      sousTitre: 'Exécution des travaux',
+      descriptionCourte: 'Tâches assignées, matériaux, pointage, sécurité...',
+      descriptionComplete: 'Les Ouvriers et Artisans accèdent facilement à leurs tâches assignées, consultent les plans et instructions, gèrent les demandes de matériaux, effectuent leur pointage quotidien, signalent les problèmes ou incidents, consultent les consignes de sécurité et communiquent avec leur chef d\'équipe. Une interface simplifiée et mobile facilite l\'utilisation au quotidien.',
+      image: 'assets/images/ouvrier4.png',
+      expanded: false
+    }
   ];
 
   constructor(
@@ -119,9 +156,10 @@ export class PortailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Charge tous les plans d'abonnement et lance l'animation
-   */
+  toggleDescription(index: number): void {
+    this.profils[index].expanded = !this.profils[index].expanded;
+  }
+
   loadPlans(): void {
     this.isLoadingPlans = true;
     
@@ -131,18 +169,12 @@ export class PortailComponent implements OnInit, OnDestroy {
         next: (plans) => {
           console.log('✅ Tous les plans chargés:', plans);
           
-          // Grouper les plans par name
           this.groupPlansByName(plans);
-          
-          // Obtenir la liste des names disponibles
           this.planNames = Object.keys(this.allPlansByName);
           console.log('📋 Names disponibles:', this.planNames);
           
-          // Afficher le premier groupe de plans
           if (this.planNames.length > 0) {
             this.showPlansForName(0);
-            
-            // Lancer l'animation de rotation toutes les 2 secondes
             this.startPlanRotation();
           }
           
@@ -155,9 +187,6 @@ export class PortailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Groupe les plans par name (PROMOTEUR, MOA, BET, etc.)
-   */
   private groupPlansByName(plans: SubscriptionPlan[]): void {
     this.allPlansByName = {};
     
@@ -179,9 +208,6 @@ export class PortailComponent implements OnInit, OnDestroy {
     console.log('📊 Plans groupés par name:', this.allPlansByName);
   }
 
-  /**
-   * Affiche les plans pour un name donné
-   */
   private showPlansForName(index: number): void {
     const name = this.planNames[index];
     if (!name) return;
@@ -190,7 +216,7 @@ export class PortailComponent implements OnInit, OnDestroy {
     this.currentPremiumPlan = planGroup.premium;
     this.currentBasicPlan = planGroup.basic;
     this.currentNameIndex = index;
-    this.animationKey++; // Incrémenter pour forcer la ré-animation
+    this.animationKey++;
     
     console.log(`🔄 Affichage des plans pour: ${name}`, {
       premium: this.currentPremiumPlan?.label,
@@ -198,9 +224,6 @@ export class PortailComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Lance la rotation automatique des plans toutes les 2 secondes
-   */
   private startPlanRotation(): void {
     interval(2000)
       .pipe(takeUntil(this.destroy$))
@@ -210,16 +233,10 @@ export class PortailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Retourne le nom actuel affiché
-   */
   getCurrentName(): string {
     return this.planNames[this.currentNameIndex] || '';
   }
 
-  /**
-   * Tronque la description à 2 lignes maximum
-   */
   truncateDescription(description: string): string {
     if (!description) return '';
     
@@ -229,15 +246,34 @@ export class PortailComponent implements OnInit, OnDestroy {
     return truncated;
   }
 
-  /**
-   * Formatte le montant en FCFA
-   */
   formatAmount(amount: number): string {
     return `${amount.toLocaleString('fr-FR')} FCFA`;
   }
 
   /**
-   * Méthode pour naviguer vers la page login
+   * Marque l'intention de souscrire à un abonnement et redirige vers login
+   */
+  goToSubscription(planType: 'free' | 'basic' | 'premium'): void {
+    console.log('🎯 Intention d\'abonnement:', planType);
+    
+    // Sauvegarder l'intention dans sessionStorage
+    sessionStorage.setItem('subscription_intent', planType);
+    sessionStorage.setItem('redirect_after_login', '/mon-compte');
+    sessionStorage.setItem('compte_tab', 'abonnements');
+    
+    // Vérification immédiate
+    console.log('✅ SessionStorage enregistré:', {
+      subscription_intent: sessionStorage.getItem('subscription_intent'),
+      redirect_after_login: sessionStorage.getItem('redirect_after_login'),
+      compte_tab: sessionStorage.getItem('compte_tab')
+    });
+    
+    // Rediriger vers login
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Redirection standard vers login
    */
   goToLogin(): void {
     this.router.navigate(['/login']);

@@ -267,28 +267,65 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
       catchError(error => this.handleError(error, 'getUserByProfil'))
     );
 }
-  /**
-   * Crée un nouvel utilisateur
-   */
-  createUser(userData: CreateUserRequest): Observable<any> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/auth/signup`;
-    
-    console.log('📡 API Call: createUser');
-    console.log('🔗 URL:', url);
-    console.log('👤 Données nouvel utilisateur:', {
-      ...userData,
-      password: '***' // Masquer le mot de passe dans les logs
-    });
-    
-    return this.http.post(url, userData, { headers })
-      .pipe(
-        tap(response => {
-          console.log('✅ Utilisateur créé avec succès:', response);
-        }),
-        catchError(error => this.handleError(error, 'createUser'))
-      );
+/**
+ * Crée un nouvel utilisateur (inscription)
+ */
+createUser(userData: CreateUserRequest): Observable<any> {
+  // Pour l'inscription, on n'utilise PAS les headers d'authentification
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json'
+  });
+  
+  const url = `${this.baseUrl}/auth/signup`;
+  
+  console.log('📡 API Call: createUser (inscription)');
+  console.log('🔗 URL:', url);
+  console.log('📋 Content-Type: application/json');
+  console.log('👤 Données nouvel utilisateur:', {
+    nom: userData.nom,
+    prenom: userData.prenom,
+    email: userData.email,
+    telephone: userData.telephone,
+    profil: userData.profil,
+    date: userData.date,
+    lieunaissance: userData.lieunaissance,
+    adress: userData.adress,
+    password: '***'
+  });
+  
+  // Vérification des champs obligatoires
+  const requiredFields = ['nom', 'prenom', 'email', 'password', 'telephone', 'adress', 'profil'];
+  const missingFields = requiredFields.filter(field => !userData[field as keyof CreateUserRequest]);
+  
+  if (missingFields.length > 0) {
+    console.error('❌ Champs obligatoires manquants:', missingFields);
   }
+  
+  return this.http.post(url, userData, { headers })
+    .pipe(
+      tap(response => {
+        console.log('✅ Utilisateur créé avec succès:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Erreur createUser - Status:', error.status);
+        console.error('❌ Erreur createUser - Body:', error.error);
+        console.error('❌ Erreur createUser - Message:', error.message);
+        
+        // Si erreur 400, afficher les détails
+        if (error.status === 400) {
+          console.error('❌ ERREUR 400 - Données envoyées:', userData);
+          if (error.error?.message) {
+            console.error('❌ Message serveur:', error.error.message);
+          }
+          if (error.error?.errors) {
+            console.error('❌ Détails des erreurs:', error.error.errors);
+          }
+        }
+        
+        return this.handleError(error, 'createUser');
+      })
+    );
+}
 
   /**
    * Récupère les headers d'authentification
@@ -421,6 +458,8 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
       profil
     };
   }
+
+
 
   /**
    * Debug des endpoints disponibles

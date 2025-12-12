@@ -1,8 +1,9 @@
 // 📁 Fichier 1 : src/environments/environment.ts
 export const environment = {
-  production: false,
+  production: true,
   apiBaseUrl: 'https://wakana.online',
   apiUrl: 'https://wakana.online/api',
+
   filebaseUrl: 'https://wakana.online/repertoire_chantier/',
   endpoints: {
     // Dashboard Admin & Subscriptions

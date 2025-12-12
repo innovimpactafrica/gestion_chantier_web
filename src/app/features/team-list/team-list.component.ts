@@ -328,92 +328,7 @@ export class TeamListComponent implements OnInit {
     return offsets;
   }
 
-  private transformPresenceHistory(presenceData: PresenceHistory): Array<{
-    date: string;
-    sessions: Array<{ entry: string; exit: string }>;
-    totalTime: string;
-  }> {
-    if (!presenceData.logs || presenceData.logs.length === 0) {
-      return [];
-    }
 
-    const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
-
-    presenceData.logs.forEach(log => {
-      const dateStr = this.formatDateFromArray(log.checkInTime);
-      const entryTime = this.formatTimeFromArray(log.checkInTime);
-      const exitTime = this.formatTimeFromArray(log.checkOutTime);
-
-      if (!groupedByDate.has(dateStr)) {
-        groupedByDate.set(dateStr, []);
-      }
-
-      groupedByDate.get(dateStr)!.push({
-        entry: entryTime,
-        exit: exitTime
-      });
-    });
-
-    const result: Array<{
-      date: string;
-      sessions: Array<{ entry: string; exit: string }>;
-      totalTime: string;
-    }> = [];
-
-    groupedByDate.forEach((sessions, date) => {
-      const totalMinutes = sessions.reduce((total, session) => {
-        return total + this.calculateMinutesBetween(session.entry, session.exit);
-      }, 0);
-
-      result.push({
-        date,
-        sessions,
-        totalTime: this.formatDuration(totalMinutes)
-      });
-    });
-
-    result.sort((a, b) => {
-      const dateA = this.parseDateString(a.date);
-      const dateB = this.parseDateString(b.date);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    return result;
-  }
-
-  private formatDateFromArray(timeArray: number[]): string {
-    if (!timeArray || timeArray.length < 3) return '';
-    
-    const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
-    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
-                    'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
-    
-    return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
-  }
-
-  private formatTimeFromArray(timeArray: number[]): string {
-    if (!timeArray || timeArray.length < 5) return '00:00';
-    const hours = timeArray[3].toString().padStart(2, '0');
-    const minutes = timeArray[4].toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
-
-  private calculateMinutesBetween(entry: string, exit: string): number {
-    const [entryH, entryM] = entry.split(':').map(Number);
-    const [exitH, exitM] = exit.split(':').map(Number);
-    
-    const entryMinutes = entryH * 60 + entryM;
-    const exitMinutes = exitH * 60 + exitM;
-    
-    return exitMinutes - entryMinutes;
-  }
-
-  private formatDuration(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins.toString().padStart(2, '0')}min`;
-  }
 
   private parseDateString(dateStr: string): Date {
     const parts = dateStr.split(' ');
@@ -469,19 +384,192 @@ export class TeamListComponent implements OnInit {
     return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
   }
 
-  getTotalWorkedTime(): string {
-    if (!this.selectedMember?.presenceHistory) return '0h 00min';
-    
-    const history = this.getFilteredPresenceHistory();
-    const totalMinutes = history.reduce((total, day) => {
-      return total + day.sessions.reduce((dayTotal, session) => {
-        return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
-      }, 0);
-    }, 0);
-    
-    return this.formatDuration(totalMinutes);
+ 
+/**
+ * Transforme l'historique de présence depuis l'API
+ */
+private transformPresenceHistory(presenceData: PresenceHistory): Array<{
+  date: string;
+  sessions: Array<{ entry: string; exit: string }>;
+  totalTime: string;
+}> {
+  console.log('📊 Transformation de l\'historique de présence:', presenceData);
+  
+  if (!presenceData.logs || presenceData.logs.length === 0) {
+    console.log('⚠️ Aucun log de présence trouvé');
+    return [];
   }
 
+  const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
+
+  presenceData.logs.forEach(log => {
+    console.log('🔍 Processing log:', log);
+    
+    const dateStr = this.formatDateFromArray(log.checkInTime);
+    const entryTime = this.formatTimeFromArray(log.checkInTime);
+    const exitTime =this.formatTimeFromArray(log.checkOutTime);
+    
+    console.log(`📅 Date: ${dateStr}, Entrée: ${entryTime}, Sortie: ${exitTime}`);
+
+    if (!groupedByDate.has(dateStr)) {
+      groupedByDate.set(dateStr, []);
+    }
+
+    groupedByDate.get(dateStr)!.push({
+      entry: entryTime,
+      exit: exitTime
+    });
+  });
+
+  const result: Array<{
+    date: string;
+    sessions: Array<{ entry: string; exit: string }>;
+    totalTime: string;
+  }> = [];
+
+  groupedByDate.forEach((sessions, date) => {
+    // Calculer le temps total uniquement pour les sessions complètes (avec sortie)
+    const totalMinutes = sessions.reduce((total, session) => {
+      if (session.exit === 'En cours') return total;
+      return total + this.calculateMinutesBetween(session.entry, session.exit);
+    }, 0);
+
+    result.push({
+      date,
+      sessions,
+      totalTime: this.formatDuration(totalMinutes)
+    });
+  });
+
+  // Trier par date décroissante (plus récent d'abord)
+  result.sort((a, b) => {
+    const dateA = this.parseDateString(a.date);
+    const dateB = this.parseDateString(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  console.log('✅ Historique transformé:', result);
+  return result;
+}
+
+/**
+ * Formate une date depuis un tableau de nombres [année, mois, jour, heure?, minute?]
+ * Exemple: [2024, 12, 8] → "Dim. 8 déc. 2024"
+ */
+private formatDateFromArray(timeArray: number[]): string {
+  if (!timeArray || timeArray.length < 3) {
+    console.error('❌ Tableau de date invalide:', timeArray);
+    return 'Date invalide';
+  }
+  
+  const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+  const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
+                  'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+  
+  const formattedDate = `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+  console.log(`📅 Date formatée: ${formattedDate} depuis`, timeArray);
+  
+  return formattedDate;
+}
+
+/**
+ * Formate une heure depuis un tableau de nombres [heure, minute, seconde, nanosecondes]
+ * Exemple: [10, 38, 3, 935000000] → "10:38"
+ */
+private formatTimeFromArray(timeArray: number[]): string {
+  console.log('🕐 Formatage de l\'heure depuis:', timeArray);
+  
+  if (!timeArray || timeArray.length < 2) {
+    console.error('❌ Tableau d\'heure invalide ou incomplet:', timeArray);
+    return '--:--';
+  }
+  
+  // timeArray = [heure, minute, seconde, nanosecondes]
+  const hours = timeArray[0].toString().padStart(2, '0');
+  const minutes = timeArray[1].toString().padStart(2, '0');
+  const formattedTime = `${hours}:${minutes}`;
+  
+  console.log(`🕐 Heure formatée: ${formattedTime}`);
+  return formattedTime;
+}
+
+/**
+ * Calcule la différence en minutes entre deux heures au format HH:mm
+ */
+private calculateMinutesBetween(entry: string, exit: string): number {
+  console.log(`⏱️ Calcul durée entre ${entry} et ${exit}`);
+  
+  // Si l'heure de sortie est "En cours" ou invalide, retourner 0
+  if (exit === 'En cours' || exit === '--:--' || !exit.includes(':')) {
+    console.log('⚠️ Sortie en cours ou invalide, durée = 0');
+    return 0;
+  }
+  
+  const [entryH, entryM] = entry.split(':').map(Number);
+  const [exitH, exitM] = exit.split(':').map(Number);
+  
+  // Vérifier que les valeurs sont valides
+  if (isNaN(entryH) || isNaN(entryM) || isNaN(exitH) || isNaN(exitM)) {
+    console.error('❌ Heures invalides:', { entry, exit });
+    return 0;
+  }
+  
+  const entryMinutes = entryH * 60 + entryM;
+  const exitMinutes = exitH * 60 + exitM;
+  
+  const duration = exitMinutes - entryMinutes;
+  console.log(`✅ Durée calculée: ${duration} minutes`);
+  
+  return duration > 0 ? duration : 0;
+}
+
+/**
+ * Formate une durée en minutes vers le format "Xh XXmin"
+ */
+private formatDuration(minutes: number): string {
+  if (minutes <= 0) {
+    return '0h 00min';
+  }
+  
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}h ${mins.toString().padStart(2, '0')}min`;
+}
+
+/**
+ * Obtient le temps total travaillé (filtré ou complet)
+ */
+getTotalWorkedTime(): string {
+  console.log('📊 Calcul du temps total travaillé');
+  
+  // Si le selectedMember a déjà le totalWorkedTime de l'API, l'utiliser
+  if (this.selectedMember?.totalWorkedTime && !this.selectedDate) {
+    console.log('✅ Utilisation du temps total depuis l\'API:', this.selectedMember.totalWorkedTime);
+    return this.selectedMember.totalWorkedTime;
+  }
+  
+  // Sinon, calculer depuis l'historique filtré
+  if (!this.selectedMember?.presenceHistory) {
+    console.log('⚠️ Pas d\'historique de présence');
+    return '0h 00min';
+  }
+  
+  const history = this.getFilteredPresenceHistory();
+  const totalMinutes = history.reduce((total, day) => {
+    return total + day.sessions.reduce((dayTotal, session) => {
+      // Ne compter que les sessions terminées
+      if (session.exit === 'En cours' || session.exit === '--:--') {
+        return dayTotal;
+      }
+      return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
+    }, 0);
+  }, 0);
+  
+  const result = this.formatDuration(totalMinutes);
+  console.log(`✅ Temps total calculé: ${result}`);
+  return result;
+}
   toggleDatePicker(): void {
     this.showDatePicker = !this.showDatePicker;
     if (this.showDatePicker) {
