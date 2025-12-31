@@ -14,6 +14,7 @@ import {
   Worker, 
   WorkersResponse 
 } from './../../../services/utilisateur.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface User {
   id: number;
@@ -49,7 +50,7 @@ interface TaskColumn {
   selector: 'app-task-board',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './task-board.component.html',
+  templateUrl:'./task-board.component.html',
   styleUrls: ['./task-board.component.scss']
 })
 export class TaskBoardComponent implements OnInit, OnDestroy {
@@ -88,7 +89,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
   
   // Property ID
-  currentPropertyId: number = 21;
+  currentPropertyId: number = 17;
 
   // Task form
   currentTask: any = {
@@ -110,7 +111,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
-    private utilisateurService: UtilisateurService
+    private utilisateurService: UtilisateurService,
+    private route: ActivatedRoute
   ) { }
 
   setPropertyId(propertyId: number): void {
@@ -131,10 +133,22 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeUsers();
     this.resetCurrentTask();
-    
-    if (this.currentPropertyId) {
+    this.getPropertyIdFromRoute();
+  }
+  
+  private getPropertyIdFromRoute(): void {
+    const idFromUrl = this.route.snapshot.paramMap.get('id');
+    if (idFromUrl) {
+      this.currentPropertyId = +idFromUrl;
+      this.currentTask.realEstateProperty = { id: this.currentPropertyId };
+      console.log('Property ID récupéré depuis l\'URL:', this.currentPropertyId);
+      
       this.loadWorkers();
       this.loadTasks();
+    } else {
+      console.error("ID de propriété non trouvé dans l'URL.");
+      this.error = "ID de propriété non trouvé dans l'URL.";
+      this.initializeEmptyColumns();
     }
   }
 
@@ -148,15 +162,18 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   private loadWorkers(): void {
+    console.log('🔄 Chargement des workers...');
+    
     this.utilisateurService.listUsers(0, 100)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: WorkersResponse) => {
+          console.log('✅ Workers chargés avec succès:', response);
           this.workers = response.content;
           this.users = this.mapWorkersToUsers(this.workers);
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des workers:', error);
+          console.error('❌ Erreur lors du chargement des workers:', error);
           this.users = [
             { id: 1, avatarUrl: 'assets/images/av1.png', name: 'Ouvrier 1' },
             { id: 2, avatarUrl: 'assets/images/av2.png', name: 'Ouvrier 2' },
@@ -168,37 +185,30 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   private mapWorkersToUsers(workers: Worker[]): User[] {
-    return workers.map((worker, index) => {
-      console.log('Worker photo:', worker.photo);
+    return workers.map((worker) => {
       return {
         id: worker.id,
-        avatarUrl: worker.photo || this.getDefaultAvatar(index),
+        avatarUrl: worker.photo || 'assets/images/profil.png',
         name: `${worker.prenom} ${worker.nom}`
       };
     });
   }
 
-  private getDefaultAvatar(index: number): string {
-    const defaultAvatars = [
-      'assets/images/av1.png',
-      'assets/images/av2.png',
-      'assets/images/av3.png',
-      'assets/images/av4.png'
-    ];
-    return defaultAvatars[index % defaultAvatars.length];
-  }
+
 
   private loadTasks(): void {
     if (!this.currentPropertyId) {
-      console.warn('Property ID not set, cannot load tasks');
+      console.warn('⚠️ Property ID not set, cannot load tasks');
       this.error = 'ID de propriété non défini';
       this.initializeEmptyColumns();
       return;
     }
-
+  
     this.loading = true;
     this.error = null;
-
+  
+    console.log('🔄 Chargement des tâches pour la propriété:', this.currentPropertyId);
+  
     this.projectBudgetService.getTasks(this.currentPropertyId, this.currentPage, this.pageSize)
       .pipe(
         takeUntil(this.destroy$),
@@ -208,19 +218,36 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: TasksResponse) => {
-          console.log('Tasks loaded:', response);
+          console.log('✅ Tâches chargées avec succès:', response);
           this.totalTasks = response.totalElements;
           this.totalPages = response.totalPages;
           this.organizeTasks(response.content);
           this.error = null;
         },
         error: (error) => {
-          console.error('Error loading tasks:', error);
-          this.error = 'Erreur lors du chargement des tâches';
-          this.errorMessage = `Impossible de charger les tâches: ${error.message || error}`;
+          console.error('❌ Erreur lors du chargement des tâches:', error);
+          
+          let errorMsg = 'Erreur lors du chargement des tâches';
+          if (error.status === 404) {
+            errorMsg = 'Propriété non trouvée';
+          } else if (error.status === 403) {
+            errorMsg = 'Accès refusé à cette propriété';
+          } else if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+          
+          this.error = errorMsg;
+          this.errorMessage = errorMsg;
           this.initializeEmptyColumns();
         }
       });
+  }
+
+  forceRefreshTasks(): void {
+    console.log('🔄 Rafraîchissement forcé des tâches...');
+    this.loadTasks();
   }
 
   private organizeTasks(apiTasks: Task[]): void {
@@ -297,14 +324,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       if (worker) {
         return {
           id: worker.id,
-          avatarUrl: worker.photo || this.getDefaultAvatar(worker.id),
+          avatarUrl: worker.photo || 'assets/images/profil.png',
           name: `${worker.prenom} ${worker.nom}`
         };
       }
       
       return {
         id: executor.id,
-        avatarUrl: 'assets/images/default-avatar.png',
+        avatarUrl: 'assets/images/profil.png',
         name: `Exécuteur ${executor.id}`
       };
     });
@@ -348,34 +375,34 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  private resetCurrentTask(): void {
-    this.currentTask = {
-      id: null,
-      title: '',
-      description: '',
-      priority: 'MEDIUM',
-      startDate: this.getCurrentDateArray(),
-      endDate: this.getCurrentDateArray(),
-      realEstateProperty: { id: this.currentPropertyId },
-      executors: [],
-      status: 'TODO',
-      pictures: []
-    };
-  }
+// 4. Modifier resetCurrentTask pour utiliser le format date HTML
+private resetCurrentTask(): void {
+  const now = new Date();
+  const currentDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  
+  this.currentTask = {
+    id: null,
+    title: '',
+    description: '',
+    priority: 'MEDIUM',
+    startDate: currentDateString,
+    endDate: currentDateString,
+    realEstateProperty: { id: this.currentPropertyId },
+    executors: [],
+    status: 'TODO',
+    pictures: []
+  };
+}
 
   // ================== DRAG AND DROP METHODS ==================
 
-  /**
-   * Démarre le drag d'une tâche
-   */
   onDragStart(event: DragEvent, task: TaskDisplay): void {
     console.log('🎯 Début du drag de la tâche:', task.title);
     
     if (event.dataTransfer && task.id) {
-      this.draggedTask = { ...task }; // Clone de la tâche pour éviter les modifications directes
+      this.draggedTask = { ...task };
       this.isDragging = true;
       
-      // Stocker l'ID de la tâche et son statut actuel
       event.dataTransfer.setData('application/json', JSON.stringify({
         taskId: task.id,
         originalStatus: task.status,
@@ -383,16 +410,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       }));
       event.dataTransfer.effectAllowed = 'move';
       
-      // Ajouter une classe CSS pour l'effet visuel
       if (event.target instanceof HTMLElement) {
         event.target.classList.add('dragging');
       }
     }
   }
 
-  /**
-   * Fin du drag (nettoyage)
-   */
   onDragEnd(event: DragEvent): void {
     console.log('🏁 Fin du drag');
     
@@ -400,15 +423,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.isDragging = false;
     this.dragOverColumn = null;
     
-    // Retirer la classe CSS
     if (event.target instanceof HTMLElement) {
       event.target.classList.remove('dragging');
     }
   }
 
-  /**
-   * Survol d'une zone de drop (colonne)
-   */
   onDragOver(event: DragEvent, columnId?: string): void {
     event.preventDefault();
     event.stopPropagation();
@@ -417,17 +436,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       event.dataTransfer.dropEffect = 'move';
     }
     
-    // Mettre à jour la colonne survolée pour l'effet visuel
     if (columnId && this.isDragging) {
       this.dragOverColumn = columnId;
     }
   }
 
-  /**
-   * Quitte une zone de drop
-   */
   onDragLeave(event: DragEvent, columnId: string): void {
-    // Ne retirer l'effet que si on sort vraiment de la colonne
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
@@ -439,9 +453,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Drop d'une tâche dans une colonne
-   */
   onDrop(event: DragEvent, targetStatus: string): void {
     event.preventDefault();
     event.stopPropagation();
@@ -455,7 +466,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Récupérer les données de la tâche
     let dragData;
     try {
       const dataTransferText = event.dataTransfer.getData('application/json');
@@ -476,7 +486,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Vérifier si le statut a réellement changé
     if (originalStatus === targetStatus) {
       console.log('ℹ️ La tâche est déjà dans cette colonne');
       return;
@@ -484,24 +493,17 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
     console.log('🔄 Changement de statut demandé:', originalStatus, '->', targetStatus);
     
-    // Trouver la tâche dans les colonnes
     const task = this.findTaskById(Number(taskId));
     if (!task) {
       console.warn('⚠️ Tâche introuvable avec l\'ID:', taskId);
       return;
     }
 
-    // Mettre à jour le statut immédiatement dans l'interface (optimistic update)
     const originalTaskData = { ...task };
     this.updateTaskStatusLocally(task, targetStatus);
-    
-    // Puis sauvegarder sur le serveur
     this.updateTaskStatusOnServer(Number(taskId), targetStatus, originalTaskData, taskTitle);
   }
 
-  /**
-   * Trouve une tâche par son ID dans toutes les colonnes
-   */
   private findTaskById(taskId: number): TaskDisplay | undefined {
     for (const column of this.columns) {
       const task = column.tasks.find(t => t.id === taskId);
@@ -510,13 +512,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  /**
-   * Met à jour le statut d'une tâche localement (interface)
-   */
   private updateTaskStatusLocally(task: TaskDisplay, newStatus: string): void {
     const oldStatus = task.status;
     
-    // Retirer la tâche de son ancienne colonne
     const oldColumn = this.columns.find(col => col.id === oldStatus);
     if (oldColumn) {
       const taskIndex = oldColumn.tasks.findIndex(t => t.id === task.id);
@@ -526,7 +524,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       }
     }
     
-    // Ajouter la tâche à sa nouvelle colonne
     const newColumn = this.columns.find(col => col.id === newStatus);
     if (newColumn) {
       task.status = newStatus as any;
@@ -538,10 +535,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     console.log('✅ Mise à jour locale terminée');
   }
 
-  /**
-   * Met à jour le statut d'une tâche sur le serveur
-   */
-  private updateTaskStatusOnServer(taskId: number, newStatus: string, originalTaskData: TaskDisplay, taskTitle: string): void {
+  private updateTaskStatusOnServer(
+    taskId: number, 
+    newStatus: string, 
+    originalTaskData: TaskDisplay, 
+    taskTitle: string
+  ): void {
     if (this.isUpdatingTaskStatus) {
       console.log('⏳ Mise à jour déjà en cours...');
       return;
@@ -551,7 +550,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     
     console.log('📤 Envoi de la mise à jour au serveur:', { taskId, status: newStatus });
   
-    // Utiliser la méthode updateTaskStatus du service
     this.projectBudgetService.updateTaskStatus(taskId, newStatus)
       .pipe(
         takeUntil(this.destroy$),
@@ -564,7 +562,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           console.log('✅ Statut mis à jour avec succès sur le serveur:', response);
           this.successMessage = `Tâche "${taskTitle}" déplacée vers "${this.getStatusColumnTitle(newStatus)}"`;
           
-          // Auto-masquer le message de succès après 3 secondes
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
@@ -572,7 +569,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('❌ Erreur lors de la mise à jour du statut:', error);
           
-          // Déterminer le message d'erreur approprié
           let errorMsg = 'Erreur lors du déplacement de la tâche';
           if (error.status === 403) {
             errorMsg = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette tâche.';
@@ -580,33 +576,27 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
             errorMsg = 'Tâche non trouvée.';
           } else if (error.status === 401) {
             errorMsg = 'Session expirée. Veuillez vous reconnecter.';
+          } else if (error.error?.message) {
+            errorMsg = error.error.message;
           } else if (error.message) {
-            errorMsg = `Erreur: ${error.message}`;
+            errorMsg = error.message;
           }
           
           this.errorMessage = errorMsg;
-          
-          // Annuler le changement local en cas d'erreur
           this.revertTaskStatusLocally(originalTaskData);
           
-          // Auto-masquer le message d'erreur après 5 secondes
           setTimeout(() => {
             this.errorMessage = null;
           }, 5000);
         }
       });
   }
-
-  /**
-   * Annule un changement de statut local en cas d'erreur serveur
-   */
+  
   private revertTaskStatusLocally(originalTaskData: TaskDisplay): void {
     console.log('🔄 Annulation du changement local...');
     
-    // Trouver la tâche dans sa nouvelle position et la restaurer
     const currentTask = this.findTaskById(originalTaskData.id!);
     if (currentTask) {
-      // Retirer la tâche de sa position actuelle
       const currentColumn = this.columns.find(col => col.tasks.includes(currentTask));
       if (currentColumn) {
         const taskIndex = currentColumn.tasks.indexOf(currentTask);
@@ -616,47 +606,76 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         }
       }
       
-      // Remettre la tâche dans sa colonne d'origine
       const originalColumn = this.columns.find(col => col.id === originalTaskData.status);
       if (originalColumn) {
-        // Restaurer les données originales
         Object.assign(currentTask, originalTaskData);
         originalColumn.tasks.push(currentTask);
         originalColumn.count = originalColumn.tasks.length;
       }
     } else {
-      // Si on ne trouve pas la tâche, recharger toutes les tâches
       console.warn('Impossible de trouver la tâche pour l\'annulation, rechargement complet...');
       this.loadTasks();
     }
   }
-
-  // ================== END DRAG AND DROP METHODS ==================
-
-  // Modal methods
-  openModal(task?: Task) {
-    if (task) {
-      this.isEditMode = true;
-      this.currentTask = {
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        priority: task.priority,
-        startDate: task.startDate,
-        endDate: task.endDate,
-        realEstateProperty: task.realEstateProperty,
-        executors: [...task.executors],
-        status: task.status,
-        pictures: task.pictures || []
-      };
-    } else {
-      this.isEditMode = false;
-      this.resetCurrentTask();
+  private formatDateFromInput(dateString: string): string {
+    if (!dateString) {
+      return this.formatDateForApi(this.getCurrentDateArray());
     }
-    this.selectedFiles = [];
-    this.error = null;
-    this.showModal = true;
+    
+    // dateString est au format YYYY-MM-DD, convertir en MM-DD-YYYY
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      return `${parts[1]}-${parts[2]}-${parts[0]}`;
+    }
+    
+    return this.formatDateForApi(this.getCurrentDateArray());
   }
+  private formatDateForInput(dateArray: number[] | string): string {
+    if (typeof dateArray === 'string') {
+      // Si c'est déjà une string, convertir de MM-DD-YYYY vers YYYY-MM-DD
+      const parts = dateArray.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[0]}-${parts[1]}`;
+      }
+      return dateArray;
+    }
+    
+    if (!dateArray || dateArray.length < 3) {
+      const now = new Date();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      return `${year}-${month}-${day}`;
+    }
+    
+    const [year, month, day] = dateArray;
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+  }  
+
+// 3. Modifier la méthode openModal pour formater les dates correctement
+openModal(task?: Task) {
+  if (task) {
+    this.isEditMode = true;
+    this.currentTask = {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      startDate: this.formatDateForInput(task.startDate),
+      endDate: this.formatDateForInput(task.endDate),
+      realEstateProperty: task.realEstateProperty,
+      executors: [...task.executors],
+      status: task.status,
+      pictures: task.pictures || []
+    };
+  } else {
+    this.isEditMode = false;
+    this.resetCurrentTask();
+  }
+  this.selectedFiles = [];
+  this.error = null;
+  this.showModal = true;
+}
 
   closeModal() {
     this.showModal = false;
@@ -671,7 +690,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // File handling
   onFileSelected(event: any) {
     const files = event.target.files;
     if (files) {
@@ -679,7 +697,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Form validation
   validateTaskForm(): boolean {
     if (!this.currentTask.title?.trim()) {
       this.error = 'Le titre est requis';
@@ -696,12 +713,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  // Edit task
   editTask(task: TaskDisplay): void {
     this.openModal(task);
   }
 
-  // Delete task
   deleteTask(taskId: number): void {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
       return;
@@ -719,7 +734,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          console.log('Tâche supprimée avec succès');
+          console.log('✅ Tâche supprimée avec succès');
           this.successMessage = 'Tâche supprimée avec succès';
           this.loadTasks();
           
@@ -728,8 +743,16 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           }, 3000);
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression de la tâche:', error);
-          this.errorMessage = 'Erreur lors de la suppression de la tâche';
+          console.error('❌ Erreur lors de la suppression de la tâche:', error);
+          
+          let errorMsg = 'Erreur lors de la suppression de la tâche';
+          if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+          
+          this.errorMessage = errorMsg;
           
           setTimeout(() => {
             this.errorMessage = null;
@@ -738,7 +761,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Pagination
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
@@ -753,7 +775,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Utility methods
   private getCurrentDateArray(): number[] {
     const now = new Date();
     return [now.getFullYear(), now.getMonth() + 1, now.getDate()];
@@ -767,9 +788,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * Formate une date pour l'API (format MM-DD-YYYY)
-   */
   private formatDateForApi(dateArray: number[] | string): string {
     if (typeof dateArray === 'string') {
       return dateArray;
@@ -802,7 +820,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.successMessage = null;
   }
 
-  // Refresh methods
   refreshTasks(): void {
     this.loadTasks();
   }
@@ -811,7 +828,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.loadWorkers();
   }
 
-  // UI Helpers
   getStatusColumnTitle(status: string): string {
     const statusMap: Record<string, string> = {
       'TODO': 'À faire',
@@ -882,75 +898,96 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.resetForm();
   }
 
-  saveTask(): void {
-    if (!this.validateTaskForm()) {
-      return;
-    }
-  
-    this.loading = true;
-    this.error = null;
-    this.successMessage = null;
-  
-    const formatDateForApi = (dateArray: number[]): string => {
-      if (!dateArray || dateArray.length < 3) {
-        const now = new Date();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const day = now.getDate().toString().padStart(2, '0');
-        const year = now.getFullYear();
-        return `${month}-${day}-${year}`;
-      }
-      const [year, month, day] = dateArray;
-      return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}-${year}`;
-    };
-
-    const startDate = Array.isArray(this.currentTask.startDate) 
-      ? this.currentTask.startDate 
-      : this.getCurrentDateArray();
-    
-    const endDate = Array.isArray(this.currentTask.endDate) 
-      ? this.currentTask.endDate 
-      : this.getCurrentDateArray();
-  
-    const taskData: CreateTaskRequest = {
-      title: this.currentTask.title.trim(),
-      description: this.currentTask.description.trim(),
-      priority: this.currentTask.priority,
-      startDate: formatDateForApi(startDate),
-      endDate: formatDateForApi(endDate),
-      realEstatePropertyId: this.currentTask.realEstateProperty?.id || this.currentPropertyId,
-      executorIds: this.currentTask.executors.map((executor: any) => executor.id) || [],
-      pictures: this.currentTask.pictures || []
-    };
-
-    console.log('Task data to send:', taskData);
-  
-    if (this.selectedFiles.length > 0) {
-      const filePromises = this.selectedFiles.map(file => {
-        return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-            resolve(e.target.result);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      });
-  
-      Promise.all(filePromises)
-        .then(base64Files => {
-          taskData.pictures = [...(taskData.pictures || []), ...base64Files];
-          this.createOrUpdateTask(taskData);
-        })
-        .catch(error => {
-          console.error('Error converting files to base64:', error);
-          this.error = 'Erreur lors de la conversion des fichiers';
-          this.loading = false;
-        });
-    } else {
-      this.createOrUpdateTask(taskData);
-    }
+// 5. Modifier saveTask pour convertir les dates correctement
+saveTask(): void {
+  if (!this.validateTaskForm()) {
+    return;
   }
 
+  this.loading = true;
+  this.error = null;
+  this.successMessage = null;
+
+  const taskData: CreateTaskRequest = {
+    title: this.currentTask.title.trim(),
+    description: this.currentTask.description.trim(),
+    priority: this.currentTask.priority,
+    startDate: this.formatDateFromInput(this.currentTask.startDate),
+    endDate: this.formatDateFromInput(this.currentTask.endDate),
+    realEstatePropertyId: this.currentTask.realEstateProperty?.id || this.currentPropertyId,
+    executorIds: this.currentTask.executors.map((executor: any) => executor.id) || [],
+    pictures: this.currentTask.pictures || []
+  };
+
+  console.log('Task data to send:', taskData);
+
+  if (this.selectedFiles.length > 0) {
+    const filePromises = this.selectedFiles.map(file => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          resolve(e.target.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(filePromises)
+      .then(base64Files => {
+        taskData.pictures = [...(taskData.pictures || []), ...base64Files];
+        this.createOrUpdateTask(taskData);
+      })
+      .catch(error => {
+        console.error('Error converting files to base64:', error);
+        this.error = 'Erreur lors de la conversion des fichiers';
+        this.loading = false;
+      });
+  } else {
+    this.createOrUpdateTask(taskData);
+  }
+}
+
+// 6. Modifier la méthode getDefaultAvatar pour utiliser le placeholder correct
+private getDefaultAvatar(index?: number): string {
+  return 'assets/images/profil.png';
+}
+
+// Méthode pour gérer le changement du select multiple
+onExecutorChange(event: any): void {
+  const selectedOptions = Array.from(event.target.selectedOptions) as HTMLOptionElement[];
+  const selectedIds = selectedOptions.map(option => parseInt(option.value));
+  
+  // Mettre à jour la liste des executors
+  this.currentTask.executors = selectedIds.map(id => ({ id }));
+}
+
+// Méthode pour retirer un exécuteur
+removeExecutor(userId: number): void {
+  const index = this.currentTask.executors.findIndex((exec: any) => exec.id === userId);
+  if (index > -1) {
+    this.currentTask.executors.splice(index, 1);
+  }
+}
+
+// Méthode pour obtenir l'avatar d'un utilisateur
+getUserAvatar(userId: number): string {
+  const user = this.users.find(u => u.id === userId);
+  return user?.avatarUrl || 'assets/images/profil.png';
+}
+
+// Méthode pour obtenir le nom d'un utilisateur
+getUserName(userId: number): string {
+  const user = this.users.find(u => u.id === userId);
+  return user?.name || 'Utilisateur inconnu';
+}
+
+
+// Méthode pour gérer les erreurs de chargement d'images
+onImageError(event: Event): void {
+  const imgElement = event.target as HTMLImageElement;
+  imgElement.src = 'assets/images/profil.png';
+}
   private createOrUpdateTask(taskData: CreateTaskRequest): void {
     if (this.isEditMode && this.currentTask.id) {
       this.updateExistingTask(taskData);
@@ -964,15 +1001,27 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         )
         .subscribe({
           next: (response) => {
-            console.log('Tâche créée avec succès:', response);
+            console.log('✅ Tâche créée avec succès:', response);
             this.successMessage = 'Tâche créée avec succès';
-            this.loadTasks();
             this.closeModal();
+            this.loadTasks();
+            
+            setTimeout(() => {
+              this.successMessage = null;
+            }, 3000);
           },
           error: (error) => {
-            console.error('Erreur lors de la création de la tâche:', error);
-            this.error = 'Erreur lors de la création de la tâche';
-            this.errorMessage = error.message || error;
+            console.error('❌ Erreur lors de la création de la tâche:', error);
+            
+            let errorMsg = 'Erreur lors de la création de la tâche';
+            if (error.error?.message) {
+              errorMsg = error.error.message;
+            } else if (error.message) {
+              errorMsg = error.message;
+            }
+            
+            this.error = errorMsg;
+            this.errorMessage = errorMsg;
           }
         });
     }
@@ -1002,7 +1051,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Convertir CreateTaskRequest en UpdateTaskRequest
     const updateData: UpdateTaskRequest = {
       title: taskData.title,
       description: taskData.description,
@@ -1024,19 +1072,27 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Tâche mise à jour avec succès:', response);
+          console.log('✅ Tâche mise à jour avec succès:', response);
           this.successMessage = 'Tâche mise à jour avec succès';
-          this.loadTasks();
           this.closeModal();
+          this.loadTasks();
           
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
         },
         error: (error) => {
-          console.error('Erreur lors de la mise à jour de la tâche:', error);
-          this.error = 'Erreur lors de la mise à jour de la tâche';
-          this.errorMessage = error.message || error;
+          console.error('❌ Erreur lors de la mise à jour de la tâche:', error);
+          
+          let errorMsg = 'Erreur lors de la mise à jour de la tâche';
+          if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+          
+          this.error = errorMsg;
+          this.errorMessage = errorMsg;
           
           setTimeout(() => {
             this.errorMessage = null;

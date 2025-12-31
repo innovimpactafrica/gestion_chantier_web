@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 // Interfaces pour le typage
 export interface OrderItem {
@@ -65,7 +66,7 @@ export interface OrderResponse {
   providedIn: 'root'
 })
 export class CommandeService {
-  private baseUrl = 'https://wakana.online/api';
+  private baseUrl = `${environment.apiBaseUrl}/api`;
 
   constructor(private http: HttpClient) { }
 

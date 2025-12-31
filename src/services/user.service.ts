@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interfaces pour le typage des réponses
 export interface SubscriptionPlan {
@@ -104,13 +105,14 @@ export interface CreateUserRequest {
   lieunaissance: string;
   adress: string;
   profil: string;
+  photo?: File; // Ajout du champ photo optionnel
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private baseUrl = 'https://wakana.online/api/v1';
+  private baseUrl = `${environment.apiUrl}/v1`;
 
   constructor(
     private http: HttpClient,
@@ -271,16 +273,29 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
  * Crée un nouvel utilisateur (inscription)
  */
 createUser(userData: CreateUserRequest): Observable<any> {
-  // Pour l'inscription, on n'utilise PAS les headers d'authentification
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json'
-  });
-  
   const url = `${this.baseUrl}/auth/signup`;
   
   console.log('📡 API Call: createUser (inscription)');
   console.log('🔗 URL:', url);
-  console.log('📋 Content-Type: application/json');
+  
+  // Créer un FormData pour envoyer le fichier
+  const formData = new FormData();
+  formData.append('nom', userData.nom);
+  formData.append('prenom', userData.prenom);
+  formData.append('email', userData.email);
+  formData.append('password', userData.password);
+  formData.append('telephone', userData.telephone);
+  formData.append('date', userData.date);
+  formData.append('lieunaissance', userData.lieunaissance);
+  formData.append('adress', userData.adress);
+  formData.append('profil', userData.profil);
+  
+  // Ajouter la photo si elle existe
+  if (userData.photo) {
+    formData.append('photo', userData.photo, userData.photo.name);
+    console.log('📸 Photo ajoutée:', userData.photo.name);
+  }
+  
   console.log('👤 Données nouvel utilisateur:', {
     nom: userData.nom,
     prenom: userData.prenom,
@@ -290,6 +305,7 @@ createUser(userData: CreateUserRequest): Observable<any> {
     date: userData.date,
     lieunaissance: userData.lieunaissance,
     adress: userData.adress,
+    photo: userData.photo ? userData.photo.name : 'Aucune',
     password: '***'
   });
   
@@ -301,7 +317,9 @@ createUser(userData: CreateUserRequest): Observable<any> {
     console.error('❌ Champs obligatoires manquants:', missingFields);
   }
   
-  return this.http.post(url, userData, { headers })
+  // Ne pas définir Content-Type pour FormData (le navigateur le fait automatiquement avec boundary)
+  // Pour l'inscription, on n'utilise PAS les headers d'authentification
+  return this.http.post(url, formData) // Pas de headers
     .pipe(
       tap(response => {
         console.log('✅ Utilisateur créé avec succès:', response);
@@ -311,9 +329,8 @@ createUser(userData: CreateUserRequest): Observable<any> {
         console.error('❌ Erreur createUser - Body:', error.error);
         console.error('❌ Erreur createUser - Message:', error.message);
         
-        // Si erreur 400, afficher les détails
         if (error.status === 400) {
-          console.error('❌ ERREUR 400 - Données envoyées:', userData);
+          console.error('❌ ERREUR 400 - Données envoyées');
           if (error.error?.message) {
             console.error('❌ Message serveur:', error.error.message);
           }

@@ -2,6 +2,7 @@
   import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
   import { Observable, throwError } from 'rxjs';
   import { catchError } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
   export interface BudgetResponse {
     id: number;
@@ -439,7 +440,7 @@ export interface CreateExpenseRequest {
   providedIn: 'root'
 })
 export class ProjectBudgetService {
-  private baseUrl = 'https://wakana.online/api/';
+  private baseUrl = `${environment.apiUrl}/`;
 
   constructor(private http: HttpClient) {}
 
@@ -498,12 +499,10 @@ export class ProjectBudgetService {
     return throwError(errorMessage);
   }
   createTask(taskData: CreateTaskRequest): Observable<any> {
-    const headers = this.getAuthHeaders(true); // true pour FormData (sans Content-Type)
+    const headers = this.getAuthHeaders(true);
     
-    // Créer un FormData pour l'envoi multipart
     const formData = new FormData();
     
-    // Ajouter les champs texte
     formData.append('title', taskData.title);
     formData.append('description', taskData.description);
     formData.append('priority', taskData.priority);
@@ -511,38 +510,36 @@ export class ProjectBudgetService {
     formData.append('endDate', taskData.endDate);
     formData.append('realEstatePropertyId', taskData.realEstatePropertyId.toString());
     
-    // Ajouter les executors (IDs) - format correct pour l'API
     taskData.executorIds.forEach((executorId) => {
       formData.append('executorIds', executorId.toString());
     });
     
-    // Ajouter les images (format correct pour l'API)
     if (taskData.pictures && taskData.pictures.length > 0) {
       taskData.pictures.forEach((pictureBase64: string) => {
-        // L'API attend directement les strings base64, pas des fichiers Blob
         formData.append('pictures', pictureBase64);
       });
     }
     
-    console.log('Envoi FormData pour tâche avec:', {
+    console.log('📤 Création de tâche:', {
       title: taskData.title,
-      description: taskData.description,
-      priority: taskData.priority,
-      startDate: taskData.startDate,
-      endDate: taskData.endDate,
-      realEstatePropertyId: taskData.realEstatePropertyId,
-      executorIds: taskData.executorIds,
-      pictureCount: taskData.pictures ? taskData.pictures.length : 0
+      propertyId: taskData.realEstatePropertyId,
+      executorCount: taskData.executorIds.length,
+      pictureCount: taskData.pictures?.length || 0
     });
-    console.log(headers, formData);
+    
+    // ✅ CORRECTION: URL fixée - était `${this.baseUrl}/tasks` au lieu de `${this.baseUrl}tasks`
     return this.http.post<any>(
-      `${this.baseUrl}/tasks`, // URL corrigée sans double /api
+      `${this.baseUrl}tasks`, // ← CORRECTION ICI
       formData,
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('Erreur détaillée lors de la création de tâche:', error);
-        return this.handleError(error);
+        console.error('❌ Erreur création tâche:', error);
+        return throwError(() => ({
+          status: error.status,
+          message: error.error?.message || error.message || 'Erreur lors de la création de la tâche',
+          error: error
+        }));
       })
     );
   }
@@ -552,52 +549,77 @@ export class ProjectBudgetService {
     const formData = new FormData();
     formData.append('status', status);
     
-    console.log('Mise à jour du statut de la tâche:', { id, status });
+    console.log('📤 Mise à jour statut:', { taskId: id, newStatus: status });
     
     return this.http.put<any>(
-      `${this.baseUrl}/tasks/${id}/status`,
+      `${this.baseUrl}tasks/${id}/status`,
       formData,
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('Erreur lors de la mise à jour du statut:', error);
-        return this.handleError(error);
+        console.error('❌ Erreur mise à jour statut:', error);
+        
+        // Retourner un objet d'erreur structuré
+        return throwError(() => ({
+          status: error.status,
+          message: error.error?.message || error.message || 'Erreur lors de la mise à jour du statut',
+          error: error
+        }));
       })
     );
   }
 
 // Dans votre service
-updateTask(id: number, taskData: UpdateTaskRequest ): Observable<any> {
+updateTask(id: number, taskData: UpdateTaskRequest): Observable<any> {
   const headers = this.getAuthHeaders(true);
   
   const formData = new FormData();
   
-  // Ajouter seulement les champs présents dans la requête
-  if (taskData.title !== undefined) formData.append('title', taskData.title || '');
-  if (taskData.description !== undefined) formData.append('description', taskData.description || '');
-  if (taskData.priority !== undefined) formData.append('priority', taskData.priority || '');
-  if (taskData.startDate !== undefined) formData.append('startDate', taskData.startDate || '');
-  if (taskData.endDate !== undefined) formData.append('endDate', taskData.endDate || '');
-  if (taskData.status !== undefined) formData.append('status', taskData.status || '');
-  if (taskData.realEstatePropertyId !== undefined) {
+  // ✅ AMÉLIORATION: Toujours inclure le statut (obligatoire selon l'interface)
+  formData.append('status', taskData.status);
+  
+  // Ajouter les autres champs s'ils sont présents
+  if (taskData.title !== undefined && taskData.title !== null) {
+    formData.append('title', taskData.title);
+  }
+  if (taskData.description !== undefined && taskData.description !== null) {
+    formData.append('description', taskData.description);
+  }
+  if (taskData.priority !== undefined && taskData.priority !== null) {
+    formData.append('priority', taskData.priority);
+  }
+  if (taskData.startDate !== undefined && taskData.startDate !== null) {
+    formData.append('startDate', taskData.startDate);
+  }
+  if (taskData.endDate !== undefined && taskData.endDate !== null) {
+    formData.append('endDate', taskData.endDate);
+  }
+  if (taskData.realEstatePropertyId !== undefined && taskData.realEstatePropertyId !== null) {
     formData.append('realEstatePropertyId', taskData.realEstatePropertyId.toString());
   }
   
-  // Ajouter les executors si présents
+  // Ajouter les executors
   if (taskData.executorIds && taskData.executorIds.length > 0) {
     taskData.executorIds.forEach((executorId) => {
       formData.append('executorIds', executorId.toString());
     });
   }
   
-  // Ajouter les images si présentes
+  // Ajouter les images
   if (taskData.pictures && taskData.pictures.length > 0) {
     taskData.pictures.forEach((pictureBase64: string) => {
       formData.append('pictures', pictureBase64);
     });
   }
   
-  console.log('Mise à jour de la tâche:', { id, data: taskData });
+  console.log('📤 Mise à jour tâche:', {
+    taskId: id,
+    status: taskData.status,
+    hasTitle: !!taskData.title,
+    hasDescription: !!taskData.description,
+    executorCount: taskData.executorIds?.length || 0,
+    pictureCount: taskData.pictures?.length || 0
+  });
   
   return this.http.put<any>(
     `${this.baseUrl}tasks/${id}`,
@@ -605,8 +627,13 @@ updateTask(id: number, taskData: UpdateTaskRequest ): Observable<any> {
     { headers }
   ).pipe(
     catchError((error) => {
-      console.error('Erreur lors de la mise à jour de tâche:', error);
-      return this.handleError(error);
+      console.error('❌ Erreur mise à jour tâche:', error);
+      
+      return throwError(() => ({
+        status: error.status,
+        message: error.error?.message || error.message || 'Erreur lors de la mise à jour de la tâche',
+        error: error
+      }));
     })
   );
 }
@@ -724,11 +751,27 @@ updateTask(id: number, taskData: UpdateTaskRequest ): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  getTasks(propertyId: number, page: number = 0, size: number = 10): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.baseUrl}/tasks/by-property/${propertyId}?page=${page}&size=${size}`, { headers })
-      .pipe(catchError(this.handleError));
-  }
+// 4. ✅ CORRECTION: getTasks - Ajout de logs et meilleure gestion d'erreurs
+getTasks(propertyId: number, page: number = 0, size: number = 10): Observable<TasksResponse> {
+  const headers = this.getAuthHeaders();
+  
+  console.log('📥 Chargement tâches:', { propertyId, page, size });
+  
+  return this.http.get<TasksResponse>(
+    `${this.baseUrl}/tasks/by-property/${propertyId}?page=${page}&size=${size}`,
+    { headers }
+  ).pipe(
+    catchError((error) => {
+      console.error('❌ Erreur chargement tâches:', error);
+      
+      return throwError(() => ({
+        status: error.status,
+        message: error.error?.message || error.message || 'Erreur lors du chargement des tâches',
+        error: error
+      }));
+    })
+  );
+}
 
   putBudget(id: number, amont: number): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -768,11 +811,27 @@ updateTask(id: number, taskData: UpdateTaskRequest ): Observable<any> {
     return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`, { headers })
       .pipe(catchError(this.handleError));
   }
-  deleteTask(id: number): Observable<void> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete<void>(`${this.baseUrl}/task/${id}`, { headers })
-      .pipe(catchError(this.handleError));
-  }
+ // 5. ✅ CORRECTION: deleteTask - Meilleure gestion des erreurs
+deleteTask(id: number): Observable<void> {
+  const headers = this.getAuthHeaders();
+  
+  console.log('🗑️ Suppression tâche:', id);
+  
+  return this.http.delete<void>(
+    `${this.baseUrl}tasks/${id}`,
+    { headers }
+  ).pipe(
+    catchError((error) => {
+      console.error('❌ Erreur suppression tâche:', error);
+      
+      return throwError(() => ({
+        status: error.status,
+        message: error.error?.message || error.message || 'Erreur lors de la suppression de la tâche',
+        error: error
+      }));
+    })
+  );
+}
 
   deleteAlbum(id: number): Observable<void> {
     const headers = this.getAuthHeaders();

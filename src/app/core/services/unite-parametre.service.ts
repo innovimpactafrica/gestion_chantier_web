@@ -3,12 +3,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { catchError, tap, shareReplay, map } from 'rxjs/operators';
 import { UnitParameter,PaginatedResponse,PaginationParams } from '../../models/unit-parameter';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UnitParameterService {
-  private baseUrl = 'https://wakana.online/api/unit-parameters';
+  private baseUrl = `${environment.apiUrl}/unit-parameters`;
   
   // BehaviorSubjects pour chaque type avec pagination
   private documentsSubject = new BehaviorSubject<PaginatedResponse<UnitParameter> | null>(null);
@@ -28,7 +29,7 @@ export class UnitParameterService {
 
   // ========== MÉTHODES GÉNÉRIQUES ==========
   
-  getAll(): Observable<UnitParameter[]> {
+  getAll1(): Observable<UnitParameter[]> {
     const cacheKey = 'all-parameters';
     const cached = this.getCachedData(cacheKey);
     
@@ -41,6 +42,21 @@ export class UnitParameterService {
       catchError(this.handleError),
       shareReplay(1)
     );
+  }
+   // ⚠️ NOUVELLE MÉTHODE: Récupérer TOUTES les unités sans pagination
+   getAll(): Observable<UnitParameter[]> {
+    return this.http.get<UnitParameter[]>(
+      `${this.baseUrl}?page=0&size=1000` // Grande taille pour tout récupérer
+    ).pipe(
+      tap(response => console.log('Unités chargées:', response)),
+      catchError(error => {
+        console.error('Erreur lors du chargement des unités:', error);
+        throw error;
+      })
+    ).pipe(
+      // Extraire seulement le contenu
+      tap(response => response)
+    ) as Observable<UnitParameter[]>;
   }
 
   getByTypePaginated(

@@ -1,17 +1,9 @@
-// demande.component.ts (version mise à jour avec création de rapport)
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DemandeService, Demande, Report } from './../../../services/demande.service';
-import { AuthService, profil } from './../../features/auth/services/auth.service';
+import { DemandeService, Demande, Report, Comment as DemandeComment } from './../../../services/demande.service';
+import { AuthService } from './../../features/auth/services/auth.service';
 import { Subscription } from 'rxjs';
-
-interface Comment {
-  id: number;
-  text: string;
-  author: string;
-  createdAt: Date;
-}
 
 @Component({
   standalone: true,
@@ -28,8 +20,17 @@ export class DemandeComponent implements OnInit, OnDestroy {
   selectedDemande: Demande | null = null;
   comment: string = '';
   
-  // Modal de création de rapport
+  // Modals
   showCreateReportModal: boolean = false;
+  showConfirmValidateModal: boolean = false;
+  showConfirmRejectModal: boolean = false;
+  showConfirmDeleteModal: boolean = false;
+  demandeToDelete: Demande | null = null;
+  
+  // Rejection reason
+  rejectionReason: string = '';
+  
+  // Nouveau rapport
   newReport: {
     title: string;
     version: string;
@@ -40,11 +41,15 @@ export class DemandeComponent implements OnInit, OnDestroy {
     file: null
   };
   
-  // États de création
+  // États
   isCreatingReport: boolean = false;
   createReportError: string | null = null;
+  isValidating: boolean = false;
+  isRejecting: boolean = false;
+  isDeleting: boolean = false;
+  actionError: string | null = null;
   
-  // Données dynamiques
+  // Données
   demandes: Demande[] = [];
   filteredDemandes: Demande[] = [];
   loading: boolean = true;
@@ -56,16 +61,16 @@ export class DemandeComponent implements OnInit, OnDestroy {
   totalElements: number = 0;
   totalPages: number = 0;
   
-  // Commentaires simulés
-  comments: Comment[] = [];
+  // Commentaires
+  comments: DemandeComment[] = [];
+  loadingComments: boolean = false;
   
-  // ID du BET (dynamique depuis l'utilisateur connecté)
+  // ID du BET
   betId: number | null = null;
   
-  // Subscription pour nettoyer les observables
+  // Subscriptions
   private subscriptions: Subscription = new Subscription();
   
-  // Correction: Déclarer Math comme propriété
   Math = Math;
 
   constructor(
@@ -78,13 +83,9 @@ export class DemandeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Nettoyer les subscriptions pour éviter les fuites mémoire
     this.subscriptions.unsubscribe();
   }
 
-  /**
-   * Initialise l'ID du BET à partir de l'utilisateur connecté
-   */
   private initializeBetId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
@@ -93,7 +94,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.betId = user.id;
         this.loadDemandes();
       } else {
-        // Si l'utilisateur n'a pas d'ID, on rafraîchit les données utilisateur
         const refreshSubscription = this.authService.refreshUser().subscribe({
           next: (refreshedUser: { id: number | null; }) => {
             if (refreshedUser && refreshedUser.id) {
@@ -116,18 +116,12 @@ export class DemandeComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Gère les erreurs de chargement utilisateur
-   */
   private handleUserError(message: string): void {
     console.error(message);
     this.error = message;
     this.loading = false;
   }
 
-  /**
-   * Vérifie si l'utilisateur est un BET
-   */
   private isBETUser(): boolean {
     const user = this.authService.currentUser();
     if (!user) return false;
@@ -142,14 +136,12 @@ export class DemandeComponent implements OnInit, OnDestroy {
   }
 
   loadDemandes(page: number = 0) {
-    // Vérifier que betId est défini avant de charger
     if (this.betId === null) {
       this.error = 'ID utilisateur non disponible';
       this.loading = false;
       return;
     }
 
-    // Vérifier que l'utilisateur est bien un BET
     if (!this.isBETUser()) {
       this.error = 'Accès réservé aux utilisateurs BET';
       this.loading = false;
@@ -158,7 +150,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = null;
-    // this.betId
+    
     this.demandeService.getDemande(1, page, this.pageSize).subscribe({
       next: (response) => {
         this.demandes = response.content;
@@ -177,7 +169,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Nouvelle méthode corrigée pour changer la taille de page
   changePageSize(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const newSize = +target.value;
@@ -247,25 +238,16 @@ export class DemandeComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'PENDING':
         return 'En attente';
+      case 'IN_PROGRESS':
+        return 'En cours';
+      case 'DELIVERED':
+        return 'Livrée';
       case 'VALIDATED':
         return 'Validée';
       case 'REJECTED':
         return 'Rejetée';
       default:
         return status;
-    }
-  }
-
-  mapFrenchToStatus(frenchStatus: string): string {
-    switch (frenchStatus) {
-      case 'En attente':
-        return 'PENDING';
-      case 'Validée':
-        return 'VALIDATED';
-      case 'Rejetée':
-        return 'REJECTED';
-      default:
-        return frenchStatus;
     }
   }
 
@@ -287,6 +269,8 @@ export class DemandeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ========== GESTION DU MODAL DÉTAILS ==========
+
   openDetails(demande: Demande) {
     this.selectedDemande = demande;
     this.showModal = true;
@@ -301,47 +285,312 @@ export class DemandeComponent implements OnInit, OnDestroy {
     this.comments = [];
   }
 
-  acceptDemande() {
-    if (this.selectedDemande) {
-      console.log('Demande acceptée:', this.selectedDemande.id);
-      console.log('Commentaire:', this.comment);
-      this.selectedDemande.status = 'VALIDATED';
-      this.filterDemandes();
-    }
-    this.closeModal();
+  // ========== ACTIONS VALIDER/REJETER AVEC CONFIRMATION ==========
+
+  openValidateConfirmation() {
+    this.showConfirmValidateModal = true;
+    this.actionError = null;
   }
 
-  rejectDemande() {
-    if (this.selectedDemande) {
-      console.log('Demande rejetée:', this.selectedDemande.id);
-      console.log('Commentaire:', this.comment);
-      this.selectedDemande.status = 'REJECTED';
-      this.filterDemandes();
-    }
-    this.closeModal();
+  closeValidateConfirmation() {
+    this.showConfirmValidateModal = false;
+    this.isValidating = false;
+    this.actionError = null;
+  }
+
+  confirmValidate() {
+    if (!this.selectedDemande) return;
+
+    this.isValidating = true;
+    this.actionError = null;
+
+    const validateSubscription = this.demandeService.validateDemande(this.selectedDemande.id).subscribe({
+      next: (updatedDemande: Demande) => {
+        console.log('✅ Demande validée avec succès:', updatedDemande);
+        
+        // Mettre à jour la demande locale
+        this.selectedDemande = updatedDemande;
+        
+        // Mettre à jour dans la liste
+        const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
+        if (index !== -1) {
+          this.demandes[index] = updatedDemande;
+        }
+        
+        this.filterDemandes();
+        this.closeValidateConfirmation();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la validation:', error);
+        this.actionError = 'Erreur lors de la validation de la demande';
+        this.isValidating = false;
+      }
+    });
+
+    this.subscriptions.add(validateSubscription);
+  }
+
+  openRejectConfirmation() {
+    this.showConfirmRejectModal = true;
+    this.rejectionReason = '';
+    this.actionError = null;
+  }
+
+  closeRejectConfirmation() {
+    this.showConfirmRejectModal = false;
+    this.rejectionReason = '';
+    this.isRejecting = false;
+    this.actionError = null;
+  }
+
+  confirmReject() {
+    if (!this.selectedDemande) return;
+
+    this.isRejecting = true;
+    this.actionError = null;
+
+    const rejectSubscription = this.demandeService.rejectDemande(
+      this.selectedDemande.id, 
+      this.rejectionReason.trim() || undefined
+    ).subscribe({
+      next: (updatedDemande: Demande) => {
+        console.log('✅ Demande rejetée avec succès:', updatedDemande);
+        
+        // Mettre à jour la demande locale
+        this.selectedDemande = updatedDemande;
+        
+        // Mettre à jour dans la liste
+        const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
+        if (index !== -1) {
+          this.demandes[index] = updatedDemande;
+        }
+        
+        this.filterDemandes();
+        this.closeRejectConfirmation();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du rejet:', error);
+        this.actionError = 'Erreur lors du rejet de la demande';
+        this.isRejecting = false;
+      }
+    });
+
+    this.subscriptions.add(rejectSubscription);
+  }
+
+  // ========== ACTIONS RAPIDES (DEPUIS LA TABLE) ==========
+
+  quickValidate(demande: Demande) {
+    this.selectedDemande = demande;
+    this.openValidateConfirmation();
+  }
+
+  quickReject(demande: Demande) {
+    this.selectedDemande = demande;
+    this.openRejectConfirmation();
+  }
+
+  // ========== SUPPRESSION ==========
+
+  openDeleteConfirmation(demande: Demande) {
+    this.demandeToDelete = demande;
+    this.showConfirmDeleteModal = true;
+    this.actionError = null;
+  }
+
+  closeDeleteConfirmation() {
+    this.showConfirmDeleteModal = false;
+    this.demandeToDelete = null;
+    this.isDeleting = false;
+    this.actionError = null;
+  }
+
+  confirmDelete() {
+    if (!this.demandeToDelete) return;
+
+    this.isDeleting = true;
+    this.actionError = null;
+
+    const deleteSubscription = this.demandeService.deleteDemande(this.demandeToDelete.id).subscribe({
+      next: () => {
+        console.log('✅ Demande supprimée avec succès');
+        
+        // Retirer de la liste
+        this.demandes = this.demandes.filter(d => d.id !== this.demandeToDelete!.id);
+        this.filterDemandes();
+        
+        this.closeDeleteConfirmation();
+        
+        // Recharger si la liste est vide
+        if (this.demandes.length === 0 && this.currentPage > 0) {
+          this.loadDemandes(this.currentPage - 1);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la suppression:', error);
+        this.actionError = 'Erreur lors de la suppression de la demande';
+        this.isDeleting = false;
+      }
+    });
+
+    this.subscriptions.add(deleteSubscription);
+  }
+
+  // ========== GESTION DES COMMENTAIRES ==========
+
+  private loadComments(demandeId: number) {
+    this.loadingComments = true;
+    this.comments = [];
+
+    const commentsSubscription = this.demandeService.getComments(demandeId).subscribe({
+      next: (comments) => {
+        this.comments = comments;
+        this.loadingComments = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des commentaires:', error);
+        this.loadingComments = false;
+      }
+    });
+
+    this.subscriptions.add(commentsSubscription);
   }
 
   sendComment() {
-    if (this.comment.trim() && this.selectedDemande) {
-      const newComment: Comment = {
-        id: this.comments.length + 1,
-        text: this.comment.trim(),
-        author: 'Utilisateur actuel',
-        createdAt: new Date()
-      };
-      
-      this.comments.push(newComment);
-      this.comment = '';
+    if (!this.comment.trim() || !this.selectedDemande) return;
+
+    const user = this.authService.currentUser();
+    const authorName = user ? this.authService.getUserDisplayName() : 'Utilisateur';
+
+    const commentData = {
+      text: this.comment.trim(),
+      author: authorName,
+      studyRequestId: this.selectedDemande.id
+    };
+
+    const commentSubscription = this.demandeService.createComment(commentData).subscribe({
+      next: (newComment) => {
+        this.comments.push(newComment);
+        this.comment = '';
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'ajout du commentaire:', error);
+      }
+    });
+
+    this.subscriptions.add(commentSubscription);
+  }
+
+  // ========== GESTION DES RAPPORTS ==========
+
+  openCreateReportModal(): void {
+    this.showCreateReportModal = true;
+    this.resetNewReportForm();
+    this.createReportError = null;
+  }
+
+  closeCreateReportModal(): void {
+    this.showCreateReportModal = false;
+    this.resetNewReportForm();
+    this.createReportError = null;
+    this.isCreatingReport = false;
+  }
+
+  private resetNewReportForm(): void {
+    this.newReport = {
+      title: '',
+      version: '',
+      file: null
+    };
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.newReport.file = input.files[0];
     }
   }
 
-  private loadComments(demandeId: number) {
-    this.comments = [];
+  private isCreateReportFormValid(): boolean {
+    return !!(
+      this.newReport.title.trim() && 
+      this.newReport.version.trim() && 
+      this.newReport.file
+    );
   }
 
-  canAcceptOrReject(): boolean {
-    return this.selectedDemande?.status === 'PENDING';
+  createReport(): void {
+    if (!this.isCreateReportFormValid()) {
+      this.createReportError = 'Veuillez remplir tous les champs obligatoires';
+      return;
+    }
+
+    if (!this.selectedDemande) {
+      this.createReportError = 'Aucune demande sélectionnée';
+      return;
+    }
+
+    if (!this.newReport.file) {
+      this.createReportError = 'Veuillez sélectionner un fichier';
+      return;
+    }
+
+    if (!this.betId) {
+      this.createReportError = 'ID utilisateur non disponible';
+      return;
+    }
+
+    if (!this.authService.isAuthenticated()) {
+      this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
+      return;
+    }
+
+    this.isCreatingReport = true;
+    this.createReportError = null;
+
+    const reportData = {
+      title: this.newReport.title.trim(),
+      versionNumber: parseInt(this.newReport.version),
+      studyRequestId: this.selectedDemande.id,
+      authorId: this.betId
+    };
+
+    const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
+      next: (response: Report) => {
+        console.log('✅ Rapport créé avec succès:', response);
+        
+        if (this.selectedDemande) {
+          if (!this.selectedDemande.reports) {
+            this.selectedDemande.reports = [];
+          }
+          this.selectedDemande.reports.push(response);
+        }
+        
+        this.closeCreateReportModal();
+      },
+      error: (error: any) => {
+        console.error('❌ Erreur lors de la création du rapport:', error);
+        this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
+        this.isCreatingReport = false;
+      }
+    });
+
+    this.subscriptions.add(createSubscription);
   }
+
+  cancelCreateReport(): void {
+    this.closeCreateReportModal();
+  }
+
+  getFileName(): string {
+    return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
+  }
+
+  hasFileSelected(): boolean {
+    return !!this.newReport.file;
+  }
+
+  // ========== PAGINATION ==========
 
   previousPage() {
     if (this.currentPage > 0) {
@@ -361,262 +610,13 @@ export class DemandeComponent implements OnInit, OnDestroy {
     }
   }
 
-  getProgressSteps(status: string): { step: number; label: string; active: boolean; completed: boolean }[] {
-    const frenchStatus = this.mapStatusToFrench(status);
-    const steps = [
-      { step: 1, label: 'En attente de réponse', active: false, completed: false },
-      { step: 2, label: 'En cours d\'acceptation', active: false, completed: false },
-      { step: 3, label: 'En cours de livraison', active: false, completed: false },
-      { step: 4, label: 'Validation/Rejet', active: false, completed: false }
-    ];
+  // ========== UTILITAIRES ==========
 
-    switch (frenchStatus) {
-      case 'En attente':
-        steps[0].active = true;
-        break;
-      case 'En cours':
-        steps[0].completed = true;
-        steps[1].active = true;
-        break;
-      case 'Livrée':
-        steps[0].completed = true;
-        steps[1].completed = true;
-        steps[2].active = true;
-        break;
-      case 'Validée':
-      case 'Rejetée':
-        steps[0].completed = true;
-        steps[1].completed = true;
-        steps[2].completed = true;
-        steps[3].active = true;
-        steps[3].completed = true;
-        break;
-    }
-
-    return steps;
+  canAcceptOrReject(): boolean {
+    return this.selectedDemande?.status === 'PENDING';
   }
 
-  /**
-   * Méthode pour obtenir le nom de l'utilisateur connecté
-   */
   getUserDisplayName(): string {
     return this.authService.getUserDisplayName();
-  }
-
-  /**
-   * Méthode pour debug - afficher les informations utilisateur
-   */
-  debugUserInfo(): void {
-    console.log('Current User:', this.authService.currentUser());
-    console.log('BET ID:', this.betId);
-    console.log('Is BET User:', this.isBETUser());
-  }
-
-  // ========== MÉTHODES POUR LA CRÉATION DE RAPPORT ==========
-
-  /**
-   * Ouvre le modal de création de rapport
-   */
-  openCreateReportModal(): void {
-    this.showCreateReportModal = true;
-    this.resetNewReportForm();
-    this.createReportError = null;
-  }
-
-  /**
-   * Ferme le modal de création de rapport
-   */
-  closeCreateReportModal(): void {
-    this.showCreateReportModal = false;
-    this.resetNewReportForm();
-    this.createReportError = null;
-    this.isCreatingReport = false;
-  }
-
-  /**
-   * Remet à zéro le formulaire de création de rapport
-   */
-  private resetNewReportForm(): void {
-    this.newReport = {
-      title: '',
-      version: '',
-      file: null
-    };
-  }
-
-  /**
-   * Gère la sélection de fichier
-   */
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.newReport.file = input.files[0];
-    }
-  }
-
-  /**
-   * Valide le formulaire de création de rapport
-   */
-  private isCreateReportFormValid(): boolean {
-    return !!(
-      this.newReport.title.trim() && 
-      this.newReport.version.trim() && 
-      this.newReport.file // Fichier obligatoire
-    );
-  }
-
-/**
- * Crée un nouveau rapport - Version simplifiée
- */
-createReport(): void {
-  // Validations de base
-  if (!this.isCreateReportFormValid()) {
-    this.createReportError = 'Veuillez remplir tous les champs obligatoires';
-    return;
-  }
-
-  if (!this.selectedDemande) {
-    this.createReportError = 'Aucune demande sélectionnée';
-    return;
-  }
-
-  if (!this.newReport.file) {
-    this.createReportError = 'Veuillez sélectionner un fichier';
-    return;
-  }
-
-  if (!this.betId) {
-    this.createReportError = 'ID utilisateur non disponible';
-    return;
-  }
-
-  // Vérification d'authentification
-  if (!this.authService.isAuthenticated()) {
-    this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
-    return;
-  }
-
-  this.isCreatingReport = true;
-  this.createReportError = null;
-
-  // Préparer les données du rapport
-  const reportData = {
-    title: this.newReport.title.trim(),
-    versionNumber: parseInt(this.newReport.version), // Convertir en number
-    studyRequestId: this.selectedDemande.id,
-    authorId: this.betId
-  };
-
-  console.log('=== DEBUG CRÉATION RAPPORT ===');
-  console.log('Report Data:', reportData);
-  console.log('File:', this.newReport.file);
-  console.log('User authenticated:', this.authService.isAuthenticated());
-  console.log('Token présent:', !!this.authService.getToken());
-
-  // Appel du service simplifié
-  const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
-    next: (response: Report) => {
-      console.log('✅ Rapport créé avec succès:', response);
-      this.handleReportCreationSuccess(response);
-    },
-    error: (error: any) => {
-      console.error('❌ Erreur lors de la création du rapport:');
-      console.error('Status:', error.status);
-      console.error('Error:', error.error);
-      console.error('Message:', error.message);
-      
-      this.handleReportCreationError(error);
-    }
-  });
-
-  this.subscriptions.add(createSubscription);
-}
-
-/**
- * Méthode alternative pour débugger FormData sans utiliser entries()
- */
-private debugFormDataAlternative(formData: FormData): void {
-  console.log('FormData debug (alternative method):');
-  
-  // Liste des clés que nous avons ajoutées
-  const keys = ['title', 'versionNumber', 'studyRequestId', 'authorId', 'file'];
-  
-  keys.forEach(key => {
-    const value = formData.get(key);
-    if (value !== null) {
-      if (value instanceof File) {
-        console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
-      } else {
-        console.log(`${key}:`, value);
-      }
-    } else {
-      console.log(`${key}: null`);
-    }
-  });
-}
-
-
-  /**
-   * Gère le succès de la création du rapport
-   */
-  private handleReportCreationSuccess(response: Report): void {
-    // Ajouter le nouveau rapport à la demande sélectionnée
-    if (this.selectedDemande) {
-      if (!this.selectedDemande.reports) {
-        this.selectedDemande.reports = [];
-      }
-      
-      this.selectedDemande.reports.push(response);
-    }
-    
-    // Fermer le modal
-    this.closeCreateReportModal();
-    
-    // Optionnel: recharger les demandes pour avoir les données à jour
-    // this.loadDemandes(this.currentPage);
-  }
-
-  /**
-   * Gère l'erreur de création du rapport
-   */
-  private handleReportCreationError(error: any): void {
-    this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
-    this.isCreatingReport = false;
-  }
-
-  /**
-   * Annule la création du rapport
-   */
-  cancelCreateReport(): void {
-    this.closeCreateReportModal();
-  }
-
-  /**
-   * Obtient la date actuelle sous forme de tableau (format backend)
-   */
-  private getCurrentDateArray(): number[] {
-    const now = new Date();
-    return [
-      now.getFullYear(),
-      now.getMonth() + 1, // Les mois commencent à 0 en JavaScript
-      now.getDate(),
-      now.getHours(),
-      now.getMinutes(),
-      now.getSeconds()
-    ];
-  }
-
-  /**
-   * Formate le nom du fichier pour l'affichage
-   */
-  getFileName(): string {
-    return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
-  }
-
-  /**
-   * Vérifie si un fichier est sélectionné
-   */
-  hasFileSelected(): boolean {
-    return !!this.newReport.file;
   }
 }

@@ -24,7 +24,8 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   validationErrors: string[] = [];
   isLoading = false;
-
+  selectedPhoto: File | null = null; // Pour stocker le fichier sélectionné
+  photoPreview: string | null = null; // Pour l'aperçu de l'image
   // Profils disponibles (seulement PROMOTEUR et MOA)
   availableProfiles: ProfileMapping[] = [
     { value: 'PROMOTEUR', displayName: 'Promoteur' },
@@ -82,6 +83,47 @@ export class RegisterComponent implements OnInit {
     const selectedValue = selectElement.value;
     console.log('👤 Profil sélectionné:', selectedValue);
   }
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Vérifier le type de fichier
+      if (!file.type.startsWith('image/')) {
+        this.errorMessage = 'Veuillez sélectionner une image valide';
+        return;
+      }
+      
+      // Vérifier la taille (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.errorMessage = 'La taille de l\'image ne doit pas dépasser 5 MB';
+        return;
+      }
+      
+      this.selectedPhoto = file;
+      
+      // Créer un aperçu de l'image
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.photoPreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+      
+      this.errorMessage = '';
+      console.log('📸 Photo sélectionnée:', file.name, `(${(file.size / 1024).toFixed(2)} KB)`);
+    }
+  }
+  
+  removePhoto(): void {
+    this.selectedPhoto = null;
+    this.photoPreview = null;
+    // Réinitialiser l'input file
+    const fileInput = document.getElementById('photo') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    console.log('🗑️ Photo supprimée');
+  }
 
   onSubmit(): void {
     // Réinitialiser les messages
@@ -89,12 +131,12 @@ export class RegisterComponent implements OnInit {
     
     // Marquer tous les champs comme touchés pour afficher les erreurs
     this.profileForm.markAllAsTouched();
-
+  
     if (!this.profileForm.valid) {
       this.showValidationErrors();
       return;
     }
-
+  
     this.isLoading = true;
     
     // Formater la date si elle existe (format DD-MM-YYYY pour l'API)
@@ -102,8 +144,8 @@ export class RegisterComponent implements OnInit {
     if (this.profileForm.value.date) {
       formattedDate = this.convertDateFormat(this.profileForm.value.date);
     }
-
-    // Préparer les données d'inscription - TOUS LES CHAMPS REQUIS
+  
+    // Préparer les données d'inscription - TOUS LES CHAMPS REQUIS + PHOTO
     const userData: CreateUserRequest = {
       nom: this.profileForm.value.nom?.trim() || '',
       prenom: this.profileForm.value.prenom?.trim() || '',
@@ -113,14 +155,16 @@ export class RegisterComponent implements OnInit {
       adress: this.profileForm.value.adress?.trim() || '',
       profil: this.profileForm.value.profil || '',
       date: formattedDate,
-      lieunaissance: this.profileForm.value.lieunaissance?.trim() || ''
+      lieunaissance: this.profileForm.value.lieunaissance?.trim() || '',
+      photo: this.selectedPhoto || undefined // Ajouter la photo
     };
-
+  
     console.log('📤 Envoi des données d\'inscription:', {
       ...userData,
-      password: '***' // Masquer le mot de passe dans les logs
+      password: '***', // Masquer le mot de passe dans les logs
+      photo: this.selectedPhoto ? this.selectedPhoto.name : 'Aucune'
     });
-
+  
     console.log('🔍 Vérification des champs:');
     console.log('  - nom:', userData.nom);
     console.log('  - prenom:', userData.prenom);
@@ -131,7 +175,8 @@ export class RegisterComponent implements OnInit {
     console.log('  - lieunaissance:', userData.lieunaissance);
     console.log('  - adress:', userData.adress);
     console.log('  - profil:', userData.profil);
-
+    console.log('  - photo:', this.selectedPhoto ? `${this.selectedPhoto.name} (${(this.selectedPhoto.size / 1024).toFixed(2)} KB)` : 'Aucune');
+  
     // Appel du service UserService pour créer l'utilisateur
     this.userService.createUser(userData).subscribe({
       next: (response) => {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../app/features/auth/services/auth.service'; // Ajustez le chemin selon votre structure
+import { environment } from '../environments/environment';
 
 // Interfaces pour les types
 export interface RealEstateProperty {
@@ -129,7 +130,7 @@ export interface CreateLotRequest {
   providedIn: 'root'
 })
 export class LotService {
-  private baseURL = 'https://wakana.online/';
+  private baseURL = environment.apiBaseUrl;
   private apiUrl = `${this.baseURL}api/lots`;
 
   constructor(

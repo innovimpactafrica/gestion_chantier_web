@@ -29,6 +29,7 @@ import { DetailsReclamationComponent } from './features/details-reclamation/deta
 import { DetailsUtilisateurComponent } from './features/details-utilisateur/details-utilisateur.component';
 import { DetailsAbonnementComponent } from './features/details-abonnement/details-abonnement.component';
 import { ResetpasswordComponent } from './features/auth/resetpassword/resetpassword.component';
+import { TaskBoardComponent } from './features/task-board/task-board.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
@@ -209,6 +210,9 @@ export const routes: Routes = [
           breadcrumb: 'reclamations',
         },
       },
+      // Dans votre routing module
+       { path: 'property/:id/tasks', 
+        component: TaskBoardComponent },
 
       {
         path: 'details-abonnement/:id',

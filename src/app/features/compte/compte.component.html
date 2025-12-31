@@ -10,7 +10,6 @@
       <!-- Photo de profil ou initiales -->
 <div class="flex justify-center mb-6">
     <div class="relative">
-        @if (hasUserPhoto()) {
         <!-- ✅ CORRECTION : Ajouter crossOrigin et cache busting -->
         <img [src]="getUserPhotoUrl()" 
              (error)="onPhotoError()"
@@ -18,12 +17,7 @@
              alt="Photo de profil"
              crossOrigin="anonymous"
              class="w-32 h-32 rounded-full object-cover border-4 border-[#ff5c01]" />
-        } @else {
-        <div class="w-32 h-32 rounded-full bg-[#ff5c01] flex items-center justify-center">
-            <span class="text-white text-5xl font-bold">{{ getUserInitials() }}</span>
-        </div>
-        }
-
+      
         <!-- Input caché pour la sélection de fichier -->
         <input 
             type="file" 

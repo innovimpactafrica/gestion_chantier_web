@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interfaces pour le typage
 export interface PerformanceAndTask {
@@ -37,7 +38,7 @@ export interface StatusDistribution {
   providedIn: 'root'
 })
 export class DetailsWorkerService {
-  private baseUrl = 'https://wakana.online/api';
+  private baseUrl = environment.apiUrl;
   
   constructor(
     private http: HttpClient,

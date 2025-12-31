@@ -609,7 +609,7 @@ getUserPhotoUrl(): string {
     // ✅ Utiliser environment.filebaseUrl au lieu de PHOTO_BASE_URL
     return `${environment.filebaseUrl}${user.photo}`;
   }
-  return '';
+  return 'assets/images/profil.png';
 }
 
   /**

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interfaces pour le typage des réponses
 export interface SubscriptionPlan {
@@ -51,7 +52,7 @@ export interface CreatePlanRequest {
   providedIn: 'root'
 })
 export class PlanAbonnementService {
-  private baseUrl = 'https://wakana.online/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,

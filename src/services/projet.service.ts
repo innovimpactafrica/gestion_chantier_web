@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 // Interface pour les données du projet
 export interface ProjectData {
@@ -58,8 +59,8 @@ export interface ValidationResult {
   providedIn: 'root'
 })
 export class ProjectService {
-  private readonly baseURL = 'https://wakana.online';
-  private readonly endpoint = '/api/realestate/save';
+  private readonly baseURL = environment.apiUrl;
+  private readonly endpoint = '/realestate/save';
 
   constructor(
     private http: HttpClient,

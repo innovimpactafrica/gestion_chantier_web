@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface Comment {
   id: number;
@@ -88,7 +89,7 @@ export interface CreateEtudeRequest {
   providedIn: 'root'
 })
 export class EtudeBetService {
-  private apiUrl = 'https://wakana.online/';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -105,7 +106,7 @@ export class EtudeBetService {
       .set('size', size.toString());
 
     return this.http.get<EtudeResponse>(
-      `${this.apiUrl}api/study-requests/property/${propertyId}`,
+      `${this.apiUrl}/study-requests/property/${propertyId}`,
       { params }
     );
   }
@@ -117,7 +118,7 @@ export class EtudeBetService {
    */
   updateEtude(etudeId: number, updateData: CreateEtudeRequest): Observable<any> {
     return this.http.put(
-      `${this.apiUrl}api/study-requests/${etudeId}`,
+      `${this.apiUrl}/study-requests/${etudeId}`,
       updateData
     );
   }
@@ -130,7 +131,7 @@ export class EtudeBetService {
    */
   updateBet(reportId: number, updateData: UpdateBetRequest): Observable<any> {
     return this.http.put(
-      `${this.apiUrl}api/study-requests/reports/${reportId}`,
+      `${this.apiUrl}/study-requests/reports/${reportId}`,
       updateData
     );
   }
@@ -142,7 +143,7 @@ export class EtudeBetService {
    */
   deleteBet(reportId: number): Observable<any> {
     return this.http.delete(
-      `${this.apiUrl}api/study-requests/reports/${reportId}`
+      `${this.apiUrl}/study-requests/reports/${reportId}`
     );
   }
 
@@ -153,7 +154,7 @@ export class EtudeBetService {
    */
   acceptEtude(etudeId: number): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}api/study-requests/${etudeId}/accept`,
+      `${this.apiUrl}/study-requests/${etudeId}/accept`,
       {}
     );
   }
@@ -165,7 +166,7 @@ export class EtudeBetService {
    */
   rejectEtude(etudeId: number): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}api/study-requests/${etudeId}/reject`,
+      `${this.apiUrl}/study-requests/${etudeId}/reject`,
       {}
     );
   }
@@ -177,7 +178,7 @@ export class EtudeBetService {
    */
   createEtude(createData: CreateEtudeRequest): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}api/study-requests`,
+      `${this.apiUrl}/study-requests`,
       createData
     );
   }
@@ -208,7 +209,7 @@ export class EtudeBetService {
    */
   createComment(studyRequestId: number, userId: number, commentData: CreateCommentRequest): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}api/study-requests/comment/study/${studyRequestId}/users/${userId}`,
+      `${this.apiUrl}/study-requests/comment/study/${studyRequestId}/users/${userId}`,
       commentData
     );
   } 
@@ -219,7 +220,7 @@ export class EtudeBetService {
    */
     getComment(studyRequestId: number): Observable<Comment[]> {
       return this.http.get<Comment[]>(
-        `${this.apiUrl}api/study-requests/comments/${studyRequestId}`
+        `${this.apiUrl}/study-requests/comments/${studyRequestId}`
       );
     }
 }

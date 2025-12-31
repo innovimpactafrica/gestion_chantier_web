@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { environment } from '../environments/environment';
 
 export interface Material {
   name: string;
@@ -35,9 +36,23 @@ export interface CreateReportRequest {
   studyRequestId: number;
 }
 
+export interface Comment {
+  id: number;
+  text: string;
+  author: string;
+  createdAt: number[];
+  studyRequestId: number;
+}
+
+export interface CreateCommentRequest {
+  text: string;
+  author: string;
+  studyRequestId: number;
+}
+
 export interface Demande {
   id: number;
-  commandeId: string; // Added
+  commandeId: string;
   title: string;
   description: string;
   status: 'VALIDATED' | 'REJECTED' | 'PENDING' | 'IN_PROGRESS' | 'DELIVERED';
@@ -50,9 +65,10 @@ export interface Demande {
   betId: number;
   betName: string;
   reports: Report[];
-  materials: Material[]; // Added
-  activities: Activity[]; // Added
-  totalAmount: number; // Added
+  materials: Material[];
+  activities: Activity[];
+  totalAmount: number;
+  comments?: Comment[];
 }
 
 export interface Pageable {
@@ -86,7 +102,6 @@ export interface DemandeResponse {
   empty: boolean;
 }
 
-
 export interface PercentageCountResponse {
   total: number;
   percentages: {
@@ -115,139 +130,47 @@ export interface VolumetryResponse {
   providedIn: 'root'
 })
 export class DemandeService {
-  private apiUrl = 'https://wakana.online/api/study-requests/bet';
-  private kpiUrl = 'https://wakana.online/api/study-requests/kpi/bet';
-  private reportsUrl = 'https://wakana.online/api/study-requests/reports';
+  private apiUrl = `${environment.apiUrl}/study-requests`;
+  private betApiUrl = `${environment.apiUrl}/study-requests/bet`;
+  private kpiUrl = `${environment.apiUrl}/study-requests/kpi/bet`;
+  private reportsUrl = `${environment.apiUrl}/study-requests/reports`;
+  private commentsUrl = `${environment.apiUrl}/study-requests/comments`;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-    console.log('DemandeService initialisé - AuthService disponible:', !!this.authService);
-  }
+  ) {}
 
-  createReport(reportData: {
-    title: string;
-    versionNumber: number;
-    studyRequestId: number;
-    authorId: number;
-  }, file: File): Observable<Report> {
-    console.log('=== SERVICE DEBUG CRÉATION ===');
-    console.log('AuthService disponible:', !!this.authService);
-
-    if (!this.authService) {
-      throw new Error('AuthService non disponible dans DemandeService');
-    }
-
+  private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token d\'authentification manquant');
     }
-
-    const formData = new FormData();
-    formData.append('title', reportData.title);
-    formData.append('file', file, file.name);
-    formData.append('versionNumber', reportData.versionNumber.toString());
-    formData.append('studyRequestId', reportData.studyRequestId.toString());
-    formData.append('authorId', reportData.authorId.toString());
-
-    const headers = new HttpHeaders({
+    return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-
-    console.log('Token récupéré:', !!token);
-    console.log('URL:', this.reportsUrl);
-    console.log('FormData contents:');
-    const keys = ['title', 'file', 'versionNumber', 'studyRequestId', 'authorId'];
-    keys.forEach(key => {
-      const value = formData.get(key);
-      if (value instanceof File) {
-        console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
-      } else {
-        console.log(`${key}:`, value);
-      }
-    });
-
-    return this.http.post<Report>(this.reportsUrl, formData, { headers });
   }
 
-  createReportWithToken(reportData: {
-    title: string;
-    versionNumber: number;
-    studyRequestId: number;
-    authorId: number;
-  }, file: File, token: string): Observable<Report> {
-    if (!token) {
-      throw new Error('Token d\'authentification requis');
-    }
-
-    const formData = new FormData();
-    formData.append('title', reportData.title);
-    formData.append('file', file, file.name);
-    formData.append('versionNumber', reportData.versionNumber.toString());
-    formData.append('studyRequestId', reportData.studyRequestId.toString());
-    formData.append('authorId', reportData.authorId.toString());
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    console.log('=== SERVICE WITH EXTERNAL TOKEN ===');
-    console.log('Token fourni:', !!token);
-    console.log('Données envoyées:');
-    console.log('- title:', reportData.title);
-    console.log('- versionNumber:', reportData.versionNumber);
-    console.log('- studyRequestId:', reportData.studyRequestId);
-    console.log('- authorId:', reportData.authorId);
-    console.log('- file:', file.name, '(', file.size, 'bytes )');
-
-    return this.http.post<Report>(this.reportsUrl, formData, { headers });
-  }
-
-  createReportFormData(formData: FormData): Observable<Report> {
-    if (!this.authService) {
-      throw new Error('AuthService non disponible');
-    }
-
-    const token = this.authService.getToken();
-    if (!token) {
-      throw new Error('Token d\'authentification manquant');
-    }
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.post<Report>(this.reportsUrl, formData, { headers });
-  }
+  // ========== GESTION DES DEMANDES ==========
 
   getDemande(betId: number, page: number = 0, size: number = 10): Observable<DemandeResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<DemandeResponse>(`${this.apiUrl}/${betId}`, { params });
+    return this.http.get<DemandeResponse>(`${this.betApiUrl}/${betId}`, { params });
   }
 
-  updateDemandeStatus(demandeId: number, status: string): Observable<any> {
-    const token = this.authService.getToken();
-    if (!token) {
-      throw new Error('Token d\'authentification manquant');
+  getDemandesByStatus(betId: number, page: number = 0, size: number = 10, status?: string): Observable<DemandeResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (status) {
+      params = params.set('status', status);
     }
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.patch(`${this.apiUrl}/${demandeId}/status`, { status }, { headers });
-  }
-
-  getPercentageCount(betId: number): Observable<PercentageCountResponse> {
-    return this.http.get<PercentageCountResponse>(`${this.kpiUrl}/${betId}`);
-  }
-
-  getVolumetry(betId: number): Observable<VolumetryResponse> {
-    return this.http.get<VolumetryResponse>(`${this.kpiUrl}/${betId}/volumetry`);
+    return this.http.get<DemandeResponse>(`${this.betApiUrl}/${betId}`, { params });
   }
 
   getAllDemandes(betId: number, pageSize: number = 20): Observable<Demande[]> {
@@ -279,16 +202,64 @@ export class DemandeService {
     });
   }
 
-  getDemandesByStatus(betId: number, page: number = 0, size: number = 10, status?: string): Observable<DemandeResponse> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  // ========== ACTIONS SUR LES DEMANDES ==========
 
-    if (status) {
-      params = params.set('status', status);
+  acceptDemande(demandeId: number): Observable<Demande> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<Demande>(`${this.apiUrl}/${demandeId}/accept`, {}, { headers });
+  }
+
+  rejectDemande(demandeId: number, rejectionReason?: string): Observable<Demande> {
+    const headers = this.getAuthHeaders();
+    const body = rejectionReason ? { rejectionReason } : {};
+    return this.http.put<Demande>(`${this.apiUrl}/${demandeId}/reject`, body, { headers });
+  }
+
+  validateDemande(demandeId: number): Observable<Demande> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<Demande>(`${this.apiUrl}/${demandeId}/validate`, {}, { headers });
+  }
+
+  deliverDemande(demandeId: number): Observable<Demande> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<Demande>(`${this.apiUrl}/${demandeId}/deliver`, {}, { headers });
+  }
+
+  deleteDemande(demandeId: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${demandeId}`, { headers });
+  }
+
+  updateDemandeStatus(demandeId: number, status: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.patch(`${this.apiUrl}/${demandeId}/status`, { status }, { headers });
+  }
+
+  // ========== GESTION DES RAPPORTS ==========
+
+  createReport(reportData: {
+    title: string;
+    versionNumber: number;
+    studyRequestId: number;
+    authorId: number;
+  }, file: File): Observable<Report> {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token d\'authentification manquant');
     }
 
-    return this.http.get<DemandeResponse>(`${this.apiUrl}/${betId}`, { params });
+    const formData = new FormData();
+    formData.append('title', reportData.title);
+    formData.append('file', file, file.name);
+    formData.append('versionNumber', reportData.versionNumber.toString());
+    formData.append('studyRequestId', reportData.studyRequestId.toString());
+    formData.append('authorId', reportData.authorId.toString());
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post<Report>(this.reportsUrl, formData, { headers });
   }
 
   uploadReportFile(reportId: number, file: File): Observable<any> {
@@ -310,26 +281,35 @@ export class DemandeService {
     return this.http.post<Report>(this.reportsUrl, formData);
   }
 
-  changePageSize(betId: number, page: number, newSize: number): Observable<DemandeResponse> {
-    return this.getDemande(betId, page, newSize);
+  // ========== GESTION DES COMMENTAIRES ==========
+
+  getComments(studyRequestId: number): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.commentsUrl}/${studyRequestId}`);
   }
 
-  debugService(): void {
-    console.log('=== DEBUG DEMANDE SERVICE ===');
-    console.log('AuthService injecté:', !!this.authService);
-    console.log('URLs configurées:');
-    console.log('- apiUrl:', this.apiUrl);
-    console.log('- reportsUrl:', this.reportsUrl);
-    console.log('- kpiUrl:', this.kpiUrl);
-    
-    if (this.authService) {
-      try {
-        const token = this.authService.getToken();
-        console.log('Token disponible:', !!token);
-        console.log('Utilisateur authentifié:', this.authService.isAuthenticated());
-      } catch (error) {
-        console.error('Erreur accès AuthService:', error);
-      }
-    }
+  createComment(commentData: CreateCommentRequest): Observable<Comment> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<Comment>(this.commentsUrl, commentData, { headers });
+  }
+
+  deleteComment(commentId: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.commentsUrl}/${commentId}`, { headers });
+  }
+
+  // ========== KPI ==========
+
+  getPercentageCount(betId: number): Observable<PercentageCountResponse> {
+    return this.http.get<PercentageCountResponse>(`${this.kpiUrl}/${betId}`);
+  }
+
+  getVolumetry(betId: number): Observable<VolumetryResponse> {
+    return this.http.get<VolumetryResponse>(`${this.kpiUrl}/${betId}/volumetry`);
+  }
+
+  // ========== UTILITAIRES ==========
+
+  changePageSize(betId: number, page: number, newSize: number): Observable<DemandeResponse> {
+    return this.getDemande(betId, page, newSize);
   }
 }

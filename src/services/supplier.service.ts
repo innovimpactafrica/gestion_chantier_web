@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 // Interfaces pour les types de retour
 export interface OrderCountByStatus {
@@ -38,7 +39,7 @@ export interface ValidationCommand {
   providedIn: 'root'
 })
 export class SupplierService {
-  private baseUrl = 'https://wakana.online/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 

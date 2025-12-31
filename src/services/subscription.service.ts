@@ -115,8 +115,8 @@ export interface OneTouchConfig {
   providedIn: 'root'
 })
 export class SubscriptionService {
-  private baseUrl = 'https://wakana.online/api/subscriptions';
-  private planBaseUrl = 'https://wakana.online/api/subscription-plans';
+  private baseUrl = `${environment.apiUrl}/subscriptions`;
+  private planBaseUrl = `${environment.apiUrl}/subscription-plans`;
   
   // Configuration OneTouch
   private oneTouchConfig: OneTouchConfig = {

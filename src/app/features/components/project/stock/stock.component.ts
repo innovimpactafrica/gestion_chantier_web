@@ -10,8 +10,9 @@ import { PropertyType } from '../../../../models/property-type';
 import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
+import { UserService, User } from '../../../../../services/user.service'; 
 
-// Interfaces existantes (non modifiées)
+
 interface StockAlerte {
   id: number;
   nom: string;
@@ -241,58 +242,77 @@ statusMaterialFilter: string = '';
 materialPageSize: number = 5;
 totalMaterialElements: number = 0;
 totalMaterialPages: number = 0;
-  constructor(
-    private fb: FormBuilder,
-    private materialsService: MaterialsService,
-    private unitParameterService: UnitParameterService,
-    private propertyService: PropertyTypeService,
-    private dashboardService: DashboardService,
-    private route: ActivatedRoute
-  ) {
-    this.materialForm = this.fb.group({
-      label: ['', [Validators.required, Validators.minLength(2)]],
-      quantity: [0, [Validators.required, Validators.min(0)]],
-      criticalThreshold: [0, [Validators.required, Validators.min(0)]],
-      unitId: [1, [Validators.required, Validators.min(1)]],
-      propertyId: [this.propertyId, [Validators.required, Validators.min(1)]]
-    });
-    this.orderForm = this.fb.group({
-      propertyId: [1, Validators.required],
-      materials: this.fb.array([
-        this.fb.group({
-          materialId: ['', Validators.required],
-          quantity: [1, [Validators.required, Validators.min(1)]]
-        })
-      ])
-    });
-    this.movementForm = this.fb.group({
-      type: ['ENTRY', Validators.required],
-      quantity: [0, [Validators.required, Validators.min(1)]],
-      reference: ['', Validators.required],
-      comment: ['']
-    });
+// Dans stock.component.ts
+suppliers: User[] = []; // Liste des fournisseurs
+suppliersLoading: boolean = false;
+
+constructor(
+  private fb: FormBuilder,
+  private materialsService: MaterialsService,
+  private unitParameterService: UnitParameterService,
+  private propertyService: PropertyTypeService,
+  private dashboardService: DashboardService,
+  private route: ActivatedRoute,
+  private userService: UserService // ⚠️ AJOUTER cette injection
+) {
+  this.materialForm = this.fb.group({
+    label: ['', [Validators.required, Validators.minLength(2)]],
+    quantity: [0, [Validators.required, Validators.min(0)]],
+    criticalThreshold: [0, [Validators.required, Validators.min(0)]],
+    unitId: ['', [Validators.required]],
+    propertyId: [null, [Validators.required]]
+  });
+
+  // ⚠️ NOUVEAU FormGroup pour les commandes
+  this.orderForm = this.fb.group({
+    supplierId: ['', Validators.required],
+    deliveryDate: ['', Validators.required],
+    specialInstructions: [''],
+    materials: this.fb.array([])
+  });
+
+  this.movementForm = this.fb.group({
+    type: ['ENTRY', Validators.required],
+    quantity: [0, [Validators.required, Validators.min(1)]],
+    reference: ['', Validators.required],
+    comment: ['']
+  });
+}
+
+// ✅ CORRIGER ngOnInit
+ngOnInit(): void {
+  const idFromUrl = this.route.snapshot.paramMap.get('id');
+  if (idFromUrl) {
+    this.propertyId = +idFromUrl;
+    
+    this.materialForm.patchValue({ propertyId: this.propertyId });
+    this.orderForm.patchValue({ propertyId: this.propertyId });
+    
+    this.loadStock();
+    this.loadStockMovements();
+    this.loadOrders();
+    this.loadDeliveries();
+    this.loadRecentMovements();
+    this.loadUnits();
+    this.loadProperties();
+    this.loadCriticalMaterials();
+    this.loadSuppliers(); // ⚠️ AJOUTER cette ligne
+  } else {
+    console.error("ID de propriété non trouvé dans l'URL.");
   }
+}
 
-  ngOnInit(): void {
-    const idFromUrl = this.route.snapshot.paramMap.get('id');
-    if (idFromUrl) {
-      this.propertyId = +idFromUrl;
-      this.materialForm.patchValue({ propertyId: this.propertyId });
-      this.orderForm.patchValue({ propertyId: this.propertyId });
-      this.loadStock();
-      this.loadStockMovements();
-      this.loadOrders();
-      this.loadDeliveries(); // Remplace loadMockDeliveries
-      this.loadRecentMovements();
-      this.loadUnits();
-      this.loadProperties();
-      this.loadCriticalMaterials();
-    } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
-    }
-  }
-
-
+getMaterialStockByIndex(index: number): string {
+  const materials = this.orderForm.get('materials') as FormArray;
+  const materialId = materials.at(index).get('materialId')?.value;
+  
+  if (!materialId) return '-';
+  
+  const material = this.materials.find(m => m.id === Number(materialId));
+  if (!material) return '-';
+  
+  return `${material.quantity} ${material.unit.code}`;
+}
 
   public formatDeliveryDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return 'N/A';
@@ -479,34 +499,49 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
   }
 
   loadUnits(): void {
-    this.unitParameterService.units$
+    console.log('🔄 Chargement des unités...');
+    
+    this.unitParameterService.getByTypePaginated('MATERIAL_CATEGORY', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res: PaginatedResponse<UnitParameter> | null) => {
-          if (res) {
-            this.units = res.content;
-          }
+        next: (response: PaginatedResponse<UnitParameter>) => {
+          // La réponse est paginée, nous devons extraire le tableau 'content'
+          this.units = response.content || [];
+          console.log('✅ Unités chargées:', this.units.length, 'unités');
+          console.log('📋 Liste des unités:', this.units);
+          
+          // Si vous avez besoin des informations de pagination, vous pouvez les stocker
+          console.log('📊 Informations pagination:', {
+            totalElements: response.totalElements,
+            totalPages: response.totalPages,
+            pageSize: response.size,
+            currentPage: response.number
+          });
         },
         error: (err) => {
-          console.error('Erreur lors du chargement des unités', err);
+          console.error('❌ Erreur lors du chargement des unités:', err);
+          this.showErrorMessage('Erreur lors du chargement des unités');
         }
       });
-    this.unitParameterService.getUnits({ page: 0, size: this.pageSize });
   }
 
   loadProperties(): void {
+    console.log('🔄 Chargement des propriétés...');
+    
     this.propertyService.getAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: PropertyType[]) => {
-          this.properties = response;
+        next: (properties: PropertyType[]) => {
+          this.properties = properties;
+          console.log('✅ Propriétés chargées:', this.properties.length, 'propriétés');
+          console.log('📋 Liste des propriétés:', this.properties);
         },
         error: (err) => {
-          console.error('Erreur lors de la récupération des propriétés:', err);
+          console.error('❌ Erreur lors du chargement des propriétés:', err);
+          this.showErrorMessage('Erreur lors du chargement des propriétés');
         }
       });
   }
-
   loadCriticalMaterials(): void {
     this.criticalMaterialsLoading = true;
     this.criticalMaterialsError = null;
@@ -549,17 +584,6 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
     this.loadCriticalMaterials();
   }
 
-  openOrderModal(): void {
-    this.showOrderModal = true;
-  }
-
-  closeOrderModal(): void {
-    this.showOrderModal = false;
-    this.orderForm.reset({
-      propertyId: this.propertyId,
-      materials: [{ materialId: '', quantity: 1 }]
-    });
-  }
 
   calculateOrderTotal(order: Order): number {
     if (!order.items || order.items.length === 0) {
@@ -570,13 +594,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
     }, 0);
   }
 
-  addMaterialToOrder(): void {
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.push(this.fb.group({
-      materialId: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]]
-    }));
-  }
+
 
   removeMaterialFromOrder(index: number): void {
     const materials = this.orderForm.get('materials') as FormArray;
@@ -585,31 +603,177 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
     }
   }
 
-  onSubmitOrder(): void {
-    if (this.orderForm.valid && !this.loading) {
-      this.loading = true;
-      const orderData: CreateOrder = {
-        propertyId: this.orderForm.value.propertyId,
-        materials: this.orderForm.value.materials
-      };
-      this.materialsService.createCommand(orderData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (createdOrder) => {
-            this.loading = false;
-            this.closeOrderModal();
-            this.loadOrders();
-            this.showSuccessMessage('Commande créée avec succès !');
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('Erreur lors de la création de la commande:', error);
-            this.showErrorMessage('Erreur lors de la création de la commande');
-          }
-        });
-    }
-  }
 
+// ✅ CORRIGER addMaterialToOrder
+loadSuppliers(): void {
+  this.suppliersLoading = true;
+  console.log('🔄 Chargement des fournisseurs...');
+  
+  this.userService.getUserByProfil('SUPPLIER', '', 0, 1000)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: any) => {
+        this.suppliers = response.content || [];
+        console.log('✅ Fournisseurs chargés:', this.suppliers.length);
+        this.suppliersLoading = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+        this.showErrorMessage('Erreur lors du chargement des fournisseurs');
+        this.suppliersLoading = false;
+        this.suppliers = [];
+      }
+    });
+}
+
+// ===== MODIFIER addMaterialToOrder =====
+addMaterialToOrder(): void {
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.push(this.fb.group({
+    materialId: ['', Validators.required],
+    quantity: [1, [Validators.required, Validators.min(1)]],
+    unitPrice: [0, [Validators.required, Validators.min(0)]]
+  }));
+}
+
+// ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
+calculateLineTotal(index: number): void {
+  const materials = this.orderForm.get('materials') as FormArray;
+  const material = materials.at(index);
+  
+  const quantity = material.get('quantity')?.value || 0;
+  const unitPrice = material.get('unitPrice')?.value || 0;
+  
+  // Le total est calculé dynamiquement dans getLineTotal()
+}
+getLineTotal(index: number): number {
+  const materials = this.orderForm.get('materials') as FormArray;
+  const material = materials.at(index);
+  
+  const quantity = material.get('quantity')?.value || 0;
+  const unitPrice = material.get('unitPrice')?.value || 0;
+  
+  return quantity * unitPrice;
+}
+
+// ===== NOUVELLE MÉTHODE: Obtenir le total général =====
+getOrderTotal(): number {
+  const materials = this.orderForm.get('materials') as FormArray;
+  let total = 0;
+  
+  materials.controls.forEach((material, index) => {
+    total += this.getLineTotal(index);
+  });
+  
+  return total;
+}
+
+openOrderModal(): void {
+  this.showOrderModal = true;
+  
+  const materials = this.orderForm.get('materials') as FormArray;
+  if (materials.length === 0) {
+    this.addMaterialToOrder();
+  }
+}
+
+onSubmitOrder(): void {
+  // Marquer tous les champs comme touchés
+  Object.keys(this.orderForm.controls).forEach(key => {
+    this.orderForm.get(key)?.markAsTouched();
+  });
+  
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.controls.forEach(control => {
+    Object.keys((control as FormGroup).controls).forEach(key => {
+      control.get(key)?.markAsTouched();
+    });
+  });
+
+  if (this.orderForm.valid && !this.loading) {
+    this.loading = true;
+    
+    // ⚠️ STRUCTURE CORRECTE selon la capture
+    const orderData: CreateOrder = {
+      supplierId: Number(this.orderForm.value.supplierId), // ID du fournisseur sélectionné
+      deliveryDate: this.orderForm.value.deliveryDate, // Date de livraison
+      specialInstructions: this.orderForm.value.specialInstructions || '',
+      materials: this.orderForm.value.materials.map((m: any) => ({
+        materialId: Number(m.materialId),
+        quantity: Number(m.quantity),
+        unitPrice: Number(m.unitPrice)
+      }))
+    };
+    
+    console.log('📦 Données de commande à envoyer:', orderData);
+    console.log('📦 Fournisseur ID:', orderData.supplierId);
+    console.log('📦 Date de livraison:', orderData.deliveryDate);
+    console.log('📦 Matériaux:', orderData.materials);
+    console.log('📦 Total:', this.getOrderTotal());
+    
+    this.materialsService.createCommand(orderData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (createdOrder) => {
+          this.loading = false;
+          this.closeOrderModal();
+          this.loadOrders();
+          this.showSuccessMessage('Commande créée avec succès !');
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('❌ Erreur lors de la création de la commande:', error);
+          
+          if (error.status === 400) {
+            this.showErrorMessage('Données invalides. Vérifiez tous les champs.');
+          } else if (error.status === 403) {
+            this.showErrorMessage('Accès refusé');
+          } else if (error.status === 401) {
+            this.showErrorMessage('Session expirée');
+          } else if (error.status === 404) {
+            this.showErrorMessage('Fournisseur ou matériau introuvable');
+          } else {
+            this.showErrorMessage(error.message || 'Erreur lors de la création');
+          }
+        }
+      });
+  } else {
+    console.log('❌ Formulaire invalide');
+    console.log('Erreurs formulaire:', this.orderForm.errors);
+    console.log('Valeurs materials:', materials.value);
+    console.log('Erreurs materials:', materials.controls.map(c => c.errors));
+    this.showErrorMessage('Veuillez remplir tous les champs requis');
+  }
+}
+
+
+// ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
+onMaterialSelect(index: number): void {
+  const materials = this.orderForm.get('materials') as FormArray;
+  const materialId = materials.at(index).get('materialId')?.value;
+  
+  if (materialId) {
+    console.log('Matériau sélectionné:', materialId);
+    // Vous pouvez pré-remplir le prix si disponible
+  }
+}
+
+// ===== MODIFIER closeOrderModal =====
+closeOrderModal(): void {
+  this.showOrderModal = false;
+  
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.clear();
+  
+  this.orderForm.reset({
+    supplierId: '',
+    deliveryDate: '',
+    specialInstructions: ''
+  });
+  
+  // Ajouter une ligne vide
+  this.addMaterialToOrder();
+}
   generateStockAlerts(): void {
     this.stockAlerts = [];
     this.materials.forEach(material => {
@@ -811,7 +975,19 @@ onMaterialStatusFilterChange(): void {
 
   openNewMaterialModal(): void {
     this.showNewMaterialModal = true;
-    this.resetMaterialForm();
+    this.materialForm.reset({
+      label: '',
+      quantity: 0,
+      criticalThreshold: 0,
+      unitId: '', // ⚠️ Vide pour forcer la sélection
+      propertyId: this.propertyId
+    });
+    
+    // Marquer tous les champs comme non touchés
+    Object.keys(this.materialForm.controls).forEach(key => {
+      this.materialForm.get(key)?.markAsUntouched();
+      this.materialForm.get(key)?.markAsPristine();
+    });
   }
 
   closeNewMaterialModal(): void {
@@ -1001,11 +1177,19 @@ previousMaterialPage(): void {
     return this.materialForm.valid;
   }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.materialForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+// ⚠️ AJOUTER cette méthode dans stock.component.ts
+isFieldInvalid(fieldName: string): boolean {
+  const field = this.materialForm.get(fieldName);
+  
+  // Pour les selects (unitId, propertyId), vérifier aussi si la valeur est vide ou null
+  if (fieldName === 'unitId' || fieldName === 'propertyId') {
+    const value = field?.value;
+    const isEmpty = !value || value === '' || value === null;
+    return !!(field && (field.invalid || isEmpty) && (field.dirty || field.touched));
   }
-
+  
+  return !!(field && field.invalid && (field.dirty || field.touched));
+}
   getFieldError(fieldName: string): string {
     const field = this.materialForm.get(fieldName);
     if (field?.errors) {

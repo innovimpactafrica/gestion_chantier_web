@@ -63,7 +63,10 @@ export class TeamListComponent implements OnInit {
     lieunaissance: '',
     adress: '',
     profil: 'WORKER',
+    photo: undefined // Ajout du champ photo
   };
+  selectedPhoto: File | null = null; // Pour stocker le fichier sélectionné
+  photoPreview: string | null = null; // Pour l'aperçu de l'image
   isSubmitting = false;
   submitError: string | null = null;
   submitSuccess: string | null = null;
@@ -747,11 +750,55 @@ getTotalWorkedTime(): string {
       lieunaissance: '',
       adress: '',
       profil: 'WORKER',
+      photo: undefined
     };
+    this.selectedPhoto = null;
+    this.photoPreview = null;
     this.submitError = null;
     this.submitSuccess = null;
   }
 
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Vérifier le type de fichier
+      if (!file.type.startsWith('image/')) {
+        this.submitError = 'Veuillez sélectionner une image valide';
+        return;
+      }
+      
+      // Vérifier la taille (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.submitError = 'La taille de l\'image ne doit pas dépasser 5 MB';
+        return;
+      }
+      
+      this.selectedPhoto = file;
+      this.newMember.photo = file;
+      
+      // Créer un aperçu de l'image
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.photoPreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+      
+      this.submitError = null;
+    }
+  }
+  
+  removePhoto(): void {
+    this.selectedPhoto = null;
+    this.newMember.photo = undefined;
+    this.photoPreview = null;
+    // Réinitialiser l'input file
+    const fileInput = document.getElementById('photo') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
   private validateForm(): boolean {
     if (!this.newMember.nom.trim()) {
       this.submitError = 'Le nom est requis';
@@ -825,7 +872,7 @@ getTotalWorkedTime(): string {
 
   submitAddMember(): void {
     if (!this.validateForm()) return;
-
+  
     if (this.currentPropertyId === null) {
       this.submitError = 'ID de propriété non disponible';
       return;
@@ -844,11 +891,11 @@ getTotalWorkedTime(): string {
       date: this.formatDateForAPI(this.newMember.date),
       lieunaissance: this.newMember.lieunaissance.trim(),
       adress: this.newMember.adress.trim(),
-      profil: this.newMember.profil
+      profil: this.newMember.profil,
+      photo: this.selectedPhoto || undefined // Ajouter la photo
     };
   
     console.log('📤 Création du worker pour propertyId:', this.currentPropertyId);
-    console.log('📤 Données du worker:', userData);
   
     this.utilisateurService.createWorker(userData, this.currentPropertyId).subscribe({
       next: (response) => {

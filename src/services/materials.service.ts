@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 
 // Ajoutez cette interface au début du fichier avec les autres interfaces
@@ -186,14 +187,22 @@ interface CreateOrderItem {
 }
 
 export interface CreateOrder {
-  propertyId: number;
-  materials: CreateOrderItem[];
+  supplierId: number; // ⚠️ ID du fournisseur (PAS propertyId)
+  deliveryDate?: string; // Date de livraison souhaitée (optionnel)
+  specialInstructions?: string; // Instructions spéciales (optionnel)
+  materials: OrderMaterial[];
+}
+
+export interface OrderMaterial {
+  materialId: number;
+  quantity: number;
+  unitPrice: number; // ⚠️ Prix unitaire ajouté
 }
 @Injectable({
   providedIn: 'root'
 })
 export class MaterialsService {
-  private apiUrl = 'https://wakana.online/api/materials';
+  private apiUrl = `${environment.apiBaseUrl}/api/materials`;
   private materialsSubject = new BehaviorSubject<MaterialsResponse | null>(null);
   public materials$ = this.materialsSubject.asObservable();
 
@@ -290,30 +299,60 @@ export class MaterialsService {
     );
   }
 
-  createStock(material: CreateMaterial): Observable<Material> {
-    const token = localStorage.getItem('auth_token') || 
-                 localStorage.getItem('token') || 
-                 sessionStorage.getItem('auth_token') ||
-                 sessionStorage.getItem('token');
-    
-    if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
-      return throwError(() => ({ 
-        message: 'Token d\'authentification manquant', 
-        status: 401 
-      }));
-    }
 
-    console.log('Création d\'un nouveau matériau:', material);
-    
-    return this.http.post<Material>(
-      this.apiUrl, 
-      material,
-      { headers: this.getHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+  // Dans materials.service.ts
+
+// ✅ Correction de createStock (DÉJÀ CORRECTE)
+createStock(material: CreateMaterial): Observable<Material> {
+  const token = localStorage.getItem('auth_token') || 
+               localStorage.getItem('token') || 
+               sessionStorage.getItem('auth_token') ||
+               sessionStorage.getItem('token');
+  
+  if (!token) {
+    console.warn('Aucun token d\'authentification trouvé');
+    return throwError(() => ({ 
+      message: 'Token d\'authentification manquant', 
+      status: 401 
+    }));
   }
+
+  console.log('Création d\'un nouveau matériau:', material);
+  
+  return this.http.post<Material>(
+    this.apiUrl, 
+    material,
+    { headers: this.getHeaders() }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// ✅ Correction de createCommand
+createCommand(order: CreateOrder): Observable<Order> {
+  const token = localStorage.getItem('auth_token') || 
+               localStorage.getItem('token') || 
+               sessionStorage.getItem('auth_token') ||
+               sessionStorage.getItem('token');
+  
+  if (!token) {
+    return throwError(() => ({ 
+      message: 'Token d\'authentification manquant', 
+      status: 401 
+    }));
+  }
+
+  console.log('Création d\'une nouvelle commande:', order);
+  
+  return this.http.post<Order>(
+    `${environment.apiUrl}/orders`,
+    order,
+    { headers: this.getHeaders() }
+  ).pipe(
+    tap(response => console.log('Commande créée avec succès:', response)),
+    catchError(this.handleError)
+  );
+}
   
 
   // Méthode pour vérifier la validité du token
@@ -472,7 +511,7 @@ getCommand(propertyId: number, page: number = 0, size: number = 10): Observable<
 }
 getLivraison(propertyId: number, page: number = 0, size: number = 10): Observable<OrdersResponse> {
   // Utiliser la bonne URL avec /property/
-  const url = `https://wakana.online/api/orders/property/${propertyId}/delivery`;
+  const url = `${environment.apiUrl}/orders/property/${propertyId}/delivery`;
   
   const params = new HttpParams()
     .set('page', page.toString())
@@ -500,17 +539,7 @@ getLivraison(propertyId: number, page: number = 0, size: number = 10): Observabl
     })
   );
 }
-/**
- * Crée une nouvelle commande
- * @param order Les données de la commande à créer
- */
-createCommand(order: CreateOrder): Observable<Order> {
-  return this.http.post<Order>(
-    'https://wakana.online/api/orders',
-    order,
-    { headers: this.getHeaders() }
-  ).pipe(
-    catchError(this.handleError)
-  );
-}
+
+
+
 }

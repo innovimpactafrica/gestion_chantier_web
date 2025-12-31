@@ -103,7 +103,6 @@ export interface WorkersResponse {
   empty: boolean;
 }
 
-// Interface pour la création d'un worker
 export interface CreateWorkerRequest {
   nom: string;
   prenom: string;
@@ -114,8 +113,9 @@ export interface CreateWorkerRequest {
   lieunaissance: string;
   adress: string;
   profil: string;
-  propertyId?: number; // Ajoutez ce champ optionnel
+  photo?: File; // Ajout du champ photo
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -124,7 +124,6 @@ export class UtilisateurService {
   
   private apiUrl =  `${environment.apiUrl}/workers`;
 
-  // private apiUrl = 'https://wakana.online/api/workers';
 
   constructor(
     private http: HttpClient,
@@ -245,19 +244,41 @@ export class UtilisateurService {
   }
 
 
-  createWorker(workerData: CreateWorkerRequest,propertyId: number): Observable<Worker> {
- 
-    
+  createWorker(workerData: CreateWorkerRequest, propertyId: number): Observable<Worker> {
     if (!propertyId) {
-      throw new Error('Utilisateur non connecté');
+      throw new Error('propertyId est requis');
     }
-
+  
+    // Créer un FormData pour envoyer le fichier
+    const formData = new FormData();
+    formData.append('nom', workerData.nom);
+    formData.append('prenom', workerData.prenom);
+    formData.append('email', workerData.email);
+    formData.append('password', workerData.password);
+    formData.append('telephone', workerData.telephone);
+    formData.append('date', workerData.date);
+    formData.append('lieunaissance', workerData.lieunaissance);
+    formData.append('adress', workerData.adress);
+    formData.append('profil', workerData.profil);
+    
+    // Ajouter la photo si elle existe
+    if (workerData.photo) {
+      formData.append('photo', workerData.photo, workerData.photo.name);
+    }
+  
+    // Ne pas ajouter Content-Type dans les headers, le navigateur le fera automatiquement pour FormData
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
+    
+  
     return this.http.post<Worker>(
       `${this.apiUrl}/save/${propertyId}`,
-      workerData,
-      { headers: this.getAuthHeaders() }
+      formData,
+      { headers }
     );
   }
+  
   /**
    * Crée un nouveau fournisseur (worker avec profil SUPPLIER)
    * @param supplierData Données du fournisseur à créer

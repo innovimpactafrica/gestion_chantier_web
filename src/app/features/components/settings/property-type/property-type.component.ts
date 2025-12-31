@@ -16,6 +16,7 @@ export class PropertyTypeComponent implements OnInit {
 
  
   newPropertyType: PropertyType = {
+    name:'',
     typeName: '', parent: true,
     id: 0
   }; // Initialisation avec un type par défaut
@@ -64,7 +65,7 @@ nouvelleType: any;
       if (!this.newPropertyType.typeName.trim()) return;
   
       this.propertyTypeService.create(this.newPropertyType).subscribe(() => {
-        this.newPropertyType = { typeName: '' ,parent: true ,id:0}; // Réinitialise le formulaire
+        this.newPropertyType = { name : '',typeName: '' ,parent: true ,id:0}; // Réinitialise le formulaire
         this.loadPropertyTypes();
         console.log('Type de propriété ajouté avec succès:', this.newPropertyType);
       });
