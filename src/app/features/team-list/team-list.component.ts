@@ -49,6 +49,9 @@ export class TeamListComponent implements OnInit {
   isLoading = false;
   error: string | null = null;
 
+  searchQuery: string = '';
+  selectedRole: string = '';
+
   currentPropertyId: number | null = null;
 
   // Variables pour le popup d'ajout
@@ -93,6 +96,37 @@ export class TeamListComponent implements OnInit {
     private detailsWorkerService: DetailsWorkerService,
     private route: ActivatedRoute
   ) {}
+
+  get filteredTeamMembers(): TeamMember[] {
+    let filtered = this.teamMembers;
+
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(member =>
+        member.name.toLowerCase().includes(query) ||
+        member.email.toLowerCase().includes(query) ||
+        member.telephone.includes(query)
+      );
+    }
+
+    if (this.selectedRole) {
+      filtered = filtered.filter(member => member.role === this.selectedRole);
+    }
+
+    return filtered;
+  }
+
+  getRoleOptions(): { value: string, label: string }[] {
+    return [
+      { value: '', label: 'Tous les rôles' },
+      { value: 'Ouvrier', label: 'Ouvrier' },
+      { value: 'Chef de chantier', label: 'Chef de chantier' },
+      { value: 'Maître d\'œuvre', label: 'Maître d\'œuvre' },
+      { value: 'Maître d\'ouvrage', label: 'Maître d\'ouvrage' },
+      { value: 'Architecte', label: 'Architecte' },
+      { value: 'Ingénieur', label: 'Ingénieur' }
+    ];
+  }
 
   ngOnInit(): void {
     this.generateCalendar();

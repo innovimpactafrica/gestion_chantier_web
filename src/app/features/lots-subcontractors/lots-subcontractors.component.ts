@@ -37,7 +37,8 @@ export class LotsSubcontractorsComponent implements OnInit {
   filteredLots: LotDisplay[] = [];
   filtreStatut: string = '';
   recherche: string = '';
-  
+  searchQuery: string = '';
+  selectedStatus: string = '';
   // Property ID (récupéré depuis les paramètres de route)
   currentPropertyId: number = 0;
   

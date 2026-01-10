@@ -4,7 +4,7 @@ export const environment = {
   apiBaseUrl: 'https://btpconnect.app/btpconnect',
   apiUrl: 'https://btpconnect.app/btpconnect/api',
   apiUrlAddress:'https://btpconnect.app/btpconnect/api/pointing-addresses',
-  filebaseUrl: 'https://btpconnect.app/btpconnect/repertoire_chantier/',
+  filebaseUrl: 'https://btpconnect.app/repertoire_chantier/',
   endpoints: {
     // Dashboard Admin & Subscriptions
     subscriptions: 'https://btpconnect.app/btpconnect/api/subscriptions',

@@ -14,7 +14,15 @@ import {
   Worker, 
   WorkersResponse 
 } from './../../../services/utilisateur.service';
+import { 
+  CommentFileService,
+  Document,
+  DocumentsResponse,
+  JoinFileResponse,
+  AddDocumentRequest
+} from './../../../services/comment-file.service';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface User {
   id: number;
@@ -68,10 +76,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   selectedTask: TaskDisplay | null = null;
   showTaskForm = false;
   showModal = false;
+  showDetailModal = false;
+  showCommentModal = false;
+  showFileModal = false;
   loading = false;
   error: string | null = null;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  searchQuery: string = '';
   
   // Drag and drop state
   draggedTask: TaskDisplay | null = null;
@@ -79,11 +91,20 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   dragOverColumn: string | null = null;
   isUpdatingTaskStatus = false;
   
-  // Pagination
+  // Pagination pour les tâches
   currentPage = 0;
   pageSize = 50;
   totalTasks = 0;
   totalPages = 0;
+
+  // Pagination interne pour chaque colonne (3 tâches visibles)
+  columnPages: { [key: string]: number } = {
+    'TODO': 0,
+    'IN_PROGRESS': 0,
+    'BLOCKED': 0,
+    'DONE': 0
+  };
+  tasksPerColumn = 3;
 
   // File upload
   selectedFiles: File[] = [];
@@ -105,13 +126,31 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     pictures: []
   };
 
+  // Comment & File modals
+  currentTaskForComment: TaskDisplay | null = null;
+  currentTaskForFile: TaskDisplay | null = null;
+  comments: Document[] = [];
+  loadingComments = false;
+  commentPage = 0;
+  commentPageSize = 10;
+  totalComments = 0;
+  newComment = {
+    title: '',
+    description: '',
+    file: null as File | null
+  };
+  
+  // File modal
+  fileToJoin: File | null = null;
+  fileLibelle: string = '';
+  loadingFileJoin = false;
+
   private destroy$ = new Subject<void>();
-  correctionTask: TaskDisplay | undefined;
-  coulageTask: TaskDisplay | undefined;
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private utilisateurService: UtilisateurService,
+    private commentFileService: CommentFileService,
     private route: ActivatedRoute
   ) { }
 
@@ -162,9 +201,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   private loadWorkers(): void {
-    console.log('🔄 Chargement des workers...');
+    console.log('🔄 Chargement des workers pour la propriété:', this.currentPropertyId);
     
-    this.utilisateurService.listUsers(0, 100)
+    this.utilisateurService.getWorkers(0, 100, this.currentPropertyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: WorkersResponse) => {
@@ -174,12 +213,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Erreur lors du chargement des workers:', error);
-          this.users = [
-            { id: 1, avatarUrl: 'assets/images/av1.png', name: 'Ouvrier 1' },
-            { id: 2, avatarUrl: 'assets/images/av2.png', name: 'Ouvrier 2' },
-            { id: 3, avatarUrl: 'assets/images/av3.png', name: 'Ouvrier 3' },
-            { id: 4, avatarUrl: 'assets/images/av4.png', name: 'Ouvrier 4' }
-          ];
+          this.users = [];
         }
       });
   }
@@ -188,13 +222,15 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     return workers.map((worker) => {
       return {
         id: worker.id,
-        avatarUrl: worker.photo || 'assets/images/profil.png',
+        avatarUrl: worker.photo ? `${environment.filebaseUrl}${worker.photo}` : 'assets/images/profil.png',
         name: `${worker.prenom} ${worker.nom}`
       };
     });
   }
 
-
+  public getFileBaseUrl(){
+    return `${environment.filebaseUrl}`;
+  }
 
   private loadTasks(): void {
     if (!this.currentPropertyId) {
@@ -324,7 +360,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       if (worker) {
         return {
           id: worker.id,
-          avatarUrl: worker.photo || 'assets/images/profil.png',
+          avatarUrl: worker.photo ? `${environment.filebaseUrl}${worker.photo}` : 'assets/images/profil.png',
           name: `${worker.prenom} ${worker.nom}`
         };
       }
@@ -363,7 +399,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     };
   }
 
-  private formatDate(dateArray: number[]): string {
+  public formatDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return 'N/A';
     
     try {
@@ -375,24 +411,50 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-// 4. Modifier resetCurrentTask pour utiliser le format date HTML
-private resetCurrentTask(): void {
-  const now = new Date();
-  const currentDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-  
-  this.currentTask = {
-    id: null,
-    title: '',
-    description: '',
-    priority: 'MEDIUM',
-    startDate: currentDateString,
-    endDate: currentDateString,
-    realEstateProperty: { id: this.currentPropertyId },
-    executors: [],
-    status: 'TODO',
-    pictures: []
-  };
-}
+  private resetCurrentTask(): void {
+    const now = new Date();
+    const currentDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+    
+    this.currentTask = {
+      id: null,
+      title: '',
+      description: '',
+      priority: 'MEDIUM',
+      startDate: currentDateString,
+      endDate: currentDateString,
+      realEstateProperty: { id: this.currentPropertyId },
+      executors: [],
+      status: 'TODO',
+      pictures: []
+    };
+  }
+
+  getVisibleTasks(column: TaskColumn): TaskDisplay[] {
+    const startIndex = this.columnPages[column.id] * this.tasksPerColumn;
+    const endIndex = startIndex + this.tasksPerColumn;
+    return column.tasks.slice(startIndex, endIndex);
+  }
+
+  canScrollUp(columnId: string): boolean {
+    return this.columnPages[columnId] > 0;
+  }
+
+  canScrollDown(column: TaskColumn): boolean {
+    const maxPage = Math.ceil(column.tasks.length / this.tasksPerColumn) - 1;
+    return this.columnPages[column.id] < maxPage;
+  }
+
+  scrollColumnUp(columnId: string): void {
+    if (this.canScrollUp(columnId)) {
+      this.columnPages[columnId]--;
+    }
+  }
+
+  scrollColumnDown(column: TaskColumn): void {
+    if (this.canScrollDown(column)) {
+      this.columnPages[column.id]++;
+    }
+  }
 
   // ================== DRAG AND DROP METHODS ==================
 
@@ -651,7 +713,206 @@ private resetCurrentTask(): void {
     const [year, month, day] = dateArray;
     return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
   }  
+// ================== MODAL METHODS ==================
 
+openDetailModal(task: TaskDisplay): void {
+  this.selectedTask = task;
+  this.showDetailModal = true;
+}
+
+closeDetailModal(): void {
+  this.showDetailModal = false;
+  this.selectedTask = null;
+}
+
+openEditModal(task: TaskDisplay): void {
+  this.isEditMode = true;
+  this.currentTask = {
+    id: task.id,
+    title: task.title,
+    description: task.description,
+    priority: task.priority,
+    startDate: this.formatDateForInput(task.startDate),
+    endDate: this.formatDateForInput(task.endDate),
+    realEstateProperty: task.realEstateProperty,
+    executors: [...task.executors],
+    status: task.status,
+    pictures: task.pictures || []
+  };
+  this.selectedFiles = [];
+  this.error = null;
+  this.showModal = true;
+}
+
+openCreateModal(): void {
+  this.isEditMode = false;
+  this.resetCurrentTask();
+  this.selectedFiles = [];
+  this.error = null;
+  this.showModal = true;
+}
+
+// closeModal() {
+//   this.showModal = false;
+//   this.selectedTask = null;
+//   this.selectedFiles = [];
+//   this.error = null;
+// }
+
+// ================== COMMENT MODAL METHODS ==================
+
+openCommentModal(task: TaskDisplay): void {
+  this.currentTaskForComment = task;
+  this.showCommentModal = true;
+  this.loadComments();
+}
+
+closeCommentModal(): void {
+  this.showCommentModal = false;
+  this.currentTaskForComment = null;
+  this.comments = [];
+  this.newComment = {
+    title: '',
+    description: '',
+    file: null
+  };
+}
+
+private loadComments(): void {
+  if (!this.currentPropertyId) return;
+  
+  this.loadingComments = true;
+  
+  this.commentFileService.getComment(this.currentPropertyId, this.commentPage, this.commentPageSize)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loadingComments = false;
+      })
+    )
+    .subscribe({
+      next: (response: DocumentsResponse) => {
+        this.comments = response.content;
+        this.totalComments = response.totalElements;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des commentaires:', error);
+        this.errorMessage = 'Erreur lors du chargement des commentaires';
+      }
+    });
+}
+
+onCommentFileSelected(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.newComment.file = file;
+  }
+}
+
+submitComment(): void {
+  if (!this.newComment.title || !this.newComment.description || !this.newComment.file) {
+    this.error = 'Veuillez remplir tous les champs';
+    return;
+  }
+
+  const commentData: AddDocumentRequest = {
+    title: this.newComment.title,
+    file: this.newComment.file,
+    description: this.newComment.description,
+    realEstatePropertyId: this.currentPropertyId,
+    typeId: 1 // Vous pouvez ajuster ce typeId selon votre besoin
+  };
+
+  this.loadingComments = true;
+
+  this.commentFileService.addComment(commentData)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loadingComments = false;
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        this.successMessage = 'Commentaire ajouté avec succès';
+        this.newComment = {
+          title: '',
+          description: '',
+          file: null
+        };
+        this.loadComments();
+        
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'ajout du commentaire:', error);
+        this.errorMessage = 'Erreur lors de l\'ajout du commentaire';
+      }
+    });
+}
+
+// ================== FILE MODAL METHODS ==================
+
+openFileModal(task: TaskDisplay): void {
+  this.currentTaskForFile = task;
+  this.showFileModal = true;
+}
+
+closeFileModal(): void {
+  this.showFileModal = false;
+  this.currentTaskForFile = null;
+  this.fileToJoin = null;
+  this.fileLibelle = '';
+}
+
+onFileToJoinSelected(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.fileToJoin = file;
+  }
+}
+
+joinFileToTask(): void {
+  if (!this.fileToJoin || !this.fileLibelle || !this.currentTaskForFile) {
+    this.error = 'Veuillez sélectionner un fichier et renseigner un libellé';
+    return;
+  }
+
+  this.loadingFileJoin = true;
+
+  this.commentFileService.joinFile(this.currentTaskForFile.id!, this.fileLibelle, this.fileToJoin)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loadingFileJoin = false;
+      })
+    )
+    .subscribe({
+      next: (response: JoinFileResponse) => {
+        this.successMessage = 'Fichier joint avec succès';
+        this.fileToJoin = null;
+        this.fileLibelle = '';
+        this.closeFileModal();
+        this.loadTasks(); // Recharger les tâches pour mettre à jour le compteur de fichiers
+        
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la jointure du fichier:', error);
+        this.errorMessage = 'Erreur lors de la jointure du fichier';
+        
+        setTimeout(() => {
+          this.errorMessage = null;
+        }, 5000);
+      }
+    });
+}
+
+// Reste des méthodes dans le prochain artefact...
 // 3. Modifier la méthode openModal pour formater les dates correctement
 openModal(task?: Task) {
   if (task) {
@@ -683,6 +944,7 @@ openModal(task?: Task) {
     this.selectedFiles = [];
     this.error = null;
   }
+  
 
   onBackdropClick(event: Event) {
     if (event.target === event.currentTarget) {
@@ -1101,3 +1363,9 @@ onImageError(event: Event): void {
       });
   }
 }
+
+
+// adapte moi le ts et le html de mon task-board corrige sur le ts en appellant la methode getWorkers() dans le service utilisateur(que je t'es données juste pour que tu appelle la methode getworkers() pour les workers a qui on assigne les taches ) et appelle moi aussi les methode addComment() et JoinFile() respectivement pour ajouter et joindre un fichier sur une tache donc tu adaptera sur les icones de commentaire et d'épinglage si on clique sur l'icone de commentaire on affiche un modal pour listes les commentaire s'il y'en a a gauche et un petit formulaire pour ajouter un commentaire meme chose pour les fichiers si on clique sur l'icone d'épinglage on affiche un modal meme approche pour les commentaires pour ajouter fichier un champ permet de choisir un fichier et un button joindre .Et enlève le fait que si on clique sur une tache ca affiche le modal de modification le modal de modification doit s'afficher si on clique sur l'icone de modification que tu vas ajouter sur la ou se positionne les iconne de comment et join (en troisieme position icone de modification sur la carde d'une tache) et aussi si on clique sur tache ca doit afficher les details de cette tache sur ce modal adapte moi bien le ts et html et aur les champs soit bien charger lors de la modification ,change aussi  pour l'assignation  a des workers  tache que se soit un select on pourra choisir un ou plusieurs workers sur pour une taches 
+
+// paginer aussi la liste des taches sur les 4 cardes par 3 element par cardes re reste on scrolle vers le bas pour voir adapte moi bien ce ts et html ne change par le design juste adapte et ajoutes mes instructions 
+

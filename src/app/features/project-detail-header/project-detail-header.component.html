@@ -1,15 +1,14 @@
 <div class="container mx-auto px-4 py-6">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">
-      Projet : 
-      <span class="font-normal">
+      <span class="font-bold">
         {{ projectDetails?.name || 'Chargement...' }}
       </span>
     </h1>
 
     <button (click)="openQrModal()"
-      [disabled]="!projectDetails?.qrcode"
-      class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-orange-500 font-medium px-4 py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+    [disabled]="!projectDetails?.qrcode"
+    class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-orange-500 font-medium px-4 py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_4123_2628)">
           <path
@@ -26,99 +25,83 @@
     </button>
   </div>
 
-  <!-- Navigation Tabs -->
-  <nav class="flex border-b bg-white rounded-lg shadow-sm p-6">
-    <ul class="flex space-x-10 text-lg">
-      <li [class.border-b-2]="activeTab === 'presentation'" 
-          [class.border-orange-500]="activeTab === 'presentation'"
-          [class.text-orange-500]="activeTab === 'presentation'"
-          class="pb-2">
-        <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer">Présentation du projet</a>
+  <!-- Navigation Tabs - Continu avec le header -->
+  <nav class="border-t border-gray-100 bg-white rounded-b-lg shadow-sm px-4 sm:px-6 pb-4 sm:pb-6 pt-4 overflow-x-auto">
+    <ul class="flex space-x-4 sm:space-x-6 lg:space-x-10 text-sm sm:text-base lg:text-lg min-w-max">
+      <li [class.border-b-2]="activeTab === 'presentation'" [class.border-orange-500]="activeTab === 'presentation'"
+        [class.text-orange-500]="activeTab === 'presentation'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer whitespace-nowrap">Présentation</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'tasks'" 
-          [class.border-orange-500]="activeTab === 'tasks'"
-          [class.text-orange-500]="activeTab === 'tasks'" 
-          class="pb-2">
-        <a (click)="setActiveTab('tasks')" class="font-medium cursor-pointer">Tâches</a>
+      <li [class.border-b-2]="activeTab === 'tasks'" [class.border-orange-500]="activeTab === 'tasks'"
+        [class.text-orange-500]="activeTab === 'tasks'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('tasks')" class="font-medium cursor-pointer whitespace-nowrap">Tâches</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'team'" 
-          [class.border-orange-500]="activeTab === 'team'"
-          [class.text-orange-500]="activeTab === 'team'" 
-          class="pb-2">
-        <a (click)="setActiveTab('team')" class="font-medium cursor-pointer">Équipe</a>
+      <li [class.border-b-2]="activeTab === 'team'" [class.border-orange-500]="activeTab === 'team'"
+        [class.text-orange-500]="activeTab === 'team'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('team')" class="font-medium cursor-pointer whitespace-nowrap">Équipe</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'lots'" 
-          [class.border-orange-500]="activeTab === 'lots'"
-          [class.text-orange-500]="activeTab === 'lots'" 
-          class="pb-2">
-        <a (click)="setActiveTab('lots')" class="font-medium cursor-pointer">Lots et sous-traitants</a>
+      <li [class.border-b-2]="activeTab === 'lots'" [class.border-orange-500]="activeTab === 'lots'"
+        [class.text-orange-500]="activeTab === 'lots'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('lots')" class="font-medium cursor-pointer whitespace-nowrap">Lots</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'documents'" 
-          [class.border-orange-500]="activeTab === 'documents'"
-          [class.text-orange-500]="activeTab === 'documents'" 
-          class="pb-2">
-        <a (click)="setActiveTab('documents')" class="font-medium cursor-pointer">Documents</a>
+      <li [class.border-b-2]="activeTab === 'documents'" [class.border-orange-500]="activeTab === 'documents'"
+        [class.text-orange-500]="activeTab === 'documents'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('documents')" class="font-medium cursor-pointer whitespace-nowrap">Documents</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'stock'" 
-          [class.border-orange-500]="activeTab === 'stock'"
-          [class.text-orange-500]="activeTab === 'stock'" 
-          class="pb-2">
-        <a (click)="setActiveTab('stock')" class="font-medium cursor-pointer">Stock</a>
+      <li [class.border-b-2]="activeTab === 'stock'" [class.border-orange-500]="activeTab === 'stock'"
+        [class.text-orange-500]="activeTab === 'stock'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('stock')" class="font-medium cursor-pointer whitespace-nowrap">Stock</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'signalement'" 
-          [class.border-orange-500]="activeTab === 'signalement'"
-          [class.text-orange-500]="activeTab === 'signalement'" 
-          class="pb-2">
-        <a (click)="setActiveTab('alert')" class="font-medium cursor-pointer">Signalement</a>
+      <li [class.border-b-2]="activeTab === 'signalement'" [class.border-orange-500]="activeTab === 'signalement'"
+        [class.text-orange-500]="activeTab === 'signalement'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('signalement')" class="font-medium cursor-pointer whitespace-nowrap">Signalement</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'etude-bet'" 
-          [class.border-orange-500]="activeTab === 'etude-bet'"
-          [class.text-orange-500]="activeTab === 'etude-bet'" 
-          class="pb-2">
-        <a (click)="setActiveTab('etude-bet')" class="font-medium cursor-pointer">Etude Bet</a>
+      <li [class.border-b-2]="activeTab === 'etude-bet'" [class.border-orange-500]="activeTab === 'etude-bet'"
+        [class.text-orange-500]="activeTab === 'etude-bet'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('etude-bet')" class="font-medium cursor-pointer whitespace-nowrap">Etude Bet</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'pointing-adress'" 
-      [class.border-orange-500]="activeTab === 'pointing-adress'"
-      [class.text-orange-500]="activeTab === 'pointing-adress'" 
-      class="pb-2">
-    <a (click)="setActiveTab('pointing-adress')" class="font-medium cursor-pointer">Adresse Pointage</a>
-  </li>
+      <li [class.border-b-2]="activeTab === 'pointing-adress'"
+        [class.border-orange-500]="activeTab === 'pointing-adress'"
+        [class.text-orange-500]="activeTab === 'pointing-adress'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('pointing-adress')" class="font-medium cursor-pointer whitespace-nowrap">Adresse
+          Pointage</a>
+      </li>
     </ul>
   </nav>
 </div>
 
 <!-- Content based on active tab -->
 @switch (activeTab) {
-  @case ('tasks') {
-    <app-task-board></app-task-board>
-  }
-  @case ('team') {
-    <app-team-list></app-team-list>
-  }
-  @case ('documents') {
-    <app-documents></app-documents>
-  }
-  @case ('lots') {
-    <app-lots-subcontractors></app-lots-subcontractors>
-  }
-  @case ('stock') {
-    <app-stock></app-stock>
-  }
-  @case ('etude-bet') {
-    <app-etude-bet></app-etude-bet>
-  }
-  @case ('alert') {
-    <app-project-alert></app-project-alert>
-  }
-  @case ('presentation') {
-    <app-project-presentation></app-project-presentation>
-  }
-  @case ('pointing-adress') {
-    <app-pointing-adress></app-pointing-adress>
-  }
-  @default {
-    <div>Sélectionnez un onglet</div>
-  }
+@case ('tasks') {
+<app-task-board></app-task-board>
+}
+@case ('team') {
+<app-team-list></app-team-list>
+}
+@case ('documents') {
+<app-documents></app-documents>
+}
+@case ('lots') {
+<app-lots-subcontractors></app-lots-subcontractors>
+}
+@case ('stock') {
+<app-stock></app-stock>
+}
+@case ('etude-bet') {
+<app-etude-bet></app-etude-bet>
+}
+@case ('signalement') {
+<app-project-alert></app-project-alert>
+}
+@case ('presentation') {
+<app-project-presentation></app-project-presentation>
+}
+@case ('pointing-adress') {
+<app-pointing-adress></app-pointing-adress>
+}
+@default {
+<div>Sélectionnez un onglet</div>
+}
 }
 
 <!-- ✅ MODAL QR CODE -->
@@ -154,19 +137,22 @@
     <div *ngIf="!isLoadingProject && !projectError && projectDetails" class="flex flex-col items-center">
       
       <!-- Image QR Code -->
-      <div class="mb-3 bg-white p-4 rounded-lg border-2 border-gray-200">
-        <img *ngIf="qrCodeDataUrl" 
-             [src]="qrCodeDataUrl" 
-             alt="QR Code du projet" 
-             class="w-40 h-40">
-        
-        <div *ngIf="!qrCodeDataUrl" 
-             class="w-40 h-40 bg-gray-100 flex items-center justify-center">
-          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-        </div>
-      </div>
+<div class="mb-3 bg-white p-4 rounded-lg border-2 border-gray-200">
+  <img *ngIf="qrCodeDataUrl" 
+       [src]="qrCodeDataUrl" 
+       alt="QR Code du projet" 
+       class="w-40 h-40 object-contain"
+       (error)="handleQrCodeError()">
+  
+  <div *ngIf="!qrCodeDataUrl" 
+       class="w-40 h-40 bg-gray-100 flex flex-col items-center justify-center gap-2">
+    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+    </svg>
+    <p class="text-xs text-gray-500 text-center px-2">QR code indisponible</p>
+  </div>
+</div>
 
       <p class="text-gray-500 text-sm text-center mb-4">
         Scannez avec votre téléphone pour ouvrir les détails du projet.

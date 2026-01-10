@@ -29,7 +29,12 @@ export class RegisterComponent implements OnInit {
   // Profils disponibles (seulement PROMOTEUR et MOA)
   availableProfiles: ProfileMapping[] = [
     { value: 'PROMOTEUR', displayName: 'Promoteur' },
-    { value: 'MOA', displayName: 'Maître d\'Ouvrage (MOA)' }
+    { value: 'SITE_MANAGER', displayName: 'Manager' },
+    { value: 'BET', displayName: 'Maître d\'Etude' },
+    { value: 'MOA', displayName: 'Maître d\'Ouvrage (MOA)' },
+    { value: 'SUPPLIER', displayName: 'Fournisseur' },
+    { value: 'SUBCONTRACTOR', displayName: 'Sous Traitant' },
+
   ];
 
   constructor(

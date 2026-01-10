@@ -10,7 +10,7 @@ import { PropertyType } from '../../../../models/property-type';
 import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
-import { UserService, User } from '../../../../../services/user.service'; 
+import { UserService, User } from '../../../../../services/user.service';
 
 
 interface StockAlerte {
@@ -86,7 +86,7 @@ interface Movement {
 }
 
 interface Delivery {
-orderDate: number[];
+  orderDate: number[];
   id: number;
   number: string;
   date: string; // Attendu au format dd-MM-yyyy
@@ -231,137 +231,137 @@ export class StockComponent implements OnInit, OnDestroy {
   currentSortField: string = 'label';
   currentSortDirection: 'asc' | 'desc' = 'asc';
   data: MaterialsResponse | null = null;
-// Ajoutez ces propriétés pour la pagination et filtres des livraisons
-searchDeliveryTerm: string = '';
-statusDeliveryFilter: string = '';
-filteredDeliveries: any[] = [];
-materialCurrentPage: number = 0;
-searchMaterialTerm: string = '';
-statusMaterialFilter: string = '';
+  // Ajoutez ces propriétés pour la pagination et filtres des livraisons
+  searchDeliveryTerm: string = '';
+  statusDeliveryFilter: string = '';
+  filteredDeliveries: any[] = [];
+  materialCurrentPage: number = 0;
+  searchMaterialTerm: string = '';
+  statusMaterialFilter: string = '';
 
-materialPageSize: number = 5;
-totalMaterialElements: number = 0;
-totalMaterialPages: number = 0;
-// Dans stock.component.ts
-suppliers: User[] = []; // Liste des fournisseurs
-suppliersLoading: boolean = false;
+  materialPageSize: number = 5;
+  totalMaterialElements: number = 0;
+  totalMaterialPages: number = 0;
+  // Dans stock.component.ts
+  suppliers: User[] = []; // Liste des fournisseurs
+  suppliersLoading: boolean = false;
 
-constructor(
-  private fb: FormBuilder,
-  private materialsService: MaterialsService,
-  private unitParameterService: UnitParameterService,
-  private propertyService: PropertyTypeService,
-  private dashboardService: DashboardService,
-  private route: ActivatedRoute,
-  private userService: UserService // ⚠️ AJOUTER cette injection
-) {
-  this.materialForm = this.fb.group({
-    label: ['', [Validators.required, Validators.minLength(2)]],
-    quantity: [0, [Validators.required, Validators.min(0)]],
-    criticalThreshold: [0, [Validators.required, Validators.min(0)]],
-    unitId: ['', [Validators.required]],
-    propertyId: [null, [Validators.required]]
-  });
+  constructor(
+    private fb: FormBuilder,
+    private materialsService: MaterialsService,
+    private unitParameterService: UnitParameterService,
+    private propertyService: PropertyTypeService,
+    private dashboardService: DashboardService,
+    private route: ActivatedRoute,
+    private userService: UserService // ⚠️ AJOUTER cette injection
+  ) {
+    this.materialForm = this.fb.group({
+      label: ['', [Validators.required, Validators.minLength(2)]],
+      quantity: [0, [Validators.required, Validators.min(0)]],
+      criticalThreshold: [0, [Validators.required, Validators.min(0)]],
+      unitId: ['', [Validators.required]],
+      propertyId: [null, [Validators.required]]
+    });
 
-  // ⚠️ NOUVEAU FormGroup pour les commandes
-  this.orderForm = this.fb.group({
-    supplierId: ['', Validators.required],
-    deliveryDate: ['', Validators.required],
-    specialInstructions: [''],
-    materials: this.fb.array([])
-  });
+    // ⚠️ NOUVEAU FormGroup pour les commandes
+    this.orderForm = this.fb.group({
+      supplierId: ['', Validators.required],
+      deliveryDate: ['', Validators.required],
+      specialInstructions: [''],
+      materials: this.fb.array([])
+    });
 
-  this.movementForm = this.fb.group({
-    type: ['ENTRY', Validators.required],
-    quantity: [0, [Validators.required, Validators.min(1)]],
-    reference: ['', Validators.required],
-    comment: ['']
-  });
-}
-
-// ✅ CORRIGER ngOnInit
-ngOnInit(): void {
-  const idFromUrl = this.route.snapshot.paramMap.get('id');
-  if (idFromUrl) {
-    this.propertyId = +idFromUrl;
-    
-    this.materialForm.patchValue({ propertyId: this.propertyId });
-    this.orderForm.patchValue({ propertyId: this.propertyId });
-    
-    this.loadStock();
-    this.loadStockMovements();
-    this.loadOrders();
-    this.loadDeliveries();
-    this.loadRecentMovements();
-    this.loadUnits();
-    this.loadProperties();
-    this.loadCriticalMaterials();
-    this.loadSuppliers(); // ⚠️ AJOUTER cette ligne
-  } else {
-    console.error("ID de propriété non trouvé dans l'URL.");
+    this.movementForm = this.fb.group({
+      type: ['ENTRY', Validators.required],
+      quantity: [0, [Validators.required, Validators.min(1)]],
+      reference: ['', Validators.required],
+      comment: ['']
+    });
   }
-}
 
-getMaterialStockByIndex(index: number): string {
-  const materials = this.orderForm.get('materials') as FormArray;
-  const materialId = materials.at(index).get('materialId')?.value;
-  
-  if (!materialId) return '-';
-  
-  const material = this.materials.find(m => m.id === Number(materialId));
-  if (!material) return '-';
-  
-  return `${material.quantity} ${material.unit.code}`;
-}
+  // ✅ CORRIGER ngOnInit
+  ngOnInit(): void {
+    const idFromUrl = this.route.snapshot.paramMap.get('id');
+    if (idFromUrl) {
+      this.propertyId = +idFromUrl;
+
+      this.materialForm.patchValue({ propertyId: this.propertyId });
+      this.orderForm.patchValue({ propertyId: this.propertyId });
+
+      this.loadStock();
+      this.loadStockMovements();
+      this.loadOrders();
+      this.loadDeliveries();
+      this.loadRecentMovements();
+      this.loadUnits();
+      this.loadProperties();
+      this.loadCriticalMaterials();
+      this.loadSuppliers(); // ⚠️ AJOUTER cette ligne
+    } else {
+      console.error("ID de propriété non trouvé dans l'URL.");
+    }
+  }
+
+  getMaterialStockByIndex(index: number): string {
+    const materials = this.orderForm.get('materials') as FormArray;
+    const materialId = materials.at(index).get('materialId')?.value;
+
+    if (!materialId) return '-';
+
+    const material = this.materials.find(m => m.id === Number(materialId));
+    if (!material) return '-';
+
+    return `${material.quantity} ${material.unit.code}`;
+  }
 
   public formatDeliveryDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return 'N/A';
-    
+
     const [year, month, day, hours = 0, minutes = 0] = dateArray;
-    
+
     // Formatage en français dd/MM/yyyy HH:mm
     const dayStr = day.toString().padStart(2, '0');
     const monthStr = month.toString().padStart(2, '0');
     const hoursStr = hours.toString().padStart(2, '0');
     const minutesStr = minutes.toString().padStart(2, '0');
-    
+
     return `${dayStr}/${monthStr}/${year} ${hoursStr}:${minutesStr}`;
   }
 
 
-// Formater le nom complet du fournisseur
-formatSupplierName(supplier: any): string {
-  if (!supplier) return 'N/A';
-  
-  const prenom = supplier.prenom || '';
-  const nom = supplier.nom || '';
-  
-  return `${prenom} ${nom}`.trim() || 'N/A';
-}
+  // Formater le nom complet du fournisseur
+  formatSupplierName(supplier: any): string {
+    if (!supplier) return 'N/A';
 
-// Obtenir le texte du statut de livraison
-getDeliveryStatusText(status: string): string {
-  const texts = {
-    'IN_DELIVERY': 'En cours',
-    'DELIVERY': 'Livré', 
-    'DELIVERED': 'Livré',
-    'CANCELLED': 'Annulé',
-    'PENDING': 'En attente'
-  };
-  return texts[status as keyof typeof texts] || status;
-}
+    const prenom = supplier.prenom || '';
+    const nom = supplier.nom || '';
 
-// Mettre à jour les méthode  existante
+    return `${prenom} ${nom}`.trim() || 'N/A';
+  }
 
-private normalizeMaterialStatus(displayStatus: string): string[] {
-  const statusMapping: { [key: string]: string[] } = {
-    'stock normal': ['NORMAL'],
-    'stock faible': ['LOW'],
-    'rupture de stock': ['CRITICAL']
-  };
-  
-  return statusMapping[displayStatus.toLowerCase()] || [];
-}
+  // Obtenir le texte du statut de livraison
+  getDeliveryStatusText(status: string): string {
+    const texts = {
+      'IN_DELIVERY': 'En cours',
+      'DELIVERY': 'Livré',
+      'DELIVERED': 'Livré',
+      'CANCELLED': 'Annulé',
+      'PENDING': 'En attente'
+    };
+    return texts[status as keyof typeof texts] || status;
+  }
+
+  // Mettre à jour les méthode  existante
+
+  private normalizeMaterialStatus(displayStatus: string): string[] {
+    const statusMapping: { [key: string]: string[] } = {
+      'stock normal': ['NORMAL'],
+      'stock faible': ['LOW'],
+      'rupture de stock': ['CRITICAL']
+    };
+
+    return statusMapping[displayStatus.toLowerCase()] || [];
+  }
 
 
 
@@ -387,7 +387,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
       this.loading = false;
       return;
     }
-    
+
     console.log(`Chargement du stock pour la propriété ${this.propertyId}`);
     this.materialsService.getStock(this.propertyId, 0, 100) // Charger plus d'éléments pour le filtrage côté client
       .pipe(takeUntil(this.destroy$))
@@ -398,7 +398,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
           this.materials = response.content || [];
           this.totalElements = response.totalElements || 0;
           this.totalPages = response.totalPages || 0;
-          
+
           // Initialiser les matériaux filtrés
           this.filteredMaterials = [...this.materials];
           this.updatePaginatedMaterials();
@@ -500,7 +500,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
 
   loadUnits(): void {
     console.log('🔄 Chargement des unités...');
-    
+
     this.unitParameterService.getByTypePaginated('MATERIAL_CATEGORY', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -509,7 +509,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
           this.units = response.content || [];
           console.log('✅ Unités chargées:', this.units.length, 'unités');
           console.log('📋 Liste des unités:', this.units);
-          
+
           // Si vous avez besoin des informations de pagination, vous pouvez les stocker
           console.log('📊 Informations pagination:', {
             totalElements: response.totalElements,
@@ -527,7 +527,7 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
 
   loadProperties(): void {
     console.log('🔄 Chargement des propriétés...');
-    
+
     this.propertyService.getAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -604,176 +604,176 @@ private normalizeMaterialStatus(displayStatus: string): string[] {
   }
 
 
-// ✅ CORRIGER addMaterialToOrder
-loadSuppliers(): void {
-  this.suppliersLoading = true;
-  console.log('🔄 Chargement des fournisseurs...');
-  
-  this.userService.getUserByProfil('SUPPLIER', '', 0, 1000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: any) => {
-        this.suppliers = response.content || [];
-        console.log('✅ Fournisseurs chargés:', this.suppliers.length);
-        this.suppliersLoading = false;
-      },
-      error: (error: any) => {
-        console.error('❌ Erreur lors du chargement des fournisseurs:', error);
-        this.showErrorMessage('Erreur lors du chargement des fournisseurs');
-        this.suppliersLoading = false;
-        this.suppliers = [];
-      }
-    });
-}
+  // ✅ CORRIGER addMaterialToOrder
+  loadSuppliers(): void {
+    this.suppliersLoading = true;
+    console.log('🔄 Chargement des fournisseurs...');
 
-// ===== MODIFIER addMaterialToOrder =====
-addMaterialToOrder(): void {
-  const materials = this.orderForm.get('materials') as FormArray;
-  materials.push(this.fb.group({
-    materialId: ['', Validators.required],
-    quantity: [1, [Validators.required, Validators.min(1)]],
-    unitPrice: [0, [Validators.required, Validators.min(0)]]
-  }));
-}
-
-// ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
-calculateLineTotal(index: number): void {
-  const materials = this.orderForm.get('materials') as FormArray;
-  const material = materials.at(index);
-  
-  const quantity = material.get('quantity')?.value || 0;
-  const unitPrice = material.get('unitPrice')?.value || 0;
-  
-  // Le total est calculé dynamiquement dans getLineTotal()
-}
-getLineTotal(index: number): number {
-  const materials = this.orderForm.get('materials') as FormArray;
-  const material = materials.at(index);
-  
-  const quantity = material.get('quantity')?.value || 0;
-  const unitPrice = material.get('unitPrice')?.value || 0;
-  
-  return quantity * unitPrice;
-}
-
-// ===== NOUVELLE MÉTHODE: Obtenir le total général =====
-getOrderTotal(): number {
-  const materials = this.orderForm.get('materials') as FormArray;
-  let total = 0;
-  
-  materials.controls.forEach((material, index) => {
-    total += this.getLineTotal(index);
-  });
-  
-  return total;
-}
-
-openOrderModal(): void {
-  this.showOrderModal = true;
-  
-  const materials = this.orderForm.get('materials') as FormArray;
-  if (materials.length === 0) {
-    this.addMaterialToOrder();
-  }
-}
-
-onSubmitOrder(): void {
-  // Marquer tous les champs comme touchés
-  Object.keys(this.orderForm.controls).forEach(key => {
-    this.orderForm.get(key)?.markAsTouched();
-  });
-  
-  const materials = this.orderForm.get('materials') as FormArray;
-  materials.controls.forEach(control => {
-    Object.keys((control as FormGroup).controls).forEach(key => {
-      control.get(key)?.markAsTouched();
-    });
-  });
-
-  if (this.orderForm.valid && !this.loading) {
-    this.loading = true;
-    
-    // ⚠️ STRUCTURE CORRECTE selon la capture
-    const orderData: CreateOrder = {
-      supplierId: Number(this.orderForm.value.supplierId), // ID du fournisseur sélectionné
-      deliveryDate: this.orderForm.value.deliveryDate, // Date de livraison
-      specialInstructions: this.orderForm.value.specialInstructions || '',
-      materials: this.orderForm.value.materials.map((m: any) => ({
-        materialId: Number(m.materialId),
-        quantity: Number(m.quantity),
-        unitPrice: Number(m.unitPrice)
-      }))
-    };
-    
-    console.log('📦 Données de commande à envoyer:', orderData);
-    console.log('📦 Fournisseur ID:', orderData.supplierId);
-    console.log('📦 Date de livraison:', orderData.deliveryDate);
-    console.log('📦 Matériaux:', orderData.materials);
-    console.log('📦 Total:', this.getOrderTotal());
-    
-    this.materialsService.createCommand(orderData)
+    this.userService.getUserByProfil('SUPPLIER', '', 0, 1000)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (createdOrder) => {
-          this.loading = false;
-          this.closeOrderModal();
-          this.loadOrders();
-          this.showSuccessMessage('Commande créée avec succès !');
+        next: (response: any) => {
+          this.suppliers = response.content || [];
+          console.log('✅ Fournisseurs chargés:', this.suppliers.length);
+          this.suppliersLoading = false;
         },
-        error: (error) => {
-          this.loading = false;
-          console.error('❌ Erreur lors de la création de la commande:', error);
-          
-          if (error.status === 400) {
-            this.showErrorMessage('Données invalides. Vérifiez tous les champs.');
-          } else if (error.status === 403) {
-            this.showErrorMessage('Accès refusé');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée');
-          } else if (error.status === 404) {
-            this.showErrorMessage('Fournisseur ou matériau introuvable');
-          } else {
-            this.showErrorMessage(error.message || 'Erreur lors de la création');
-          }
+        error: (error: any) => {
+          console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+          this.showErrorMessage('Erreur lors du chargement des fournisseurs');
+          this.suppliersLoading = false;
+          this.suppliers = [];
         }
       });
-  } else {
-    console.log('❌ Formulaire invalide');
-    console.log('Erreurs formulaire:', this.orderForm.errors);
-    console.log('Valeurs materials:', materials.value);
-    console.log('Erreurs materials:', materials.controls.map(c => c.errors));
-    this.showErrorMessage('Veuillez remplir tous les champs requis');
   }
-}
 
-
-// ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
-onMaterialSelect(index: number): void {
-  const materials = this.orderForm.get('materials') as FormArray;
-  const materialId = materials.at(index).get('materialId')?.value;
-  
-  if (materialId) {
-    console.log('Matériau sélectionné:', materialId);
-    // Vous pouvez pré-remplir le prix si disponible
+  // ===== MODIFIER addMaterialToOrder =====
+  addMaterialToOrder(): void {
+    const materials = this.orderForm.get('materials') as FormArray;
+    materials.push(this.fb.group({
+      materialId: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      unitPrice: [0, [Validators.required, Validators.min(0)]]
+    }));
   }
-}
 
-// ===== MODIFIER closeOrderModal =====
-closeOrderModal(): void {
-  this.showOrderModal = false;
-  
-  const materials = this.orderForm.get('materials') as FormArray;
-  materials.clear();
-  
-  this.orderForm.reset({
-    supplierId: '',
-    deliveryDate: '',
-    specialInstructions: ''
-  });
-  
-  // Ajouter une ligne vide
-  this.addMaterialToOrder();
-}
+  // ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
+  calculateLineTotal(index: number): void {
+    const materials = this.orderForm.get('materials') as FormArray;
+    const material = materials.at(index);
+
+    const quantity = material.get('quantity')?.value || 0;
+    const unitPrice = material.get('unitPrice')?.value || 0;
+
+    // Le total est calculé dynamiquement dans getLineTotal()
+  }
+  getLineTotal(index: number): number {
+    const materials = this.orderForm.get('materials') as FormArray;
+    const material = materials.at(index);
+
+    const quantity = material.get('quantity')?.value || 0;
+    const unitPrice = material.get('unitPrice')?.value || 0;
+
+    return quantity * unitPrice;
+  }
+
+  // ===== NOUVELLE MÉTHODE: Obtenir le total général =====
+  getOrderTotal(): number {
+    const materials = this.orderForm.get('materials') as FormArray;
+    let total = 0;
+
+    materials.controls.forEach((material, index) => {
+      total += this.getLineTotal(index);
+    });
+
+    return total;
+  }
+
+  openOrderModal(): void {
+    this.showOrderModal = true;
+
+    const materials = this.orderForm.get('materials') as FormArray;
+    if (materials.length === 0) {
+      this.addMaterialToOrder();
+    }
+  }
+
+  onSubmitOrder(): void {
+    // Marquer tous les champs comme touchés
+    Object.keys(this.orderForm.controls).forEach(key => {
+      this.orderForm.get(key)?.markAsTouched();
+    });
+
+    const materials = this.orderForm.get('materials') as FormArray;
+    materials.controls.forEach(control => {
+      Object.keys((control as FormGroup).controls).forEach(key => {
+        control.get(key)?.markAsTouched();
+      });
+    });
+
+    if (this.orderForm.valid && !this.loading) {
+      this.loading = true;
+
+      // ⚠️ STRUCTURE CORRECTE selon la capture
+      const orderData: CreateOrder = {
+        supplierId: Number(this.orderForm.value.supplierId), // ID du fournisseur sélectionné
+        deliveryDate: this.orderForm.value.deliveryDate, // Date de livraison
+        specialInstructions: this.orderForm.value.specialInstructions || '',
+        materials: this.orderForm.value.materials.map((m: any) => ({
+          materialId: Number(m.materialId),
+          quantity: Number(m.quantity),
+          unitPrice: Number(m.unitPrice)
+        }))
+      };
+
+      console.log('📦 Données de commande à envoyer:', orderData);
+      console.log('📦 Fournisseur ID:', orderData.supplierId);
+      console.log('📦 Date de livraison:', orderData.deliveryDate);
+      console.log('📦 Matériaux:', orderData.materials);
+      console.log('📦 Total:', this.getOrderTotal());
+
+      this.materialsService.createCommand(orderData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (createdOrder) => {
+            this.loading = false;
+            this.closeOrderModal();
+            this.loadOrders();
+            this.showSuccessMessage('Commande créée avec succès !');
+          },
+          error: (error) => {
+            this.loading = false;
+            console.error('❌ Erreur lors de la création de la commande:', error);
+
+            if (error.status === 400) {
+              this.showErrorMessage('Données invalides. Vérifiez tous les champs.');
+            } else if (error.status === 403) {
+              this.showErrorMessage('Accès refusé');
+            } else if (error.status === 401) {
+              this.showErrorMessage('Session expirée');
+            } else if (error.status === 404) {
+              this.showErrorMessage('Fournisseur ou matériau introuvable');
+            } else {
+              this.showErrorMessage(error.message || 'Erreur lors de la création');
+            }
+          }
+        });
+    } else {
+      console.log('❌ Formulaire invalide');
+      console.log('Erreurs formulaire:', this.orderForm.errors);
+      console.log('Valeurs materials:', materials.value);
+      console.log('Erreurs materials:', materials.controls.map(c => c.errors));
+      this.showErrorMessage('Veuillez remplir tous les champs requis');
+    }
+  }
+
+
+  // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
+  onMaterialSelect(index: number): void {
+    const materials = this.orderForm.get('materials') as FormArray;
+    const materialId = materials.at(index).get('materialId')?.value;
+
+    if (materialId) {
+      console.log('Matériau sélectionné:', materialId);
+      // Vous pouvez pré-remplir le prix si disponible
+    }
+  }
+
+  // ===== MODIFIER closeOrderModal =====
+  closeOrderModal(): void {
+    this.showOrderModal = false;
+
+    const materials = this.orderForm.get('materials') as FormArray;
+    materials.clear();
+
+    this.orderForm.reset({
+      supplierId: '',
+      deliveryDate: '',
+      specialInstructions: ''
+    });
+
+    // Ajouter une ligne vide
+    this.addMaterialToOrder();
+  }
   generateStockAlerts(): void {
     this.stockAlerts = [];
     this.materials.forEach(material => {
@@ -898,47 +898,47 @@ closeOrderModal(): void {
         }
       });
   }
-// Méthode pour filtrer les matériaux
-filterMaterials(): void {
-  this.filteredMaterials = this.materials.filter(material => {
-    const matchesSearch = !this.searchMaterialTerm || 
-      this.getMaterialName(material).toLowerCase().includes(this.searchMaterialTerm.toLowerCase()) ||
-      this.getMaterialUnit(material).toLowerCase().includes(this.searchMaterialTerm.toLowerCase());
-    
-    let matchesStatus = true;
-    if (this.statusMaterialFilter) {
-      const technicalStatuses = this.normalizeMaterialStatus(this.statusMaterialFilter);
-      const materialStatus = this.getMaterialStatus(material);
-      matchesStatus = technicalStatuses.length > 0 ? 
-        technicalStatuses.includes(materialStatus) : 
-        false;
-    }
-    
-    return matchesSearch && matchesStatus;
-  });
-  
-  // Réinitialiser la pagination après filtrage
-  this.materialCurrentPage = 0;
-  this.updatePaginatedMaterials();
-}
+  // Méthode pour filtrer les matériaux
+  filterMaterials(): void {
+    this.filteredMaterials = this.materials.filter(material => {
+      const matchesSearch = !this.searchMaterialTerm ||
+        this.getMaterialName(material).toLowerCase().includes(this.searchMaterialTerm.toLowerCase()) ||
+        this.getMaterialUnit(material).toLowerCase().includes(this.searchMaterialTerm.toLowerCase());
 
-updatePaginatedMaterials(): void {
-  const startIndex = this.materialCurrentPage * this.materialPageSize;
-  const endIndex = startIndex + this.materialPageSize;
-  this.paginatedMaterials = this.filteredMaterials.slice(startIndex, endIndex);
-  this.totalMaterialElements = this.filteredMaterials.length;
-  this.totalMaterialPages = Math.ceil(this.totalMaterialElements / this.materialPageSize);
-}
+      let matchesStatus = true;
+      if (this.statusMaterialFilter) {
+        const technicalStatuses = this.normalizeMaterialStatus(this.statusMaterialFilter);
+        const materialStatus = this.getMaterialStatus(material);
+        matchesStatus = technicalStatuses.length > 0 ?
+          technicalStatuses.includes(materialStatus) :
+          false;
+      }
 
-// Méthode appelée lors du changement de recherche
-onMaterialSearchChange(): void {
-  this.filterMaterials();
-}
+      return matchesSearch && matchesStatus;
+    });
 
-// Méthode appelée lors du changement de filtre de statut
-onMaterialStatusFilterChange(): void {
-  this.filterMaterials();
-}
+    // Réinitialiser la pagination après filtrage
+    this.materialCurrentPage = 0;
+    this.updatePaginatedMaterials();
+  }
+
+  updatePaginatedMaterials(): void {
+    const startIndex = this.materialCurrentPage * this.materialPageSize;
+    const endIndex = startIndex + this.materialPageSize;
+    this.paginatedMaterials = this.filteredMaterials.slice(startIndex, endIndex);
+    this.totalMaterialElements = this.filteredMaterials.length;
+    this.totalMaterialPages = Math.ceil(this.totalMaterialElements / this.materialPageSize);
+  }
+
+  // Méthode appelée lors du changement de recherche
+  onMaterialSearchChange(): void {
+    this.filterMaterials();
+  }
+
+  // Méthode appelée lors du changement de filtre de statut
+  onMaterialStatusFilterChange(): void {
+    this.filterMaterials();
+  }
   goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
@@ -982,7 +982,7 @@ onMaterialStatusFilterChange(): void {
       unitId: '', // ⚠️ Vide pour forcer la sélection
       propertyId: this.propertyId
     });
-    
+
     // Marquer tous les champs comme non touchés
     Object.keys(this.materialForm.controls).forEach(key => {
       this.materialForm.get(key)?.markAsUntouched();
@@ -1001,13 +1001,13 @@ onMaterialStatusFilterChange(): void {
     this.materialCurrentPage = 0;
     this.updatePaginatedMaterials();
   }
-// Méthodes de navigation pour la pagination des matériaux
-previousMaterialPage(): void {
-  if (this.materialCurrentPage > 0) {
-    this.materialCurrentPage--;
-    this.updatePaginatedMaterials();
+  // Méthodes de navigation pour la pagination des matériaux
+  previousMaterialPage(): void {
+    if (this.materialCurrentPage > 0) {
+      this.materialCurrentPage--;
+      this.updatePaginatedMaterials();
+    }
   }
-}
   openMovementModal(material: Material): void {
     this.selectedMaterial = material;
     this.showMovementModal = true;
@@ -1062,7 +1062,7 @@ previousMaterialPage(): void {
       reference: `MVT-${movement.id}`,
       date: this.formatMovementDate(movement.movementDate),
       time: this.getTimeFromDateArray(movement.movementDate),
-      description: `${movement.quantity} ${ movement.material.unit.code} de ${movement.material.label}`,
+      description: `${movement.quantity} ${movement.material.unit.code} de ${movement.material.label}`,
       location: movement.material.property.name,
       materialId: movement.material.id
     }));
@@ -1177,19 +1177,19 @@ previousMaterialPage(): void {
     return this.materialForm.valid;
   }
 
-// ⚠️ AJOUTER cette méthode dans stock.component.ts
-isFieldInvalid(fieldName: string): boolean {
-  const field = this.materialForm.get(fieldName);
-  
-  // Pour les selects (unitId, propertyId), vérifier aussi si la valeur est vide ou null
-  if (fieldName === 'unitId' || fieldName === 'propertyId') {
-    const value = field?.value;
-    const isEmpty = !value || value === '' || value === null;
-    return !!(field && (field.invalid || isEmpty) && (field.dirty || field.touched));
+  // ⚠️ AJOUTER cette méthode dans stock.component.ts
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.materialForm.get(fieldName);
+
+    // Pour les selects (unitId, propertyId), vérifier aussi si la valeur est vide ou null
+    if (fieldName === 'unitId' || fieldName === 'propertyId') {
+      const value = field?.value;
+      const isEmpty = !value || value === '' || value === null;
+      return !!(field && (field.invalid || isEmpty) && (field.dirty || field.touched));
+    }
+
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
-  
-  return !!(field && field.invalid && (field.dirty || field.touched));
-}
   getFieldError(fieldName: string): string {
     const field = this.materialForm.get(fieldName);
     if (field?.errors) {
@@ -1284,11 +1284,11 @@ isFieldInvalid(fieldName: string): boolean {
     const maxPages = 3; // Moins de pages visibles car plus petite pagination
     let startPage = Math.max(0, this.materialCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalMaterialPages - 1, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
@@ -1471,217 +1471,217 @@ isFieldInvalid(fieldName: string): boolean {
   }
   filterDeliveries(): void {
     this.filteredDeliveries = this.deliveries.filter(delivery => {
-      const matchesSearch = !this.searchDeliveryTerm || 
+      const matchesSearch = !this.searchDeliveryTerm ||
         delivery.number.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
         delivery.supplier.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
         delivery.command.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase());
-      
+
       let matchesStatus = true;
       if (this.statusDeliveryFilter) {
         const technicalStatuses = this.normalizeDeliveryStatus(this.statusDeliveryFilter);
-        matchesStatus = technicalStatuses.length > 0 ? 
-          technicalStatuses.includes(delivery.status) : 
+        matchesStatus = technicalStatuses.length > 0 ?
+          technicalStatuses.includes(delivery.status) :
           false;
       }
-      
+
       return matchesSearch && matchesStatus;
     });
-    
+
     // Réinitialiser la pagination après filtrage
     this.deliveryCurrentPage = 0;
     this.updatePaginatedDeliveries();
   }
 
-// Méthode pour mettre à jour la pagination des livraisons filtrées
-updatePaginatedDeliveries(): void {
-  const startIndex = this.deliveryCurrentPage * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  this.paginatedDeliveries = this.filteredDeliveries.slice(startIndex, endIndex);
-  this.totalDeliveryElements = this.filteredDeliveries.length;
-  this.totalDeliveryPages = Math.ceil(this.totalDeliveryElements / this.pageSize);
-}
-
-// Méthode appelée lors du changement de recherche
-onDeliverySearchChange(): void {
-  this.filterDeliveries();
-}
-
-// Méthode appelée lors du changement de filtre de statut
-onDeliveryStatusFilterChange(): void {
-  this.filterDeliveries();
-}
-
-// Méthode pour réinitialiser les filtres des livraisons
-resetDeliveryFilters(): void {
-  this.searchDeliveryTerm = '';
-  this.statusDeliveryFilter = '';
-  this.filteredDeliveries = [...this.deliveries];
-  this.deliveryCurrentPage = 0;
-  this.updatePaginatedDeliveries();
-}
-
-// Méthode pour les actions sur les livraisons
-onDeliveryAction(action: string, delivery: Delivery, event: Event): void {
-  event.stopPropagation();
-  this.closeDropdown();
-  
-  switch (action) {
-    case 'voir':
-      this.viewDeliveryDetails(delivery);
-      break;
-    case 'modifier':
-      this.editDelivery(delivery);
-      break;
-    case 'telecharger':
-      this.downloadDeliveryProof(delivery);
-      break;
-    case 'supprimer':
-      this.deleteDelivery(delivery);
-      break;
+  // Méthode pour mettre à jour la pagination des livraisons filtrées
+  updatePaginatedDeliveries(): void {
+    const startIndex = this.deliveryCurrentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedDeliveries = this.filteredDeliveries.slice(startIndex, endIndex);
+    this.totalDeliveryElements = this.filteredDeliveries.length;
+    this.totalDeliveryPages = Math.ceil(this.totalDeliveryElements / this.pageSize);
   }
-}
 
-// Méthodes d'action pour les livraisons
-viewDeliveryDetails(delivery: Delivery): void {
-  console.log('Voir détails de la livraison:', delivery);
-  // Logique pour afficher les détails
-}
-
-editDelivery(delivery: Delivery): void {
-  if (delivery.status === 'Annulée') {
-    this.showErrorMessage('Impossible de modifier une livraison annulée');
-    return;
+  // Méthode appelée lors du changement de recherche
+  onDeliverySearchChange(): void {
+    this.filterDeliveries();
   }
-  console.log('Modifier la livraison:', delivery);
-  // Logique pour modifier la livraison
-}
 
-downloadDeliveryProof(delivery: Delivery): void {
-  if (delivery.proof === 'Aucune') {
-    this.showErrorMessage('Aucune preuve disponible pour cette livraison');
-    return;
+  // Méthode appelée lors du changement de filtre de statut
+  onDeliveryStatusFilterChange(): void {
+    this.filterDeliveries();
   }
-  console.log('Télécharger la preuve:', delivery.proof);
-  // Logique pour télécharger la preuve
-}
 
-deleteDelivery(delivery: Delivery): void {
-  const confirmMessage = `Êtes-vous sûr de vouloir supprimer la livraison ${delivery.number} ?`;
-  if (confirm(confirmMessage)) {
-    console.log('Supprimer la livraison:', delivery);
-    // Logique pour supprimer la livraison
+  // Méthode pour réinitialiser les filtres des livraisons
+  resetDeliveryFilters(): void {
+    this.searchDeliveryTerm = '';
+    this.statusDeliveryFilter = '';
+    this.filteredDeliveries = [...this.deliveries];
+    this.deliveryCurrentPage = 0;
+    this.updatePaginatedDeliveries();
   }
-}
 
-// Méthode pour obtenir l'icône selon le type de preuve
-getDeliveryProofIcon(proof: string): string {
-  if (proof === 'Aucune') return '';
-  
-  const extension = proof.split('.').pop()?.toLowerCase();
-  switch (extension) {
-    case 'pdf':
-      return '📄';
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-      return '🖼️';
-    case 'doc':
-    case 'docx':
-      return '📝';
-    default:
-      return '📎';
+  // Méthode pour les actions sur les livraisons
+  onDeliveryAction(action: string, delivery: Delivery, event: Event): void {
+    event.stopPropagation();
+    this.closeDropdown();
+
+    switch (action) {
+      case 'voir':
+        this.viewDeliveryDetails(delivery);
+        break;
+      case 'modifier':
+        this.editDelivery(delivery);
+        break;
+      case 'telecharger':
+        this.downloadDeliveryProof(delivery);
+        break;
+      case 'supprimer':
+        this.deleteDelivery(delivery);
+        break;
+    }
   }
-}
 
-// Modifier la méthode loadDeliveries existante pour intégrer le filtrage
-loadDeliveries(): void {
-  this.loading = true;
-  
-  if (!this.propertyId || this.propertyId <= 0) {
-    console.error('ID de propriété invalide:', this.propertyId);
-    this.showErrorMessage('ID de propriété invalide');
-    this.loading = false;
-    return;
+  // Méthodes d'action pour les livraisons
+  viewDeliveryDetails(delivery: Delivery): void {
+    console.log('Voir détails de la livraison:', delivery);
+    // Logique pour afficher les détails
   }
-  
-  console.log(`Chargement des livraisons pour la propriété ${this.propertyId}, page ${this.deliveryCurrentPage}`);
-  
-  this.materialsService.getLivraison(this.propertyId, 0, 10) // Charger toutes les livraisons pour le filtrage côté client
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: any) => {
-        console.log('Livraisons reçues:', response);
 
-        if (response && Array.isArray(response.content)) {
-          this.deliveries = response.content.map((delivery: any) => ({
-            ...delivery,
-            date: delivery.orderDate, // Garder les données brutes
-            formattedDate: this.formatDeliveryDate(delivery.orderDate), // Ajouter une version formatée
-          }));
-          
-          // Initialiser les livraisons filtrées
-          this.filteredDeliveries = [...this.deliveries];
-          this.updatePaginatedDeliveries();
-        } else {
-          console.warn('Structure de réponse inattendue:', response);
+  editDelivery(delivery: Delivery): void {
+    if (delivery.status === 'Annulée') {
+      this.showErrorMessage('Impossible de modifier une livraison annulée');
+      return;
+    }
+    console.log('Modifier la livraison:', delivery);
+    // Logique pour modifier la livraison
+  }
+
+  downloadDeliveryProof(delivery: Delivery): void {
+    if (delivery.proof === 'Aucune') {
+      this.showErrorMessage('Aucune preuve disponible pour cette livraison');
+      return;
+    }
+    console.log('Télécharger la preuve:', delivery.proof);
+    // Logique pour télécharger la preuve
+  }
+
+  deleteDelivery(delivery: Delivery): void {
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer la livraison ${delivery.number} ?`;
+    if (confirm(confirmMessage)) {
+      console.log('Supprimer la livraison:', delivery);
+      // Logique pour supprimer la livraison
+    }
+  }
+
+  // Méthode pour obtenir l'icône selon le type de preuve
+  getDeliveryProofIcon(proof: string): string {
+    if (proof === 'Aucune') return '';
+
+    const extension = proof.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return '📄';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return '🖼️';
+      case 'doc':
+      case 'docx':
+        return '📝';
+      default:
+        return '📎';
+    }
+  }
+
+  // Modifier la méthode loadDeliveries existante pour intégrer le filtrage
+  loadDeliveries(): void {
+    this.loading = true;
+
+    if (!this.propertyId || this.propertyId <= 0) {
+      console.error('ID de propriété invalide:', this.propertyId);
+      this.showErrorMessage('ID de propriété invalide');
+      this.loading = false;
+      return;
+    }
+
+    console.log(`Chargement des livraisons pour la propriété ${this.propertyId}, page ${this.deliveryCurrentPage}`);
+
+    this.materialsService.getLivraison(this.propertyId, 0, 10) // Charger toutes les livraisons pour le filtrage côté client
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          console.log('Livraisons reçues:', response);
+
+          if (response && Array.isArray(response.content)) {
+            this.deliveries = response.content.map((delivery: any) => ({
+              ...delivery,
+              date: delivery.orderDate, // Garder les données brutes
+              formattedDate: this.formatDeliveryDate(delivery.orderDate), // Ajouter une version formatée
+            }));
+
+            // Initialiser les livraisons filtrées
+            this.filteredDeliveries = [...this.deliveries];
+            this.updatePaginatedDeliveries();
+          } else {
+            console.warn('Structure de réponse inattendue:', response);
+            this.deliveries = [];
+            this.filteredDeliveries = [];
+            this.paginatedDeliveries = [];
+          }
+
+          this.loading = false;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors du chargement des livraisons:', error);
+          this.loading = false;
           this.deliveries = [];
           this.filteredDeliveries = [];
           this.paginatedDeliveries = [];
+
+          if (error.status === 403) {
+            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
+          } else if (error.status === 401) {
+            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
+          } else if (error.status === 404) {
+            console.log('Aucune livraison trouvée pour cette propriété');
+            this.showErrorMessage('Aucune livraison trouvée');
+          } else {
+            this.showErrorMessage('Erreur lors du chargement des livraisons');
+          }
         }
-        
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Erreur lors du chargement des livraisons:', error);
-        this.loading = false;
-        this.deliveries = [];
-        this.filteredDeliveries = [];
-        this.paginatedDeliveries = [];
-        
-        if (error.status === 403) {
-          this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-        } else if (error.status === 401) {
-          this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-        } else if (error.status === 404) {
-          console.log('Aucune livraison trouvée pour cette propriété');
-          this.showErrorMessage('Aucune livraison trouvée');
-        } else {
-          this.showErrorMessage('Erreur lors du chargement des livraisons');
-        }
-      }
-    });
-}
-
-// Modifier les méthodes de pagination existantes
-previousDeliveryPage(): void {
-  if (this.deliveryCurrentPage > 0) {
-    this.deliveryCurrentPage--;
-    this.updatePaginatedDeliveries();
+      });
   }
-}
 
-nextDeliveryPage(): void {
-  if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
-    this.deliveryCurrentPage++;
-    this.updatePaginatedDeliveries();
+  // Modifier les méthodes de pagination existantes
+  previousDeliveryPage(): void {
+    if (this.deliveryCurrentPage > 0) {
+      this.deliveryCurrentPage--;
+      this.updatePaginatedDeliveries();
+    }
   }
-}
 
-goToDeliveryPage(page: number): void {
-  if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
-    this.deliveryCurrentPage = page;
-    this.updatePaginatedDeliveries();
+  nextDeliveryPage(): void {
+    if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
+      this.deliveryCurrentPage++;
+      this.updatePaginatedDeliveries();
+    }
   }
-}
-private normalizeDeliveryStatus(displayStatus: string): string[] {
-  const statusMapping: { [key: string]: string[] } = {
-    'livré': ['DELIVERY', 'DELIVERED'],
-    'en cours': ['IN_DELIVERY'],
-    'annulé': ['CANCELLED'],
-    'en attente': ['PENDING']
-  };
-  
-  return statusMapping[displayStatus.toLowerCase()] || [];
-}
-  
+
+  goToDeliveryPage(page: number): void {
+    if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
+      this.deliveryCurrentPage = page;
+      this.updatePaginatedDeliveries();
+    }
+  }
+  private normalizeDeliveryStatus(displayStatus: string): string[] {
+    const statusMapping: { [key: string]: string[] } = {
+      'livré': ['DELIVERY', 'DELIVERED'],
+      'en cours': ['IN_DELIVERY'],
+      'annulé': ['CANCELLED'],
+      'en attente': ['PENDING']
+    };
+
+    return statusMapping[displayStatus.toLowerCase()] || [];
+  }
+
 }

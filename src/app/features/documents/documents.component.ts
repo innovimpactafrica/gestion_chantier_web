@@ -100,7 +100,8 @@ export class DocumentsComponent implements OnInit {
   showAddDocumentModal = false;
   currentPropertyId = 19; // Vous pouvez recevoir cet ID via les paramètres de route
   selectedFile: File | null = null; // Ajout pour stocker le fichier sélectionné
-
+  searchQuery: string = '';
+  selectedStatus: string = '';
   // Formulaire pour nouveau document
   newDocument: CreateDocumentRequest = {
     title: '',
@@ -188,7 +189,7 @@ export class DocumentsComponent implements OnInit {
       'assets/images/doc3.png',
       'assets/images/doc4.png'
     ];
-    
+
     return thumbnails[Math.floor(Math.random() * thumbnails.length)];
   }
 
@@ -279,34 +280,34 @@ export class DocumentsComponent implements OnInit {
   saveDocument(): void {
     if (this.isFormValid()) {
       this.isLoading = true;
-  
+
       // Fonction pour convertir yyyy-MM-dd en dd-MM-yyyy
       const formatDateToBackend = (date: string): string => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
       };
-  
+
       // Construction du FormData
       const formData = new FormData();
-      
+
       // Ajouter tous les champs du formulaire
       formData.append('title', this.newDocument.title || '');
       formData.append('description', this.newDocument.description || '');
       formData.append('realEstatePropertyId', this.newDocument.realEstatePropertyId.toString() || '');
       formData.append('typeId', this.newDocument.typeId.toString() || '');
-      
+
       // Convertir les dates au format dd-MM-yyyy
       formData.append('startDate', formatDateToBackend(this.newDocument.startDate) || '');
       formData.append('endDate', formatDateToBackend(this.newDocument.endDate) || '');
-      
+
       // Ajouter le fichier s'il est sélectionné
       if (this.selectedFile) {
         formData.append('file', this.selectedFile, this.selectedFile.name);
       } else {
         formData.append('file', '');
       }
-  
+
       // Log des données envoyées pour débogage
       console.log('Données envoyées au backend:', {
         title: this.newDocument.title,
@@ -317,7 +318,7 @@ export class DocumentsComponent implements OnInit {
         endDate: formatDateToBackend(this.newDocument.endDate),
         file: this.selectedFile ? this.selectedFile.name : 'Aucun fichier'
       });
-  
+
       this.projectBudgetService.saveDocument(formData).subscribe({
         next: (response: Document) => {
           console.log('Document créé avec succès:', response);
@@ -336,7 +337,7 @@ export class DocumentsComponent implements OnInit {
       alert('Veuillez remplir tous les champs obligatoires');
     }
   }
-  
+
   isFormValid(): boolean {
     const isValid = !!(
       this.newDocument.title.trim() &&

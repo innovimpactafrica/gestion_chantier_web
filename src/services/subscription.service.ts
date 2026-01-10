@@ -388,7 +388,7 @@ export class SubscriptionService {
           this.oneTouchConfig.domainName,
           successUrl,
           failedUrl,
-          10,
+          1,
           'Dakar',
           email,
           clientFirstName,

@@ -45,7 +45,7 @@
       </div>
 
       <!-- Onglets de navigation -->
-      <div class="flex mb-8">
+      <!-- <div class="flex mb-8">
         <button class="flex-1 py-2 px-4 text-center rounded-lg font-medium transition-colors"
           [class.bg-orange-500]="currentActiveTab === 'connexion'" 
           [class.text-white]="currentActiveTab === 'connexion'"
@@ -54,7 +54,7 @@
           (click)="setActiveTab('connexion')">
           Connexion
         </button>
-      </div>
+      </div> -->
 
       <!-- Formulaire de connexion -->
       <form [formGroup]="currentLoginForm" (ngSubmit)="onSubmit()" *ngIf="currentActiveTab === 'connexion'">
