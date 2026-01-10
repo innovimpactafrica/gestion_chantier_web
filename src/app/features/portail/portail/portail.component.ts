@@ -60,8 +60,8 @@ interface Translations {
     ]),
     trigger('planFade', [
       transition('* => *', [
-        style({ opacity: 0, transform: 'scale(0.95)' }),
-        animate('400ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+        style({ opacity: 0 }),
+        animate('400ms ease-out', style({ opacity: 1 }))
       ])
     ])
   ]
@@ -95,6 +95,10 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   planNames: string[] = [];
   currentNameIndex: number = 0;
   animationKey: number = 0;
+
+  showHelpModal = false;
+  emailAddress = 'contact@btpconnect.sn';
+  phoneNumber = '+221 77 123 45 67';
 
   // Traductions statiques
   private translations: Translations = {
@@ -577,9 +581,11 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
         };
       }
 
-      if (plan.label === 'PREMIUM') {
+      const label = plan.label?.toUpperCase() || '';
+
+      if (label === 'PREMIUM') {
         this.allPlansByName[groupName].premium = plan;
-      } else if (plan.label === 'BASIC') {
+      } else if (label === 'BASIC') {
         this.allPlansByName[groupName].basic = plan;
       }
     });
@@ -728,5 +734,47 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     this.mobileMenuOpen = false;
+  }
+
+  /**
+   * Ouvre la modal Aide & Support
+   */
+  openHelpModal(): void {
+    this.showHelpModal = true;
+  }
+
+  /**
+   * Ferme la modal Aide & Support
+   */
+  closeHelpModal(): void {
+    this.showHelpModal = false;
+  }
+
+  /**
+   * Copie le texte dans le presse-papiers
+   */
+  copyToClipboard(text: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          console.log('Copié dans le presse-papiers:', text);
+        }).catch(err => {
+          console.error('Erreur lors de la copie:', err);
+        });
+      } else {
+        // Fallback pour les anciens navigateurs
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          console.log('Copié dans le presse-papiers:', text);
+        } catch (err) {
+          console.error('Erreur lors de la copie:', err);
+        }
+        document.body.removeChild(textarea);
+      }
+    }
   }
 }

@@ -65,7 +65,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       enCours: 0,
       terminees: 0,
       livrees: 0,
-      total: 0
+      total: 0,
+      percentageCompletees: 0,
+      percentageEnCours: 0,
+      percentageInitiees: 0,
+      percentageNonInitiees: 0
     },
     avancement: {
       pourcentage: 0,
@@ -113,76 +117,76 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedPhoto: any = null;
   currentImageIndex: number = 0;
 
-// Méthodes pour gérer le modal des photos
+  // Méthodes pour gérer le modal des photos
 
-/**
- * Ouvre le modal pour afficher une photo
- * @param photo - L'objet photo à afficher
- */
-openPhotoModal(photo: any): void {
-  this.selectedPhoto = photo;
-  this.currentImageIndex = 0;
+  /**
+   * Ouvre le modal pour afficher une photo
+   * @param photo - L'objet photo à afficher
+   */
+  openPhotoModal(photo: any): void {
+    this.selectedPhoto = photo;
+    this.currentImageIndex = 0;
 
-  // Empêcher le scroll de la page quand le modal est ouvert
-  document.body.style.overflow = 'hidden';
-}
-  getBaseFile(){
+    // Empêcher le scroll de la page quand le modal est ouvert
+    document.body.style.overflow = 'hidden';
+  }
+  getBaseFile() {
     return environment.filebaseUrl;
   }
-/**
- * Ferme le modal des photos
- */
-closePhotoModal(): void {
-  this.selectedPhoto = null;
-  this.currentImageIndex = 0;
+  /**
+   * Ferme le modal des photos
+   */
+  closePhotoModal(): void {
+    this.selectedPhoto = null;
+    this.currentImageIndex = 0;
 
-  // Réactiver le scroll de la page
-  document.body.style.overflow = 'auto';
-}
-
-/**
- * Navigue vers l'image précédente dans le modal
- */
-previousImage(): void {
-  if (!this.selectedPhoto?.images?.length) return;
-
-  this.currentImageIndex = this.currentImageIndex > 0
-    ? this.currentImageIndex - 1
-    : this.selectedPhoto.images.length - 1;
-
-  // Mettre à jour l'image source actuelle
-  this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
-}
-
-/**
- * Navigue vers l'image suivante dans le modal
- */
-nextImage(): void {
-  if (!this.selectedPhoto?.images?.length) return;
-
-  this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1
-    ? this.currentImageIndex + 1
-    : 0;
-
-  // Mettre à jour l'image source actuelle
-  this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
-}
-
-/**
- * Sélectionne une image spécifique par son index
- * @param index - Index de l'image à sélectionner
- */
-selectImageIndex(index: number): void {
-  if (!this.selectedPhoto?.images?.length || index < 0 || index >= this.selectedPhoto.images.length) {
-    return;
+    // Réactiver le scroll de la page
+    document.body.style.overflow = 'auto';
   }
 
-  this.currentImageIndex = index;
-  this.selectedPhoto.src = this.selectedPhoto.images[index];
-}
+  /**
+   * Navigue vers l'image précédente dans le modal
+   */
+  previousImage(): void {
+    if (!this.selectedPhoto?.images?.length) return;
 
-// Méthode pour gérer la fermeture du modal avec la touche Escape
-// À ajouter dans ngAfterViewInit() ou ngOnInit()
+    this.currentImageIndex = this.currentImageIndex > 0
+      ? this.currentImageIndex - 1
+      : this.selectedPhoto.images.length - 1;
+
+    // Mettre à jour l'image source actuelle
+    this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
+  }
+
+  /**
+   * Navigue vers l'image suivante dans le modal
+   */
+  nextImage(): void {
+    if (!this.selectedPhoto?.images?.length) return;
+
+    this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1
+      ? this.currentImageIndex + 1
+      : 0;
+
+    // Mettre à jour l'image source actuelle
+    this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
+  }
+
+  /**
+   * Sélectionne une image spécifique par son index
+   * @param index - Index de l'image à sélectionner
+   */
+  selectImageIndex(index: number): void {
+    if (!this.selectedPhoto?.images?.length || index < 0 || index >= this.selectedPhoto.images.length) {
+      return;
+    }
+
+    this.currentImageIndex = index;
+    this.selectedPhoto.src = this.selectedPhoto.images[index];
+  }
+
+  // Méthode pour gérer la fermeture du modal avec la touche Escape
+  // À ajouter dans ngAfterViewInit() ou ngOnInit()
 
 
   constructor(
@@ -461,12 +465,28 @@ selectImageIndex(index: number): void {
   private processEtudes(): any {
     // Données mockées pour les études
     // À remplacer par l'appel au backend une fois implémenté
-    return {
+    const data = {
       enEnsemble: 28,
       enCours: 11,
       terminees: 9,
       livrees: 8,
       total: 28
+    };
+
+    // Calculate percentages dynamically
+    const total = data.total || 1; // Avoid division by zero
+    const completees = data.terminees || 0;
+    const enCours = data.enCours || 0;
+    const initiees = data.livrees || 0;
+    const nonInitiees = Math.max(0, total - completees - enCours - initiees);
+
+    return {
+      ...data,
+      // Dynamic percentages for the distribution chart
+      percentageCompletees: Math.round((completees / total) * 100),
+      percentageEnCours: Math.round((enCours / total) * 100),
+      percentageInitiees: Math.round((initiees / total) * 100),
+      percentageNonInitiees: Math.round((nonInitiees / total) * 100)
     };
   }
 
@@ -533,8 +553,8 @@ selectImageIndex(index: number): void {
         textClass = 'text-red-600';
         // Force le label si nécessaire, ou garde l'original s'il est déjà explicite
         if (!statusLabel.includes('Critique')) {
-            // Optionnel: on pourrait changer le label ici, mais on garde celui du back pour l'instant
-            // sauf pour la couleur qui est forcée.
+          // Optionnel: on pourrait changer le label ici, mais on garde celui du back pour l'instant
+          // sauf pour la couleur qui est forcée.
         }
       } else if (ratio <= 1.5) {
         statusClass = 'bg-orange-500';
@@ -737,134 +757,134 @@ selectImageIndex(index: number): void {
     this.createRepartitionChart();
   }
 
- private createProgressChart(): void {
-  if (!this.isBrowser || !this.progressChart || !this.dashboardData.phases?.length) {
-    return;
-  }
+  private createProgressChart(): void {
+    if (!this.isBrowser || !this.progressChart || !this.dashboardData.phases?.length) {
+      return;
+    }
 
-  const ctx = this.progressChart.nativeElement.getContext('2d');
-  if (!ctx) return;
+    const ctx = this.progressChart.nativeElement.getContext('2d');
+    if (!ctx) return;
 
-  const config: ChartConfiguration<'bar'> = {
-    type: 'bar',
-    data: {
-      labels: this.dashboardData.phases.map(p => p.nom),
-      datasets: [{
-        data: this.dashboardData.phases.map(p => p.pourcentage),
-        backgroundColor: this.dashboardData.phases.map(p => p.couleur),
+    const config: ChartConfiguration<'bar'> = {
+      type: 'bar',
+      data: {
+        labels: this.dashboardData.phases.map(p => p.nom),
+        datasets: [{
+          data: this.dashboardData.phases.map(p => p.pourcentage),
+          backgroundColor: this.dashboardData.phases.map(p => p.couleur),
 
-        borderRadius: 0,          // 🔥 coins carrés
-        barThickness: 65          // 🔥 barres plus larges
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
+          borderRadius: 0,          // 🔥 coins carrés
+          barThickness: 65          // 🔥 barres plus larges
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            stepSize: 20   // chiffres visibles (0,20,40…)
-          },
-          grid: {
-            display: true,
-            color: '#E5E7EB'
-          },
-          border: {
-            display: false
-          }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
         },
-        x: {
-          grid: {
-            display: false
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              stepSize: 20   // chiffres visibles (0,20,40…)
+            },
+            grid: {
+              display: true,
+              color: '#E5E7EB'
+            },
+            border: {
+              display: false
+            }
           },
-          border: {
-            display: false
+          x: {
+            grid: {
+              display: false
+            },
+            border: {
+              display: false
+            }
           }
         }
       }
+    };
+
+    if (this.progressChartInstance) {
+      this.progressChartInstance.destroy();
     }
-  };
 
-  if (this.progressChartInstance) {
-    this.progressChartInstance.destroy();
+    this.progressChartInstance = new Chart(ctx, config);
   }
-
-  this.progressChartInstance = new Chart(ctx, config);
-}
 
 
   private createIncidentsChart(): void {
-  if (!this.isBrowser || !this.incidentsChart) return;
+    if (!this.isBrowser || !this.incidentsChart) return;
 
-  const ctx = this.incidentsChart.nativeElement.getContext('2d');
-  if (!ctx) return;
+    const ctx = this.incidentsChart.nativeElement.getContext('2d');
+    if (!ctx) return;
 
-  const config: ChartConfiguration<'line'> = {
-    type: 'line',
-    data: {
-      labels: this.dashboardData.incidents.labels,
-      datasets: [{
-        data: this.dashboardData.incidents.donnees,
-        borderColor: '#FF6B35',
-        backgroundColor: 'rgba(255, 107, 53, 0.12)',
-        fill: true,
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: this.dashboardData.incidents.labels,
+        datasets: [{
+          data: this.dashboardData.incidents.donnees,
+          borderColor: '#FF6B35',
+          backgroundColor: 'rgba(255, 107, 53, 0.12)',
+          fill: true,
 
-        tension: 0, // 🔥 ligne droite
+          tension: 0, // 🔥 ligne droite
 
-        pointRadius: 5,
-        pointHoverRadius: 6,
-        pointBackgroundColor: '#FFFFFF', // 🔥 points blancs
-        pointBorderColor: '#FF6B35',
-        pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#FFFFFF', // 🔥 points blancs
+          pointBorderColor: '#FF6B35',
+          pointBorderWidth: 2,
 
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          enabled: true,
-          displayColors: false
-        }
+          borderWidth: 2
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1,
-            color: '#6B7280',
-            font: { size: 12 }
-          },
-          grid: {
-            color: '#E5E7EB'
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            displayColors: false
           }
         },
-        x: {
-          ticks: {
-            color: '#6B7280',
-            font: { size: 12 }
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              color: '#6B7280',
+              font: { size: 12 }
+            },
+            grid: {
+              color: '#E5E7EB'
+            }
           },
-          grid: {
-            display: false
+          x: {
+            ticks: {
+              color: '#6B7280',
+              font: { size: 12 }
+            },
+            grid: {
+              display: false
+            }
           }
         }
       }
-    }
-  };
+    };
 
-  if (this.incidentsChartInstance) {
-    this.incidentsChartInstance.destroy();
+    if (this.incidentsChartInstance) {
+      this.incidentsChartInstance.destroy();
+    }
+    this.incidentsChartInstance = new Chart(ctx, config);
   }
-  this.incidentsChartInstance = new Chart(ctx, config);
-}
 
 
   // Méthode pour mettre à jour les données du graphique des incidents

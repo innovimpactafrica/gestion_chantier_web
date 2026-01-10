@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50 overflow-x-hidden">
     <!-- Header avec Navigation et Toggle de langue -->
     <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
-        <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="max-w-screen-2xl 2xl:max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
             <div class="flex justify-between items-center w-full">
                 <!-- Logo -->
                 <button (click)="scrollToSection('accueil', $event)" class="flex items-center space-x-2 flex-shrink-0">
@@ -84,6 +84,16 @@
                             </svg>
                         </div>
                     </div>
+
+                    <!-- Button Help -->
+                    <button (click)="openHelpModal()"
+                        class="ml-4 p-2 hover:opacity-80 transition-opacity flex-shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2.25C6.615 2.25 2.25 6.615 2.25 12C2.25 17.385 6.615 21.75 12 21.75C17.385 21.75 21.75 17.385 21.75 12C21.75 6.615 17.385 2.25 12 2.25ZM12 14.747C12.1989 14.747 12.3897 14.826 12.5303 14.9667C12.671 15.1073 12.75 15.2981 12.75 15.497V15.997C12.75 16.1959 12.671 16.3867 12.5303 16.5273C12.3897 16.668 12.1989 16.747 12 16.747C11.8011 16.747 11.6103 16.668 11.4697 16.5273C11.329 16.3867 11.25 16.1959 11.25 15.997V15.497C11.25 15.2981 11.329 15.1073 11.4697 14.9667C11.6103 14.826 11.8011 14.747 12 14.747ZM13.872 7.933C14.416 8.415 14.75 9.121 14.75 9.99C14.75 10.63 14.586 11.128 14.3 11.533C14.044 11.898 13.712 12.147 13.477 12.323L13.45 12.343C13.187 12.541 13.034 12.663 12.926 12.817C12.836 12.944 12.75 13.134 12.75 13.497C12.75 13.6959 12.671 13.8867 12.5303 14.0273C12.3897 14.168 12.1989 14.247 12 14.247C11.8011 14.247 11.6103 14.168 11.4697 14.0273C11.329 13.8867 11.25 13.6959 11.25 13.497C11.25 12.857 11.414 12.357 11.7 11.953C11.956 11.589 12.288 11.34 12.523 11.163L12.55 11.143C12.813 10.945 12.966 10.823 13.074 10.669C13.164 10.542 13.25 10.352 13.25 9.99C13.25 9.53 13.084 9.24 12.878 9.056C12.6322 8.85025 12.3205 8.74016 12 8.746C11.66 8.746 11.343 8.86 11.123 9.056C10.916 9.239 10.75 9.53 10.75 9.99C10.75 10.1889 10.671 10.3797 10.5303 10.5203C10.3897 10.661 10.1989 10.74 10 10.74C9.80109 10.74 9.61032 10.661 9.46967 10.5203C9.32902 10.3797 9.25 10.1889 9.25 9.99C9.25 9.121 9.584 8.415 10.127 7.933C10.6472 7.48423 11.313 7.24005 12 7.246C12.66 7.246 13.343 7.464 13.872 7.933Z"
+                                fill="#FF5C02" />
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -175,15 +185,16 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="accueil" class="min-h-screen flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16">
-        <div class="w-full max-w-screen-2xl mx-auto">
+    <section id="accueil"
+        class="min-h-screen flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16 overflow-hidden">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <!-- Left Content -->
-                <div class="space-y-6 animate-fade-in-left">
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <div class="space-y-6 2xl:space-y-8 animate-fade-in-left">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl font-bold text-gray-900 leading-tight">
                         {{ t('hero.title') }}
                     </h1>
-                    <p class="text-lg text-gray-600 leading-relaxed">
+                    <p class="text-lg 2xl:text-3xl text-gray-600 leading-relaxed">
                         {{ t('hero.description') }}
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
@@ -202,7 +213,7 @@
                 <div class="relative animate-fade-in-right flex justify-end">
                     <div class="w-full hover:scale-105 transition-transform duration-300">
                         <div class="w-full">
-                            <div class="text-gray-400">
+                            <div class="text-gray-400 transform scale-100 2xl:scale-125 origin-center">
                                 <img src="assets/images/appli.png" alt="" class="w-full h-auto">
                             </div>
                         </div>
@@ -214,7 +225,7 @@
 
     <!-- À propos Section -->
     <section id="apropos" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <!-- Left Content - Images -->
                 <div class="w-full hover:scale-105 transition-transform duration-300">
@@ -224,15 +235,15 @@
                 </div>
 
                 <!-- Right Content - Text -->
-                <div class="space-y-6 animate-fade-in-right">
+                <div class="space-y-6 2xl:space-y-8 animate-fade-in-right 2xl:pl-16">
                     <div
                         class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold">
                         {{ t('about.badge') }}
                     </div>
-                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900">
+                    <h2 class="text-4xl md:text-5xl 2xl:text-6xl font-bold text-gray-900">
                         {{ t('about.title') }}
                     </h2>
-                    <p class="text-lg text-gray-600 leading-relaxed">
+                    <p class="text-lg 2xl:text-xl text-gray-600 leading-relaxed">
                         {{ t('about.description') }}
                     </p>
                     <ul class="space-y-4">
@@ -331,7 +342,7 @@
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
         class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-cover bg-center">
-        <div class="max-w-screen-2xl mx-auto ">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto ">
             <div class="text-center mb-4 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -456,48 +467,51 @@
             </div>
 
             <!-- Cartes de pricing -->
-            <div *ngIf="!isLoadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div *ngIf="!isLoadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto">
                 <!-- Gratuit (essai) - Statique -->
-                <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ t('pricing.free.title') }}</h3>
-                    <p class="text-gray-600 mb-6">{{ t('pricing.free.description') }}</p>
+                <div
+                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200 min-h-[500px] flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ t('pricing.free.title') }}</h3>
+                        <p class="text-gray-600 mb-6">{{ t('pricing.free.description') }}</p>
 
-                    <div class="mb-8">
-                        <span class="text-4xl font-bold text-gray-900">0 FCFA</span>
-                    </div>
+                        <div class="mb-8">
+                            <span class="text-4xl font-bold text-gray-900">0 FCFA</span>
+                        </div>
 
-                    <div class="space-y-3 mb-8">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.free.feature1') }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.free.feature2') }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.free.feature3') }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.free.feature4') }}</span>
+                        <div class="space-y-3 mb-8">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.free.feature1') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.free.feature2') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.free.feature3') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.free.feature4') }}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -509,67 +523,75 @@
 
                 <!-- Plan PREMIUM (Dynamique avec animation - Recommandé) -->
                 <div *ngIf="currentPremiumPlan" [@planFade]="animationKey"
-                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
-                    <div class="absolute top-0 right-6 transform -translate-y-1/2">
-                        <span class="inline-block px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-medium">
-                            {{ t('pricing.recommended') }}
-                        </span>
-                    </div>
-
-                    <!-- Badge du type de plan avec animation -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <h3 class="text-2xl font-bold text-gray-900">{{ currentPremiumPlan.label }}</h3>
-                        <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                            {{ getCurrentName() }}
-                        </span>
-                    </div>
-
-                    <p class="text-gray-600 mb-6">{{ truncateDescription(currentPremiumPlan.description) }}</p>
-
-                    <div class="mb-8">
-                        <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentPremiumPlan.totalCost)
-                            }}</span>
-                        <span class="text-gray-600 ml-2">/ {{ currentPremiumPlan.installmentCount }} {{ currentLang ===
-                            'FR' ? 'mois' : 'months' }}</span>
-                    </div>
-
-                    <div class="space-y-3 mb-8">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700" *ngIf="currentPremiumPlan.unlimitedProjects">{{
-                                t('pricing.unlimited') }}</span>
-                            <span class="text-gray-700" *ngIf="!currentPremiumPlan.unlimitedProjects">
-                                {{ currentPremiumPlan.projectLimit }} {{ t('pricing.projects') }}
+                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative min-h-[500px] flex flex-col justify-between">
+                    <div>
+                        <div class="absolute top-0 right-6 transform -translate-y-1/2">
+                            <span
+                                class="inline-block px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-medium">
+                                {{ t('pricing.recommended') }}
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.premium.feature2') }}</span>
+
+                        <!-- Badge du type de plan avec animation -->
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">{{ currentPremiumPlan.label }}</h3>
+                            <span
+                                class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium whitespace-nowrap">
+                                {{ getCurrentName() }}
+                            </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.premium.feature3') }}</span>
+
+                        <div class="min-h-[48px]">
+                            <p class="text-gray-600 mb-6">{{ truncateDescription(currentPremiumPlan.description) }}</p>
                         </div>
-                        <div class="flex items-center gap-2" *ngIf="currentPremiumPlan.yearlyDiscountRate > 0">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ tReplace('pricing.discount', {rate:
-                                currentPremiumPlan.yearlyDiscountRate * 100}) }}</span>
+
+                        <div class="mb-8">
+                            <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentPremiumPlan.totalCost)
+                                }}</span>
+                            <span class="text-gray-600 ml-2">/ {{ currentPremiumPlan.installmentCount }} {{ currentLang
+                                ===
+                                'FR' ? 'mois' : 'months' }}</span>
+                        </div>
+
+                        <div class="space-y-3 mb-8">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700" *ngIf="currentPremiumPlan.unlimitedProjects">{{
+                                    t('pricing.unlimited') }}</span>
+                                <span class="text-gray-700" *ngIf="!currentPremiumPlan.unlimitedProjects">
+                                    {{ currentPremiumPlan.projectLimit }} {{ t('pricing.projects') }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.premium.feature2') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.premium.feature3') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2"
+                                [class.invisible]="!(currentPremiumPlan.yearlyDiscountRate > 0)">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ tReplace('pricing.discount', {rate:
+                                    (currentPremiumPlan.yearlyDiscountRate || 0) * 100}) }}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -581,68 +603,74 @@
 
                 <!-- Placeholder si PREMIUM non disponible -->
                 <div *ngIf="!currentPremiumPlan && !isLoadingPlans"
-                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-gray-200 relative">
+                    class="bg-white rounded-lg p-8 shadow-lg border-2 border-gray-200 relative min-h-[500px] flex items-center justify-center">
                     <p class="text-center text-gray-500">{{ t('pricing.notAvailable.premium') }}</p>
                 </div>
 
                 <!-- Plan BASIC (Dynamique avec animation) -->
                 <div *ngIf="currentBasicPlan" [@planFade]="animationKey"
-                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-
-                    <!-- Badge du type de plan avec animation -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <h3 class="text-2xl font-bold text-gray-900">{{ currentBasicPlan.label }}</h3>
-                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                            {{ getCurrentName() }}
-                        </span>
-                    </div>
-
-                    <p class="text-gray-600 mb-6">{{ truncateDescription(currentBasicPlan.description) }}</p>
-
-                    <div class="mb-8">
-                        <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentBasicPlan.totalCost)
-                            }}</span>
-                        <span class="text-gray-600 ml-2">/ {{ currentBasicPlan.installmentCount }} {{ currentLang ===
-                            'FR' ? 'mois' : 'months' }}</span>
-                    </div>
-
-                    <div class="space-y-3 mb-8">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700" *ngIf="currentBasicPlan.unlimitedProjects">{{
-                                t('pricing.unlimited') }}</span>
-                            <span class="text-gray-700" *ngIf="!currentBasicPlan.unlimitedProjects">
-                                {{ currentBasicPlan.projectLimit }} {{ t('pricing.projects') }}
+                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200 min-h-[500px] flex flex-col justify-between">
+                    <div>
+                        <!-- Badge du type de plan avec animation -->
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-2xl font-bold text-gray-900">{{ currentBasicPlan.label }}</h3>
+                            <span
+                                class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">
+                                {{ getCurrentName() }}
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.basic.feature2') }}</span>
+
+                        <div class="min-h-[48px]">
+                            <p class="text-gray-600 mb-6">{{ truncateDescription(currentBasicPlan.description) }}</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ t('pricing.basic.feature3') }}</span>
+
+                        <div class="mb-8">
+                            <span class="text-4xl font-bold text-gray-900">{{ formatAmount(currentBasicPlan.totalCost)
+                                }}</span>
+                            <span class="text-gray-600 ml-2">/ {{ currentBasicPlan.installmentCount }} {{ currentLang
+                                ===
+                                'FR' ? 'mois' : 'months' }}</span>
                         </div>
-                        <div class="flex items-center gap-2" *ngIf="currentBasicPlan.yearlyDiscountRate > 0">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">{{ tReplace('pricing.discount', {rate:
-                                currentBasicPlan.yearlyDiscountRate * 100}) }}</span>
+
+                        <div class="space-y-3 mb-8">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700" *ngIf="currentBasicPlan.unlimitedProjects">{{
+                                    t('pricing.unlimited') }}</span>
+                                <span class="text-gray-700" *ngIf="!currentBasicPlan.unlimitedProjects">
+                                    {{ currentBasicPlan.projectLimit }} {{ t('pricing.projects') }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.basic.feature2') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('pricing.basic.feature3') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2"
+                                [class.invisible]="!(currentBasicPlan.yearlyDiscountRate > 0)">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ tReplace('pricing.discount', {rate:
+                                    (currentBasicPlan.yearlyDiscountRate || 0) * 100}) }}</span>
+                            </div>
                         </div>
                     </div>
                     <button (click)="goToSubscription('basic')"
@@ -653,7 +681,7 @@
 
                 <!-- Placeholder si BASIC non disponible -->
                 <div *ngIf="!currentBasicPlan && !isLoadingPlans"
-                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+                    class="bg-white rounded-lg p-8 shadow-sm border border-gray-200 min-h-[500px] flex items-center justify-center">
                     <p class="text-center text-gray-500">{{ t('pricing.notAvailable.basic') }}</p>
                 </div>
             </div>
@@ -661,14 +689,14 @@
     </section>
     <!-- Section Téléchargez l'application -->
     <section id="telecharger-app" class="pt-20 pb-0 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Contenu gauche -->
                 <div>
                     <h2 class="text-4xl font-bold text-gray-900 mb-6">
                         {{ t('download.title') }}
                     </h2>
-                    <p class="text-lg text-gray-600 mb-8">
+                    <p class="text-4xl text-gray-600 mb-8">
                         {{ t('download.description') }}
                     </p>
 
@@ -793,7 +821,7 @@
         </div> -->
 
         <!-- Logos des entreprises - Slider animé style -->
-        <div class="max-w-screen-2xl mx-auto py-12">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto py-12">
 
             <!-- Loader state -->
             <div *ngIf="isLoadingPartners()" class="flex justify-center items-center py-8">
@@ -831,7 +859,7 @@
 
     <!-- Footer -->
     <footer class="bg-[#1a1f2e] text-white py-10 px-6 sm:px-8 lg:px-12 xl:px-16">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- Colonne 1 -->
                 <div>
@@ -886,7 +914,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
-                            <a href="tel:+221771234567" class="text-gray-400 hover:text-white transition-colors">
+                            <a href="tel:+ 221 33 971 41 12" class="text-gray-400 hover:text-white transition-colors">
                                 + 221 33 971 41 12
                             </a>
                         </li>
@@ -939,3 +967,103 @@
             </div>
         </div>
     </footer>
+
+    <!-- Modal Aide & Support -->
+    <div *ngIf="showHelpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        (click)="closeHelpModal()">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-in" (click)="$event.stopPropagation()">
+            <!-- Header -->
+            <div
+                class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 flex items-center justify-between rounded-t-lg">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    Aide & Support
+                </h2>
+                <button (click)="closeHelpModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 space-y-6">
+                <!-- Description -->
+                <p class="text-gray-600 text-sm">Contactez-nous pour toute question ou assistance. Nous sommes là pour
+                    vous
+                    aider!</p>
+
+                <!-- Email Contact -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-orange-300 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Email
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+                        <span class="text-gray-900 font-medium">{{ emailAddress }}</span>
+                        <button (click)="copyToClipboard(emailAddress)"
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            Copier
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Phone Contact -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-orange-300 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            Téléphone
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+                        <span class="text-gray-900 font-medium">{{ phoneNumber }}</span>
+                        <button (click)="copyToClipboard(phoneNumber)"
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            Copier
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hours -->
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <p class="text-sm text-orange-900">
+                        <span class="font-semibold">Heures de support:</span> Lundi - Vendredi, 08:00 - 18:00
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-lg">
+                <button (click)="closeHelpModal()"
+                    class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>

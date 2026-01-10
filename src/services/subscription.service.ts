@@ -519,6 +519,48 @@ export class SubscriptionService {
     }
   }
 
+   async initiateSubscriptionPaymentbis(
+    userId: number,
+    plan: SubscriptionPlan,
+    isYearly: boolean
+  ): Promise<void> {
+   
+    // Calcul du montant et des mois
+    const months = isYearly ? 12 : 1;
+    let amount = plan.totalCost;
+
+    if (isYearly && plan.yearlyDiscountRate > 0) {
+      const yearlyPrice = plan.totalCost * 12;
+      const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
+      amount = yearlyPrice - discount;
+    } else if (isYearly) {
+      amount = plan.totalCost * 12;
+    }
+
+    console.log('💰 Montant calculé:', amount);
+    console.log('📅 Nombre de mois:', months);
+
+    // Validation des données utilisateur
+    
+
+    // Lancement du paiement OneTouch
+    try {
+      await this.callTouchPay(
+        amount,
+        '',
+        '',
+        '',
+        '',
+        userId,
+        plan.id,
+        months
+      );
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initiation du paiement:', error);
+      throw error;
+    }
+  }
+
   /**
    * Récupère les headers d'authentification avec validation
    */
