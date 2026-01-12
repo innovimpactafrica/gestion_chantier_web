@@ -118,22 +118,31 @@
         </button>
       </div>
 
-      <!-- Pagination Controls pour la colonne -->
-      <div *ngIf="column.tasks.length > tasksPerColumn" class="flex justify-center mb-3">
-        <button (click)="scrollColumnUp(column.id)" [disabled]="!canScrollUp(column.id)"
-          class="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-          </svg>
-        </button>
-      </div>
-
       <!-- Task Cards Container avec scroll -->
-      <div class="space-y-4 flex-1 overflow-hidden">
-        <div *ngFor="let task of getVisibleTasks(column); trackBy: trackByTaskId"
-          class="bg-white border border-gray-200 rounded-xl p-5 transition-all duration-200 cursor-pointer w-full hover:shadow-md"
+      <style>
+        .task-scroll-container::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        .task-scroll-container::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .task-scroll-container::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+        }
+
+        .task-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      </style>
+      <div class="space-y-4 flex-1 overflow-y-auto pr-1 task-scroll-container"
+        [style.max-height]="column.tasks.length > 3 ? '600px' : 'auto'">
+        <div *ngFor="let task of column.tasks; trackBy: trackByTaskId"
+          class="bg-white border border-gray-200 rounded-xl p-5 transition-all duration-300 cursor-pointer w-full hover:shadow-lg hover:scale-[1.02] transform"
           draggable="true" (dragstart)="onDragStart($event, task)" (dragend)="onDragEnd($event)"
-          [ngClass]="{'opacity-50': isDragging && draggedTask?.id === task.id}">
+          (click)="openDetailModal(task)" [ngClass]="{'opacity-50': isDragging && draggedTask?.id === task.id}">
 
           <!-- Task Image (if available) -->
           <div *ngIf="task.pictures && task.pictures.length > 0" class="mb-4">
@@ -154,9 +163,8 @@
             </span>
           </div>
 
-          <!-- Task Title - Clickable pour afficher les détails -->
-          <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2 cursor-pointer hover:text-orange-500"
-            (click)="openDetailModal(task)">
+          <!-- Task Title -->
+          <h4 class="font-bold text-gray-900 text-sm mb-2 line-clamp-2 hover:text-orange-500 transition-colors">
             {{ task.title }}
           </h4>
 
@@ -165,7 +173,7 @@
 
           <!-- Task Tag -->
           <div class="mb-3">
-            <span class="inline-block text-xs px-2 py-1 rounded"
+            <span class="inline-block text-xs px-2 py-1 rounded font-medium"
               [ngClass]="[task.tag.colorClass, task.tag.textColorClass]">
               {{ task.tag.name }}
             </span>
@@ -174,51 +182,46 @@
           <!-- Task Meta Information -->
           <div class="flex items-center justify-between text-xs text-gray-500">
             <div class="flex items-center gap-3">
-              <!-- Comments Icon - Clickable -->
-              <div class="flex items-center gap-1 cursor-pointer hover:text-orange-500" 
-                   (click)="openCommentModal(task); $event.stopPropagation()">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clip-path="url(#clip0_5601_2242)">
-                    <path
-                      d="M8 2.00008C11.676 2.00008 14.6667 4.39475 14.6667 7.33808C14.6667 10.6161 11.2367 12.6454 8.06 12.6454C6.76867 12.6454 5.80467 12.3807 5.13067 12.2161C4.464 12.6247 4.06733 12.9074 2.28267 13.4294C2.63933 12.5141 2.76467 11.5974 2.684 10.5861C2.12533 9.91941 1.334 8.98608 1.334 7.33808C1.33333 4.39475 4.324 2.00008 8 2.00008ZM8 0.666748C3.77467 0.666748 0 3.48408 0 7.33808C0 8.70475 0.492 10.0467 1.36467 11.0881C1.40133 12.3081 0.682667 14.0587 0.036 15.3334C1.77067 15.0201 4.23667 14.3281 5.35467 13.6427C6.3 13.8727 7.20467 13.9781 8.06067 13.9781C12.7833 13.9781 16.0007 10.7534 16.0007 7.33741C16 3.46341 12.1993 0.666748 8 0.666748Z"
-                      fill="currentColor" />
-                  </g>
+              <!-- Comments Icon -->
+              <div class="flex items-center gap-1 hover:text-orange-500 transition-colors cursor-pointer"
+                (click)="openCommentModal(task); $event.stopPropagation()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M8 2.00008C11.676 2.00008 14.6667 4.39475 14.6667 7.33808C14.6667 10.6161 11.2367 12.6454 8.06 12.6454C6.76867 12.6454 5.80467 12.3807 5.13067 12.2161C4.464 12.6247 4.06733 12.9074 2.28267 13.4294C2.63933 12.5141 2.76467 11.5974 2.684 10.5861C2.12533 9.91941 1.334 8.98608 1.334 7.33808C1.33333 4.39475 4.324 2.00008 8 2.00008Z"
+                    fill="currentColor" />
                 </svg>
                 <span>{{ task.comments }}</span>
               </div>
 
-              <!-- Attachments Icon - Clickable -->
-              <div class="flex items-center gap-1 cursor-pointer hover:text-orange-500" 
-                   (click)="openFileModal(task); $event.stopPropagation()">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clip-path="url(#clip0_5601_2419)">
-                    <path
-                      d="M14.391 6.97407L7.69099 13.6907C6.39099 14.9901 4.27633 14.9901 2.97699 13.6907C1.67766 12.3914 1.67699 10.2761 2.97699 8.97606L10.0623 1.9194C10.8423 1.1394 12.111 1.1394 12.891 1.9194C13.6703 2.6994 13.671 3.9674 12.891 4.7474L7.21966 10.3901C6.95966 10.6501 6.53699 10.6501 6.27699 10.3901C6.01699 10.1301 6.01699 9.7074 6.27699 9.4474L11.0057 4.7474L10.0623 3.80473L5.33366 8.50406C4.55233 9.2854 4.55299 10.5527 5.33366 11.3334C6.11433 12.1141 7.38099 12.1141 8.16166 11.3334L13.833 5.69073C14.4843 5.0394 14.809 4.18673 14.809 3.3334C14.809 1.4874 13.3117 0.000732422 11.4757 0.000732422C10.6223 0.000732422 9.76966 0.326066 9.11833 0.977399L2.03366 8.03273C1.12299 8.94473 0.666992 10.1387 0.666992 11.3334C0.666992 13.9087 2.75366 16.0001 5.33366 16.0001C6.52833 16.0001 7.72233 15.5441 8.63366 14.6334L15.3337 7.91673L14.391 6.97407Z"
-                      fill="currentColor" />
-                  </g>
+              <!-- Attachments Icon -->
+              <div class="flex items-center gap-1 hover:text-orange-500 transition-colors cursor-pointer"
+                (click)="openFileModal(task); $event.stopPropagation()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M14.391 6.97407L7.69099 13.6907C6.39099 14.9901 4.27633 14.9901 2.97699 13.6907C1.67766 12.3914 1.67699 10.2761 2.97699 8.97606L10.0623 1.9194C10.8423 1.1394 12.111 1.1394 12.891 1.9194C13.6703 2.6994 13.671 3.9674 12.891 4.7474L7.21966 10.3901C6.95966 10.6501 6.53699 10.6501 6.27699 10.3901C6.01699 10.1301 6.01699 9.7074 6.27699 9.4474L11.0057 4.7474L10.0623 3.80473L5.33366 8.50406C4.55233 9.2854 4.55299 10.5527 5.33366 11.3334C6.11433 12.1141 7.38099 12.1141 8.16166 11.3334L13.833 5.69073C14.4843 5.0394 14.809 4.18673 14.809 3.3334C14.809 1.4874 13.3117 0.000732422 11.4757 0.000732422C10.6223 0.000732422 9.76966 0.326066 9.11833 0.977399L2.03366 8.03273C1.12299 8.94473 0.666992 10.1387 0.666992 11.3334C0.666992 13.9087 2.75366 16.0001 5.33366 16.0001C6.52833 16.0001 7.72233 15.5441 8.63366 14.6334L15.3337 7.91673L14.391 6.97407Z"
+                    fill="currentColor" />
                 </svg>
                 <span>{{ task.attachments }}</span>
               </div>
 
-              <!-- Edit Icon - Nouvelle icône -->
-              <div class="flex items-center gap-1 cursor-pointer hover:text-blue-500" 
-                   (click)="openEditModal(task); $event.stopPropagation()" 
-                   title="Modifier la tâche">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11.333 2.00004C11.5081 1.82494 11.716 1.68605 11.9447 1.59129C12.1735 1.49653 12.4187 1.44775 12.6663 1.44775C12.914 1.44775 13.1592 1.49653 13.3879 1.59129C13.6167 1.68605 13.8246 1.82494 13.9997 2.00004C14.1748 2.17513 14.3137 2.383 14.4084 2.61178C14.5032 2.84055 14.552 3.08575 14.552 3.33337C14.552 3.58099 14.5032 3.82619 14.4084 4.05497C14.3137 4.28374 14.1748 4.49161 13.9997 4.66671L5.33301 13.3334L1.33301 14.6667L2.66634 10.6667L11.333 2.00004Z" 
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- Edit Icon -->
+              <div class="flex items-center gap-1 hover:text-blue-500 transition-colors cursor-pointer"
+                (click)="openEditModal(task); $event.stopPropagation()" title="Modifier la tâche">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M11.333 2.00004C11.5081 1.82494 11.716 1.68605 11.9447 1.59129C12.1735 1.49653 12.4187 1.44775 12.6663 1.44775C12.914 1.44775 13.1592 1.49653 13.3879 1.59129C13.6167 1.68605 13.8246 1.82494 13.9997 2.00004C14.1748 2.17513 14.3137 2.383 14.4084 2.61178C14.5032 2.84055 14.552 3.08575 14.552 3.33337C14.552 3.58099 14.5032 3.82619 14.4084 4.05497C14.3137 4.28374 14.1748 4.49161 13.9997 4.66671L5.33301 13.3334L1.33301 14.6667L2.66634 10.6667L11.333 2.00004Z"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    fill="none" />
                 </svg>
               </div>
             </div>
 
             <!-- Due Date -->
-            <div class="flex items-center gap-1">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clip-path="url(#clip0_5601_1820)">
-                  <path
-                    d="M16 1.33333V16H0V1.33333H2V2C2 2.73533 2.598 3.33333 3.33333 3.33333C4.06867 3.33333 4.66667 2.73533 4.66667 2V1.33333H11.3333V2C11.3333 2.73533 11.9313 3.33333 12.6667 3.33333C13.402 3.33333 14 2.73533 14 2V1.33333H16ZM14.6667 5.33333H1.33333V14.6667H14.6667V5.33333Z"
-                    fill="currentColor" />
-                </g>
+            <div class="flex items-center gap-1 bg-gray-50 px-2 py-0.5 rounded shadow-sm">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M16 1.33333V16H0V1.33333H2V2C2 2.73533 2.598 3.33333 3.33333 3.33333C4.06867 3.33333 4.66667 2.73533 4.66667 2V1.33333H11.3333V2C11.3333 2.73533 11.9313 3.33333 12.6667 3.33333C13.402 3.33333 14 2.73533 14 2V1.33333H16ZM14.6667 5.33333H1.33333V14.6667H14.6667V5.33333Z"
+                  fill="currentColor" />
               </svg>
               <span>{{ task.dueDate }}</span>
             </div>
@@ -226,25 +229,16 @@
         </div>
 
         <!-- Empty State -->
-        <div *ngIf="column.tasks.length === 0" class="text-center py-12 text-gray-500">
+        <div *ngIf="column.tasks.length === 0"
+          class="text-center py-12 text-gray-500 h-full flex flex-col justify-center">
           <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
             </path>
           </svg>
           <p class="text-base font-medium">Aucune tâche</p>
           <p class="text-sm mt-1">Cliquez sur + pour ajouter une tâche</p>
         </div>
-      </div>
-
-      <!-- Pagination Controls bas de colonne -->
-      <div *ngIf="column.tasks.length > tasksPerColumn" class="flex justify-center mt-3">
-        <button (click)="scrollColumnDown(column)" [disabled]="!canScrollDown(column)"
-          class="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
       </div>
     </div>
   </div>
@@ -363,21 +357,19 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Assigner à des workers
           </label>
-          
+
           <!-- Liste déroulante des workers disponibles -->
           <div class="border border-gray-300 rounded-lg p-3 max-h-60 overflow-y-auto bg-gray-50">
-            <div *ngFor="let user of users" 
-                 class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer transition-colors"
-                 (click)="toggleUserSelection(user.id)">
-              <input type="checkbox" 
-                     [checked]="isUserSelected(user.id)"
-                     class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500">
-              <img [src]="user.avatarUrl" 
-                   class="w-8 h-8 rounded-full border border-gray-200" 
-                   (error)="onImageError($event)">
+            <div *ngFor="let user of users"
+              class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+              (click)="toggleUserSelection(user.id)">
+              <input type="checkbox" [checked]="isUserSelected(user.id)"
+                class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500">
+              <img [src]="user.avatarUrl" class="w-8 h-8 rounded-full border border-gray-200"
+                (error)="onImageError($event)">
               <span class="text-sm text-gray-700">{{ user.name }}</span>
             </div>
-            
+
             <!-- Empty state si aucun worker -->
             <div *ngIf="users.length === 0" class="text-center py-4 text-gray-500 text-sm">
               Aucun worker disponible
@@ -390,15 +382,13 @@
             <div class="flex flex-wrap gap-2">
               <div *ngFor="let executor of currentTask.executors"
                 class="flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">
-                <img [src]="getUserAvatar(executor.id)" 
-                     class="w-5 h-5 rounded-full" 
-                     (error)="onImageError($event)">
+                <img [src]="getUserAvatar(executor.id)" class="w-5 h-5 rounded-full" (error)="onImageError($event)">
                 <span class="text-sm text-orange-700">{{ getUserName(executor.id) }}</span>
-                <button type="button" 
-                        (click)="removeExecutor(executor.id)" 
-                        class="text-orange-500 hover:text-orange-700">
+                <button type="button" (click)="removeExecutor(executor.id)"
+                  class="text-orange-500 hover:text-orange-700">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -416,17 +406,13 @@
           <label for="files" class="block text-sm font-medium text-gray-700 mb-2">
             Images
           </label>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
-            <input type="file" 
-                   id="files" 
-                   (change)="onFileSelected($event)" 
-                   multiple 
-                   accept="image/*"
-                   class="hidden">
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
+            <input type="file" id="files" (change)="onFileSelected($event)" multiple accept="image/*" class="hidden">
             <label for="files" class="cursor-pointer">
               <svg class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                 </path>
               </svg>
               <p class="text-sm text-gray-600">
@@ -435,7 +421,7 @@
               <p class="text-xs text-gray-500 mt-1">PNG, JPG jusqu'à 10MB</p>
             </label>
           </div>
-          
+
           <!-- Liste des fichiers sélectionnés -->
           <div *ngIf="selectedFiles.length > 0" class="mt-3">
             <p class="text-sm text-gray-600 mb-2">{{ selectedFiles.length }} fichier(s) sélectionné(s)</p>
@@ -443,11 +429,10 @@
               <div *ngFor="let file of selectedFiles; let i = index"
                 class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded border border-gray-300">
                 <span class="text-sm text-gray-700">{{ file.name }}</span>
-                <button type="button" 
-                        (click)="removeFile(i)" 
-                        class="text-red-500 hover:text-red-700">
+                <button type="button" (click)="removeFile(i)" class="text-red-500 hover:text-red-700">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -480,10 +465,10 @@
   </div>
 </div>
 <!-- Modal de jointure de fichiers -->
-<div *ngIf="showFileModal && currentTaskForFile" 
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-     (click)="onBackdropClick($event)">
-  
+<div *ngIf="showFileModal && currentTaskForFile"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+  (click)="onBackdropClick($event)">
+
   <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
@@ -503,15 +488,13 @@
       <div *ngIf="currentTaskForFile.pictures && currentTaskForFile.pictures.length > 0" class="mb-6">
         <h3 class="text-sm font-medium text-gray-700 mb-3">Fichiers actuellement attachés</h3>
         <div class="grid grid-cols-2 gap-3">
-          <div *ngFor="let picture of currentTaskForFile.pictures" 
-               class="relative group">
-            <img [src]="getFileBaseUrl() + picture" 
-                 [alt]="currentTaskForFile.title"
-                 class="w-full h-32 object-cover rounded-lg border border-gray-200">
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
-              <a [href]="getFileBaseUrl() + picture" 
-                 target="_blank"
-                 class="opacity-0 group-hover:opacity-100 text-white bg-blue-600 px-3 py-1 rounded-lg text-sm transition-opacity">
+          <div *ngFor="let picture of currentTaskForFile.pictures" class="relative group">
+            <img [src]="getFileBaseUrl() + picture" [alt]="currentTaskForFile.title"
+              class="w-full h-32 object-cover rounded-lg border border-gray-200">
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
+              <a [href]="getFileBaseUrl() + picture" target="_blank"
+                class="opacity-0 group-hover:opacity-100 text-white bg-blue-600 px-3 py-1 rounded-lg text-sm transition-opacity">
                 Voir
               </a>
             </div>
@@ -523,19 +506,15 @@
       <form (ngSubmit)="joinFileToTask()" class="space-y-4">
         <div class="border-t border-gray-200 pt-6">
           <h3 class="text-sm font-medium text-gray-700 mb-4">Ajouter un nouveau fichier</h3>
-          
+
           <!-- Libellé du fichier -->
           <div class="mb-4">
             <label for="fileLibelle" class="block text-sm font-medium text-gray-700 mb-2">
               Libellé du fichier *
             </label>
-            <input type="text" 
-                   id="fileLibelle" 
-                   [(ngModel)]="fileLibelle" 
-                   name="fileLibelle" 
-                   required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                   placeholder="Ex: Photo du chantier, Document technique...">
+            <input type="text" id="fileLibelle" [(ngModel)]="fileLibelle" name="fileLibelle" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Ex: Photo du chantier, Document technique...">
           </div>
 
           <!-- Sélection du fichier -->
@@ -543,16 +522,13 @@
             <label for="fileToJoin" class="block text-sm font-medium text-gray-700 mb-2">
               Sélectionner un fichier *
             </label>
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
-              <input type="file" 
-                     id="fileToJoin" 
-                     (change)="onFileToJoinSelected($event)" 
-                     required
-                     class="hidden">
+            <div
+              class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
+              <input type="file" id="fileToJoin" (change)="onFileToJoinSelected($event)" required class="hidden">
               <label for="fileToJoin" class="cursor-pointer">
                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
                   </path>
                 </svg>
                 <p class="text-sm text-gray-600">
@@ -579,19 +555,17 @@
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 pt-4">
-            <button type="button" 
-                    (click)="closeFileModal()"
-                    class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+            <button type="button" (click)="closeFileModal()"
+              class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
               Annuler
             </button>
-            <button type="submit" 
-                    [disabled]="loadingFileJoin || !fileToJoin || !fileLibelle"
-                    class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <button type="submit" [disabled]="loadingFileJoin || !fileToJoin || !fileLibelle"
+              class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               <span *ngIf="loadingFileJoin" class="flex items-center gap-2">
                 <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" 
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                   </path>
                 </svg>
                 Jointure en cours...
@@ -606,10 +580,10 @@
 </div>
 
 <!-- Modal de détails de la tâche - Version Premium -->
-<div *ngIf="showDetailModal && selectedTask" 
-     class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
-     (click)="onBackdropClick($event)">
-  
+<div *ngIf="showDetailModal && selectedTask"
+  class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+  (click)="onBackdropClick($event)">
+
   <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden">
     <!-- Modal Header -->
     <div class="relative bg-white px-8 py-6 border-b border-gray-200">
@@ -618,23 +592,25 @@
           <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ selectedTask.title }}</h2>
           <div class="flex items-center gap-3">
             <!-- Badge de statut -->
-            <span class="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
+            <span
+              class="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"></path>
               </svg>
               {{ getStatusColumnTitle(selectedTask.status) }}
             </span>
-            
+
             <!-- Badge de priorité -->
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold"
-                  [ngClass]="[selectedTask.tag.colorClass, selectedTask.tag.textColorClass]">
+              [ngClass]="[selectedTask.tag.colorClass, selectedTask.tag.textColorClass]">
               {{ selectedTask.tag.name }}
             </span>
           </div>
         </div>
-        
-        <button (click)="closeDetailModal()" 
-                class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-all">
+
+        <button (click)="closeDetailModal()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-all">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -645,15 +621,15 @@
     <!-- Modal Content avec scroll -->
     <div class="overflow-y-auto" style="max-height: calc(85vh - 200px);">
       <div class="p-8 space-y-6">
-        
+
         <!-- Images de la tâche - Galerie moderne -->
-        <div *ngIf="selectedTask.pictures && selectedTask.pictures.length > 0" 
-             class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <div *ngIf="selectedTask.pictures && selectedTask.pictures.length > 0"
+          class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
           <div class="flex items-center gap-2 mb-4">
             <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                 </path>
               </svg>
             </div>
@@ -661,16 +637,15 @@
             <span class="ml-auto text-sm text-gray-500">{{ selectedTask.pictures.length }} photo(s)</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div *ngFor="let picture of selectedTask.pictures" 
-                 class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300">
-              <img [src]="getFileBaseUrl() + picture" 
-                   [alt]="selectedTask.title"
-                   class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity">
+            <div *ngFor="let picture of selectedTask.pictures"
+              class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300">
+              <img [src]="getFileBaseUrl() + picture" [alt]="selectedTask.title"
+                class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-300">
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity">
                 <div class="absolute bottom-3 left-3 right-3 flex justify-center">
-                  <a [href]="getFileBaseUrl() + picture" 
-                     target="_blank"
-                     class="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                  <a [href]="getFileBaseUrl() + picture" target="_blank"
+                    class="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform">
                     Voir en grand
                   </a>
                 </div>
@@ -684,8 +659,8 @@
           <div class="flex items-center gap-2 mb-3">
             <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                 </path>
               </svg>
             </div>
@@ -696,14 +671,14 @@
 
         <!-- Informations en grille -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
+
           <!-- Dates -->
           <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                   </path>
                 </svg>
               </div>
@@ -730,8 +705,8 @@
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
                   </path>
                 </svg>
               </div>
@@ -752,12 +727,12 @@
 
         <!-- Exécuteurs assignés - Style moderne -->
         <div *ngIf="selectedTask.executors && selectedTask.executors.length > 0"
-             class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
           <div class="flex items-center gap-3 mb-5">
             <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                 </path>
               </svg>
             </div>
@@ -767,12 +742,11 @@
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div *ngFor="let executor of selectedTask.executors" 
-                 class="flex items-center gap-3 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200">
+            <div *ngFor="let executor of selectedTask.executors"
+              class="flex items-center gap-3 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200">
               <div class="relative">
-                <img [src]="getUserAvatar(executor.id)" 
-                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-300" 
-                     (error)="onImageError($event)">
+                <img [src]="getUserAvatar(executor.id)"
+                  class="w-12 h-12 rounded-full object-cover border-2 border-gray-300" (error)="onImageError($event)">
                 <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
               <div class="flex-1 min-w-0">
@@ -785,10 +759,10 @@
 
         <!-- Section vide pour les exécuteurs -->
         <div *ngIf="!selectedTask.executors || selectedTask.executors.length === 0"
-             class="bg-gray-50 rounded-xl p-8 border-2 border-dashed border-gray-300 text-center">
+          class="bg-gray-50 rounded-xl p-8 border-2 border-dashed border-gray-300 text-center">
           <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
             </path>
           </svg>
           <p class="text-gray-600 font-medium">Aucun exécuteur assigné</p>
@@ -801,9 +775,9 @@
     <!-- Modal Footer avec actions - Toujours visible -->
     <div class="bg-gray-50 px-8 py-4 border-t border-gray-200 flex-shrink-0">
       <div class="flex flex-wrap gap-3 justify-end">
-    
+
         <button (click)="closeDetailModal()"
-                class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 font-medium shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all">
+          class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 font-medium shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all">
           <span class="flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -817,10 +791,10 @@
 </div>
 
 <!-- Modal des commentaires -->
-<div *ngIf="showCommentModal && currentTaskForComment" 
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-     (click)="onBackdropClick($event)">
-  
+<div *ngIf="showCommentModal && currentTaskForComment"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+  (click)="onBackdropClick($event)">
+
   <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
@@ -839,7 +813,7 @@
       <!-- Liste des commentaires - Gauche (60%) -->
       <div class="w-3/5 border-r border-gray-200 p-6 overflow-y-auto">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Liste des commentaires</h3>
-        
+
         <!-- Loading -->
         <div *ngIf="loadingComments" class="flex justify-center items-center py-8">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
@@ -848,8 +822,8 @@
         <!-- Empty State -->
         <div *ngIf="!loadingComments && comments.length === 0" class="text-center py-8 text-gray-500">
           <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
             </path>
           </svg>
           <p class="font-medium">Aucun commentaire</p>
@@ -858,8 +832,7 @@
 
         <!-- Liste des commentaires -->
         <div *ngIf="!loadingComments && comments.length > 0" class="space-y-4">
-          <div *ngFor="let comment of comments" 
-               class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div *ngFor="let comment of comments" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div class="flex items-start justify-between mb-2">
               <h4 class="font-medium text-gray-900">{{ comment.title }}</h4>
               <span class="text-xs text-gray-500">
@@ -868,12 +841,11 @@
             </div>
             <p class="text-sm text-gray-700 mb-2">{{ comment.description }}</p>
             <div *ngIf="comment.file" class="mt-2">
-              <a [href]="getFileBaseUrl() + comment.file" 
-                 target="_blank"
-                 class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
+              <a [href]="getFileBaseUrl() + comment.file" target="_blank"
+                class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
                   </path>
                 </svg>
                 Voir le fichier joint
@@ -886,20 +858,16 @@
       <!-- Formulaire d'ajout de commentaire - Droite (40%) -->
       <div class="w-2/5 p-6 bg-gray-50">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Ajouter un commentaire</h3>
-        
+
         <form (ngSubmit)="submitComment()" class="space-y-4">
           <!-- Titre du commentaire -->
           <div>
             <label for="commentTitle" class="block text-sm font-medium text-gray-700 mb-2">
               Titre *
             </label>
-            <input type="text" 
-                   id="commentTitle" 
-                   [(ngModel)]="newComment.title" 
-                   name="commentTitle" 
-                   required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                   placeholder="Titre du commentaire">
+            <input type="text" id="commentTitle" [(ngModel)]="newComment.title" name="commentTitle" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Titre du commentaire">
           </div>
 
           <!-- Description du commentaire -->
@@ -907,13 +875,10 @@
             <label for="commentDescription" class="block text-sm font-medium text-gray-700 mb-2">
               Description *
             </label>
-            <textarea id="commentDescription" 
-                      [(ngModel)]="newComment.description" 
-                      name="commentDescription" 
-                      required
-                      rows="4"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      placeholder="Description du commentaire"></textarea>
+            <textarea id="commentDescription" [(ngModel)]="newComment.description" name="commentDescription" required
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Description du commentaire"></textarea>
           </div>
 
           <!-- Fichier joint -->
@@ -921,11 +886,8 @@
             <label for="commentFile" class="block text-sm font-medium text-gray-700 mb-2">
               Fichier joint *
             </label>
-            <input type="file" 
-                   id="commentFile" 
-                   (change)="onCommentFileSelected($event)" 
-                   required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="file" id="commentFile" (change)="onCommentFileSelected($event)" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
             <p *ngIf="newComment.file" class="text-sm text-gray-600 mt-1">
               Fichier sélectionné: {{ newComment.file.name }}
             </p>
@@ -937,14 +899,13 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" 
-                  [disabled]="loadingComments"
-                  class="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <button type="submit" [disabled]="loadingComments"
+            class="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             <span *ngIf="loadingComments" class="flex items-center justify-center gap-2">
               <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" 
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                 </path>
               </svg>
               Ajout en cours...

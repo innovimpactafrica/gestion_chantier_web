@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gray-50">
     <!-- Header avec Navigation et Toggle de langue -->
     <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
             <div class="flex justify-between items-center w-full">
                 <!-- Logo -->
                 <button (click)="scrollToSection('accueil', $event)" class="flex items-center space-x-2 flex-shrink-0">
@@ -48,7 +48,7 @@
                         <select (change)="onLanguageChange($event)" [value]="currentLang"
                             class="appearance-none h-10 pl-10 pr-8 py-2 bg-white border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer">
                             <option value="FR">FR</option>
-                            <option value="EN">EN</option>
+                            <option value="EN">En</option>
                         </select>
                         <!-- Icône drapeau à gauche -->
                         <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -175,9 +175,9 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="accueil" class="pt-32 py-20 pb-20 px-4 sm:px-6 lg:px-8">
-        <div class="container mx-auto">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+    <section id="accueil" class="min-h-screen flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="w-full max-w-screen-2xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <!-- Left Content -->
                 <div class="space-y-6 animate-fade-in-left">
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
@@ -213,8 +213,8 @@
     </section>&nbsp;&nbsp;&nbsp;
 
     <!-- À propos Section -->
-    <section id="apropos" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-7xl mx-auto">
+    <section id="apropos" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <!-- Left Content - Images -->
                 <div class="w-full hover:scale-105 transition-transform duration-300">
@@ -273,9 +273,10 @@
             </div>
         </div>
     </section>
+
     <!-- Profils utilisateurs Section -->
-    <section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
-        <div class="max-w-7xl mx-auto relative">
+    <section id="profils" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white animate-fade-In-Up">
+        <div class="max-w-screen-2xl mx-auto relative">
             <div class="text-center mb-16 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -329,8 +330,8 @@
 
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
-        class="py-20 px-4 sm:px-6 lg:px-8 bg-cover bg-center">
-        <div class="max-w-7xl mx-auto ">
+        class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-cover bg-center">
+        <div class="max-w-screen-2xl mx-auto ">
             <div class="text-center mb-4 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -434,8 +435,8 @@
     </section>
 
     <!-- Section Pricing / Abonnements -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
+    <section class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
+        <div class="max-w-screen-2xl mx-auto">
             <!-- Badge -->
             <div class="text-center mb-8">
                 <span class="inline-block px-6 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
@@ -505,6 +506,7 @@
                         {{ t('pricing.free.btn') }}
                     </button>
                 </div>
+
                 <!-- Plan PREMIUM (Dynamique avec animation - Recommandé) -->
                 <div *ngIf="currentPremiumPlan" [@planFade]="animationKey"
                     class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
@@ -658,8 +660,8 @@
         </div>
     </section>
     <!-- Section Téléchargez l'application -->
-    <section id="telecharger-app" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
+    <section id="telecharger-app" class="pt-20 pb-0 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Contenu gauche -->
                 <div>
@@ -690,17 +692,21 @@
                     </ul>
 
                     <div class="flex flex-wrap gap-4">
-                        <button
+                        <a href="https://apps.apple.com/sn/app/btp-connect/id6757388268?l=fr-FR" target="_blank"
+                            rel="noopener noreferrer"
                             class="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+
                             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                                 <path
                                     d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                             </svg>
+
                             <div class="text-left">
                                 <div class="text-xs">{{ t('download.btn.appstore') }}</div>
                                 <div class="text-sm font-semibold">{{ t('download.btn.appstore.text') }}</div>
                             </div>
-                        </button>
+                        </a>
+
 
                         <a href="https://play.google.com/store/apps/details?id=com.wakana.btpconnect" target="_blank"
                             rel="noopener noreferrer"
@@ -772,10 +778,11 @@
             </div>
         </div>
     </section>
+
     <!-- Section à commenter pour le moment -->
     <!-- Section Témoignages -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-orange-50">
-        <div class="max-w-7xl mx-auto">
+    <section class="pt-0 pb-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-orange-50">
+        <div class="max-w-screen-2xl mx-auto">
 
             <!-- <div class="text-center mb-6">
                 <span class="inline-block px-6 py-2 bg-orange-200 text-orange-700 rounded-full text-sm font-medium">
@@ -984,8 +991,8 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#1a1f2e] text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
+    <footer class="bg-[#1a1f2e] text-white py-16 px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- Colonne 1 -->
                 <div>
@@ -1041,7 +1048,7 @@
                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <a href="tel:+221771234567" class="text-gray-400 hover:text-white transition-colors">
-                                +221 33 971 41 12
+                                +221 77 123 45 67
                             </a>
                         </li>
                         <li class="flex items-center gap-3">
