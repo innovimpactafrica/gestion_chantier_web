@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
+import { AuthService } from '../app/features/auth/services/auth.service';
 
 
 // Ajoutez cette interface au début du fichier avec les autres interfaces
@@ -206,7 +207,9 @@ export class MaterialsService {
   private materialsSubject = new BehaviorSubject<MaterialsResponse | null>(null);
   public materials$ = this.materialsSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+    private authService:AuthService,
+  ) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token') || 
@@ -330,24 +333,26 @@ createStock(material: CreateMaterial): Observable<Material> {
 
 // ✅ Correction de createCommand
 createCommand(order: CreateOrder): Observable<Order> {
-  const token = localStorage.getItem('auth_token') || 
-               localStorage.getItem('token') || 
-               sessionStorage.getItem('auth_token') ||
-               sessionStorage.getItem('token');
+  const headers = this.authService.getAuthHeaders();
+
+  // const token = localStorage.getItem('auth_token') || 
+  //              localStorage.getItem('token') || 
+  //              sessionStorage.getItem('auth_token') ||
+  //              sessionStorage.getItem('token');
   
-  if (!token) {
-    return throwError(() => ({ 
-      message: 'Token d\'authentification manquant', 
-      status: 401 
-    }));
-  }
+  // if (!token) {
+  //   return throwError(() => ({ 
+  //     message: 'Token d\'authentification manquant', 
+  //     status: 401 
+  //   }));
+  // }
 
   console.log('Création d\'une nouvelle commande:', order);
   
   return this.http.post<Order>(
     `${environment.apiUrl}/orders`,
     order,
-    { headers: this.getHeaders() }
+    { headers }
   ).pipe(
     tap(response => console.log('Commande créée avec succès:', response)),
     catchError(this.handleError)
@@ -500,7 +505,7 @@ getCommand(propertyId: number, page: number = 0, size: number = 10): Observable<
     .set('size', size.toString());
 
   return this.http.get<OrdersResponse>(
-    `https://wakana.online/api/orders/supplier/${propertyId}/pending`,
+    `${environment.apiUrl}/orders/supplier/${propertyId}/pending`,
     { 
       params,
       headers: this.getHeaders() 
