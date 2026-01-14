@@ -12,7 +12,7 @@
   </nav>
 
   <div class="flex items-center">
-    <button class="flex items-center space-x-2 p-2">
+    <button (click)="openHelpModal()" class="flex items-center space-x-2 p-2 hover:opacity-80 transition-opacity">
       <div class="p-2">
         <img src="assets/images/question-circle.png" alt="Aide" />
       </div>
@@ -20,5 +20,87 @@
         <div class="font-bold text-[#FF5C02] text-sm">Aide & Support</div>
       </div>
     </button>
+  </div>
+
+  <!-- Modal Aide & Support -->
+  <div *ngIf="showHelpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="closeHelpModal()">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-in" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 flex items-center justify-between rounded-t-lg">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Aide & Support
+        </h2>
+        <button (click)="closeHelpModal()" class="text-white hover:text-gray-200 transition-colors">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 space-y-6">
+        <!-- Description -->
+        <p class="text-gray-600 text-sm">Contactez-nous pour toute question ou assistance. Nous sommes là pour vous aider!</p>
+
+        <!-- Email Contact -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-orange-300 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Email
+            </label>
+          </div>
+          <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+            <span class="text-gray-900 font-medium">{{ emailAddress }}</span>
+            <button (click)="copyToClipboard(emailAddress)" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copier
+            </button>
+          </div>
+        </div>
+
+        <!-- Phone Contact -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-orange-300 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 00.948.684l1.498 7.489a1 1 0 00.502.756l2.048 1.029a11.042 11.042 0 010-15.514l-2.048 1.029a1 1 0 00-.502.756l-1.498 7.489a1 1 0 00-.948.684H5a2 2 0 01-2-2V5z"></path>
+              </svg>
+              Téléphone
+            </label>
+          </div>
+          <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+            <span class="text-gray-900 font-medium">{{ phoneNumber }}</span>
+            <button (click)="copyToClipboard(phoneNumber)" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copier
+            </button>
+          </div>
+        </div>
+
+        <!-- Hours -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <p class="text-sm text-orange-900">
+            <span class="font-semibold">Heures de support:</span> Lundi - Vendredi, 08:00 - 18:00
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-lg">
+        <button (click)="closeHelpModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors">
+          Fermer
+        </button>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
 <!-- Dashboard Container -->
-<div class="min-h-screen p-6">
+<div class="min-h-screen bg-gray-50 p-6">
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
@@ -25,20 +25,20 @@
   <div *ngIf="!isLoading && !hasError">
 
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-      <div class="flex items-center space-x-4">
-        <div class="relative">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Tableau de bord</h1>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+        <div class="relative w-full sm:w-64">
           <input type="text" placeholder="Rechercher par projet"
-            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
             viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg border">
-          <span class="text-lg font-semibold">{{ dashboardData.annee }}</span>
+        <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg border border-gray-300 whitespace-nowrap">
+          <span class="text-lg font-semibold text-gray-900">{{ dashboardData.annee }}</span>
           <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
@@ -46,72 +46,155 @@
       </div>
     </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- LIGNE 1: Vue d'ensemble (3 cards) -->
+    <div class="dashboard-grid">
 
-      <!-- Vue d'ensemble des chantiers - Version avec valeurs à gauche -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
-         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path opacity="0.5" d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z" fill="#777777"/>
-<path d="M15.943 10.498L11.888 15.003C11.3777 15.0316 10.8978 15.2545 10.5467 15.6259C10.1956 15.9972 9.99996 16.4889 10 17H14C14 16.7333 13.9466 16.4693 13.8431 16.2236C13.7395 15.9778 13.5878 15.7553 13.397 15.569L17.057 11.502C17.1254 11.4293 17.1785 11.3436 17.2134 11.2501C17.2482 11.1566 17.264 11.057 17.2599 10.9573C17.2557 10.8575 17.2317 10.7596 17.1893 10.6693C17.1468 10.579 17.0868 10.498 17.0126 10.4312C16.9385 10.3644 16.8518 10.313 16.7575 10.2802C16.6633 10.2473 16.5634 10.2336 16.4638 10.2398C16.3642 10.246 16.2668 10.272 16.1774 10.3164C16.0879 10.3607 16.0083 10.4225 15.943 10.498ZM5 15.25C4.80109 15.25 4.61032 15.329 4.46967 15.4697C4.32902 15.6103 4.25 15.8011 4.25 16C4.25 16.1989 4.32902 16.3897 4.46967 16.5303C4.61032 16.671 4.80109 16.75 5 16.75H6.5C6.69891 16.75 6.88968 16.671 7.03033 16.5303C7.17098 16.3897 7.25 16.1989 7.25 16C7.25 15.8011 7.17098 15.6103 7.03033 15.4697C6.88968 15.329 6.69891 15.25 6.5 15.25H5ZM19.75 16C19.75 15.8011 19.671 15.6103 19.5303 15.4697C19.3897 15.329 19.1989 15.25 19 15.25H17.5C17.3011 15.25 17.1103 15.329 16.9697 15.4697C16.829 15.6103 16.75 15.8011 16.75 16C16.75 16.1989 16.829 16.3897 16.9697 16.5303C17.1103 16.671 17.3011 16.75 17.5 16.75H19C19.1989 16.75 19.3897 16.671 19.5303 16.5303C19.671 16.3897 19.75 16.1989 19.75 16ZM12.75 6C12.75 5.80109 12.671 5.61032 12.5303 5.46967C12.3897 5.32902 12.1989 5.25 12 5.25C11.8011 5.25 11.6103 5.32902 11.4697 5.46967C11.329 5.61032 11.25 5.80109 11.25 6V7.5C11.25 7.69891 11.329 7.88968 11.4697 8.03033C11.6103 8.17098 11.8011 8.25 12 8.25C12.1989 8.25 12.3897 8.17098 12.5303 8.03033C12.671 7.88968 12.75 7.69891 12.75 7.5V6Z" fill="#777777"/>
-<path d="M12 3.25C6.063 3.25 1.25 8.063 1.25 14C1.25 15.498 1.557 16.927 2.112 18.224L2.117 18.236C2.332 18.738 2.48 19.084 2.934 19.568C3.117 19.763 3.373 19.958 3.611 20.116C3.849 20.273 4.13 20.431 4.381 20.523C5.005 20.75 5.549 20.75 6.318 20.75H17.682C18.451 20.75 18.995 20.75 19.619 20.523C19.871 20.431 20.151 20.273 20.389 20.116C20.627 19.959 20.883 19.763 21.066 19.568C21.52 19.084 21.669 18.738 21.883 18.236L21.888 18.224C22.443 16.927 22.75 15.498 22.75 14C22.75 8.063 17.937 3.25 12 3.25ZM2.75 14C2.75 11.5467 3.72455 9.19397 5.45926 7.45926C7.19397 5.72455 9.54675 4.75 12 4.75C14.4533 4.75 16.806 5.72455 18.5407 7.45926C20.2754 9.19397 21.25 11.5467 21.25 14C21.25 15.292 20.986 16.52 20.509 17.634C20.305 18.111 20.242 18.254 19.973 18.541C19.902 18.616 19.753 18.738 19.563 18.864C19.373 18.989 19.203 19.078 19.105 19.114C18.753 19.242 18.473 19.25 17.603 19.25H6.397C5.527 19.25 5.247 19.242 4.895 19.114C4.73434 19.0462 4.5809 18.9625 4.437 18.864C4.28984 18.7704 4.15249 18.6621 4.027 18.541C3.758 18.254 3.695 18.111 3.491 17.634C2.99987 16.4855 2.74775 15.2491 2.75 14Z" fill="#777777"/>
-</svg>
+      <!-- Vue d'ensemble des chantiers -->
+      <div class="dashboard-card h-96">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Vue d'ensemble des chantiers</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5"
+              d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z"
+              fill="#777777" />
+            <path
+              d="M15.943 10.498L11.888 15.003C11.3777 15.0316 10.8978 15.2545 10.5467 15.6259C10.1956 15.9972 9.99996 16.4889 10 17H14C14 16.7333 13.9466 16.4693 13.8431 16.2236C13.7395 15.9778 13.5878 15.7553 13.397 15.569L17.057 11.502C17.1254 11.4293 17.1785 11.3436 17.2134 11.2501C17.2482 11.1566 17.264 11.057 17.2599 10.9573C17.2557 10.8575 17.2317 10.7596 17.1893 10.6693C17.1468 10.579 17.0868 10.498 17.0126 10.4312C16.9385 10.3644 16.8518 10.313 16.7575 10.2802C16.6633 10.2473 16.5634 10.2336 16.4638 10.2398C16.3642 10.246 16.2668 10.272 16.1774 10.3164C16.0879 10.3607 16.0083 10.4225 15.943 10.498ZM5 15.25C4.80109 15.25 4.61032 15.329 4.46967 15.4697C4.32902 15.6103 4.25 15.8011 4.25 16C4.25 16.1989 4.32902 16.3897 4.46967 16.5303C4.61032 16.671 4.80109 16.75 5 16.75H6.5C6.69891 16.75 6.88968 16.671 7.03033 16.5303C7.17098 16.3897 7.25 16.1989 7.25 16C7.25 15.8011 7.17098 15.6103 7.03033 15.4697C6.88968 15.329 6.69891 15.25 6.5 15.25H5ZM19.75 16C19.75 15.8011 19.671 15.6103 19.5303 15.4697C19.3897 15.329 19.1989 15.25 19 15.25H17.5C17.3011 15.25 17.1103 15.329 16.9697 15.4697C16.829 15.6103 16.75 15.8011 16.75 16C16.75 16.1989 16.829 16.3897 16.9697 16.5303C17.1103 16.671 17.3011 16.75 17.5 16.75H19C19.1989 16.75 19.3897 16.671 19.5303 16.5303C19.671 16.3897 19.75 16.1989 19.75 16ZM12.75 6C12.75 5.80109 12.671 5.61032 12.5303 5.46967C12.3897 5.32902 12.1989 5.25 12 5.25C11.8011 5.25 11.6103 5.32902 11.4697 5.46967C11.329 5.61032 11.25 5.80109 11.25 6V7.5C11.25 7.69891 11.329 7.88968 11.4697 8.03033C11.6103 8.17098 11.8011 8.25 12 8.25C12.1989 8.25 12.3897 8.17098 12.5303 8.03033C12.671 7.88968 12.75 7.69891 12.75 7.5V6Z"
+              fill="#777777" />
+            <path
+              d="M12 3.25C6.063 3.25 1.25 8.063 1.25 14C1.25 15.498 1.557 16.927 2.112 18.224L2.117 18.236C2.332 18.738 2.48 19.084 2.934 19.568C3.117 19.763 3.373 19.958 3.611 20.116C3.849 20.273 4.13 20.431 4.381 20.523C5.005 20.75 5.549 20.75 6.318 20.75H17.682C18.451 20.75 18.995 20.75 19.619 20.523C19.871 20.431 20.151 20.273 20.389 20.116C20.627 19.959 20.883 19.763 21.066 19.568C21.52 19.084 21.669 18.738 21.883 18.236L21.888 18.224C22.443 16.927 22.75 15.498 22.75 14C22.75 8.063 17.937 3.25 12 3.25ZM2.75 14C2.75 11.5467 3.72455 9.19397 5.45926 7.45926C7.19397 5.72455 9.54675 4.75 12 4.75C14.4533 4.75 16.806 5.72455 18.5407 7.45926C20.2754 9.19397 21.25 11.5467 21.25 14C21.25 15.292 20.986 16.52 20.509 17.634C20.305 18.111 20.242 18.254 19.973 18.541C19.902 18.616 19.753 18.738 19.563 18.864C19.373 18.989 19.203 19.078 19.105 19.114C18.753 19.242 18.473 19.25 17.603 19.25H6.397C5.527 19.25 5.247 19.242 4.895 19.114C4.73434 19.0462 4.5809 18.9625 4.437 18.864C4.28984 18.7704 4.15249 18.6621 4.027 18.541C3.758 18.254 3.695 18.111 3.491 17.634C2.99987 16.4855 2.74775 15.2491 2.75 14Z"
+              fill="#777777" />
+          </svg>
 
         </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Carte En cours -->
-          <div class="bg-gray-100 rounded-lg p-4">
-            <div>
-              <p class="text-sm text-gray-600 mt-1">En cours</p>
-              <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
-
+        <div class="dashboard-card-content">
+          <div class="metric-grid-2x2">
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">En cours</span>
+              <p class="metric-value text-gray-900">{{ chantiers.enCours }}</p>
             </div>
-          </div>
-
-          <!-- Carte En retard -->
-          <div class="bg-gray-100 rounded-lg p-4">
-            <div>
-              <p class="text-sm text-gray-600 mt-1">En retard</p>
-              <p class="text-3xl font-bold text-red-600">{{ chantiers.enRetard }}</p>
-
+            <div class="metric-box">
+              <span class="metric-label text-red-600">En retard</span>
+              <p class="metric-value text-red-600">{{ chantiers.enRetard }}</p>
             </div>
-          </div>
-
-          <!-- Carte En attente -->
-          <div class="bg-gray-100 rounded-lg p-4">
-            <div>
-              <p class="text-sm text-gray-600 mt-1">En attente</p>
-              <p class="text-3xl font-bold text-orange-500">{{ chantiers.enAttente }}</p>
-
+            <div class="metric-box">
+              <span class="metric-label text-orange-600">En attente</span>
+              <p class="metric-value text-orange-500">{{ chantiers.enAttente }}</p>
             </div>
-          </div>
-
-          <!-- Carte Terminées -->
-          <div class="bg-gray-100 rounded-lg p-4">
-            <div>
-              <p class="text-sm text-gray-600 mt-1">Terminées</p>
-              <p class="text-3xl font-bold text-green-600">{{ chantiers.termines }}</p>
-
+            <div class="metric-box">
+              <span class="metric-label text-green-600">Terminées</span>
+              <p class="metric-value text-green-600">{{ chantiers.termines }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Taux moyen d'avancement -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Taux moyen d'avancement</h2>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <!-- Vue d'ensemble des études -->
+      <div class="dashboard-card h-96">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Vue d'ensemble des études</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5"
+              d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z"
+              fill="#777777" />
+            <path
+              d="M15.943 10.498L11.888 15.003C11.3777 15.0316 10.8978 15.2545 10.5467 15.6259C10.1956 15.9972 9.99996 16.4889 10 17H14C14 16.7333 13.9466 16.4693 13.8431 16.2236C13.7395 15.9778 13.5878 15.7553 13.397 15.569L17.057 11.502C17.1254 11.4293 17.1785 11.3436 17.2134 11.2501C17.2482 11.1566 17.264 11.057 17.2599 10.9573C17.2557 10.8575 17.2317 10.7596 17.1893 10.6693C17.1468 10.579 17.0868 10.498 17.0126 10.4312C16.9385 10.3644 16.8518 10.313 16.7575 10.2802C16.6633 10.2473 16.5634 10.2336 16.4638 10.2398C16.3642 10.246 16.2668 10.272 16.1774 10.3164C16.0879 10.3607 16.0083 10.4225 15.943 10.498ZM5 15.25C4.80109 15.25 4.61032 15.329 4.46967 15.4697C4.32902 15.6103 4.25 15.8011 4.25 16C4.25 16.1989 4.32902 16.3897 4.46967 16.5303C4.61032 16.671 4.80109 16.75 5 16.75H6.5C6.69891 16.75 6.88968 16.671 7.03033 16.5303C7.17098 16.3897 7.25 16.1989 7.25 16C7.25 15.8011 7.17098 15.6103 7.03033 15.4697C6.88968 15.329 6.69891 15.25 6.5 15.25H5ZM19.75 16C19.75 15.8011 19.671 15.6103 19.5303 15.4697C19.3897 15.329 19.1989 15.25 19 15.25H17.5C17.3011 15.25 17.1103 15.329 16.9697 15.4697C16.829 15.6103 16.75 15.8011 16.75 16C16.75 16.1989 16.829 16.3897 16.9697 16.5303C17.1103 16.671 17.3011 16.75 17.5 16.75H19C19.1989 16.75 19.3897 16.671 19.5303 16.5303C19.671 16.3897 19.75 16.1989 19.75 16ZM12.75 6C12.75 5.80109 12.671 5.61032 12.5303 5.46967C12.3897 5.32902 12.1989 5.25 12 5.25C11.8011 5.25 11.6103 5.32902 11.4697 5.46967C11.329 5.61032 11.25 5.80109 11.25 6V7.5C11.25 7.69891 11.329 7.88968 11.4697 8.03033C11.6103 8.17098 11.8011 8.25 12 8.25C12.1989 8.25 12.3897 8.17098 12.5303 8.03033C12.671 7.88968 12.75 7.69891 12.75 7.5V6Z"
+              fill="#777777" />
+            <path
+              d="M12 3.25C6.063 3.25 1.25 8.063 1.25 14C1.25 15.498 1.557 16.927 2.112 18.224L2.117 18.236C2.332 18.738 2.48 19.084 2.934 19.568C3.117 19.763 3.373 19.958 3.611 20.116C3.849 20.273 4.13 20.431 4.381 20.523C5.005 20.75 5.549 20.75 6.318 20.75H17.682C18.451 20.75 18.995 20.75 19.619 20.523C19.871 20.431 20.151 20.273 20.389 20.116C20.627 19.959 20.883 19.763 21.066 19.568C21.52 19.084 21.669 18.738 21.883 18.236L21.888 18.224C22.443 16.927 22.75 15.498 22.75 14C22.75 8.063 17.937 3.25 12 3.25ZM2.75 14C2.75 11.5467 3.72455 9.19397 5.45926 7.45926C7.19397 5.72455 9.54675 4.75 12 4.75C14.4533 4.75 16.806 5.72455 18.5407 7.45926C20.2754 9.19397 21.25 11.5467 21.25 14C21.25 15.292 20.986 16.52 20.509 17.634C20.305 18.111 20.242 18.254 19.973 18.541C19.902 18.616 19.753 18.738 19.563 18.864C19.373 18.989 19.203 19.078 19.105 19.114C18.753 19.242 18.473 19.25 17.603 19.25H6.397C5.527 19.25 5.247 19.242 4.895 19.114C4.73434 19.0462 4.5809 18.9625 4.437 18.864C4.28984 18.7704 4.15249 18.6621 4.027 18.541C3.758 18.254 3.695 18.111 3.491 17.634C2.99987 16.4855 2.74775 15.2491 2.75 14Z"
+              fill="#777777" />
           </svg>
+
+        </div>
+        <div class="dashboard-card-content">
+          <div class="metric-grid-2x2">
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">En ensemble</span>
+              <p class="metric-value text-gray-900">{{ etudes.enEnsemble || 0 }}</p>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label text-orange-600">En cours</span>
+              <p class="metric-value text-orange-500">{{ etudes.enCours || 0 }}</p>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">Terminées</span>
+              <p class="metric-value text-gray-900">{{ etudes.terminees || 0 }}</p>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label text-blue-600">Livrées</span>
+              <p class="metric-value text-blue-600">{{ etudes.livrees || 0 }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Répartition des études (%) -->
+      <div class="dashboard-card h-96">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Répartition des études (%)</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_3207_6139)">
+              <path
+                d="M7.5 16.5H12V24H7.5V16.5ZM1.5 21H6V24H1.5V21ZM19.5 18H24V24H19.5V18ZM13.5 13.5H18V24H13.5V13.5ZM24 0.10498L15.48 7.55998L7.275 5.00998L0 10.65V13.5L7.725 7.49998L16.02 10.08L24 3.08998V0.10498Z"
+                fill="#777777" />
+            </g>
+            <defs>
+              <clipPath id="clip0_3207_6139">
+                <rect width="24" height="24" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+
         </div>
 
-        <div class="relative flex justify-center mt-8">
-          <div class="w-64 h-32 relative">
+        <div class="dashboard-card-content">
+          <div class="relative w-40 h-40 mx-auto">
+            <canvas #repartitionChart></canvas>
+          </div>
+
+          <!-- Légende donut -->
+          <div class="legend-list mt-6">
+            <div class="legend-item">
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+              <span class="legend-label">Complétées</span>
+              <span class="legend-value">40%</span>
+            </div>
+            <div class="legend-item">
+              <div class="w-3 h-3 rounded-full bg-orange-400"></div>
+              <span class="legend-label">En cours</span>
+              <span class="legend-value">35%</span>
+            </div>
+            <div class="legend-item">
+              <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span class="legend-label">Initiées</span>
+              <span class="legend-value">15%</span>
+            </div>
+            <div class="legend-item">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <span class="legend-label">Non initiées</span>
+              <span class="legend-value">10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIGNE 2: Indicateurs clés (3 cards) -->
+    <div class="dashboard-grid">
+
+      <!-- Taux moyen d'avancement -->
+      <div class="bg-white rounded-lg shadow p-6 h-96 flex flex-col">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-lg font-bold text-gray-900">Taux moyen d'avancement</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 17H13V11H11V17ZM12 9C12.2833 9 12.521 8.904 12.713 8.712C12.905 8.52 13.0007 8.28267 13 8C12.9993 7.71733 12.9033 7.48 12.712 7.288C12.5207 7.096 12.2833 7 12 7C11.7167 7 11.4793 7.096 11.288 7.288C11.0967 7.48 11.0007 7.71733 11 8C10.9993 8.28267 11.0953 8.52033 11.288 8.713C11.4807 8.90567 11.718 9.00133 12 9ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22Z"
+              fill="#777777" />
+          </svg>
+
+        </div>
+
+        <div class="flex-1 flex items-center justify-center">
+          <div class="relative w-56 h-32">
             <svg class="w-full h-full" viewBox="0 0 100 50">
               <!-- Arc de fond -->
               <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#EDF2F7" stroke-width="10"
@@ -122,259 +205,266 @@
                 [attr.stroke-dashoffset]="avancement.display.dashOffset" />
               <!-- Point à la fin de l'arc -->
               <circle [attr.cx]="avancement.display.pointX" [attr.cy]="avancement.display.pointY" r="6" fill="#ff5c01"
-                stroke="#fff" stroke-width="3" filter="url(#shadowFilter)" />
+                stroke="#fff" stroke-width="3" />
             </svg>
 
             <!-- Texte central -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center pt-4">
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
               <span class="text-4xl font-bold text-gray-900">{{ avancement.pourcentage }}%</span>
-              <span class="text-sm text-gray-600">Taux moyen</span>
+              <span class="text-xs text-gray-600">Taux moyen</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Budget global -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-900">Budget global</h2>
-          <div class="text-gray-400">
-            <div class="p-2">
-              <img src="assets/images/dashboard-icons/budget.png" alt="budget-icons" srcset="">
+      <div class="bg-white rounded-lg shadow p-6 h-96 flex flex-col">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-lg font-bold text-gray-900">Budget global</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M13.5 16C13.5 16.3978 13.342 16.7794 13.0607 17.0607C12.7794 17.342 12.3978 17.5 12 17.5C11.6022 17.5 11.2206 17.342 10.9393 17.0607C10.658 16.7794 10.5 16.3978 10.5 16C10.5 15.6022 10.658 15.2206 10.9393 14.9393C11.2206 14.658 11.6022 14.5 12 14.5C12.3978 14.5 12.7794 14.658 13.0607 14.9393C13.342 15.2206 13.5 15.6022 13.5 16Z"
+              fill="#777777" />
+            <path
+              d="M14.347 0.659912L17.527 5.11591L19.624 4.40091L21.538 9.99991H22.5V21.9999H1.5V9.99991H2.01V9.98991L2.658 9.99591L14.347 0.659912ZM9.397 9.99991H19.425L18.388 6.96691L16.866 7.45391L9.397 9.99991ZM7.839 8.41691L15.55 5.78991L13.946 3.53991L7.839 8.41691ZM5.5 11.9999H3.5V13.9999C4.03043 13.9999 4.53914 13.7892 4.91421 13.4141C5.28929 13.0391 5.5 12.5303 5.5 11.9999ZM15.5 15.9999C15.5 15.5403 15.4095 15.0852 15.2336 14.6605C15.0577 14.2359 14.7999 13.85 14.4749 13.525C14.1499 13.2 13.764 12.9422 13.3394 12.7663C12.9148 12.5904 12.4596 12.4999 12 12.4999C11.5404 12.4999 11.0852 12.5904 10.6606 12.7663C10.236 12.9422 9.85013 13.2 9.52513 13.525C9.20012 13.85 8.94231 14.2359 8.76642 14.6605C8.59053 15.0852 8.5 15.5403 8.5 15.9999C8.5 16.9282 8.86875 17.8184 9.52513 18.4748C10.1815 19.1312 11.0717 19.4999 12 19.4999C12.9283 19.4999 13.8185 19.1312 14.4749 18.4748C15.1313 17.8184 15.5 16.9282 15.5 15.9999ZM20.5 19.9999V17.9999C19.9696 17.9999 19.4609 18.2106 19.0858 18.5857C18.7107 18.9608 18.5 19.4695 18.5 19.9999H20.5ZM18.5 11.9999C18.5 12.5303 18.7107 13.0391 19.0858 13.4141C19.4609 13.7892 19.9696 13.9999 20.5 13.9999V11.9999H18.5ZM3.5 19.9999H5.5C5.5 19.4695 5.28929 18.9608 4.91421 18.5857C4.53914 18.2106 4.03043 17.9999 3.5 17.9999V19.9999Z"
+              fill="#777777" />
+          </svg>
+
+        </div>
+
+        <div class="flex-1 flex items-center justify-center">
+          <div class="relative w-40 h-40">
+            <canvas #budgetChart class="w-full h-full"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-3xl font-bold text-gray-900">{{ budget.pourcentageConsomme }}%</span>
+              <span class="text-xs text-gray-600 mt-1">consommé</span>
             </div>
           </div>
         </div>
 
-        <!-- Container principal avec layout flex -->
-        <div class="flex items-start justify-between">
-          <!-- Section gauche : Graphique -->
-          <div class="relative flex-shrink-0">
-            <div class="w-40 h-40 relative">
-              <canvas #budgetChart class="w-full h-full"></canvas>
-
-              <!-- Étiquette avec bande noire repositionnée à droite du cercle -->
-              <div
-                class="absolute top-4 w-[126px] rounded-[13px] h-[56px] -right-20 bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg">
-                <div class="text-xs text-gray-300">Consommé</div>
-                <div class="text-white font-bold">{{ formatCurrency(budget.consomme) }}</div>
-              </div>
-
-              <!-- Pourcentage central -->
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-3xl font-bold text-gray-900">{{ budget.pourcentageConsomme }}%</span>
-                <span class="text-sm text-gray-600 mt-1">consommé</span>
-              </div>
+        <!-- Légende -->
+        <div class="mt-4 space-y-2 text-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+              <span class="text-gray-600">Consommé</span>
             </div>
+            <span class="font-semibold text-gray-900">{{ formatCurrency(budget.consomme) }}</span>
           </div>
-
-          <!-- Section droite : Légende -->
-          <div class="flex flex-col justify-end h-40 space-y-3 text-sm ml-8">
+          <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
-              <span class="text-gray-700 font-medium">Consommé : {{ formatCurrency(budget.consomme) }}</span>
+              <div class="w-3 h-3 bg-gray-300 rounded-full mr-2"></div>
+              <span class="text-gray-600">Restant</span>
             </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 bg-gray-300 rounded-full mr-3"></div>
-              <span class="text-gray-700 font-medium">Restant : {{ formatCurrency(budget.restant) }}</span>
-            </div>
+            <span class="font-semibold text-gray-900">{{ formatCurrency(budget.restant) }}</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Second Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Alertes stock matériaux -->
+      <div class="bg-white rounded-lg shadow p-6 h-96 overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-lg font-bold text-gray-900">Alertes stock matériaux</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12.8661 2.99996L22.3921 19.5C22.4799 19.652 22.5261 19.8244 22.5261 20C22.5261 20.1755 22.4799 20.3479 22.3921 20.4999C22.3043 20.652 22.1781 20.7782 22.0261 20.866C21.8741 20.9537 21.7016 21 21.5261 21H2.4741C2.29856 21 2.12612 20.9537 1.9741 20.866C1.82209 20.7782 1.69585 20.652 1.60809 20.4999C1.52032 20.3479 1.47412 20.1755 1.47412 20C1.47412 19.8244 1.52033 19.652 1.6081 19.5L11.1341 2.99996C11.2219 2.84795 11.3481 2.72172 11.5001 2.63396C11.6521 2.5462 11.8246 2.5 12.0001 2.5C12.1756 2.5 12.3481 2.5462 12.5001 2.63396C12.6521 2.72172 12.7783 2.84795 12.8661 2.99996ZM11.0001 16V18H13.0001V16H11.0001ZM11.0001 8.99996V14H13.0001V8.99996H11.0001Z"
+              fill="#777777" />
+          </svg>
 
-      <!-- Alertes stock matériaux - Design Figma -->
-      <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col h-full">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Alertes stock matériaux</h2>
-          <div class="text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
         </div>
 
-        <div class="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar"
-          *ngIf="stockAlertes.length > 0; else noAlertes">
-          <div *ngFor="let alerte of stockAlertes" class="group">
-            <div class="flex items-center justify-between mb-2">
+        <div class="flex-1 overflow-y-auto space-y-4 pr-2" *ngIf="stockAlertes.length > 0; else noAlertes">
+          <div *ngFor="let alerte of stockAlertes" class="pb-3 border-b border-gray-100 last:border-0">
+            <div class="flex items-start justify-between mb-2">
               <div>
-                <h3 class="font-bold text-gray-900 text-sm">{{ alerte.nom }} ({{ alerte.propriete }})</h3>
-                <p class="text-[10px] text-gray-500 mt-0.5">{{ alerte.quantiteActuelle }} units / seuil: {{ alerte.seuil
-                  }} units</p>
+                <h3 class="font-semibold text-gray-900 text-sm">{{ alerte.nom }}</h3>
+                <p class="text-xs text-gray-500 mt-0.5">{{ alerte.quantiteActuelle }} / {{ alerte.seuil }} units</p>
               </div>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold" [ngClass]="{
-                      'bg-orange-50 text-orange-600': alerte.status === 'Faible',
-                      'bg-green-50 text-green-600': alerte.status === 'Normal',
-                      'bg-red-50 text-red-600': alerte.status === 'Critique atteint'
-                    }">
+              <span class="px-2 py-1 rounded text-xs font-bold whitespace-nowrap ml-2" [ngClass]="{
+                'bg-orange-100 text-orange-700': alerte.status === 'Faible',
+                'bg-green-100 text-green-700': alerte.status === 'Normal',
+                'bg-red-100 text-red-700': alerte.status === 'Critique atteint'
+              }">
                 {{ alerte.status }}
               </span>
             </div>
-
-            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
               <div class="h-full rounded-full transition-all duration-500" [style.width.%]="alerte.pourcentage"
                 [ngClass]="{
-                     'bg-orange-500': alerte.status === 'Faible',
-                     'bg-green-500': alerte.status === 'Normal',
-                     'bg-red-500': alerte.status === 'Critique atteint'
-                   }"></div>
+                'bg-orange-500': alerte.status === 'Faible',
+                'bg-green-500': alerte.status === 'Normal',
+                'bg-red-500': alerte.status === 'Critique atteint'
+              }"></div>
             </div>
           </div>
         </div>
         <ng-template #noAlertes>
-          <div class="flex flex-col items-center justify-center flex-1 py-8 text-gray-400">
-            <p class="text-sm">Aucune alerte matériaux</p>
+          <div class="flex items-center justify-center h-full text-gray-400">
+            <p class="text-sm">Aucune alerte</p>
           </div>
         </ng-template>
       </div>
+    </div>
+
+    <!-- LIGNE 3: Graphiques (2 cards) -->
+    <div class="dashboard-grid-special">
 
       <!-- État d'avancement -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">État d'avancement</h2>
-          <div class="text-gray-400">
-            <img src="assets/images/dashboard-icons/bar-chart.png" alt="" srcset="">
-          </div>
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">État d'avancement</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="text-gray-400 flex-shrink-0">
+            <g clip-path="url(#clip0_3205_3606)">
+              <path
+                d="M7.5 16.5001H12V24.0001H7.5V16.5001ZM1.5 21.0001H6V24.0001H1.5V21.0001ZM19.5 18.0001H24V24.0001H19.5V18.0001ZM13.5 13.5001H18V24.0001H13.5V13.5001ZM24 0.105103L15.48 7.5601L7.275 5.0101L0 10.6501V13.5001L7.725 7.5001L16.02 10.0801L24 3.0901V0.105103Z"
+                fill="currentColor" />
+            </g>
+            <defs>
+              <clipPath id="clip0_3205_3606">
+                <rect width="24" height="24" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
         </div>
-
-        <div class="h-48">
-          <canvas #progressChart></canvas>
+        <div class="dashboard-card-content">
+          <div class="h-56">
+            <canvas #progressChart></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- Incidents signalés -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Incidents signalés (7 jours)</h2>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clip-rule="evenodd" />
+      <!-- Incidents signalés (7 jours) -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Incidents signalés (7 jours)</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="text-gray-400 flex-shrink-0">
+            <path
+              d="M12.8661 2.99996L22.3921 19.5C22.4799 19.652 22.5261 19.8244 22.5261 20C22.5261 20.1755 22.4799 20.3479 22.3921 20.4999C22.3043 20.652 22.1781 20.7782 22.0261 20.866C21.8741 20.9537 21.7016 21 21.5261 21H2.4741C2.29856 21 2.12612 20.9537 1.9741 20.866C1.82209 20.7782 1.69585 20.652 1.60809 20.4999C1.52032 20.3479 1.47412 20.1755 1.47412 20C1.47412 19.8244 1.52033 19.652 1.6081 19.5L11.1341 2.99996C11.2219 2.84795 11.3481 2.72172 11.5001 2.63396C11.6521 2.5462 11.8246 2.5 12.0001 2.5C12.1756 2.5 12.3481 2.5462 12.5001 2.63396C12.6521 2.72172 12.7783 2.84795 12.8661 2.99996ZM11.0001 16V18H13.0001V16H11.0001ZM11.0001 8.99996V14H13.0001V8.99996H11.0001Z"
+              fill="currentColor" />
           </svg>
         </div>
-
-        <div class="h-48">
-          <canvas #incidentsChart></canvas>
+        <div class="dashboard-card-content">
+          <div class="h-56">
+            <canvas #incidentsChart></canvas>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Third Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- LIGNE 4: Suivi & Performance (3 cards) -->
+    <div class="dashboard-grid">
 
-      <!-- Tâches critiques à échéance - Design Figma -->
-      <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col h-full">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Tâches critiques à échéance</h2>
-          <div class="text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </div>
+      <!-- Tâches critiques à échéance -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Tâches critiques à échéance</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M12.0001 3.99998H20.0001V5.99995H12.0001V3.99998ZM12.0001 11H20.0001V13H12.0001V11ZM12.0001 18H20.0001V20H12.0001V18ZM8.89764 2.16211L10.0866 3.07664L6.52257 7.70991L3.30615 4.89553L4.2939 3.76669L6.30803 5.52797L8.89764 2.16211ZM8.89764 9.16209L10.0866 10.0767L6.52257 14.7099L3.30615 11.8955L4.2939 10.7667L6.30803 12.528L8.89764 9.16209ZM8.89764 16.1621L10.0866 17.0767L6.52257 21.7099L3.30615 18.8955L4.2939 17.7667L6.30803 19.528L8.89764 16.1621Z"
+              fill="#777777" />
+          </svg>
+
         </div>
 
-        <div class="relative flex-1 overflow-y-auto pr-2 custom-scrollbar"
-          *ngIf="tachesCritiques.length > 0; else noTaches">
-          <!-- Ligne verticale alignée avec les points -->
-          <div class="absolute left-1 top-2 bottom-2 w-px bg-gray-100"></div>
+        <div class="dashboard-card-content">
+          <div class="relative flex-1 overflow-y-auto" *ngIf="tachesCritiques.length > 0; else noTaches">
+            <div class="tasks-timeline">
+              <div *ngFor="let tache of tachesCritiques; let first = first; let last = last" class="timeline-item"
+                [class.first]="first" [class.last]="last">
+                <!-- Cercle de couleur gauche -->
+                <div class="task-status-dot" [ngClass]="{
+                  'status-retard': tache.status === 'En retard',
+                  'status-urgent': tache.status === 'Urgent',
+                  'status-jour': tache.status === 'À jour'
+                }"></div>
 
-          <div class="space-y-6">
-            <div *ngFor="let tache of tachesCritiques" class="relative pl-6">
-              <!-- Point coloré à gauche -->
-              <div class="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full z-10 border-2 border-white shadow-sm"
-                [ngClass]="{
-                    'bg-red-500': tache.status === 'En retard',
-                    'bg-orange-500': tache.status === 'Urgent',
-                    'bg-green-500': tache.status === 'À jour'
-                  }"></div>
-
-              <div class="flex items-start justify-between">
-                <div>
-                  <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ tache.nom }}</h3>
-                  <p class="text-[10px] text-gray-500 mt-1 uppercase font-medium">Échéance : {{ tache.echeance }}</p>
+                <!-- Contenu tâche -->
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-gray-900 text-sm">{{ tache.nom }}</h3>
+                  <p class="text-xs text-gray-500 mt-1">Échéance : {{ tache.echeance }}</p>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ml-2" [ngClass]="{
-                        'bg-red-50 text-red-600': tache.status === 'En retard',
-                        'bg-orange-50 text-orange-600': tache.status === 'Urgent',
-                        'bg-green-50 text-green-600': tache.status === 'À jour'
-                      }">
+
+                <!-- Badge statut -->
+                <span class="flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap" [ngClass]="{
+                  'bg-red-100 text-red-700': tache.status === 'En retard',
+                  'bg-orange-100 text-orange-700': tache.status === 'Urgent',
+                  'bg-green-100 text-green-700': tache.status === 'À jour'
+                }">
                   {{ tache.status }}
                 </span>
               </div>
             </div>
           </div>
+          <ng-template #noTaches>
+            <div class="flex items-center justify-center h-full text-gray-400">
+              <p class="text-sm">Aucune tâche critique</p>
+            </div>
+          </ng-template>
         </div>
-        <ng-template #noTaches>
-          <div class="flex flex-col items-center justify-center flex-1 py-8 text-gray-400">
-            <p class="text-sm">Aucune tâche critique</p>
-          </div>
-        </ng-template>
       </div>
 
-      <!-- Photos récentes - 3 par ligne avec popup -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Photos récentes</h2>
-          <div class="p-2">
-            <img src="assets/images/dashboard-icons/photos.png" alt="" srcset="">
-          </div>
+      <!-- Photos récentes -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Photos récentes</h2>
+          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M8.25 10.5C7.91848 10.5 7.60054 10.6317 7.36612 10.8661C7.1317 11.1005 7 11.4185 7 11.75C7 12.0815 7.1317 12.3995 7.36612 12.6339C7.60054 12.8683 7.91848 13 8.25 13H8.26C8.59152 13 8.90946 12.8683 9.14388 12.6339C9.3783 12.3995 9.51 12.0815 9.51 11.75C9.51 11.4185 9.3783 11.1005 9.14388 10.8661C8.90946 10.6317 8.59152 10.5 8.26 10.5H8.25Z"
+              fill="#777777" />
+            <path
+              d="M7.75 5.5C7.75 4.90326 7.98705 4.33097 8.40901 3.90901C8.83097 3.48705 9.40326 3.25 10 3.25H19C19.5967 3.25 20.169 3.48705 20.591 3.90901C21.0129 4.33097 21.25 4.90326 21.25 5.5V14.5C21.25 15.0967 21.0129 15.669 20.591 16.091C20.169 16.5129 19.5967 16.75 19 16.75H17.25V18.5C17.25 19.0967 17.0129 19.669 16.591 20.091C16.169 20.5129 15.5967 20.75 15 20.75H6C5.40326 20.75 4.83097 20.5129 4.40901 20.091C3.98705 19.669 3.75 19.0967 3.75 18.5V9.5C3.75 8.90326 3.98705 8.33097 4.40901 7.90901C4.83097 7.48705 5.40326 7.25 6 7.25H7.75V5.5ZM15.75 9.5C15.75 9.30109 15.671 9.11032 15.5303 8.96967C15.3897 8.82902 15.1989 8.75 15 8.75H6C5.80109 8.75 5.61032 8.82902 5.46967 8.96967C5.32902 9.11032 5.25 9.30109 5.25 9.5V16.442L10.918 13.504C11.3296 13.2904 11.7971 13.2092 12.2566 13.2715C12.7161 13.3338 13.1451 13.5365 13.485 13.852L15.75 15.956V9.5ZM5.25 18.5C5.25 18.914 5.586 19.25 6 19.25H15C15.1989 19.25 15.3897 19.171 15.5303 19.0303C15.671 18.8897 15.75 18.6989 15.75 18.5V18.003L12.464 14.952C12.3509 14.8468 12.208 14.7792 12.055 14.7582C11.902 14.7373 11.7462 14.7641 11.609 14.835L5.25 18.132V18.5ZM9.25 7.25H15C15.5967 7.25 16.169 7.48705 16.591 7.90901C17.0129 8.33097 17.25 8.90326 17.25 9.5V15.25H19C19.1989 15.25 19.3897 15.171 19.5303 15.0303C19.671 14.8897 19.75 14.6989 19.75 14.5V5.5C19.75 5.30109 19.671 5.11032 19.5303 4.96967C19.3897 4.82902 19.1989 4.75 19 4.75H10C9.80109 4.75 9.61032 4.82902 9.46967 4.96967C9.32902 5.11032 9.25 5.30109 9.25 5.5V7.25Z"
+              fill="#777777" />
+          </svg>
+
         </div>
 
-        <!-- Grid 3 colonnes -->
-        <div class="grid grid-cols-3 gap-4" *ngIf="photosRecentes.length > 0; else noPhotos">
-          <div *ngFor="let photo of photosRecentes | slice:0:6"
-            class="relative group cursor-pointer hover:transform hover:scale-105 transition-transform duration-200"
-            (click)="openPhotoModal(photo)">
-            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-              <!-- Image ou placeholder -->
-              <img *ngIf="photo.src; else placeholder" [src]="'https://wakana.online/repertoire_chantier/'+photo.src"
-                [alt]="photo.alt" class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
-              <ng-template #placeholder>
-                <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                  <svg class="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                    </path>
-                  </svg>
-                </div>
-              </ng-template>
-            </div>
+        <div class="dashboard-card-content">
+          <!-- Grid 3 colonnes -->
+          <div class="grid grid-cols-3 gap-3" *ngIf="photosRecentes.length > 0; else noPhotos">
+            <div *ngFor="let photo of photosRecentes | slice:0:6"
+              class="relative group cursor-pointer hover:transform hover:scale-105 transition-transform duration-200"
+              (click)="openPhotoModal(photo)">
+              <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                <img *ngIf="photo.src; else placeholder" [src]="'https://wakana.online/repertoire_chantier/'+photo.src"
+                  [alt]="photo.alt" class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
+                <ng-template #placeholder>
+                  <div
+                    class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                    <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                  </div>
+                </ng-template>
+              </div>
 
-            <!-- Badge phase -->
-            <div
-              class="absolute bottom-2 left-2 text-white bg-[#3d3734] bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-              <div>{{ photo.phase || photo.alt }}</div>
-              <span> {{ photo.date }}</span>
-            </div>
+              <!-- Badge phase et date -->
+              <div class="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                <div class="font-semibold">{{ photo.phase || photo.alt }}</div>
+                <span class="text-xs">{{ photo.date }}</span>
+              </div>
 
-
-
-            <!-- Badge date -->
-            <div class="absolute top-2 right-2 bg-black-100 text-white text-xs px-2 py-1 rounded">
-
-            </div>
-
-            <!-- Overlay au hover -->
-            <div
-              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
-              <svg class="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-              </svg>
+              <!-- Overlay au hover -->
+              <div
+                class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                <svg class="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
 
-        <ng-template #noPhotos>
-          <p class="text-gray-500 text-sm text-center py-8">Aucune photo récente</p>
-        </ng-template>
+          <ng-template #noPhotos>
+            <div class="flex items-center justify-center h-full text-gray-400">
+              <p class="text-sm">Aucune photo</p>
+            </div>
+          </ng-template>
+        </div>
       </div>
 
       <!-- Modal popup pour afficher la photo -->
@@ -456,73 +546,38 @@
         </div>
       </div>
 
-      <!-- Résumé des performances - Version avec valeurs à gauche -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
-          <div class="p-2">
-            <i class="fa-solid fa-chart-line"></i>
-          </div>
+      <!-- Résumé des performances -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-lg font-bold text-gray-900">Résumé des performances</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.5 20.25C4.30189 20.2474 4.11263 20.1676 3.97253 20.0275C3.83244 19.8874 3.75259 19.6981 3.75 19.5V4.5C3.75 4.30109 3.82902 4.11032 3.96967 3.96967C4.11032 3.82902 4.30109 3.75 4.5 3.75C4.69891 3.75 4.88968 3.82902 5.03033 3.96967C5.17098 4.11032 5.25 4.30109 5.25 4.5V19.5C5.24741 19.6981 5.16756 19.8874 5.02747 20.0275C4.88737 20.1676 4.69811 20.2474 4.5 20.25Z" fill="#777777"/>
+<path d="M19.5 20.25H4.5C4.30109 20.25 4.11032 20.171 3.96967 20.0303C3.82902 19.8896 3.75 19.6989 3.75 19.5C3.75 19.3011 3.82902 19.1103 3.96967 18.9696C4.11032 18.829 4.30109 18.75 4.5 18.75H19.5C19.6989 18.75 19.8897 18.829 20.0303 18.9696C20.171 19.1103 20.25 19.3011 20.25 19.5C20.25 19.6989 20.171 19.8896 20.0303 20.0303C19.8897 20.171 19.6989 20.25 19.5 20.25ZM14 14.75C13.9015 14.7504 13.8038 14.7312 13.7128 14.6934C13.6218 14.6557 13.5392 14.6001 13.47 14.53L11 12.06L8.53 14.53C8.38783 14.6624 8.19978 14.7346 8.00548 14.7311C7.81118 14.7277 7.62579 14.649 7.48838 14.5116C7.35097 14.3742 7.27225 14.1888 7.26883 13.9945C7.2654 13.8002 7.33752 13.6121 7.47 13.47L10.47 10.47C10.6106 10.3295 10.8012 10.2506 11 10.2506C11.1988 10.2506 11.3894 10.3295 11.53 10.47L14 12.94L17.47 9.46997C17.6122 9.33749 17.8002 9.26537 17.9945 9.26879C18.1888 9.27222 18.3742 9.35093 18.5116 9.48835C18.649 9.62576 18.7277 9.81115 18.7312 10.0054C18.7346 10.1997 18.6625 10.3878 18.53 10.53L14.53 14.53C14.4608 14.6001 14.3782 14.6557 14.2872 14.6934C14.1962 14.7312 14.0985 14.7504 14 14.75Z" fill="#777777"/>
+<path d="M18.5 13.84C18.3019 13.8374 18.1126 13.7576 17.9725 13.6175C17.8324 13.4774 17.7526 13.2881 17.75 13.09V10.25H15C14.8011 10.25 14.6103 10.171 14.4697 10.0303C14.329 9.88968 14.25 9.69891 14.25 9.5C14.25 9.30109 14.329 9.11032 14.4697 8.96967C14.6103 8.82902 14.8011 8.75 15 8.75H18.5C18.6981 8.75259 18.8874 8.83244 19.0275 8.97253C19.1676 9.11263 19.2474 9.30189 19.25 9.5V13.09C19.2474 13.2881 19.1676 13.4774 19.0275 13.6175C18.8874 13.7576 18.6981 13.8374 18.5 13.84Z" fill="#777777"/>
+</svg>
+
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Carte 1 - Taux moyen d'avancement -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Taux moyen d'avanc...</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
-              </div>
+        <div class="dashboard-card-content">
+          <div class="metric-grid-2x2">
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">Taux moyen</span>
+              <p class="metric-value text-gray-900">{{ performances.tauxAvancement }}%</p>
             </div>
-          </div>
 
-          <!-- Carte 2 - Budget consommé -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Budget consommé</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
-              </div>
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">Budget consommé</span>
+              <p class="metric-value text-gray-900">{{ performances.budgetConsomme }}%</p>
             </div>
-          </div>
 
-          <!-- Carte 3 - Incidents -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Incidents (7j)</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
-              </div>
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">Incidents (7j)</span>
+              <p class="metric-value text-gray-900">{{ performances.incidents }}</p>
             </div>
-          </div>
 
-          <!-- Carte 4 - Présence moyenne -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Présence moyenne</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 5 - Tâches en retard -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Tâches en retard</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.tachesRetard }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 6 - Matériaux en alerte -->
-          <div class="bg-gray-100 rounded-lg p-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs text-gray-600 mt-1">Matériaux en alerte</p>
-                <p class="text-2xl font-bold text-gray-900">{{ performances.materiauxAlerte }}</p>
-              </div>
+            <div class="metric-box">
+              <span class="metric-label text-gray-600">Présence moyenne</span>
+              <p class="metric-value text-gray-900">{{ performances.presenceMoyenne }}%</p>
             </div>
           </div>
         </div>

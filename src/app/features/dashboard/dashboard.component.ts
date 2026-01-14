@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { ProjectOviewComponent } from "../components/dashboard/project-oview/project-oview.component";
 import { 
   DashboardService, 
   TasksKpi, 
@@ -23,7 +22,7 @@ Chart.register(...registerables);
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ProjectOviewComponent],
+  imports: [CommonModule],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
@@ -32,11 +31,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('progressChart', { static: false }) progressChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('incidentsChart', { static: false }) incidentsChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('budgetChart', { static: false }) budgetChart!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('repartitionChart', { static: false }) repartitionChart!: ElementRef<HTMLCanvasElement>;
 
   private destroy$ = new Subject<void>();
   private progressChartInstance?: Chart;
   private incidentsChartInstance?: Chart;
   private budgetChartInstance?: Chart;
+  private repartitionChartInstance?: Chart;
   private isBrowser: boolean;
 
   // États de chargement et d'erreur
@@ -54,6 +55,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       enRetard: 0,
       enAttente: 0,
       termines: 0,
+      total: 0
+    },
+    etudes: {
+      enEnsemble: 0,
+      enCours: 0,
+      terminees: 0,
+      livrees: 0,
       total: 0
     },
     avancement: {
@@ -97,11 +105,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   stockAlertes: any[] = [];
   tachesCritiques: any[] = [];
   photosRecentes: any[] = [];
-  // Ajoutez ces propriétés à la classe DashboardComponent
 
-// Propriétés pour le modal des photos
-selectedPhoto: any = null;
-currentImageIndex: number = 0;  
+  // Propriétés pour le modal des photos
+  selectedPhoto: any = null;
+  currentImageIndex: number = 0;  
 
 // Méthodes pour gérer le modal des photos
 
@@ -229,6 +236,9 @@ selectImageIndex(index: number): void {
     }
     if (this.budgetChartInstance) {
       this.budgetChartInstance.destroy();
+    }
+    if (this.repartitionChartInstance) {
+      this.repartitionChartInstance.destroy();
     }
   }
   
@@ -392,6 +402,7 @@ selectImageIndex(index: number): void {
     try {
       // Traitement des données avec vérification de sécurité
       this.dashboardData.chantiers = this.processChantiers();
+      this.dashboardData.etudes = this.processEtudes();
       this.dashboardData.avancement = this.processAvancement();
       this.dashboardData.budget = this.processBudget();
       this.dashboardData.materiaux = this.processMateriaux();
@@ -402,7 +413,7 @@ selectImageIndex(index: number): void {
       this.dashboardData.performances = this.processPerformances();
       this.dashboardData.annee = this.getCurrentYear();
 
-      // Assigner aux propriétés directes pour le template
+      // Assigner aux propriétés directes pour le template (getters utilisés automatiquement)
       this.stockAlertes = this.dashboardData.materiaux;
       this.tachesCritiques = this.dashboardData.taches;
       this.photosRecentes = this.dashboardData.photos;
@@ -439,6 +450,18 @@ selectImageIndex(index: number): void {
       enAttente,
       termines,
       total
+    };
+  }
+
+  private processEtudes(): any {
+    // Données mockées pour les études
+    // À remplacer par l'appel au backend une fois implémenté
+    return {
+      enEnsemble: 28,
+      enCours: 11,
+      terminees: 9,
+      livrees: 8,
+      total: 28
     };
   }
 
@@ -683,6 +706,7 @@ selectImageIndex(index: number): void {
     this.createProgressChart();
     this.createIncidentsChart();
     this.createBudgetChart();
+    this.createRepartitionChart();
   }
 
   private createProgressChart(): void {
@@ -935,7 +959,68 @@ selectImageIndex(index: number): void {
     this.budgetChartInstance = new Chart(ctx, config);
   }
 
-  // Méthodes utilitaires
+  private createRepartitionChart(): void {
+    if (!this.isBrowser || !this.repartitionChart) {
+      return;
+    }
+  
+    const ctx = this.repartitionChart.nativeElement.getContext('2d');
+    if (!ctx) return;
+  
+    // Données mockées pour la répartition des études
+    const data = [40, 35, 15, 10]; // Complétées, En cours, Initiées, Non initiées
+    const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
+    const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
+  
+    const config: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderWidth: 0,
+          spacing: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '60%', // Trou au centre pour le style donut
+        plugins: {
+          legend: { 
+            display: false // Légende affichée en bas dans le template
+          },
+          tooltip: { 
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            cornerRadius: 6,
+            callbacks: {
+              label: (context) => {
+                return `${context.label}: ${context.parsed}%`;
+              }
+            }
+          }
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: false
+        }
+      }
+    };
+  
+    // Détruire le graphique existant s'il existe
+    if (this.repartitionChartInstance) {
+      this.repartitionChartInstance.destroy();
+    }
+    
+    // Créer le nouveau graphique
+    this.repartitionChartInstance = new Chart(ctx, config);
+  }
   private getCurrentYear(): number {
     return new Date().getFullYear();
   }
@@ -1039,6 +1124,10 @@ selectImageIndex(index: number): void {
   // Getters pour accéder aux données dans le template
   get chantiers() {
     return this.dashboardData.chantiers;
+  }
+
+  get etudes() {
+    return this.dashboardData.etudes;
   }
 
   get avancement() {

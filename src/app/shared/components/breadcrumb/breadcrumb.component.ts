@@ -14,6 +14,9 @@ import { RouterModule } from '@angular/router';
 })
 export class BreadcrumbComponent implements OnInit {
   breadcrumbs: BreadcrumbItem[] = [];
+  showHelpModal = false;
+  emailAddress = 'contact@btpconnect.sn';
+  phoneNumber = '+221 77 123 45 67';
 
   constructor(
     private router: Router,
@@ -67,5 +70,45 @@ export class BreadcrumbComponent implements OnInit {
     }
 
     return breadcrumbs;
+  }
+
+  /**
+   * Ouvre la modal Aide & Support
+   */
+  openHelpModal(): void {
+    this.showHelpModal = true;
+  }
+
+  /**
+   * Ferme la modal Aide & Support
+   */
+  closeHelpModal(): void {
+    this.showHelpModal = false;
+  }
+
+  /**
+   * Copie le texte dans le presse-papiers
+   */
+  copyToClipboard(text: string): void {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        console.log('Copié dans le presse-papiers:', text);
+      }).catch(err => {
+        console.error('Erreur lors de la copie:', err);
+      });
+    } else {
+      // Fallback pour les anciens navigateurs
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        console.log('Copié dans le presse-papiers:', text);
+      } catch (err) {
+        console.error('Erreur lors de la copie:', err);
+      }
+      document.body.removeChild(textarea);
+    }
   }
 }
