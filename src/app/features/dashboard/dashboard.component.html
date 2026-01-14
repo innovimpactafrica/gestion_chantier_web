@@ -1,6 +1,6 @@
 <!-- Dashboard Container -->
 <div class="min-h-screen p-6">
-  
+
   <!-- Loading State -->
   <div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
     <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
@@ -10,10 +10,12 @@
   <div *ngIf="hasError && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
     <div class="flex items-center">
       <svg class="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <span class="text-red-700">{{ errorMessage }}</span>
-      <button (click)="refreshDashboard()" class="ml-auto bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md">
+      <button (click)="refreshDashboard()"
+        class="ml-auto bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md">
         Réessayer
       </button>
     </div>
@@ -21,16 +23,18 @@
 
   <!-- Main Dashboard Content -->
   <div *ngIf="!isLoading && !hasError">
-    
+
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
       <div class="flex items-center space-x-4">
         <div class="relative">
-          <input type="text" placeholder="Rechercher par projet" 
-                 class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          <input type="text" placeholder="Rechercher par projet"
+            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
         <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg border">
@@ -44,86 +48,83 @@
 
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      
-   <!-- Vue d'ensemble des chantiers - Version avec valeurs à gauche -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
-        <div class="text-gray-500">
-          <img src="assets/images/dashboard-icons/vues.png" alt="vue" srcset="" class="w-6 h-6">
+
+      <!-- Vue d'ensemble des chantiers - Version avec valeurs à gauche -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Vue d'ensemble des chantiers</h2>
+         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path opacity="0.5" d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z" fill="#777777"/>
+<path d="M15.943 10.498L11.888 15.003C11.3777 15.0316 10.8978 15.2545 10.5467 15.6259C10.1956 15.9972 9.99996 16.4889 10 17H14C14 16.7333 13.9466 16.4693 13.8431 16.2236C13.7395 15.9778 13.5878 15.7553 13.397 15.569L17.057 11.502C17.1254 11.4293 17.1785 11.3436 17.2134 11.2501C17.2482 11.1566 17.264 11.057 17.2599 10.9573C17.2557 10.8575 17.2317 10.7596 17.1893 10.6693C17.1468 10.579 17.0868 10.498 17.0126 10.4312C16.9385 10.3644 16.8518 10.313 16.7575 10.2802C16.6633 10.2473 16.5634 10.2336 16.4638 10.2398C16.3642 10.246 16.2668 10.272 16.1774 10.3164C16.0879 10.3607 16.0083 10.4225 15.943 10.498ZM5 15.25C4.80109 15.25 4.61032 15.329 4.46967 15.4697C4.32902 15.6103 4.25 15.8011 4.25 16C4.25 16.1989 4.32902 16.3897 4.46967 16.5303C4.61032 16.671 4.80109 16.75 5 16.75H6.5C6.69891 16.75 6.88968 16.671 7.03033 16.5303C7.17098 16.3897 7.25 16.1989 7.25 16C7.25 15.8011 7.17098 15.6103 7.03033 15.4697C6.88968 15.329 6.69891 15.25 6.5 15.25H5ZM19.75 16C19.75 15.8011 19.671 15.6103 19.5303 15.4697C19.3897 15.329 19.1989 15.25 19 15.25H17.5C17.3011 15.25 17.1103 15.329 16.9697 15.4697C16.829 15.6103 16.75 15.8011 16.75 16C16.75 16.1989 16.829 16.3897 16.9697 16.5303C17.1103 16.671 17.3011 16.75 17.5 16.75H19C19.1989 16.75 19.3897 16.671 19.5303 16.5303C19.671 16.3897 19.75 16.1989 19.75 16ZM12.75 6C12.75 5.80109 12.671 5.61032 12.5303 5.46967C12.3897 5.32902 12.1989 5.25 12 5.25C11.8011 5.25 11.6103 5.32902 11.4697 5.46967C11.329 5.61032 11.25 5.80109 11.25 6V7.5C11.25 7.69891 11.329 7.88968 11.4697 8.03033C11.6103 8.17098 11.8011 8.25 12 8.25C12.1989 8.25 12.3897 8.17098 12.5303 8.03033C12.671 7.88968 12.75 7.69891 12.75 7.5V6Z" fill="#777777"/>
+<path d="M12 3.25C6.063 3.25 1.25 8.063 1.25 14C1.25 15.498 1.557 16.927 2.112 18.224L2.117 18.236C2.332 18.738 2.48 19.084 2.934 19.568C3.117 19.763 3.373 19.958 3.611 20.116C3.849 20.273 4.13 20.431 4.381 20.523C5.005 20.75 5.549 20.75 6.318 20.75H17.682C18.451 20.75 18.995 20.75 19.619 20.523C19.871 20.431 20.151 20.273 20.389 20.116C20.627 19.959 20.883 19.763 21.066 19.568C21.52 19.084 21.669 18.738 21.883 18.236L21.888 18.224C22.443 16.927 22.75 15.498 22.75 14C22.75 8.063 17.937 3.25 12 3.25ZM2.75 14C2.75 11.5467 3.72455 9.19397 5.45926 7.45926C7.19397 5.72455 9.54675 4.75 12 4.75C14.4533 4.75 16.806 5.72455 18.5407 7.45926C20.2754 9.19397 21.25 11.5467 21.25 14C21.25 15.292 20.986 16.52 20.509 17.634C20.305 18.111 20.242 18.254 19.973 18.541C19.902 18.616 19.753 18.738 19.563 18.864C19.373 18.989 19.203 19.078 19.105 19.114C18.753 19.242 18.473 19.25 17.603 19.25H6.397C5.527 19.25 5.247 19.242 4.895 19.114C4.73434 19.0462 4.5809 18.9625 4.437 18.864C4.28984 18.7704 4.15249 18.6621 4.027 18.541C3.758 18.254 3.695 18.111 3.491 17.634C2.99987 16.4855 2.74775 15.2491 2.75 14Z" fill="#777777"/>
+</svg>
+
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Carte En cours -->
+          <div class="bg-gray-100 rounded-lg p-4">
+            <div>
+              <p class="text-sm text-gray-600 mt-1">En cours</p>
+              <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
+
+            </div>
+          </div>
+
+          <!-- Carte En retard -->
+          <div class="bg-gray-100 rounded-lg p-4">
+            <div>
+              <p class="text-sm text-gray-600 mt-1">En retard</p>
+              <p class="text-3xl font-bold text-red-600">{{ chantiers.enRetard }}</p>
+
+            </div>
+          </div>
+
+          <!-- Carte En attente -->
+          <div class="bg-gray-100 rounded-lg p-4">
+            <div>
+              <p class="text-sm text-gray-600 mt-1">En attente</p>
+              <p class="text-3xl font-bold text-orange-500">{{ chantiers.enAttente }}</p>
+
+            </div>
+          </div>
+
+          <!-- Carte Terminées -->
+          <div class="bg-gray-100 rounded-lg p-4">
+            <div>
+              <p class="text-sm text-gray-600 mt-1">Terminées</p>
+              <p class="text-3xl font-bold text-green-600">{{ chantiers.termines }}</p>
+
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Carte En cours -->
-        <div class="bg-gray-100 rounded-lg p-4">
-          <div>
-            <p class="text-sm text-gray-600 mt-1">En cours</p>
-            <p class="text-3xl font-bold text-gray-900">{{ chantiers.enCours }}</p>
-
-          </div>
-        </div>
-        
-        <!-- Carte En retard -->
-        <div class="bg-gray-100 rounded-lg p-4">
-          <div>
-            <p class="text-sm text-gray-600 mt-1">En retard</p>
-            <p class="text-3xl font-bold text-red-600">{{ chantiers.enRetard }}</p>
-
-          </div>
-        </div>
-        
-        <!-- Carte En attente -->
-        <div class="bg-gray-100 rounded-lg p-4">
-          <div>
-            <p class="text-sm text-gray-600 mt-1">En attente</p>
-            <p class="text-3xl font-bold text-orange-500">{{ chantiers.enAttente }}</p>
-
-          </div>
-        </div>
-        
-        <!-- Carte Terminées -->
-        <div class="bg-gray-100 rounded-lg p-4">
-          <div>
-            <p class="text-sm text-gray-600 mt-1">Terminées</p>
-            <p class="text-3xl font-bold text-green-600">{{ chantiers.termines }}</p>
-
-          </div>
-        </div>
-      </div>
-    </div>
 
       <!-- Taux moyen d'avancement -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Taux moyen d'avancement</h2>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        
+
         <div class="relative flex justify-center mt-8">
           <div class="w-64 h-32 relative">
             <svg class="w-full h-full" viewBox="0 0 100 50">
               <!-- Arc de fond -->
-              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#EDF2F7" stroke-width="10" stroke-linecap="round"/>
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#EDF2F7" stroke-width="10"
+                stroke-linecap="round" />
               <!-- Arc de progression -->
-              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#ff5c01" stroke-width="10" 
-                    stroke-linecap="round" 
-                    [attr.stroke-dasharray]="avancement.display.circumference" 
-                    [attr.stroke-dashoffset]="avancement.display.dashOffset"/>
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#ff5c01" stroke-width="10" stroke-linecap="round"
+                [attr.stroke-dasharray]="avancement.display.circumference"
+                [attr.stroke-dashoffset]="avancement.display.dashOffset" />
               <!-- Point à la fin de l'arc -->
-              <circle 
-                [attr.cx]="avancement.display.pointX" 
-                [attr.cy]="avancement.display.pointY" 
-                r="6" 
-                fill="#ff5c01"
-                stroke="#fff"
-                stroke-width="3"
-                filter="url(#shadowFilter)"
-              />
+              <circle [attr.cx]="avancement.display.pointX" [attr.cy]="avancement.display.pointY" r="6" fill="#ff5c01"
+                stroke="#fff" stroke-width="3" filter="url(#shadowFilter)" />
             </svg>
-            
+
             <!-- Texte central -->
             <div class="absolute inset-0 flex flex-col items-center justify-center pt-4">
               <span class="text-4xl font-bold text-gray-900">{{ avancement.pourcentage }}%</span>
@@ -143,20 +144,21 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Container principal avec layout flex -->
         <div class="flex items-start justify-between">
           <!-- Section gauche : Graphique -->
           <div class="relative flex-shrink-0">
             <div class="w-40 h-40 relative">
               <canvas #budgetChart class="w-full h-full"></canvas>
-              
+
               <!-- Étiquette avec bande noire repositionnée à droite du cercle -->
-              <div class="absolute top-4 w-[126px] rounded-[13px] h-[56px] -right-20 bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg">
+              <div
+                class="absolute top-4 w-[126px] rounded-[13px] h-[56px] -right-20 bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg">
                 <div class="text-xs text-gray-300">Consommé</div>
                 <div class="text-white font-bold">{{ formatCurrency(budget.consomme) }}</div>
               </div>
-              
+
               <!-- Pourcentage central -->
               <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <span class="text-3xl font-bold text-gray-900">{{ budget.pourcentageConsomme }}%</span>
@@ -164,7 +166,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Section droite : Légende -->
           <div class="flex flex-col justify-end h-40 space-y-3 text-sm ml-8">
             <div class="flex items-center">
@@ -182,64 +184,52 @@
 
     <!-- Second Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      
-      <!-- Alertes stock matériaux - Design adapté avec bandes -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
+
+      <!-- Alertes stock matériaux - Design Figma -->
+      <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col h-full">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-900">Alertes stock matériaux</h2>
+          <h2 class="text-xl font-bold text-gray-900">Alertes stock matériaux</h2>
           <div class="text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         </div>
-        
-        <div class="space-y-5" *ngIf="stockAlertes.length > 0; else noAlertes">
-          <div *ngFor="let alerte of stockAlertes" class="relative">
-            <!-- Bande colorée à gauche -->
-            <div class="absolute left-0 top-0 bottom-0 w-1 rounded-full" 
-                 [ngClass]="{
-                   'bg-orange-500': alerte.status === 'Faible',
-                   'bg-green-500': alerte.status === 'Normal',
-                   'bg-red-500': alerte.status === 'Critique atteint'
-                 }"></div>
-            
-            <div class="pl-4 pb-4">
-              <!-- Nom du matériau et status -->
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="font-semibold text-gray-900">{{ alerte.nom }}</h3>
-                <span class="px-2 py-1 rounded-full text-xs font-medium" 
-                      [ngClass]="{
-                        'bg-orange-100 text-orange-800': alerte.status === 'Faible',
-                        'bg-green-100 text-green-800': alerte.status === 'Normal',
-                        'bg-red-100 text-red-800': alerte.status === 'Critique atteint'
-                      }">
-                  {{ alerte.status }}
-                </span>
+
+        <div class="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar"
+          *ngIf="stockAlertes.length > 0; else noAlertes">
+          <div *ngFor="let alerte of stockAlertes" class="group">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="font-bold text-gray-900 text-sm">{{ alerte.nom }} ({{ alerte.propriete }})</h3>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ alerte.quantiteActuelle }} units / seuil: {{ alerte.seuil
+                  }} units</p>
               </div>
-              
-              <!-- Barre de progression -->
-              <div class="relative mb-2">
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="h-2 rounded-full transition-all duration-300" 
-                       [style.width.%]="alerte.pourcentage"
-                       [ngClass]="{
-                         'bg-orange-500': alerte.status === 'Faible',
-                         'bg-green-500': alerte.status === 'Normal',
-                         'bg-red-500': alerte.status === 'Critique atteint'
-                       }"></div>
-                </div>
-              </div>
-              
-              <!-- Quantité -->
-              <div class="text-sm text-gray-600">
-                {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil: {{ alerte.seuil }} {{ alerte.unite }}
-              </div>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold" [ngClass]="{
+                      'bg-orange-50 text-orange-600': alerte.status === 'Faible',
+                      'bg-green-50 text-green-600': alerte.status === 'Normal',
+                      'bg-red-50 text-red-600': alerte.status === 'Critique atteint'
+                    }">
+                {{ alerte.status }}
+              </span>
+            </div>
+
+            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500" [style.width.%]="alerte.pourcentage"
+                [ngClass]="{
+                     'bg-orange-500': alerte.status === 'Faible',
+                     'bg-green-500': alerte.status === 'Normal',
+                     'bg-red-500': alerte.status === 'Critique atteint'
+                   }"></div>
             </div>
           </div>
         </div>
         <ng-template #noAlertes>
-          <p class="text-gray-500 text-sm">Aucune alerte matériaux</p>
+          <div class="flex flex-col items-center justify-center flex-1 py-8 text-gray-400">
+            <p class="text-sm">Aucune alerte matériaux</p>
+          </div>
         </ng-template>
       </div>
 
@@ -251,7 +241,7 @@
             <img src="assets/images/dashboard-icons/bar-chart.png" alt="" srcset="">
           </div>
         </div>
-        
+
         <div class="h-48">
           <canvas #progressChart></canvas>
         </div>
@@ -262,10 +252,12 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Incidents signalés (7 jours)</h2>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd" />
           </svg>
         </div>
-        
+
         <div class="h-48">
           <canvas #incidentsChart></canvas>
         </div>
@@ -274,268 +266,267 @@
 
     <!-- Third Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-<!-- Tâches critiques à échéance - Version avec points colorés et ligne verticale -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
+
+      <!-- Tâches critiques à échéance - Design Figma -->
+      <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col h-full">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-900">Tâches critiques à échéance</h2>
+          <h2 class="text-xl font-bold text-gray-900">Tâches critiques à échéance</h2>
           <div class="text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
             </svg>
           </div>
         </div>
-        
-        <div class="relative" *ngIf="tachesCritiques.length > 0; else noTaches">
-          <!-- Ligne verticale transparente qui traverse tous les éléments -->
-          <div class="absolute left-1 top-0 bottom-0 w-px bg-gray-200"></div>
-          
-          <div class="divide-y divide-gray-100">
-            <div *ngFor="let tache of tachesCritiques" class="relative py-4">
-              <!-- Point coloré à gauche, aligné sur la ligne -->
-              <div class="absolute left-0 top-5 h-2 w-2 rounded-full mt-1 z-10" 
-                  [ngClass]="{
+
+        <div class="relative flex-1 overflow-y-auto pr-2 custom-scrollbar"
+          *ngIf="tachesCritiques.length > 0; else noTaches">
+          <!-- Ligne verticale alignée avec les points -->
+          <div class="absolute left-1 top-2 bottom-2 w-px bg-gray-100"></div>
+
+          <div class="space-y-6">
+            <div *ngFor="let tache of tachesCritiques" class="relative pl-6">
+              <!-- Point coloré à gauche -->
+              <div class="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full z-10 border-2 border-white shadow-sm"
+                [ngClass]="{
                     'bg-red-500': tache.status === 'En retard',
                     'bg-orange-500': tache.status === 'Urgent',
                     'bg-green-500': tache.status === 'À jour'
                   }"></div>
-              
-              <div class="pl-4">
-                <div class="flex items-center justify-between">
-                  <h3 class="font-semibold text-gray-900">{{ tache.nom }}</h3>
-                  <span class="px-2 py-1 rounded text-xs font-medium" 
-                        [ngClass]="{
-                          'bg-red-100 text-red-800': tache.status === 'En retard',
-                          'bg-orange-100 text-orange-800': tache.status === 'Urgent',
-                          'bg-green-100 text-green-800': tache.status === 'À jour'
-                        }">
-                    {{ tache.status }}
-                  </span>
+
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ tache.nom }}</h3>
+                  <p class="text-[10px] text-gray-500 mt-1 uppercase font-medium">Échéance : {{ tache.echeance }}</p>
                 </div>
-                <p class="text-sm text-gray-600 mt-1">
-                  Échéance : {{ tache.echeance }}
-                  <span *ngIf="tache.joursRestants !== null" class="text-gray-500">
-                    ({{ tache.joursRestants }} j restants)
-                  </span>
-                </p>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ml-2" [ngClass]="{
+                        'bg-red-50 text-red-600': tache.status === 'En retard',
+                        'bg-orange-50 text-orange-600': tache.status === 'Urgent',
+                        'bg-green-50 text-green-600': tache.status === 'À jour'
+                      }">
+                  {{ tache.status }}
+                </span>
               </div>
             </div>
           </div>
         </div>
         <ng-template #noTaches>
-          <p class="text-gray-500 text-sm py-4">Aucune tâche critique</p>
-        </ng-template>
-      </div>
-
-     <!-- Photos récentes - 3 par ligne avec popup -->
-<div class="bg-white rounded-lg shadow-sm p-6">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-xl font-semibold text-gray-900">Photos récentes</h2>
-    <div class="p-2">
-      <img src="assets/images/dashboard-icons/photos.png" alt="" srcset="">
-    </div>
-  </div>
-  
-  <!-- Grid 3 colonnes -->
-  <div class="grid grid-cols-3 gap-4" *ngIf="photosRecentes.length > 0; else noPhotos">
-    <div *ngFor="let photo of photosRecentes | slice:0:6" 
-         class="relative group cursor-pointer hover:transform hover:scale-105 transition-transform duration-200"
-         (click)="openPhotoModal(photo)">
-      <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-        <!-- Image ou placeholder -->
-        <img *ngIf="photo.src; else placeholder" 
-             [src]="'https://wakana.online/repertoire_chantier/'+photo.src" 
-             [alt]="photo.alt"
-             class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
-        <ng-template #placeholder>
-          <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-            <svg class="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
+          <div class="flex flex-col items-center justify-center flex-1 py-8 text-gray-400">
+            <p class="text-sm">Aucune tâche critique</p>
           </div>
         </ng-template>
       </div>
-      
-      <!-- Badge phase -->
-      <div class="absolute bottom-2 left-2 text-white bg-[#3d3734] bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-       <div>{{ photo.phase || photo.alt }}</div> 
-        <span>    {{ photo.date }}</span>
+
+      <!-- Photos récentes - 3 par ligne avec popup -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Photos récentes</h2>
+          <div class="p-2">
+            <img src="assets/images/dashboard-icons/photos.png" alt="" srcset="">
+          </div>
+        </div>
+
+        <!-- Grid 3 colonnes -->
+        <div class="grid grid-cols-3 gap-4" *ngIf="photosRecentes.length > 0; else noPhotos">
+          <div *ngFor="let photo of photosRecentes | slice:0:6"
+            class="relative group cursor-pointer hover:transform hover:scale-105 transition-transform duration-200"
+            (click)="openPhotoModal(photo)">
+            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+              <!-- Image ou placeholder -->
+              <img *ngIf="photo.src; else placeholder" [src]="'https://wakana.online/repertoire_chantier/'+photo.src"
+                [alt]="photo.alt" class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
+              <ng-template #placeholder>
+                <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                  <svg class="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Badge phase -->
+            <div
+              class="absolute bottom-2 left-2 text-white bg-[#3d3734] bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+              <div>{{ photo.phase || photo.alt }}</div>
+              <span> {{ photo.date }}</span>
+            </div>
+
+
+
+            <!-- Badge date -->
+            <div class="absolute top-2 right-2 bg-black-100 text-white text-xs px-2 py-1 rounded">
+
+            </div>
+
+            <!-- Overlay au hover -->
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+              <svg class="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noPhotos>
+          <p class="text-gray-500 text-sm text-center py-8">Aucune photo récente</p>
+        </ng-template>
       </div>
 
-      
-      
-      <!-- Badge date -->
-      <div class="absolute top-2 right-2 bg-black-100 text-white text-xs px-2 py-1 rounded">
-    
-      </div>
-      
-      <!-- Overlay au hover -->
-      <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
-        <svg class="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" 
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-        </svg>
-      </div>
-    </div>
-  </div>
-  
-  <ng-template #noPhotos>
-    <p class="text-gray-500 text-sm text-center py-8">Aucune photo récente</p>
-  </ng-template>
-</div>
-
-<!-- Modal popup pour afficher la photo -->
-<div *ngIf="selectedPhoto" 
-     class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-     (click)="closePhotoModal()">
-  <div class="relative max-w-4xl max-h-[90vh] m-4" (click)="$event.stopPropagation()">
-    <!-- Bouton fermer -->
-    <button (click)="closePhotoModal()" 
+      <!-- Modal popup pour afficher la photo -->
+      <div *ngIf="selectedPhoto" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+        (click)="closePhotoModal()">
+        <div class="relative max-w-4xl max-h-[90vh] m-4" (click)="$event.stopPropagation()">
+          <!-- Bouton fermer -->
+          <button (click)="closePhotoModal()"
             class="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10">
-      <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    
-    <!-- Container de l'image -->
-    <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
-      <!-- Image principale -->
-      <div class="relative">
-        <img [src]="'https://wakana.online/repertoire_chantier/'+selectedPhoto.src" 
-             [alt]="selectedPhoto.alt"
-             class="w-full max-h-[70vh] object-contain">
-        
-        <!-- Navigation si plusieurs images -->
-        <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1" 
-             class="absolute inset-y-0 left-0 flex items-center">
-          <button (click)="previousImage()" 
-                  class="bg-black bg-opacity-50 text-white p-2 ml-2 rounded-full hover:bg-opacity-75 transition-all">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
-        </div>
-        
-        <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1" 
-             class="absolute inset-y-0 right-0 flex items-center">
-          <button (click)="nextImage()" 
-                  class="bg-black bg-opacity-50 text-white p-2 mr-2 rounded-full hover:bg-opacity-75 transition-all">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Informations de la photo -->
-      <div class="p-4 bg-gray-50">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">{{ selectedPhoto.phase || selectedPhoto.alt }}</h3>
-            <p *ngIf="selectedPhoto.description" class="text-gray-600 mt-1">{{ selectedPhoto.description }}</p>
-            <p class="text-sm text-gray-500 mt-2">
-              <span class="inline-flex items-center">
-                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                {{ selectedPhoto.date }}
-              </span>
-            </p>
-          </div>
-          
-          <!-- Badge entrée/sortie -->
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="selectedPhoto.estEntree ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'">
-            {{ selectedPhoto.estEntree ? 'Entrée' : 'Sortie' }}
-          </span>
-        </div>
-        
-        <!-- Miniatures si plusieurs images -->
-        <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1" 
-             class="flex gap-2 mt-4 overflow-x-auto">
-          <img *ngFor="let img of selectedPhoto.images; let i = index" 
-               [src]="'https://wakana.online/repertoire_chantier/'+img"
-               (click)="selectImageIndex(i)"
-               [class]="'w-16 h-16 object-cover rounded cursor-pointer border-2 transition-all ' + 
-                       (currentImageIndex === i ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400')"
-               alt="Miniature">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-    <!-- Résumé des performances - Version avec valeurs à gauche -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
-        <div class="p-2">
-          <i class="fa-solid fa-chart-line"></i>
-        </div>
-      </div>
-      
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Carte 1 - Taux moyen d'avancement -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Taux moyen d'avanc...</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
+          <!-- Container de l'image -->
+          <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
+            <!-- Image principale -->
+            <div class="relative">
+              <img [src]="'https://wakana.online/repertoire_chantier/'+selectedPhoto.src" [alt]="selectedPhoto.alt"
+                class="w-full max-h-[70vh] object-contain">
+
+              <!-- Navigation si plusieurs images -->
+              <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1"
+                class="absolute inset-y-0 left-0 flex items-center">
+                <button (click)="previousImage()"
+                  class="bg-black bg-opacity-50 text-white p-2 ml-2 rounded-full hover:bg-opacity-75 transition-all">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1"
+                class="absolute inset-y-0 right-0 flex items-center">
+                <button (click)="nextImage()"
+                  class="bg-black bg-opacity-50 text-white p-2 mr-2 rounded-full hover:bg-opacity-75 transition-all">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- Carte 2 - Budget consommé -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Budget consommé</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Carte 3 - Incidents -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Incidents (7j)</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Carte 4 - Présence moyenne -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Présence moyenne</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Carte 5 - Tâches en retard -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Tâches en retard</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.tachesRetard }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Carte 6 - Matériaux en alerte -->
-        <div class="bg-gray-100 rounded-lg p-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-gray-600 mt-1">Matériaux en alerte</p>
-              <p class="text-2xl font-bold text-gray-900">{{ performances.materiauxAlerte }}</p>
+
+            <!-- Informations de la photo -->
+            <div class="p-4 bg-gray-50">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">{{ selectedPhoto.phase || selectedPhoto.alt }}</h3>
+                  <p *ngIf="selectedPhoto.description" class="text-gray-600 mt-1">{{ selectedPhoto.description }}</p>
+                  <p class="text-sm text-gray-500 mt-2">
+                    <span class="inline-flex items-center">
+                      <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                      </svg>
+                      {{ selectedPhoto.date }}
+                    </span>
+                  </p>
+                </div>
+
+                <!-- Badge entrée/sortie -->
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  [ngClass]="selectedPhoto.estEntree ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'">
+                  {{ selectedPhoto.estEntree ? 'Entrée' : 'Sortie' }}
+                </span>
+              </div>
+
+              <!-- Miniatures si plusieurs images -->
+              <div *ngIf="selectedPhoto.images && selectedPhoto.images.length > 1"
+                class="flex gap-2 mt-4 overflow-x-auto">
+                <img *ngFor="let img of selectedPhoto.images; let i = index"
+                  [src]="'https://wakana.online/repertoire_chantier/'+img" (click)="selectImageIndex(i)" [class]="'w-16 h-16 object-cover rounded cursor-pointer border-2 transition-all ' + 
+                       (currentImageIndex === i ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400')"
+                  alt="Miniature">
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <!-- Résumé des performances - Version avec valeurs à gauche -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Résumé des performances</h2>
+          <div class="p-2">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Carte 1 - Taux moyen d'avancement -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Taux moyen d'avanc...</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.tauxAvancement }}%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 2 - Budget consommé -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Budget consommé</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.budgetConsomme }}%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 3 - Incidents -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Incidents (7j)</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.incidents }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 4 - Présence moyenne -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Présence moyenne</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.presenceMoyenne }}%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 5 - Tâches en retard -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Tâches en retard</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.tachesRetard }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 6 - Matériaux en alerte -->
+          <div class="bg-gray-100 rounded-lg p-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-gray-600 mt-1">Matériaux en alerte</p>
+                <p class="text-2xl font-bold text-gray-900">{{ performances.materiauxAlerte }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

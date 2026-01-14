@@ -6,14 +6,12 @@ import { catchError, retry, timeout } from 'rxjs/operators';
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
 
-  constructor() {}
+  constructor() { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Ajouter des en-têtes pour éviter les problèmes de chunked encoding
+    // Ajouter des en-têtes pour optimiser la gestion du cache
     const modifiedRequest = request.clone({
       setHeaders: {
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
       }
@@ -26,7 +24,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
       retry(2),
       catchError((error: HttpErrorResponse) => {
         let errorMsg = '';
-        
+
         if (error.error instanceof ErrorEvent) {
           // Erreur côté client
           errorMsg = `Erreur: ${error.error.message}`;
@@ -39,7 +37,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             errorMsg = `Code: ${error.status}, Message: ${error.message}`;
           }
         }
-        
+
         console.error('Erreur interceptée:', error);
         return throwError(() => new Error(errorMsg));
       })

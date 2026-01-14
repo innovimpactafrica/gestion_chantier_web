@@ -1,6 +1,6 @@
 // project-detail-header.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TaskBoardComponent } from "../task-board/task-board.component";
 import { TeamListComponent } from '../team-list/team-list.component';
 import { DocumentsComponent } from '../documents/documents.component';
@@ -30,11 +30,12 @@ import { PointingAddressComponent } from "../components/project/pointing-adress/
     ProjectAlertComponent,
     EtudeBetComponent,
     PointingAddressComponent
-],
+  ],
   templateUrl: './project-detail-header.component.html',
   styleUrl: './project-detail-header.component.css'
 })
 export class ProjectDetailHeaderComponent implements OnInit {
+  private isBrowser: boolean;
   activeTab: string = 'presentation';
   projectId: number | null = null;
   stockAlerts: any;
@@ -53,8 +54,11 @@ export class ProjectDetailHeaderComponent implements OnInit {
     private route: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
     private realestateService: RealestateService,
-    private sanitizer: DomSanitizer
-  ) {}
+    private sanitizer: DomSanitizer,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -77,7 +81,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
     this.realestateService.getRealEstateDetails(this.projectId).subscribe({
       next: (response) => {
         console.log('📋 Réponse complète du serveur:', response);
-        
+
         // Extraire realEstateProperty de la réponse
         if (response && response.realEstateProperty) {
           this.projectDetails = response.realEstateProperty;
@@ -87,9 +91,9 @@ export class ProjectDetailHeaderComponent implements OnInit {
         } else {
           this.projectDetails = response;
         }
-        
+
         this.isLoadingProject = false;
-        
+
         // Générer le QR code si le projet est chargé
         if (this.projectDetails) {
           this.generateQrCode();
@@ -103,45 +107,45 @@ export class ProjectDetailHeaderComponent implements OnInit {
     });
   }
 
-/**
- * Génère le QR code à partir de la clé retournée par le backend
- */
-private async generateQrCode(): Promise<void> {
-  try {
-    if (!this.projectDetails?.qrcode) {
-      console.warn('⚠️ Aucun QR code disponible pour ce projet');
+  /**
+   * Génère le QR code à partir de la clé retournée par le backend
+   */
+  private async generateQrCode(): Promise<void> {
+    try {
+      if (!this.projectDetails?.qrcode) {
+        console.warn('⚠️ Aucun QR code disponible pour ce projet');
+        this.qrCodeDataUrl = null;
+        return;
+      }
+
+      // Utiliser la clé du backend comme valeur du QR code
+      const qrCodeValue = this.projectDetails.qrcode;
+
+      // OU créer une URL complète si nécessaire
+      // const qrCodeValue = `${window.location.origin}/projects/${this.projectId}`;
+
+      console.log('🔄 Génération du QR code pour:', qrCodeValue);
+
+      // Générer le QR code en data URL
+      const qrCodeUrl = await QRCode.toDataURL(qrCodeValue, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        },
+        errorCorrectionLevel: 'M'
+      });
+
+      this.qrCodeDataUrl = this.sanitizer.bypassSecurityTrustUrl(qrCodeUrl);
+      this.qrCodeValue = qrCodeValue;
+
+      console.log('✅ QR Code généré avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la génération du QR code:', error);
       this.qrCodeDataUrl = null;
-      return;
     }
-
-    // Utiliser la clé du backend comme valeur du QR code
-    const qrCodeValue = this.projectDetails.qrcode;
-    
-    // OU créer une URL complète si nécessaire
-    // const qrCodeValue = `${window.location.origin}/projects/${this.projectId}`;
-    
-    console.log('🔄 Génération du QR code pour:', qrCodeValue);
-
-    // Générer le QR code en data URL
-    const qrCodeUrl = await QRCode.toDataURL(qrCodeValue, {
-      width: 256,
-      margin: 2,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
-      },
-      errorCorrectionLevel: 'M'
-    });
-
-    this.qrCodeDataUrl = this.sanitizer.bypassSecurityTrustUrl(qrCodeUrl);
-    this.qrCodeValue = qrCodeValue;
-    
-    console.log('✅ QR Code généré avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la génération du QR code:', error);
-    this.qrCodeDataUrl = null;
   }
-}
 
   /**
    * Mapper le statut de construction
@@ -173,34 +177,34 @@ private async generateQrCode(): Promise<void> {
    */
   getLastUpdateDate(): string {
     if (!this.projectDetails?.endDate) {
-      return new Date().toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'short', 
-        year: 'numeric' 
+      return new Date().toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
       });
     }
-    
+
     try {
       // Gérer le format de date tableau [2025, 12, 13, 0, 0]
       const dateArray = this.projectDetails.endDate;
       let date: Date;
-      
+
       if (Array.isArray(dateArray)) {
         date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
       } else {
         date = new Date(this.projectDetails.endDate);
       }
-      
-      return date.toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'short', 
-        year: 'numeric' 
+
+      return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
       });
     } catch {
-      return new Date().toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'short', 
-        year: 'numeric' 
+      return new Date().toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
       });
     }
   }
@@ -217,42 +221,42 @@ private async generateQrCode(): Promise<void> {
     this.showQrModal = false;
   }
 
- /**
- * Télécharger le QR code
- */
-downloadQrCode(): void {
-  if (!this.qrCodeDataUrl || !this.projectDetails) return;
+  /**
+  * Télécharger le QR code
+  */
+  downloadQrCode(): void {
+    if (!this.qrCodeDataUrl || !this.projectDetails || !this.isBrowser) return;
 
-  try {
-    // Créer un nom de fichier sécurisé
-    const projectName = this.projectDetails.name || 'projet';
-    const safeFileName = projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    
-    const link = document.createElement('a');
-    link.href = this.qrCodeDataUrl as string;
-    link.download = `qrcode-${safeFileName}-${this.projectId}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    console.log('✅ QR Code téléchargé');
-  } catch (error) {
-    console.error('❌ Erreur lors du téléchargement:', error);
+    try {
+      // Créer un nom de fichier sécurisé
+      const projectName = this.projectDetails.name || 'projet';
+      const safeFileName = projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+      const link = document.createElement('a');
+      link.href = this.qrCodeDataUrl as string;
+      link.download = `qrcode-${safeFileName}-${this.projectId}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('✅ QR Code téléchargé');
+    } catch (error) {
+      console.error('❌ Erreur lors du téléchargement:', error);
+    }
   }
-}
-/**
- * Gère les erreurs de chargement du QR code
- */
-handleQrCodeError(): void {
-  console.error('❌ Erreur lors du chargement de l\'image QR code');
-  this.qrCodeDataUrl = null;
-}
+  /**
+   * Gère les erreurs de chargement du QR code
+   */
+  handleQrCodeError(): void {
+    console.error('❌ Erreur lors du chargement de l\'image QR code');
+    this.qrCodeDataUrl = null;
+  }
 
   /**
    * Imprimer le QR code
    */
   printQrCode(): void {
-    if (!this.qrCodeDataUrl) return;
+    if (!this.qrCodeDataUrl || !this.isBrowser) return;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;

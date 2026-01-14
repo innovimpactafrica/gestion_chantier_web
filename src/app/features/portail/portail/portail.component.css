@@ -1,36 +1,36 @@
 @keyframes fadeInUp {
   from {
-      opacity: 0;
-      transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
   }
 
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes fadeInLeft {
   from {
-      opacity: 0;
-      transform: translateX(-20px);
+    opacity: 0;
+    transform: translateX(-20px);
   }
 
   to {
-      opacity: 1;
-      transform: translateX(0);
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
 @keyframes fadeInRight {
   from {
-      opacity: 0;
-      transform: translateX(20px);
+    opacity: 0;
+    transform: translateX(20px);
   }
 
   to {
-      opacity: 1;
-      transform: translateX(0);
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -52,6 +52,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -63,6 +64,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -71,9 +73,12 @@
 
 /* Animation pulse pour skeleton */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -85,33 +90,45 @@
 
 /* Logo Slider Animation - Style amcham.org */
 @keyframes slideLogos {
-0% {
-  transform: translateX(0);
-}
-100% {
-  transform: translateX(-50%);
-}
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .logo-slider-container {
-width: 100%;
+  width: 100%;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-100% / 3));
+  }
 }
 
 .logo-slider-track {
-animation: slideLogos 25s linear infinite;
-width: fit-content;
+  animation: scroll 40s linear infinite;
+  width: max-content;
 }
 
+.logo-slider-track.paused,
 .logo-slider-track:hover {
-animation-play-state: paused;
+  animation-play-state: paused;
 }
 
 .logo-slide {
-opacity: 0.7;
-transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .logo-slide:hover {
-opacity: 1;
-transform: scale(1.05);
+  opacity: 1;
+  transform: scale(1.05);
 }

@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gray-50">
     <!-- Header avec Navigation et Toggle de langue -->
     <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
             <div class="flex justify-between items-center w-full">
                 <!-- Logo -->
                 <button (click)="scrollToSection('accueil', $event)" class="flex items-center space-x-2 flex-shrink-0">
@@ -48,7 +48,7 @@
                         <select (change)="onLanguageChange($event)" [value]="currentLang"
                             class="appearance-none h-10 pl-10 pr-8 py-2 bg-white border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer">
                             <option value="FR">FR</option>
-                            <option value="EN">EN</option>
+                            <option value="EN">En</option>
                         </select>
                         <!-- Icône drapeau à gauche -->
                         <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -175,9 +175,9 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="accueil" class="pt-32 py-20 pb-20 px-4 sm:px-6 lg:px-8">
-        <div class="container mx-auto">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+    <section id="accueil" class="min-h-screen flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="w-full max-w-screen-2xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <!-- Left Content -->
                 <div class="space-y-6 animate-fade-in-left">
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
@@ -213,8 +213,8 @@
     </section>&nbsp;&nbsp;&nbsp;
 
     <!-- À propos Section -->
-    <section id="apropos" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-7xl mx-auto">
+    <section id="apropos" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <!-- Left Content - Images -->
                 <div class="w-full hover:scale-105 transition-transform duration-300">
@@ -273,9 +273,10 @@
             </div>
         </div>
     </section>
+
     <!-- Profils utilisateurs Section -->
-    <section id="profils" class="py-20 px-4 sm:px-6 lg:px-8 bg-white animate-fade-In-Up">
-        <div class="max-w-7xl mx-auto relative">
+    <section id="profils" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white animate-fade-In-Up">
+        <div class="max-w-screen-2xl mx-auto relative">
             <div class="text-center mb-16 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -329,8 +330,8 @@
 
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
-        class="py-20 px-4 sm:px-6 lg:px-8 bg-cover bg-center">
-        <div class="max-w-7xl mx-auto ">
+        class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-cover bg-center">
+        <div class="max-w-screen-2xl mx-auto ">
             <div class="text-center mb-4 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -434,8 +435,8 @@
     </section>
 
     <!-- Section Pricing / Abonnements -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
+    <section class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
+        <div class="max-w-screen-2xl mx-auto">
             <!-- Badge -->
             <div class="text-center mb-8">
                 <span class="inline-block px-6 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-medium">
@@ -505,6 +506,7 @@
                         {{ t('pricing.free.btn') }}
                     </button>
                 </div>
+
                 <!-- Plan PREMIUM (Dynamique avec animation - Recommandé) -->
                 <div *ngIf="currentPremiumPlan" [@planFade]="animationKey"
                     class="bg-white rounded-lg p-8 shadow-lg border-2 border-orange-500 relative">
@@ -658,8 +660,8 @@
         </div>
     </section>
     <!-- Section Téléchargez l'application -->
-    <section id="telecharger-app" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
+    <section id="telecharger-app" class="pt-20 pb-0 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Contenu gauche -->
                 <div>
@@ -690,17 +692,21 @@
                     </ul>
 
                     <div class="flex flex-wrap gap-4">
-                        <button
+                        <a href="https://apps.apple.com/sn/app/btp-connect/id6757388268?l=fr-FR" target="_blank"
+                            rel="noopener noreferrer"
                             class="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+
                             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                                 <path
                                     d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                             </svg>
+
                             <div class="text-left">
                                 <div class="text-xs">{{ t('download.btn.appstore') }}</div>
                                 <div class="text-sm font-semibold">{{ t('download.btn.appstore.text') }}</div>
                             </div>
-                        </button>
+                        </a>
+
 
                         <a href="https://play.google.com/store/apps/details?id=com.wakana.btpconnect" target="_blank"
                             rel="noopener noreferrer"
@@ -772,220 +778,60 @@
             </div>
         </div>
     </section>
-    <!-- Section à commenter pour le moment -->
-    <!-- Section Témoignages -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-orange-50">
-        <div class="max-w-7xl mx-auto">
 
-            <!-- <div class="text-center mb-6">
-                <span class="inline-block px-6 py-2 bg-orange-200 text-orange-700 rounded-full text-sm font-medium">
-                    {{ t('testimonials.badge') }}
-                </span>
-            </div> -->
+    <!-- Section Témoignages et Partenaires -->
+    <section class="pt-0 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16 bg-orange-50">
+        <!-- Logos des entreprises - Slider animé style amcham.org -->
 
+        <!-- <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                {{ t('testimonials.title') }}
+            </h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                {{ t('testimonials.description') }}
+            </p>
+        </div> -->
 
-            <!-- <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">
-                    {{ t('testimonials.title') }}
-                </h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    {{ t('testimonials.description') }}
-                </p>
-            </div> -->
+        <!-- Logos des entreprises - Slider animé style -->
+        <div class="max-w-screen-2xl mx-auto py-12">
 
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-
-                <!-- <div class="bg-white rounded-lg p-8 shadow-sm relative">
-
-                    <div class="flex gap-1 mb-4">
-                        <svg *ngFor="let star of [1,2,3,4,5]" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
-                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-
-
-                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-
-                    <p class="text-gray-700 mb-6 leading-relaxed">
-                        {{ t('testimonial1.text') }}
-                    </p>
-
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <div class="font-semibold text-gray-900">{{ t('testimonial1.name') }}</div>
-                            <div class="text-sm text-gray-600">{{ t('testimonial1.position') }}</div>
-                        </div>
-                    </div>
-                </div> -->
-
-
-                <!-- <div class="bg-white rounded-lg p-8 shadow-sm relative">
-
-                    <div class="flex gap-1 mb-4">
-                        <svg *ngFor="let star of [1,2,3,4,5]" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
-                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-
-
-                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-
-                    <p class="text-gray-700 mb-6 leading-relaxed">
-                        {{ t('testimonial2.text') }}
-                    </p>
-
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <div class="font-semibold text-gray-900">{{ t('testimonial2.name') }}</div>
-                            <div class="text-sm text-gray-600">{{ t('testimonial2.position') }}</div>
-                        </div>
-                    </div>
-                </div> -->
-
-
-                <!-- <div class="bg-white rounded-lg p-8 shadow-sm relative">
-
-                    <div class="flex gap-1 mb-4">
-                        <svg *ngFor="let star of [1,2,3,4,5]" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9.60404 1.91274C9.64056 1.83895 9.69697 1.77685 9.76692 1.73342C9.83686 1.69 9.91755 1.66699 9.99987 1.66699C10.0822 1.66699 10.1629 1.69 10.2328 1.73342C10.3028 1.77685 10.3592 1.83895 10.3957 1.91274L12.3207 5.8119C12.4475 6.06854 12.6347 6.29058 12.8662 6.45895C13.0977 6.62732 13.3666 6.737 13.6499 6.77857L17.9549 7.40857C18.0364 7.42039 18.1131 7.4548 18.1761 7.5079C18.2391 7.56101 18.2861 7.63069 18.3116 7.70908C18.337 7.78746 18.3401 7.87141 18.3204 7.95143C18.3006 8.03146 18.2589 8.10436 18.1999 8.1619L15.0865 11.1936C14.8812 11.3937 14.7276 11.6406 14.6389 11.9133C14.5502 12.1859 14.5291 12.476 14.5774 12.7586L15.3124 17.0419C15.3268 17.1234 15.318 17.2074 15.287 17.2841C15.2559 17.3609 15.204 17.4274 15.137 17.4761C15.07 17.5247 14.9907 17.5536 14.9081 17.5593C14.8255 17.5651 14.743 17.5475 14.6699 17.5086L10.8215 15.4852C10.568 15.3521 10.2859 15.2825 9.99946 15.2825C9.71306 15.2825 9.43094 15.3521 9.17737 15.4852L5.32987 17.5086C5.25681 17.5472 5.17437 17.5646 5.09191 17.5588C5.00946 17.5529 4.9303 17.524 4.86345 17.4754C4.7966 17.4268 4.74473 17.3604 4.71375 17.2838C4.68277 17.2071 4.67392 17.1233 4.68821 17.0419L5.42237 12.7594C5.47087 12.4767 5.44986 12.1864 5.36115 11.9136C5.27245 11.6408 5.11871 11.3937 4.91321 11.1936L1.79987 8.16274C1.74037 8.10526 1.6982 8.03223 1.67817 7.95197C1.65815 7.8717 1.66107 7.78742 1.6866 7.70873C1.71214 7.63004 1.75926 7.5601 1.8226 7.50689C1.88594 7.45367 1.96296 7.41932 2.04487 7.40774L6.34904 6.77857C6.63259 6.73732 6.90186 6.62778 7.13369 6.45939C7.36552 6.291 7.55296 6.0688 7.67987 5.8119L9.60404 1.91274Z"
-                                fill="black" stroke="#FACC15" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-
-
-                    <svg class="absolute top-6 right-6 w-12 h-12 text-orange-200" viewBox="0 0 40 40" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M26.6663 5C25.7823 5 24.9344 5.35119 24.3093 5.97631C23.6842 6.60143 23.333 7.44928 23.333 8.33333V18.3333C23.333 19.2174 23.6842 20.0652 24.3093 20.6904C24.9344 21.3155 25.7823 21.6667 26.6663 21.6667C27.1084 21.6667 27.5323 21.8423 27.8449 22.1548C28.1574 22.4674 28.333 22.8913 28.333 23.3333V25C28.333 25.8841 27.9818 26.7319 27.3567 27.357C26.7316 27.9821 25.8837 28.3333 24.9997 28.3333C24.5576 28.3333 24.1337 28.5089 23.8212 28.8215C23.5086 29.134 23.333 29.558 23.333 30V33.3333C23.333 33.7754 23.5086 34.1993 23.8212 34.5118C24.1337 34.8244 24.5576 35 24.9997 35C27.6518 35 30.1954 33.9464 32.0707 32.0711C33.9461 30.1957 34.9997 27.6522 34.9997 25V8.33333C34.9997 7.44928 34.6485 6.60143 34.0234 5.97631C33.3982 5.35119 32.5504 5 31.6663 5H26.6663Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M8.33333 5C7.44928 5 6.60143 5.35119 5.97631 5.97631C5.35119 6.60143 5 7.44928 5 8.33333V18.3333C5 19.2174 5.35119 20.0652 5.97631 20.6904C6.60143 21.3155 7.44928 21.6667 8.33333 21.6667C8.77536 21.6667 9.19928 21.8423 9.51184 22.1548C9.82441 22.4674 10 22.8913 10 23.3333V25C10 25.8841 9.64881 26.7319 9.02369 27.357C8.39857 27.9821 7.55072 28.3333 6.66667 28.3333C6.22464 28.3333 5.80072 28.5089 5.48816 28.8215C5.17559 29.134 5 29.558 5 30V33.3333C5 33.7754 5.17559 34.1993 5.48816 34.5118C5.80072 34.8244 6.22464 35 6.66667 35C9.31883 35 11.8624 33.9464 13.7377 32.0711C15.6131 30.1957 16.6667 27.6522 16.6667 25V8.33333C16.6667 7.44928 16.3155 6.60143 15.6904 5.97631C15.0652 5.35119 14.2174 5 13.3333 5H8.33333Z"
-                            stroke="#FED7AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-
-                    <p class="text-gray-700 mb-6 leading-relaxed">
-                        {{ t('testimonial3.text') }}
-                    </p>
-
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <div class="font-semibold text-gray-900">{{ t('testimonial3.name') }}</div>
-                            <div class="text-sm text-gray-600">{{ t('testimonial3.position') }}</div>
-                        </div>
-                    </div>
-                </div> -->
+            <!-- Loader state -->
+            <div *ngIf="isLoadingPartners()" class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
             </div>
 
-            <!-- Logos des entreprises - Slider animé style amcham.org -->
-            <div class="logo-slider-container relative overflow-hidden py-4">
-                <!-- Gradient overlays for smooth edges -->
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-orange-50 to-transparent z-10 pointer-events-none">
-                </div>
-                <div
-                    class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-orange-50 to-transparent z-10 pointer-events-none">
-                </div>
+            <!-- Grid layout for partners (centered and clear) -->
+            <div *ngIf="!isLoadingPartners() && duplicatedPartners().length > 0"
+                class="flex flex-wrap justify-center items-center gap-8 md:gap-12 lg:gap-16 mt-12">
 
-                <!-- Slider track with duplicated logos for seamless infinite scroll -->
-                <div class="logo-slider-track flex items-center gap-16">
-                    <!-- First set of logos -->
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300" src="assets/images/cse.png"
-                            alt="Logo cse" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300"
-                            src="assets/images/eiffage.png" alt="Logo eiffage" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300" src="assets/images/nge.png"
-                            alt="Logo nge" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300"
-                            src="assets/images/soeco.png" alt="Logo soeco" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300"
-                            src="assets/images/colas.png" alt="Logo Colas" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300"
-                            src="assets/images/snconst.png" alt="Logo snconst" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain transition-all duration-300" src="assets/images/btp2.png"
-                            alt="Logo btp2" />
-                    </div>
-
-                    <!-- Duplicated logos for seamless looping -->
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300" src="assets/images/cse.png"
-                            alt="Logo cse" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300"
-                            src="assets/images/eiffage.png" alt="Logo eiffage" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300" src="assets/images/nge.png"
-                            alt="Logo nge" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300"
-                            src="assets/images/soeco.png" alt="Logo soeco" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300"
-                            src="assets/images/colas.png" alt="Logo Colas" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300"
-                            src="assets/images/snconst.png" alt="Logo snconst" />
-                    </div>
-                    <div class="logo-slide flex-shrink-0 flex items-center justify-center w-32">
-                        <img class="h-14 w-auto object-contain  transition-all duration-300"
-                            src="assets/images/btp2.png" alt="Logo btp2" />
-                    </div>
+                <div *ngFor="let partner of duplicatedPartners()"
+                    class="logo-slide flex flex-col items-center justify-center group" data-aos="fade-up">
+                    <a [href]="partner.link || '#'" target="_blank"
+                        class="block transition-all duration-300 transform hover:scale-110">
+                        <div
+                            class="w-28 h-20 md:w-36 md:h-24 flex items-center justify-center bg-white rounded-2xl p-4 shadow-sm group-hover:shadow-xl border border-gray-100 transition-all">
+                            <img class="h-10 md:h-14 w-auto object-contain transition-all duration-500"
+                                [src]="partner.logo ? (baseUrl + partner.logo) : 'assets/images/placeholder-logo.png'"
+                                [alt]="partner.name" (error)="handleLogoError($event)" />
+                        </div>
+                        <!-- <span
+                            class="mt-3 text-sm font-semibold text-gray-400 group-hover:text-orange-600 transition-colors text-center block max-w-[140px] truncate">
+                            {{ partner.name }}
+                        </span> -->
+                    </a>
                 </div>
+            </div>
+
+            <!-- Empty state -->
+            <div *ngIf="!isLoadingPartners() && partners().length === 0" class="text-center py-8 text-gray-400">
+                {{ t('partners.empty') || 'Nos partenaires arrivent bientôt' }}
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#1a1f2e] text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
+    <footer class="bg-[#1a1f2e] text-white py-16 px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- Colonne 1 -->
                 <div>
@@ -1041,7 +887,7 @@
                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <a href="tel:+221771234567" class="text-gray-400 hover:text-white transition-colors">
-                                +221 33 971 41 12
+                                +221 77 123 45 67
                             </a>
                         </li>
                         <li class="flex items-center gap-3">
@@ -1093,51 +939,3 @@
             </div>
         </div>
     </footer>
-    <script>
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
-        }
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    // Close mobile menu if open
-                    const mobileMenu = document.getElementById('mobileMenu');
-                    if (!mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                }
-            });
-        });
-
-        // Add scroll animation trigger
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe all animated elements
-        document.querySelectorAll('.animate-fade-in-up, .animate-fade-in-left, .animate-fade-in-right').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            observer.observe(el);
-        });
-    </script>
-</div>

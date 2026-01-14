@@ -518,24 +518,24 @@ selectImageIndex(index: number): void {
       return [];
     }
   
-    // Définir l'ordre exact des phases avec leurs couleurs spécifiques
+    // Définir l'ordre exact des phases avec leurs couleurs spécifiques et libellés lisibles
     const phasesConfig = [
-      { nom: 'GROS_OEUVRE', couleur: '#2ECC71' },    // Vert
-      { nom: 'SECOND_OEUVRE', couleur: '#F39C12' },  // Orange
-      { nom: 'FINITION', couleur: '#EBECF0' }        // Gris clair
+      { id: 'GROS_OEUVRE', nom: 'Gros œuvre', couleur: '#2ECC71' },    // Vert
+      { id: 'SECOND_OEUVRE', nom: 'Second œuvre', couleur: '#F39C12' }, // Orange
+      { id: 'FINITION', nom: 'Finition', couleur: '#EBECF0' }        // Gris clair
     ];
     
     // Créer un mapping pour l'ordre et les couleurs
-    const phaseConfigMap = new Map(phasesConfig.map(phase => [phase.nom, phase]));
+    const phaseConfigMap = new Map(phasesConfig.map(phase => [phase.id, phase]));
     
     // Traiter les phases
     const phasesProcessed = etatAvancement.map((phase: PhaseIndicator) => {
-      const config = phaseConfigMap.get(phase.phaseName) || { couleur: this.generateColor(0) };
+      const config = phaseConfigMap.get(phase.phaseName) || { nom: phase.phaseName, couleur: this.generateColor(0) };
       return {
-        nom: phase.phaseName,
+        nom: config.nom,
         pourcentage: Math.round(phase.averageProgressPercentage || 0),
         couleur: config.couleur,
-        ordre: phasesConfig.findIndex(p => p.nom === phase.phaseName)
+        ordre: phasesConfig.findIndex(p => p.id === phase.phaseName)
       };
     });
   
@@ -668,9 +668,8 @@ selectImageIndex(index: number): void {
       
       if (i === 0) {
         labels.push("Aujourd'hui");
-      } else if (i === 1) {
-        labels.push("Hier");
       } else {
+        // Figma mockup uses J-6, J-5, etc.
         labels.push(`J-${i}`);
       }
       

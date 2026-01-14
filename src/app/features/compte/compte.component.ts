@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../auth/services/auth.service';
 import { SubscriptionService, Invoice, InvoiceResponse, SubscriptionPlan, UserSubscription } from '../../../services/subscription.service';
@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { environment } from '../../../environments/environment';
- 
+
 @Component({
   selector: 'app-compte',
   standalone: true,
@@ -18,13 +18,13 @@ import { environment } from '../../../environments/environment';
 export class CompteComponent implements OnInit, OnDestroy {
   // Constante pour le répertoire de base des photos
 
-  
+
   activeTab = signal<'informations' | 'abonnements' | 'factures'>('informations');
   userForm!: FormGroup;
   currentUser = signal<User | null>(null);
   isLoading = signal(false);
   isSaving = signal(false);
-  
+
   // Messages de notification
   successMessage = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
@@ -68,128 +68,131 @@ export class CompteComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private subscriptionService = inject(SubscriptionService);
-// Dans compte.component.ts, ajouter cette logique dans ngOnInit() :
-private route = inject(ActivatedRoute);
-private router = inject(Router);
-ngOnInit(): void {
-  this.initializeForm();
-  this.loadUserData();
-  this.loadOneTouchScript();
-  this.startOneTouchMonitoring();
-  
-  // ✅ GÉRER LE RETOUR DE PAIEMENT EN PRIORITÉ
-  this.handlePaymentReturn();
-  
-  // ✅ VÉRIFIER SI ON VIENT D'UNE INTENTION D'ABONNEMENT
-  const targetTab = sessionStorage.getItem('compte_tab');
-  
-  if (targetTab === 'abonnements') {
-    console.log('🎯 Ouverture automatique de l\'onglet Abonnements');
-    this.activeTab.set('abonnements');
-    
-    // Nettoyer le sessionStorage après utilisation
-    sessionStorage.removeItem('compte_tab');
-  }
-}
+  // Dans compte.component.ts, ajouter cette logique dans ngOnInit() :
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
+  ngOnInit(): void {
+    this.initializeForm();
+    this.loadUserData();
+    this.loadOneTouchScript();
+    this.startOneTouchMonitoring();
 
-/**
- * ✨ NOUVELLE MÉTHODE : Gère le retour après paiement OneTouch
- */
-private handlePaymentReturn(): void {
-  // Écouter les changements de paramètres d'URL
-  this.route.queryParams.subscribe(params => {
-    const paymentStatus = params['payment'];
-    
-    if (!paymentStatus) {
-      return; // Pas de retour de paiement
+    // ✅ GÉRER LE RETOUR DE PAIEMENT EN PRIORITÉ
+    this.handlePaymentReturn();
+
+    // ✅ VÉRIFIER SI ON VIENT D'UNE INTENTION D'ABONNEMENT
+    if (isPlatformBrowser(this.platformId)) {
+      const targetTab = sessionStorage.getItem('compte_tab');
+
+      if (targetTab === 'abonnements') {
+        console.log('🎯 Ouverture automatique de l\'onglet Abonnements');
+        this.activeTab.set('abonnements');
+
+        // Nettoyer le sessionStorage après utilisation
+        sessionStorage.removeItem('compte_tab');
+      }
     }
-    
-    console.log('💳 Détection de retour de paiement:', paymentStatus);
-    
-    if (paymentStatus === 'success') {
-      console.log('✅ Retour de paiement réussi');
-      
-      const userId = params['userId'];
-      const planId = params['planId'];
-      const months = params['months'];
-      
-      if (userId && planId && months) {
-        // Afficher un message de succès
-        this.showSuccess('🎉 Paiement effectué avec succès ! Votre abonnement est maintenant actif.');
-        
+  }
+
+  /**
+   * ✨ NOUVELLE MÉTHODE : Gère le retour après paiement OneTouch
+   */
+  private handlePaymentReturn(): void {
+    // Écouter les changements de paramètres d'URL
+    this.route.queryParams.subscribe(params => {
+      const paymentStatus = params['payment'];
+
+      if (!paymentStatus) {
+        return; // Pas de retour de paiement
+      }
+
+      console.log('💳 Détection de retour de paiement:', paymentStatus);
+
+      if (paymentStatus === 'success') {
+        console.log('✅ Retour de paiement réussi');
+
+        const userId = params['userId'];
+        const planId = params['planId'];
+        const months = params['months'];
+
+        if (userId && planId && months) {
+          // Afficher un message de succès
+          this.showSuccess('🎉 Paiement effectué avec succès ! Votre abonnement est maintenant actif.');
+
+          // Ouvrir l'onglet abonnements
+          this.activeTab.set('abonnements');
+
+          // Recharger les données d'abonnement après un court délai
+          setTimeout(() => {
+            const user = this.currentUser();
+            if (user) {
+              console.log('🔄 Rechargement des données d\'abonnement...');
+              this.checkUserSubscription(user.id);
+              this.loadFactures(user.id);
+            }
+          }, 1000);
+        }
+
+        // Nettoyer l'URL
+        this.cleanUrl();
+
+      } else if (paymentStatus === 'failed') {
+        console.log('❌ Paiement échoué');
+        this.showError('❌ Le paiement a échoué. Veuillez réessayer ou contacter le support.');
+
         // Ouvrir l'onglet abonnements
         this.activeTab.set('abonnements');
-        
-        // Recharger les données d'abonnement après un court délai
-        setTimeout(() => {
-          const user = this.currentUser();
-          if (user) {
-            console.log('🔄 Rechargement des données d\'abonnement...');
-            this.checkUserSubscription(user.id);
-            this.loadFactures(user.id);
-          }
-        }, 1000);
+
+        // Nettoyer l'URL
+        this.cleanUrl();
+
+      } else if (paymentStatus === 'cancelled') {
+        console.log('⚠️ Paiement annulé');
+        this.showError('⚠️ Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.');
+
+        // Ouvrir l'onglet abonnements
+        this.activeTab.set('abonnements');
+
+        // Nettoyer l'URL
+        this.cleanUrl();
       }
-      
-      // Nettoyer l'URL
-      this.cleanUrl();
-      
-    } else if (paymentStatus === 'failed') {
-      console.log('❌ Paiement échoué');
-      this.showError('❌ Le paiement a échoué. Veuillez réessayer ou contacter le support.');
-      
-      // Ouvrir l'onglet abonnements
-      this.activeTab.set('abonnements');
-      
-      // Nettoyer l'URL
-      this.cleanUrl();
-      
-    } else if (paymentStatus === 'cancelled') {
-      console.log('⚠️ Paiement annulé');
-      this.showError('⚠️ Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.');
-      
-      // Ouvrir l'onglet abonnements
-      this.activeTab.set('abonnements');
-      
-      // Nettoyer l'URL
-      this.cleanUrl();
-    }
-  });
-}
-/**
- * ✨ NOUVELLE MÉTHODE : Nettoie les paramètres de l'URL sans recharger la page
- */
-private cleanUrl(): void {
-  // Navigation vers la même route sans les query params
-  this.router.navigate([], {
-    relativeTo: this.route,
-    queryParams: {},
-    queryParamsHandling: 'merge',
-    replaceUrl: true
-  });
-  
-  console.log('🧹 URL nettoyée');
-}
+    });
+  }
+  /**
+   * ✨ NOUVELLE MÉTHODE : Nettoie les paramètres de l'URL sans recharger la page
+   */
+  private cleanUrl(): void {
+    // Navigation vers la même route sans les query params
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+
+    console.log('🧹 URL nettoyée');
+  }
 
   private loadOneTouchScript(): void {
     const existingScript = document.querySelector('script[src*="form.js"]');
-    
+
     if (!existingScript) {
       console.log('📥 Chargement manuel du script OneTouch...');
-      
+
       const script = document.createElement('script');
       script.src = 'https://test.solinusteam.com/Scripts/form.js';
       script.type = 'text/javascript';
-      
+
       script.onload = () => {
         console.log('✅ Script OneTouch chargé manuellement avec succès');
         this.oneTouchLoaded.set(true);
       };
-      
+
       script.onerror = (error) => {
         console.error('❌ Erreur chargement manuel du script OneTouch:', error);
       };
-      
+
       document.head.appendChild(script);
     }
   }
@@ -204,25 +207,25 @@ private cleanUrl(): void {
 
   private startOneTouchMonitoring(): void {
     console.log('🔍 Début de la surveillance du script OneTouch...');
-    
+
     let attempts = 0;
-    
+
     this.oneTouchCheckInterval = setInterval(() => {
       attempts++;
-      
+
       if (this.isOneTouchScriptLoaded()) {
         console.log('✅ Script OneTouch chargé avec succès');
         this.oneTouchLoaded.set(true);
         this.stopOneTouchMonitoring();
         return;
       }
-      
+
       if (attempts >= this.maxOneTouchAttempts) {
         console.warn('⚠️ Script OneTouch non chargé après 15 secondes');
         this.stopOneTouchMonitoring();
         return;
       }
-      
+
       if (attempts % 5 === 0) {
         console.log(`⏳ Attente du script OneTouch... (${attempts}/${this.maxOneTouchAttempts})`);
       }
@@ -237,7 +240,7 @@ private cleanUrl(): void {
   }
   telechargerFacturePDF(facture: Invoice): void {
     const html = this.construireHTMLFacture(facture);
-   
+
     // créer un conteneur caché
     const container = document.createElement('div');
     container.style.position = 'fixed';
@@ -248,40 +251,40 @@ private cleanUrl(): void {
     container.style.background = '#ffffff';
     container.innerHTML = html;
     document.body.appendChild(container);
-   
+
     // 👉 Injecter Tailwind (important)
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
     container.appendChild(style);
-   
+
     // attendre le chargement du style
     style.onload = () => {
-      html2canvas(container, {
+      (html2canvas as any)(container, {
         scale: 2, // 👍 meilleure qualité du PDF
         useCORS: true // utile si images
-      }).then(canvas => {
+      }).then((canvas: HTMLCanvasElement) => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
-   
+
         // calcul taille automatiquement
         const imgWidth = 210;
         const pageHeight = 297;
         let imgHeight = canvas.height * imgWidth / canvas.width;
         let heightLeft = imgHeight;
         let position = 0;
-   
+
         // 💡 Gestion multi-pages si contenu dépasse une page
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
-   
+
         while (heightLeft > 0) {
           position = heightLeft - imgHeight;
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
-   
+
         pdf.save(`facture-${facture.invoiceNumber}.pdf`);
         document.body.removeChild(container);
       });
@@ -289,7 +292,7 @@ private cleanUrl(): void {
   }
   private genererFacturePDF(facture: Invoice, printWindow: Window): void {
     const htmlContent = this.construireHTMLFacture(facture);
-   
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html lang="fr">
@@ -331,22 +334,22 @@ private cleanUrl(): void {
       </body>
       </html>
     `);
-   
+
     printWindow.document.close();
   }
   private construireHTMLFacture(facture: Invoice): string {
-      const formatDate = (date: string) =>
-        new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-   
-      const formatAmount = (amount: number) =>
-        new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
-   
-      const user = this.authService.currentUser();
-      const sousTotal = facture.amount || 0;
-      const tva = sousTotal * 0.18;
-      const totalTTC = sousTotal + tva;
-   
-      return `
+    const formatDate = (date: string) =>
+      new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    const formatAmount = (amount: number) =>
+      new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
+
+    const user = this.authService.currentUser();
+    const sousTotal = facture.amount || 0;
+    const tva = sousTotal * 0.18;
+    const totalTTC = sousTotal + tva;
+
+    return `
         <div class="min-h-screen bg-white p-10">
           <div class="max-w-4xl mx-auto">
             <!-- Bande orange -->
@@ -374,8 +377,8 @@ private cleanUrl(): void {
                   <p class="text-2xl font-bold">${facture.invoiceNumber}</p>
                   <p class="text-sm text-gray-600">Date d'émission : ${formatDate(facture.createdAt)}</p>
                   ${facture.paid
-                    ? `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">PAYÉE</span>`
-                    : `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">EN ATTENTE</span>`}
+        ? `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">PAYÉE</span>`
+        : `<span class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">EN ATTENTE</span>`}
                 </div>
               </div>
    
@@ -491,19 +494,19 @@ private cleanUrl(): void {
   isAdmin(): boolean {
     const user = this.currentUser();
     if (!user) return false;
-    
+
     let userProfile = '';
-    
+
     if (Array.isArray(user.profil) && user.profil.length > 0) {
       userProfile = user.profil[0];
-    } 
+    }
     else if (user.profils && typeof user.profils === 'string') {
       userProfile = user.profils;
     }
     else if (typeof user.profil === 'string') {
       userProfile = user.profil as any;
     }
-    
+
     return userProfile.toUpperCase() === 'ADMIN';
   }
 
@@ -512,24 +515,24 @@ private cleanUrl(): void {
    */
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    
+
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
         this.showError('Veuillez sélectionner une image valide');
         return;
       }
-      
+
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.showError('La taille de l\'image ne doit pas dépasser 5 MB');
         return;
       }
-      
+
       this.selectedPhotoFile.set(file);
-      
+
       // Créer une prévisualisation
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -539,7 +542,7 @@ private cleanUrl(): void {
         }
       };
       reader.readAsDataURL(file);
-      
+
       this.showInfo('Photo sélectionnée. Cliquez sur "Mettre à jour" pour sauvegarder.');
     }
   }
@@ -575,10 +578,10 @@ private cleanUrl(): void {
   getUserInitials(): string {
     const user = this.currentUser();
     if (!user) return 'U';
-    
+
     const firstInitial = user.prenom?.charAt(0)?.toUpperCase() || '';
     const lastInitial = user.nom?.charAt(0)?.toUpperCase() || '';
-    
+
     return `${firstInitial}${lastInitial}` || 'U';
   }
 
@@ -590,27 +593,27 @@ private cleanUrl(): void {
     if (this.photoPreviewUrl()) {
       return true;
     }
-    
+
     const user = this.currentUser();
     return !!(user?.photo) && !this.photoLoadError();
   }
 
-/**
- * Obtient l'URL complète de la photo de profil
- */
-getUserPhotoUrl(): string {
-  // Priorité à la prévisualisation si disponible
-  if (this.photoPreviewUrl()) {
-    return this.photoPreviewUrl()!;
+  /**
+   * Obtient l'URL complète de la photo de profil
+   */
+  getUserPhotoUrl(): string {
+    // Priorité à la prévisualisation si disponible
+    if (this.photoPreviewUrl()) {
+      return this.photoPreviewUrl()!;
+    }
+
+    const user = this.currentUser();
+    if (user?.photo && !this.photoLoadError()) {
+      // ✅ Utiliser environment.filebaseUrl au lieu de PHOTO_BASE_URL
+      return `${environment.filebaseUrl}${user.photo}`;
+    }
+    return 'assets/images/profil.png';
   }
-  
-  const user = this.currentUser();
-  if (user?.photo && !this.photoLoadError()) {
-    // ✅ Utiliser environment.filebaseUrl au lieu de PHOTO_BASE_URL
-    return `${environment.filebaseUrl}${user.photo}`;
-  }
-  return 'assets/images/profil.png';
-}
 
   /**
    * Vérifie si l'utilisateur a un abonnement actif
@@ -623,7 +626,7 @@ getUserPhotoUrl(): string {
       next: (isActive: boolean) => {
         console.log('✅ Statut abonnement actif:', isActive);
         this.hasActiveSubscription.set(isActive);
-        
+
         if (isActive) {
           this.loadCurrentSubscription(userId);
         } else {
@@ -632,14 +635,14 @@ getUserPhotoUrl(): string {
             this.loadSubscriptionPlans(user);
           }
         }
-        
+
         this.isCheckingSubscription.set(false);
       },
       error: (error) => {
         console.error('❌ Erreur vérification abonnement:', error);
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
-        
+
         const user = this.currentUser();
         if (user) {
           this.loadSubscriptionPlans(user);
@@ -653,7 +656,7 @@ getUserPhotoUrl(): string {
    */
   private loadCurrentSubscription(userId: number): void {
     console.log('📥 Chargement de l\'abonnement en cours...');
-    
+
     this.subscriptionService.getSubscriptionByUser(userId).subscribe({
       next: (subscription: UserSubscription) => {
         console.log('✅ Abonnement en cours récupéré:', subscription);
@@ -671,14 +674,14 @@ getUserPhotoUrl(): string {
     if (!subscription || !subscription.endDate) {
       return 'Non disponible';
     }
-   
+
     try {
       const date = new Date(subscription.endDate);
-     
+
       if (isNaN(date.getTime())) {
         return 'Non disponible';
       }
-   
+
       // Format: "09/12/2025"
       return date.toLocaleDateString('fr-FR');
     } catch (error) {
@@ -686,24 +689,24 @@ getUserPhotoUrl(): string {
       return 'Non disponible';
     }
   }
-   
+
 
   getSubscriptionPeriod(): string {
     const subscription = this.currentSubscription();
     if (!subscription || !subscription.createdAt) {
       return 'Non disponible';
     }
-    
+
     const startDate = new Date(subscription.createdAt);
     const endDate = new Date(subscription.createdAt);
     endDate.setMonth(endDate.getMonth() + 1);
-    
+
     const formatDate = (date: Date) => date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
-    
+
     return `Du ${formatDate(startDate)} au ${formatDate(endDate)}`;
   }
 
@@ -757,11 +760,11 @@ getUserPhotoUrl(): string {
 
   setActiveTab(tab: 'informations' | 'abonnements' | 'factures'): void {
     this.activeTab.set(tab);
-    
+
     if (tab === 'factures' && this.currentUser()) {
       this.loadFactures(this.currentUser()!.id);
     }
-    
+
     if (tab === 'abonnements' && this.currentUser()) {
       this.checkUserSubscription(this.currentUser()!.id);
     }
@@ -785,19 +788,19 @@ getUserPhotoUrl(): string {
   getUserProfile(): string {
     const user = this.currentUser();
     if (!user) return 'Utilisateur';
-    
+
     let profile = '';
-    
+
     if (Array.isArray(user.profil) && user.profil.length > 0) {
       profile = user.profil[0];
-    } 
+    }
     else if (user.profils && typeof user.profils === 'string') {
       profile = user.profils;
     }
     else if (typeof user.profil === 'string') {
       profile = user.profil as any;
     }
-    
+
     return profile ? this.formatProfileName(profile) : 'Utilisateur';
   }
 
@@ -810,18 +813,18 @@ getUserPhotoUrl(): string {
       'BET': 'Bureau d\'études',
       'USER': 'Utilisateur'
     };
-    
+
     return profileMap[profile] || profile;
   }
 
   private loadSubscriptionPlans(user: User): void {
     this.isLoadingPlans.set(true);
-    
+
     let userProfile = '';
-    
+
     if (Array.isArray(user.profil) && user.profil.length > 0) {
       userProfile = user.profil[0];
-    } 
+    }
     else if (user.profils && typeof user.profils === 'string') {
       userProfile = user.profils;
     }
@@ -842,19 +845,19 @@ getUserPhotoUrl(): string {
       next: (plans: SubscriptionPlan[]) => {
         console.log('✅ Plans reçus:', plans);
         this.subscriptionPlans.set(plans);
-        
-        const premium = plans.find(plan => 
-          plan.label?.toUpperCase() === 'PREMIUM' || 
+
+        const premium = plans.find(plan =>
+          plan.label?.toUpperCase() === 'PREMIUM' ||
           plan.name?.toUpperCase() === 'PREMIUM'
         );
-        const basic = plans.find(plan => 
-          plan.label?.toUpperCase() === 'BASIC' || 
+        const basic = plans.find(plan =>
+          plan.label?.toUpperCase() === 'BASIC' ||
           plan.name?.toUpperCase() === 'BASIC'
         );
-        
+
         this.premiumPlan.set(premium || null);
         this.basicPlan.set(basic || null);
-        
+
         this.isLoadingPlans.set(false);
       },
       error: (error) => {
@@ -873,13 +876,13 @@ getUserPhotoUrl(): string {
     if (!this.isYearlyBilling()) {
       return plan.totalCost;
     }
-    
+
     if (plan.yearlyDiscountRate > 0) {
       const yearlyPrice = plan.totalCost * 12;
       const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
       return Math.round((yearlyPrice - discount) / 12);
     }
-    
+
     return plan.totalCost;
   }
 
@@ -896,19 +899,19 @@ getUserPhotoUrl(): string {
     if (plan.description) {
       return plan.description;
     }
-    
+
     if (plan.label === 'BASIC') {
       return 'Plan de base pour démarrer votre projet';
     } else if (plan.label === 'PREMIUM') {
       return 'Plan complet avec toutes les fonctionnalités avancées';
     }
-    
+
     return 'Plan d\'abonnement';
   }
 
   async subscribeToPlan(planName: string): Promise<void> {
     const user = this.currentUser();
-    
+
     if (!user) {
       this.showError('Vous devez être connecté pour souscrire à un abonnement');
       return;
@@ -920,7 +923,7 @@ getUserPhotoUrl(): string {
     }
 
     const plan = planName === 'Premium' ? this.premiumPlan() : this.basicPlan();
-    
+
     if (!plan) {
       this.showError('Plan non disponible');
       return;
@@ -931,7 +934,7 @@ getUserPhotoUrl(): string {
     } else {
       this.isProcessingBasic.set(true);
     }
-    
+
     try {
       if (!this.isOneTouchScriptLoaded()) {
         this.showError(
@@ -948,11 +951,11 @@ getUserPhotoUrl(): string {
         plan,
         this.isYearlyBilling()
       );
-      
+
     } catch (error: any) {
       console.error('❌ Erreur lors de la souscription:', error);
       this.showError(error.message || 'Une erreur est survenue');
-      
+
     } finally {
       if (planName === 'Premium') {
         this.isProcessingPremium.set(false);
@@ -965,7 +968,7 @@ getUserPhotoUrl(): string {
   loadFactures(userId: number, page: number = 0): void {
     this.isLoadingFactures.set(true);
     this.currentPage.set(page);
-    
+
     this.subscriptionService.getFactures(userId, page, this.pageSize).subscribe({
       next: (response: InvoiceResponse) => {
         this.factures.set(response.content);
@@ -1042,30 +1045,30 @@ getUserPhotoUrl(): string {
       });
       return;
     }
-  
+
     const user = this.currentUser();
     if (!user) {
       this.showError('Utilisateur non trouvé');
       return;
     }
-  
+
     this.isSaving.set(true);
-  
+
     // Créer un FormData pour envoyer toutes les données
     const formData = new FormData();
-    
+
     // ✅ Ajouter tous les champs du formulaire (incluant ceux modifiés)
     const formValues = this.userForm.value;
-    
+
     // Ajouter les champs obligatoires
     if (formValues.nom) formData.append('nom', formValues.nom);
     if (formValues.prenom) formData.append('prenom', formValues.prenom);
     if (formValues.email) formData.append('email', formValues.email);
     if (formValues.telephone) formData.append('telephone', formValues.telephone);
-    
+
     // Ajouter les champs optionnels seulement s'ils ont une valeur
     if (formValues.adress) formData.append('adress', formValues.adress);
-    
+
     // ✅ Gérer le champ company correctement
     if (formValues.company) {
       // Si company existe et n'est pas vide, envoyer l'objet complet
@@ -1074,11 +1077,11 @@ getUserPhotoUrl(): string {
       };
       formData.append('company', JSON.stringify(companyData));
     }
-    
+
     // ✅ Ajouter les champs non modifiables mais nécessaires
     if (user.date) formData.append('date', user.date);
     if (user.lieunaissance) formData.append('lieunaissance', user.lieunaissance);
-    
+
     // ✅ Gérer le profil correctement
     let userProfile = '';
     if (Array.isArray(user.profil) && user.profil.length > 0) {
@@ -1088,56 +1091,56 @@ getUserPhotoUrl(): string {
     } else if (typeof user.profil === 'string') {
       userProfile = user.profil as any;
     }
-    
+
     if (userProfile) {
       formData.append('profil', userProfile);
     }
-  
+
     // ✅ Ajouter la photo si elle a été sélectionnée
     if (this.selectedPhotoFile()) {
       formData.append('photo', this.selectedPhotoFile()!, this.selectedPhotoFile()!.name);
       console.log('📸 Photo ajoutée au FormData:', this.selectedPhotoFile()!.name);
     }
-  
+
     // 🔍 Debug: Afficher le contenu du FormData
     console.log('📦 Contenu du FormData envoyé:');
     formData.forEach((value, key) => {
       console.log(`  ${key}:`, value instanceof File ? `[Fichier: ${value.name}]` : value);
     });
-  
+
     console.log('🚀 Envoi de la mise à jour pour l\'utilisateur:', user.id);
-  
+
     // Utiliser l'ID de l'utilisateur connecté
     this.authService.updateUserWithFormData(user.id, formData).subscribe({
       next: (updatedUser) => {
         console.log('✅ Profil mis à jour avec succès:', updatedUser);
-        
+
         // Mettre à jour l'état local
         this.currentUser.set(updatedUser);
-        
+
         // Mettre à jour le formulaire avec les nouvelles données
         this.populateForm(updatedUser);
-        
+
         // Réinitialiser les états de la photo
         this.selectedPhotoFile.set(null);
         this.photoPreviewUrl.set(null);
         this.photoLoadError.set(false);
-        
+
         // Recharger la photo si elle existe
         if (updatedUser.photo) {
           this.loadUserPhoto();
         }
-        
+
         this.showSuccess('✅ Vos informations ont été mises à jour avec succès');
         this.isSaving.set(false);
       },
       error: (error) => {
         console.error('❌ Erreur mise à jour profil:', error);
         console.error('Détails de l\'erreur:', error.error);
-        
+
         // Message d'erreur plus détaillé
         let errorMessage = 'Une erreur est survenue lors de la mise à jour';
-        
+
         if (error.error?.message) {
           errorMessage = error.error.message;
         } else if (error.status === 413) {
@@ -1153,22 +1156,18 @@ getUserPhotoUrl(): string {
         } else if (error.status === 404) {
           errorMessage = 'Utilisateur non trouvé.';
         }
-        
+
         this.showError(errorMessage);
         this.isSaving.set(false);
       }
     });
   }
-/**
- * Recharge la photo de profil depuis le serveur
- */
-private loadUserPhoto(): void {
-  const user = this.currentUser();
-  if (user?.photo) {
-    // Forcer le rechargement en ajoutant un timestamp
-    const timestamp = new Date().getTime();
-    const photoUrl = `${environment.filebaseUrl}${user.photo}?t=${timestamp}`;
-    
+  /**
+   * Recharge la photo de profil depuis le serveur
+   */
+  private loadUserPhoto(): void {
+    const photoUrl = this.authService.getUserPhotoUrl();
+
     // Précharger l'image pour éviter les erreurs d'affichage
     const img = new Image();
     img.onload = () => {
@@ -1181,7 +1180,6 @@ private loadUserPhoto(): void {
     };
     img.src = photoUrl;
   }
-}
   onCancel(): void {
     const user = this.currentUser();
     if (user) {
@@ -1228,6 +1226,16 @@ private loadUserPhoto(): void {
     this.successMessage.set(null);
     this.errorMessage.set(null);
     setTimeout(() => this.infoMessage.set(null), 5000);
+  }
+
+  navigateToSubscriptions(): void {
+    const user = this.currentUser();
+    if (user) {
+      const profile = this.getUserProfile();
+      this.router.navigate(['/offers'], {
+        queryParams: { profil: profile }
+      });
+    }
   }
 
   closeMessage(): void {

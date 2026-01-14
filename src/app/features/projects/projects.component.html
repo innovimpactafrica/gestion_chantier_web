@@ -1,35 +1,35 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA]">
   <!-- ========== POPUP DE PROJET BLOQUÉ ========== -->
-  <div *ngIf="isBlockedPopupVisible()" 
-       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn"
-       (click)="closeBlockedPopup()">
+  <div *ngIf="isBlockedPopupVisible()"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn"
+    (click)="closeBlockedPopup()">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all animate-slideIn"
-         (click)="$event.stopPropagation()">
-      
-  
+      (click)="$event.stopPropagation()">
+
+
 
       <!-- Titre -->
       <h3 class="text-2xl font-bold text-gray-900 text-center mb-3">
-       Projet Bloqué
+        Projet Bloqué
       </h3>
 
       <!-- Message principal -->
       <div class="text-center mb-6">
         <p class="text-gray-700 mb-4 text-lg">
-          Le projet <span class="font-bold text-red-600">"{{ blockedProjectName() }}"</span> 
+          Le projet <span class="font-bold text-red-600">"{{ blockedProjectName() }}"</span>
           est actuellement verrouillé.
         </p>
-        
+
         <!-- Message d'explication -->
         <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
           <div class="flex items-start">
-          
+
             <div class="text-left">
               <p class="text-sm font-medium text-red-800 mb-1">
                 Accès restreint
               </p>
               <p class="text-sm text-red-700">
-                Ce projet est bloqué jusqu'au renouvellement de votre abonnement. 
+                Ce projet est bloqué jusqu'au renouvellement de votre abonnement.
                 Veuillez mettre à jour votre plan pour y accéder.
               </p>
             </div>
@@ -39,19 +39,17 @@
 
       <!-- Boutons d'action -->
       <div class="flex flex-col sm:flex-row gap-3">
-        <button 
-          (click)="goToSubscription()"
+        <button (click)="goToSubscription()"
           class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
           <span class="flex items-center justify-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-             abonnements
+            abonnements
           </span>
         </button>
-        
-        <button 
-          (click)="closeBlockedPopup()"
+
+        <button (click)="closeBlockedPopup()"
           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200">
           Fermer
         </button>
@@ -60,73 +58,77 @@
   </div>
 
   <!-- ========== EN-TÊTE ET NOUVEAU PROJET ========== -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Projets en cours</h1>
-    
-    <button
-      *ngIf="canCreateProject() && !checkingPermission()"
-      class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[10px] flex items-center w-full sm:w-[192px] h-[51px] justify-center transition-colors duration-200"
-      [routerLink]="['/nouveau-projet']" 
-      type="button">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Projets en cours</h1>
+
+    <button *ngIf="canCreateProject() && !checkingPermission()"
+      class="bg-[#ff5c01] hover:bg-orange-600 text-white px-6 py-2 rounded-xl flex items-center justify-center transition-all duration-200 h-[52px] font-bold shadow-sm"
+      [routerLink]="['/nouveau-projet']" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
       Nouveau Projet
     </button>
   </div>
 
   <!-- Description -->
-  <p class="text-gray-600 mb-6 text-sm sm:text-base">
+  <p class="text-gray-500 mb-8 text-sm sm:text-base max-w-2xl">
     Consultez la liste de vos chantiers actuellement en cours et suivez leur avancement en temps réel.
   </p>
 
   <!-- ========== FORMULAIRE DE RECHERCHE ========== -->
-  <form [formGroup]="searchForm" class="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
+  <form [formGroup]="searchForm" class="flex flex-wrap gap-4 mb-10">
     <!-- Barre de recherche -->
-    <div class="relative flex-grow max-w-full sm:max-w-xs">
+    <div class="relative w-full sm:w-[320px]">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
-      
-      <input 
-        type="text" 
-        formControlName="search"
-        (input)="onSearch()"
-        class="block w-full sm:w-[302px] h-[48px] pl-10 px-4 py-2 border border-gray-300 rounded-[8px] leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+
+      <input type="text" formControlName="search" (input)="onSearch()"
+        class="block w-full h-[52px] pl-10 pr-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
         placeholder="Rechercher par projet">
     </div>
 
     <!-- Filtre par période -->
-    <div class="relative w-full sm:w-auto">
-      <select 
-        formControlName="period"
-        class="flex justify-between items-center w-full sm:w-[200px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none appearance-none">
+    <div class="relative w-full sm:w-[220px]">
+      <select formControlName="period"
+        class="w-full h-[52px] px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none shadow-sm cursor-pointer">
         <option value="all">Toutes les périodes</option>
         <option value="current-year">Cette année</option>
         <option value="last-year">Année dernière</option>
         <option value="older">Plus ancien</option>
       </select>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-      </svg>
+      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clip-rule="evenodd" />
+        </svg>
+      </div>
     </div>
 
     <!-- Filtre par statut -->
-    <div class="relative w-full sm:w-auto">
-      <select 
-        formControlName="status"
-        class="flex justify-between items-center w-full sm:w-[180px] h-[48px] px-4 py-2 border border-gray-300 rounded-[10px] bg-white text-gray-700 focus:outline-none appearance-none">
+    <div class="relative w-full sm:w-[200px]">
+      <select formControlName="status"
+        class="w-full h-[52px] px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none shadow-sm cursor-pointer">
         <option value="all">Tous les statuts</option>
         <option value="active">Actif</option>
         <option value="inactive">Inactif</option>
         <option value="completed">Terminé</option>
         <option value="in-progress">En cours</option>
       </select>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-      </svg>
+      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clip-rule="evenodd" />
+        </svg>
+      </div>
     </div>
   </form>
 
@@ -142,10 +144,7 @@
   <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
     <div class="flex items-center gap-2">
       <label for="pageSize" class="text-sm font-medium text-gray-700">Projets par page:</label>
-      <select 
-        id="pageSize"
-        (change)="onPageSizeChange($event)" 
-        [value]="pagination().pageSize"
+      <select id="pageSize" (change)="onPageSizeChange($event)" [value]="pagination().pageSize"
         class="border border-gray-300 rounded px-2 py-1 text-sm">
         <option value="2">2 projets</option>
         <option value="5">5 projets</option>
@@ -162,93 +161,100 @@
   <!-- ========== LISTE DES PROJETS ========== -->
   <div class="projects-container">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      
+
       <!-- Carte projet -->
-      <div *ngFor="let project of projects(); trackBy: trackByProjectId" 
-           [ngClass]="getProjectCardClass(project)"
-           (click)="onProjectClick(project)">
-        
-        <!-- Badge "BLOQUÉ" si le projet est bloqué -->
-        <div *ngIf="isProjectBlocked(project)" 
-             class="absolute top-3 right-3 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+      <div *ngFor="let project of projects(); trackBy: trackByProjectId" [ngClass]="getProjectCardClass(project)"
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 relative group flex flex-col"
+        (click)="onProjectClick(project)">
+
+        <!-- Badge "BLOQUÉ" if the project is blocked -->
+        <div *ngIf="isProjectBlocked(project)"
+          class="absolute top-4 right-4 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1 transition-transform group-hover:scale-110">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd" />
           </svg>
           BLOQUÉ
         </div>
 
         <!-- Image du projet -->
-        <div class="h-40 sm:h-48 overflow-hidden relative">
+        <div class="h-44 sm:h-52 overflow-hidden relative">
           <!-- Overlay pour les projets bloqués -->
-          <div *ngIf="isProjectBlocked(project)" 
-               class="absolute inset-0 bg-gray-900 bg-opacity-40 z-5 flex items-center justify-center">
-            <svg class="w-16 h-16 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          <div *ngIf="isProjectBlocked(project)"
+            class="absolute inset-0 bg-gray-900 bg-opacity-30 z-5 flex items-center justify-center backdrop-blur-[1px]">
+            <svg class="w-12 h-12 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
 
           <ng-container *ngIf="project; else loading">
-            <div *ngIf="project.plan" class="mt-3 w-full h-full">
-              <img 
-                [src]="project.plan"
-                (error)="onImageError($event)"
-                (load)="onImageLoad($event)"
-                alt="plan" 
-                class="w-full h-full object-cover rounded-lg">
-            </div>
-            
-            <div *ngIf="!project.plan" class="w-full h-full bg-gray-100 flex items-center justify-center">
-              <p class="text-gray-500 text-sm">Aucune image disponible</p>
+            <img *ngIf="project.plan" [src]="project.plan" (error)="onImageError($event)" (load)="onImageLoad($event)"
+              alt="plan" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+
+            <div *ngIf="!project.plan" class="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-4">
+              <svg class="w-10 h-10 text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p class="text-gray-400 text-xs">Aucune image</p>
             </div>
           </ng-container>
 
           <ng-template #loading>
-            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-              <img
-                src="assets/images/architecte.png"
-                alt="Chargement en cours..."
-                class="w-full h-full object-cover opacity-50">
+            <div class="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">
+              <div class="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
             </div>
           </ng-template>
         </div>
 
         <!-- Informations du projet -->
-        <div class="p-3 sm:p-4 flex flex-col">
-          <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+        <div class="p-5 flex flex-col flex-1">
+          <h2
+            class="text-base sm:text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-[#ff5c01] transition-colors">
             {{ project.title }}
           </h2>
-          
+
           <!-- Localisation et période -->
-          <div class="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 mb-4">
-            <div class="flex items-start">
-              <img src="assets/images/eva_pin-fill.png" alt="" class="mr-2 mt-1 flex-shrink-0">
-              <span class="text-gray-600 text-xs sm:text-sm line-clamp-1">
-                {{ project.location }}{{ project.address }}
+          <div class="space-y-2 mb-6">
+            <div class="flex items-center text-gray-500">
+              <div class="w-5 flex justify-center mr-2">
+                <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+              <span class="text-xs font-medium truncate">
+                {{ project.location }} {{ project.address }}
               </span>
             </div>
-            
-            <div class="flex items-center">
-              <img src="assets/images/Group.png" alt="" class="mr-2 mt-1 flex-shrink-0">
-              <span class="text-gray-600 text-xs sm:text-sm whitespace-nowrap">
-                {{ project.startDate[2] }}/{{ project.startDate[1] }}/{{ project.startDate[0] }}
-                -
-                {{ project.endDate[2] }}/{{ project.endDate[1] }}/{{ project.endDate[0] }}
+
+            <div class="flex items-center text-gray-500">
+              <div class="w-5 flex justify-center mr-2">
+                <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+              <span class="text-xs font-medium">
+                {{ project.startDate[2] }}/{{ project.startDate[1] }}/{{ project.startDate[0] }} - {{ project.endDate[2]
+                }}/{{ project.endDate[1] }}/{{ project.endDate[0] }}
               </span>
             </div>
           </div>
-          
+
           <!-- Barre de progression -->
-          <div class="mb-1">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-xs sm:text-sm font-medium text-gray-700">Progression</span>
-              <span class="text-xs sm:text-sm font-medium text-gray-700">{{ formatProgress(project.progress) }}</span>
+          <div class="mt-auto">
+            <div class="flex justify-between items-end mb-2">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Progression</span>
+              <span class="text-sm font-bold text-gray-900">{{ formatProgress(project.progress) }}</span>
             </div>
-            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                [style.width.%]="project.progress"
-                [ngStyle]="{ 'background': getGradientBackground(project.progress) }"
-                [ngClass]="getProgressBarClass(project.progress)"
-                class="h-full rounded-full transition-all duration-500">
+            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div [style.width.%]="project.progress"
+                class="h-full rounded-full bg-gradient-to-r from-orange-400 to-[#ff5c01] transition-all duration-1000 ease-out">
               </div>
             </div>
           </div>
@@ -267,10 +273,7 @@
     <!-- ========== NAVIGATION PAR FLÈCHES ========== -->
     <div *ngIf="!loading() && projects().length > 0" class="flex justify-center items-center py-6 gap-4">
       <!-- Flèche précédente -->
-      <button 
-        (click)="goToPreviousPage()"
-        [disabled]="pagination().currentPage === 0"
-        [ngClass]="{
+      <button (click)="goToPreviousPage()" [disabled]="pagination().currentPage === 0" [ngClass]="{
           'opacity-50 cursor-not-allowed': pagination().currentPage === 0,
           'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage > 0
         }"
@@ -286,17 +289,14 @@
           Page {{ pagination().currentPage + 1 }} sur {{ pagination().totalPages }}
         </span>
         <span class="text-xs">
-          {{ pagination().currentPage * pagination().pageSize + 1 }} - 
+          {{ pagination().currentPage * pagination().pageSize + 1 }} -
           {{ Math.min((pagination().currentPage + 1) * pagination().pageSize, pagination().totalElements) }}
           sur {{ pagination().totalElements }} projets
         </span>
       </div>
 
       <!-- Flèche suivante -->
-      <button 
-        (click)="goToNextPage()"
-        [disabled]="pagination().currentPage >= pagination().totalPages - 1"
-        [ngClass]="{
+      <button (click)="goToNextPage()" [disabled]="pagination().currentPage >= pagination().totalPages - 1" [ngClass]="{
           'opacity-50 cursor-not-allowed': pagination().currentPage >= pagination().totalPages - 1,
           'hover:bg-orange-100 hover:border-orange-500': pagination().currentPage < pagination().totalPages - 1
         }"
@@ -308,8 +308,7 @@
     </div>
 
     <!-- Message aucun résultat -->
-    <div *ngIf="projects().length === 0 && !loading()" 
-         class="text-center py-12">
+    <div *ngIf="projects().length === 0 && !loading()" class="text-center py-12">
       <div class="text-gray-400 text-lg mb-2">Aucun projet trouvé</div>
     </div>
   </div>
@@ -319,12 +318,11 @@
     <div>
       Affichage de {{ projects().length }} sur {{ pagination().totalElements }} projets
     </div>
-    
+
     <div class="flex items-center gap-2">
       <span>Projets par page :</span>
-      <select (change)="onPageSizeChange($event)" 
-              [value]="pagination().pageSize"
-              class="border border-gray-300 rounded px-2 py-1">
+      <select (change)="onPageSizeChange($event)" [value]="pagination().pageSize"
+        class="border border-gray-300 rounded px-2 py-1">
         <option *ngFor="let size of pageSizeOptions" [value]="size">
           {{ size }}
         </option>
@@ -332,4 +330,3 @@
     </div>
   </div>
 </div>
-

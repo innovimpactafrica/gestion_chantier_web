@@ -7,14 +7,17 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 
+import { provideAnimations } from '@angular/platform-browser/animations';
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes), 
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
     provideHttpClient(
       withFetch(),
       // withInterceptors([HttpErrorInterceptor])
     ),
+    provideAnimations(),
     provideClientHydration()
   ]
 };

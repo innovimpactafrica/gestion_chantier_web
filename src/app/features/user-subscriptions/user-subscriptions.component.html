@@ -1,0 +1,145 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Abonnements {{ getProfileDisplayName(userProfile) }}</h1>
+      <p class="mt-2 text-sm text-gray-600">
+        Gestion des abonnements pour le profil {{ userProfile }}
+        <span *ngIf="userId"> - Utilisateur ID: {{ userId }}</span>
+      <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <h3 class="text-lg font-medium text-blue-900">Informations du profil</h3>
+        <p class="mt-1 text-sm text-blue-700">
+          {{ getProfileDescription(userProfile) }}
+        </p>
+        <p class="mt-2 text-sm text-blue-600">
+          <strong>Types d'abonnements disponibles:</strong> {{ getAvailableSubscriptionTypes(userProfile).join(', ') }}
+        </p>
+        <div class="mt-4">
+          <button (click)="navigateToOffers()"
+            class="inline-flex items-center px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Voir les offres disponibles
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-800">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div *ngIf="!loading && !error" class="hidden md:block">
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul role="list" class="divide-y divide-gray-200">
+          <li *ngFor="let subscription of subscriptions" class="px-6 py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan.label ||
+                        subscription.subscriptionPlan.name }}</h3>
+                      <span [class]="getSubscriptionTypeClass(getSubscriptionType(subscription))">
+                        {{ getSubscriptionType(subscription) }}
+                      </span>
+                      <span [class]="getStatusClass(getStatus(subscription))">
+                        {{ getStatus(subscription) }}
+                      </span>
+                    </div>
+                    <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                      <span>Début: {{ subscription.startDate | date:'dd/MM/yyyy' }}</span>
+                      <span>Fin: {{ subscription.endDate | date:'dd/MM/yyyy' }}</span>
+                      <span class="font-semibold text-gray-700">{{
+                        formatCurrency(subscription.subscriptionPlan.totalCost) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="flex-shrink-0">
+                <button (click)="viewDetails(subscription)"
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Voir détails
+                </button>
+              </div> -->
+            </div>
+          </li>
+        </ul>
+        <div *ngIf="subscriptions.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun abonnement</h3>
+          <p class="mt-1 text-sm text-gray-500">Vous n'avez pas encore d'abonnement actif.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div *ngIf="!loading && !error" class="md:hidden space-y-4">
+      <div *ngFor="let subscription of subscriptions" class="bg-white shadow rounded-lg p-4">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan.label ||
+                subscription.subscriptionPlan.name }}</h3>
+              <span [class]="getSubscriptionTypeClass(getSubscriptionType(subscription))">
+                {{ getSubscriptionType(subscription) }}
+              </span>
+            </div>
+            <div class="mt-2 space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-sm text-gray-600">Statut:</span>
+                <span [class]="getStatusClass(getStatus(subscription))">
+                  {{ getStatus(subscription) }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Début:</span> {{ subscription.startDate | date:'dd/MM/yyyy' }}
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Fin:</span> {{ subscription.endDate | date:'dd/MM/yyyy' }}
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Prix:</span> {{ subscription.subscriptionPlan.totalCost |
+                currency:'XOF':'symbol':'1.0-0' }}
+              </p>
+            </div>
+          </div>
+          <button (click)="viewDetails(subscription)"
+            class="ml-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Détails
+          </button>
+        </div>
+      </div>
+      <div *ngIf="subscriptions.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun abonnement</h3>
+        <p class="mt-1 text-sm text-gray-500">Vous n'avez pas encore d'abonnement actif.</p>
+      </div>
+    </div>
+  </div>
+</div>

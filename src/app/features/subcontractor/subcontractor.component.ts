@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
 
@@ -51,7 +51,10 @@ export class SubcontractorComponent implements OnInit {
   endIndex = 5;
   searchQuery: string = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   ngOnInit() {
     this.loadSubcontractors();
@@ -65,14 +68,14 @@ export class SubcontractorComponent implements OnInit {
     this.errorMessage = '';
 
     this.userService.getUserByProfil(
-      'SUBCONTRACTOR', 
+      'SUBCONTRACTOR',
       this.searchQuery || undefined,
-      this.currentPage - 1, 
+      this.currentPage - 1,
       this.itemsPerPage
     ).subscribe({
       next: (response: UserPageResponse) => {
         console.log('✅ Sous-traitants chargés:', response);
-        
+
         this.allSubcontractors = response.content.map(user => this.userToSubcontractor(user));
         this.totalMembers = response.totalElements;
         this.totalPages = response.totalPages;
@@ -108,7 +111,7 @@ export class SubcontractorComponent implements OnInit {
    */
   updatePaginationData() {
     this.displayedMembers = this.allSubcontractors;
-    this.startIndex = this.allSubcontractors.length > 0 ? 
+    this.startIndex = this.allSubcontractors.length > 0 ?
       ((this.currentPage - 1) * this.itemsPerPage) + 1 : 0;
     this.endIndex = Math.min(
       this.startIndex + this.allSubcontractors.length - 1,
@@ -136,7 +139,7 @@ export class SubcontractorComponent implements OnInit {
   }
 
   updateSelectAllState() {
-    this.selectAll = this.displayedMembers.length > 0 && 
+    this.selectAll = this.displayedMembers.length > 0 &&
       this.displayedMembers.every(member => member.selected);
   }
 
@@ -174,7 +177,7 @@ export class SubcontractorComponent implements OnInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
-    
+
     if (this.totalPages <= maxVisiblePages) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
@@ -182,17 +185,17 @@ export class SubcontractorComponent implements OnInit {
     } else {
       let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = startPage + maxVisiblePages - 1;
-      
+
       if (endPage > this.totalPages) {
         endPage = this.totalPages;
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 
@@ -230,15 +233,15 @@ export class SubcontractorComponent implements OnInit {
    */
   ajouterSousTraitant() {
     // Validation des champs obligatoires
-    if (!this.nouveauSousTraitant.nomContact || 
-        !this.nouveauSousTraitant.prenom ||
-        !this.nouveauSousTraitant.telephone || 
-        !this.nouveauSousTraitant.email ||
-        !this.nouveauSousTraitant.password ||
-        !this.nouveauSousTraitant.dateNaissance ||
-        !this.nouveauSousTraitant.lieuNaissance ||
-        !this.nouveauSousTraitant.adresse) {
-      
+    if (!this.nouveauSousTraitant.nomContact ||
+      !this.nouveauSousTraitant.prenom ||
+      !this.nouveauSousTraitant.telephone ||
+      !this.nouveauSousTraitant.email ||
+      !this.nouveauSousTraitant.password ||
+      !this.nouveauSousTraitant.dateNaissance ||
+      !this.nouveauSousTraitant.lieuNaissance ||
+      !this.nouveauSousTraitant.adresse) {
+
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
       return;
     }
@@ -284,10 +287,10 @@ export class SubcontractorComponent implements OnInit {
       next: (response) => {
         console.log('✅ Sous-traitant créé avec succès:', response);
         this.successMessage = 'Sous-traitant ajouté avec succès !';
-        
+
         // Recharger la liste
         this.loadSubcontractors();
-        
+
         // Fermer le modal après 1.5 secondes
         setTimeout(() => {
           this.closeModal();
@@ -325,7 +328,7 @@ export class SubcontractorComponent implements OnInit {
         next: () => {
           deletedCount++;
           console.log(`✅ Sous-traitant ${member.nomContact} supprimé`);
-          
+
           // Si c'est le dernier élément traité
           if (index === selectedMembers.length - 1) {
             this.finishDeletion(deletedCount, errorCount);
@@ -334,7 +337,7 @@ export class SubcontractorComponent implements OnInit {
         error: (error) => {
           errorCount++;
           console.error(`❌ Erreur suppression ${member.nomContact}:`, error);
-          
+
           // Si c'est le dernier élément traité
           if (index === selectedMembers.length - 1) {
             this.finishDeletion(deletedCount, errorCount);
@@ -349,12 +352,12 @@ export class SubcontractorComponent implements OnInit {
    */
   private finishDeletion(deletedCount: number, errorCount: number) {
     this.isLoading = false;
-    
+
     if (deletedCount > 0) {
       this.successMessage = `${deletedCount} sous-traitant(s) supprimé(s) avec succès`;
       this.loadSubcontractors();
     }
-    
+
     if (errorCount > 0) {
       this.errorMessage = `${errorCount} erreur(s) lors de la suppression`;
     }
@@ -369,13 +372,18 @@ export class SubcontractorComponent implements OnInit {
    * Exporte les données des sous-traitants
    */
   exportData() {
+    // Assuming 'platformId' is injected in the constructor and 'isPlatformBrowser' is imported from '@angular/common'
+    // Example: constructor(@Inject(PLATFORM_ID) private platformId: Object) { ... }
+    // import { isPlatformBrowser, PLATFORM_ID } from '@angular/common';
+    if (typeof isPlatformBrowser !== 'undefined' && !isPlatformBrowser(this.platformId)) return;
+
     console.log('📊 Export des données des sous-traitants');
-    
+
     // Créer le contenu CSV
     const headers = ['ID', 'Raison Sociale', 'Nom Contact', 'Téléphone', 'Email', 'Status'];
     const csvContent = [
       headers.join(','),
-      ...this.allSubcontractors.map(sub => 
+      ...this.allSubcontractors.map(sub =>
         `${sub.id},"${sub.raisonSociale}","${sub.nomContact}",${sub.telephone},${sub.email},${sub.status}`
       )
     ].join('\n');
@@ -384,15 +392,15 @@ export class SubcontractorComponent implements OnInit {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', `sous-traitants_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     this.successMessage = 'Export réussi !';
     setTimeout(() => this.successMessage = '', 3000);
   }

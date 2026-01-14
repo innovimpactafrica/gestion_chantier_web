@@ -5,7 +5,8 @@ import { AuthService, profil } from '../../features/auth/services/auth.service';
 import { SubscriptionService } from '../../../services/subscription.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { signal, computed } from '@angular/core';
+import { signal, computed, inject } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -18,7 +19,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   showParametres = false;
   activeMenu = 'dashboard';
   private subscriptions: Subscription = new Subscription();
-  baseUrl = 'https://wakana.online/repertoire_samater/';
+  baseUrl = environment.filebaseUrl;
   profileImageLoading = true;
   showWindowsScroll = false;
 
@@ -52,7 +53,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       const userSubscription = this.authService.refreshUser().subscribe({
         next: (user) => {
           this.initializeActiveMenu();
-          
+
           // Vérifier l'abonnement seulement si ce n'est pas un ADMIN
           if (user && user.id && !this.isADMINProfile()) {
             this.checkUserSubscription(user.id);
@@ -111,7 +112,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   private initializeActiveMenu(): void {
     const route = this.getInitialDashboardRoute();
-    this.activeMenu = route.substring(1); 
+    this.activeMenu = route.substring(1);
   }
 
   isADMINProfile(): boolean {
@@ -143,7 +144,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     return false;
   }
-  
+
   isBETProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {
@@ -158,7 +159,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     return false;
   }
-  
+
   getUserProfile(): string {
     const user = this.authService.currentUser();
     if (!user || !user.profil) {
@@ -193,8 +194,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     if (typeof user.profil === 'string') {
       return profileTranslations[user.profil] || user.profil;
-    } 
-    
+    }
+
     if (Array.isArray(user.profil)) {
       return user.profil
         .map(p => profileTranslations[p.toString()] || p.toString())
@@ -210,8 +211,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   navigateTo(path: string, label: string, menuId: string): void {
     // Vérifier si l'utilisateur peut accéder au dashboard
-    if ((path === '/dashboard' || path === '/dashboard-etude' || path === '/dashboardf') 
-        && !this.canAccessDashboard()) {
+    if ((path === '/dashboard' || path === '/dashboard-etude' || path === '/dashboardf')
+      && !this.canAccessDashboard()) {
       console.warn('Accès au dashboard refusé: pas d\'abonnement actif');
       // Optionnel: afficher un message ou rediriger vers la page d'abonnement
       this.router.navigate(['/mon-compte']);
@@ -246,14 +247,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   getProfileImageUrl(): string {
-    this.profileImageLoading = true;
-    const user = this.authService.currentUser();
-
-    if (user?.photo) {
-      return `${this.baseUrl}${user.photo}${new Date().getTime()}`;
-    }
-
-    return 'assets/images/profil.png';
+    return this.authService.getUserPhotoUrl();
   }
 
   onImageLoad(): void {
