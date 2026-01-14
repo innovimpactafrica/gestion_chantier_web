@@ -27,7 +27,7 @@ export class ProjectBudgetComponent implements OnInit {
   budgetRestant = 0;
   error: string | null = null;
   loading = true;
-  
+
   expenses: Expense[] = [];
   showExpenseModal = false;
   showBudgetModal = false;
@@ -45,9 +45,9 @@ export class ProjectBudgetComponent implements OnInit {
     budgetId: 0,
     proof: '' // Added proof field
   };
-  
+
   editingExpense: Expense | null = null;
-  
+
   budgetToEdit = {
     plannedBudget: 0
   };
@@ -79,7 +79,7 @@ export class ProjectBudgetComponent implements OnInit {
     this.budgetService.GetProjectBudget(this.projectId).subscribe({
       next: (data: BudgetResponse) => {
         console.log('Réponse budget complète:', data);
-        
+
         if (data.id && (typeof data.id === 'number' || typeof data.id === 'string')) {
           this.budgetId = Number(data.id);
         } else {
@@ -93,12 +93,12 @@ export class ProjectBudgetComponent implements OnInit {
         this.budgetUtilise = data.consumedBudget;
         this.budgetRestant = data.remainingBudget;
         this.budgetToEdit.plannedBudget = data.plannedBudget;
-        
+
         this.newExpense.budgetId = this.budgetId;
         this.loading = false;
-        
+
         this.fetchExpenses();
-        
+
         if (this.isBrowser) {
           setTimeout(() => this.renderChart(), 100);
         }
@@ -110,8 +110,8 @@ export class ProjectBudgetComponent implements OnInit {
       }
     });
   }
-  getEvidenceForExpense(){
-       
+  getEvidenceForExpense() {
+
   }
   fetchExpenses(): void {
     if (!this.budgetId) {
@@ -119,7 +119,7 @@ export class ProjectBudgetComponent implements OnInit {
       this.error = "ID du budget non défini";
       return;
     }
-    
+
     this.budgetService.getDepense(this.budgetId, this.currentPage, this.pageSize).subscribe({
       next: (response: ExpensesResponse) => {
         this.expenses = response.content;
@@ -159,9 +159,9 @@ export class ProjectBudgetComponent implements OnInit {
       this.error = "Le budget doit être supérieur à 0";
       return;
     }
-  
+
     this.loading = true;
-    
+
     this.budgetService.putBudget(this.budgetId, this.budgetToEdit.plannedBudget).subscribe({
       next: (data: BudgetResponse) => {
         this.handleBudgetUpdateSuccess(data);
@@ -171,7 +171,7 @@ export class ProjectBudgetComponent implements OnInit {
       }
     });
   }
-  
+
   private handleBudgetUpdateSuccess(data: BudgetResponse): void {
     this.budgetId = data.id;
     this.budgetPrevu = data.plannedBudget;
@@ -179,21 +179,21 @@ export class ProjectBudgetComponent implements OnInit {
     this.budgetRestant = data.remainingBudget;
     this.loading = false;
     this.closeBudgetModal();
-    
+
     if (this.isBrowser) {
       setTimeout(() => this.renderChart(), 100);
     }
   }
-  
+
   private handleBudgetUpdateError(error: any): void {
     console.error('Erreur lors de la mise à jour du budget:', error);
-    
+
     if (error.status === 403) {
       this.error = "Vous n'avez pas les droits pour modifier ce budget";
     } else {
       this.error = "Erreur lors de la mise à jour du budget";
     }
-    
+
     this.loading = false;
   }
 
@@ -216,7 +216,7 @@ export class ProjectBudgetComponent implements OnInit {
       amount: expense.amount,
       budgetId: this.budgetId,
       proof: (expense as any).proof || '' // Added proof field
-    };  
+    };
     this.error = null;
   }
 
@@ -305,15 +305,17 @@ export class ProjectBudgetComponent implements OnInit {
 
   // NOUVELLE MÉTHODE: Vérifier l'authentification avant l'envoi
   private checkAuthenticationBeforeSubmit(): boolean {
-    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-    
-    if (!token) {
-      this.error = "Aucun token d'authentification trouvé. Veuillez vous reconnecter.";
-      this.loading = false;
-      return false;
+    if (this.isBrowser) {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+
+      if (!token) {
+        this.error = "Aucun token d'authentification trouvé. Veuillez vous reconnecter.";
+        this.loading = false;
+        return false;
+      }
+
+      console.log('Token présent:', token.substring(0, 20) + '...');
     }
-    
-    console.log('Token présent:', token.substring(0, 20) + '...');
     return true;
   }
 
@@ -351,7 +353,7 @@ export class ProjectBudgetComponent implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la création de la dépense:', error);
         this.loading = false;
-        
+
         // CORRECTION: Gestion spécifique des erreurs
         if (error.includes('403') || error.includes('Forbidden')) {
           this.error = "Vous n'avez pas les droits pour créer une dépense. Vérifiez votre connexion.";
@@ -381,7 +383,7 @@ export class ProjectBudgetComponent implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la modification de la dépense:', error);
         this.loading = false;
-        
+
         // CORRECTION: Gestion spécifique des erreurs
         if (error.includes('403') || error.includes('Forbidden')) {
           this.error = "Vous n'avez pas les droits pour modifier cette dépense.";
@@ -458,38 +460,38 @@ export class ProjectBudgetComponent implements OnInit {
         afterDatasetsDraw: (chart) => {
           const ctx = chart.ctx;
           const meta = chart.getDatasetMeta(0);
-          
+
           meta.data.forEach((arc: any, index: number) => {
             const percentage = index === 0 ? utilisePercentage : restantPercentage;
-            
+
             // Calculer la position du cercle blanc sur l'arc
             const angle = arc.startAngle + (arc.endAngle - arc.startAngle) / 2;
             const radius = (arc.innerRadius + arc.outerRadius) / 2;
-            
+
             const x = arc.x + Math.cos(angle) * radius;
             const y = arc.y + Math.sin(angle) * radius;
-            
+
             ctx.save();
-            
+
             // Dessiner le cercle blanc
             const circleRadius = 18; // Rayon du cercle blanc
             ctx.beginPath();
             ctx.arc(x, y, circleRadius, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
-            
+
             // Ajouter une bordure légère au cercle
             ctx.strokeStyle = '#E5E7EB';
             ctx.lineWidth = 1;
             ctx.stroke();
-            
+
             // Afficher le pourcentage dans le cercle
             ctx.font = 'bold 12px Arial';
             ctx.fillStyle = index === 0 ? '#10B981' : '#F97316'; // Couleur du texte selon le segment
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(`${percentage}%`, x, y);
-            
+
             ctx.restore();
           });
         }
@@ -505,15 +507,15 @@ export class ProjectBudgetComponent implements OnInit {
           ctx.fillStyle = '#374151';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          
+
           // Texte principal au centre - montant total utilisé
           ctx.fillText(this.formatCurrency(this.budgetUtilise), centerX, centerY - 8);
-          
+
           // Texte secondaire
           ctx.font = '11px Arial';
           ctx.fillStyle = '#6B7280';
           ctx.fillText('Utilisé', centerX, centerY + 8);
-          
+
           ctx.restore();
         }
       }]

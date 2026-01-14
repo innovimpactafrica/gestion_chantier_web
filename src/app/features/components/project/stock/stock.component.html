@@ -5,36 +5,20 @@
   <div class="flex gap-6">
     <!-- Main Content -->
     <div class="flex-1">
-      <!-- Titre dynamique selon l'onglet actif -->
-      <div class="flex justify-between items-center mb-6">
+      <!-- Titre principal -->
+      <div class="mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">
           <span *ngIf="activeTab === 'inventaires'">Inventaire des matériaux</span>
           <span *ngIf="activeTab === 'commandes'">Commandes de matériaux</span>
           <span *ngIf="activeTab === 'livraisons'">Livraisons de matériaux</span>
           <span *ngIf="activeTab === 'statistiques'">Statistiques</span>
         </h2>
-        <!-- Bouton d'ajout dynamique selon l'onglet -->
-        <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
-          class="bg-white text-orange-600 px-4 py-2 rounded-lg  border border-orange-600 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
-              fill="#FF5C02" />
-          </svg>
-
-          Nouveau matériel
-        </button>
-        <button *ngIf="activeTab === 'commandes'" (click)="openOrderModal()"
-          class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2">
-          <span class="text-xl">+</span>
-          Nouvelle commande
-        </button>
-
       </div>
 
-      <!-- Tabs -->
-      <div class="flex mb-6">
-        <div class="flex border-b border-gray-200 w-full">
+      <!-- Tabs et bouton d'action alignés -->
+      <div class="flex items-center justify-between mb-6">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200">
           <button (click)="setActiveTab('inventaires')"
             [class]="activeTab === 'inventaires' ? 'flex items-center gap-2 px-4 py-3 border-b-2 border-orange-500 text-orange-600' : 'flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-gray-800'">
             <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,6 +64,28 @@
             <span class="font-medium">Statistiques</span>
           </button>
         </div>
+
+        <!-- Bouton d'action aligné à droite -->
+        <div>
+          <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
+            class="bg-white text-orange-600 px-4 py-2 rounded-lg border border-orange-600 flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
+                fill="#FF5C02" />
+            </svg>
+            Nouveau matériel
+          </button>
+          <button *ngIf="activeTab === 'commandes'" (click)="openOrderModal()"
+            class="bg-white text-orange-600 px-4 py-2 rounded-lg border border-orange-600 flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
+                fill="#FF5C02" />
+            </svg>
+            Nouvelle commande
+          </button>
+        </div>
       </div>
 
       <!-- Content based on active tab -->
@@ -120,7 +126,9 @@
         <div *ngIf="!loading && paginatedMaterials.length === 0"
           class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           <div class="text-center">
-            <div class="text-gray-400 text-6xl mb-4">📦</div>
+
+            <div class="text-gray-400 text-6xl mb-4"></div>
+
             <h3 class="text-lg font-medium text-gray-900 mb-2">
               {{ filteredMaterials.length === 0 && materials.length > 0 ? 'Aucun matériau trouvé' : 'Aucun matériau' }}
             </h3>

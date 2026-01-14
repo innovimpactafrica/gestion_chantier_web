@@ -16,6 +16,7 @@ import { NewProjectComponent } from './features/components/project/new-project/n
 import { DashboardEtudeComponent } from './features/dashboard-etude/dashboard-etude.component';
 import { DemandeComponent } from './features/demande/demande.component';
 // import { AuthGuard } from './core/guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuard } from '../guards/role.guard';
 import { CommandesComponent } from './features/fournisseurs/commandes/commandes.component';
 import { DashboardfComponent } from './features/fournisseurs/dashboard/dashboard.component';
@@ -30,6 +31,8 @@ import { DetailsUtilisateurComponent } from './features/details-utilisateur/deta
 import { DetailsAbonnementComponent } from './features/details-abonnement/details-abonnement.component';
 import { ResetpasswordComponent } from './features/auth/resetpassword/resetpassword.component';
 import { TaskBoardComponent } from './features/task-board/task-board.component';
+import { UserSubscriptionsComponent } from './features/user-subscriptions/user-subscriptions.component';
+import { ProfileOffersComponent } from './features/profile-offers/profile-offers.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
@@ -56,6 +59,16 @@ export const routes: Routes = [
     path: 'portail',
     component: PortailComponent,
     data: { authRequired: false }
+  },
+
+  // Route des offres - SANS authentification et SANS layout
+  {
+    path: 'offers',
+    component: ProfileOffersComponent,
+    data: {
+      authRequired: false,
+      breadcrumb: 'Offres par Profil'
+    }
   },
 
   // Routes protégées avec layout (nécessitent une authentification)
@@ -187,7 +200,7 @@ export const routes: Routes = [
         },
         canActivate: [RoleGuard]
       },
-      
+
       {
         path: 'utilisateurs',
         component: UtilisateursComponent,
@@ -211,8 +224,10 @@ export const routes: Routes = [
         },
       },
       // Dans votre routing module
-       { path: 'property/:id/tasks', 
-        component: TaskBoardComponent },
+      {
+        path: 'property/:id/tasks',
+        component: TaskBoardComponent
+      },
 
       {
         path: 'details-abonnement/:id',
@@ -221,7 +236,7 @@ export const routes: Routes = [
           breadcrumb: 'details-abonnement',
         },
       },
-      
+
       {
         path: 'details-reclamation/:id',
         component: DetailsReclamationComponent,
@@ -254,7 +269,7 @@ export const routes: Routes = [
         },
         canActivate: [RoleGuard]
       },
-      
+
       {
         path: 'abonnements',
         component: AbonnementsComponent,
@@ -263,7 +278,7 @@ export const routes: Routes = [
         },
         canActivate: [RoleGuard]
       },
-      
+
       {
         path: 'mon-compte',
         component: CompteComponent,
@@ -271,6 +286,14 @@ export const routes: Routes = [
           breadcrumb: 'mon-compte',
         },
         canActivate: [RoleGuard]
+      },
+      {
+        path: 'subscriptions',
+        component: UserSubscriptionsComponent,
+        data: {
+          breadcrumb: 'Mes Abonnements',
+        },
+        canActivate: [AuthGuard]
       }
     ]
   },

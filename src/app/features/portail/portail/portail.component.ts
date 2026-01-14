@@ -1,9 +1,12 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, AfterViewInit, signal, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PlanAbonnementService, SubscriptionPlan } from '../../../../services/plan-abonnement.service';
+import { PartnerService, Partner } from '../../../../services/partner.service';
 import { Subject, takeUntil, interval } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 interface Profil {
   titre: string;
@@ -63,13 +66,25 @@ interface Translations {
     ])
   ]
 })
-export class PortailComponent implements OnInit, OnDestroy {
+export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   isScrolled = false;
   mobileMenuOpen = false;
   isLoadingPlans = true;
   currentLang: Language = 'FR';
+
+  // Partenaires
+  partners = signal<Partner[]>([]);
+  isLoadingPartners = signal(false);
+  duplicatedPartners = signal<Partner[]>([]);
+  pauseSlider = false;
+  baseUrl = environment.filebaseUrl;
+
+  private planService = inject(PlanAbonnementService);
+  private partnerService = inject(PartnerService);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   // Plans d'abonnement actuels affichés
   currentPremiumPlan: SubscriptionPlan | null = null;
@@ -217,7 +232,7 @@ export class PortailComponent implements OnInit, OnDestroy {
       'profile4.subtitle': 'Exécution des travaux',
       'profile4.short': 'Tâches assignées, matériaux, pointage, sécurité...',
       'profile4.full': 'Les Ouvriers et Artisans accèdent facilement à leurs tâches assignées, consultent les plans et instructions, gèrent les demandes de matériaux, effectuent leur pointage quotidien, signalent les problèmes ou incidents, consultent les consignes de sécurité et communiquent avec leur chef d\'équipe. Une interface simplifiée et mobile facilite l\'utilisation au quotidien.',
-
+      'partners.empty': 'Nos partenaires arrivent bientôt',
     },
     EN: {
       // Header
@@ -233,6 +248,7 @@ export class PortailComponent implements OnInit, OnDestroy {
       'hero.title': 'Simplify your construction site management, from office to field.',
       'hero.description': 'Real-time tracking, time logging, scheduling, PDF reports, costs and photos — all in one platform ready for project owners, technical offices, site managers and field teams.',
       'hero.btn.features': 'View features',
+      'partners.empty': 'Our partners are coming soon',
       'hero.btn.download': 'Download the app',
 
       // About Section
@@ -354,7 +370,6 @@ export class PortailComponent implements OnInit, OnDestroy {
       'profile4.subtitle': 'Work Execution',
       'profile4.short': 'Assigned tasks, materials, time logging, safety...',
       'profile4.full': 'Workers and Craftsmen easily access their assigned tasks, review plans and instructions, manage material requests, perform daily time logging, report problems or incidents, review safety instructions and communicate with their team leader. A simplified and mobile interface facilitates daily use.',
-
     }
   };
 
@@ -426,14 +441,12 @@ export class PortailComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(
-    private router: Router,
-    private planService: PlanAbonnementService
-  ) { }
+  constructor() { }
 
   ngOnInit(): void {
     console.log('🚀 PortailComponent initialisé');
     this.loadPlans();
+    this.loadPartners();
   }
 
   ngOnDestroy(): void {
@@ -478,6 +491,28 @@ export class PortailComponent implements OnInit, OnDestroy {
   }
 
 
+  loadPartners(): void {
+    this.isLoadingPartners.set(true);
+    this.partnerService.getPartners().subscribe({
+      next: (data) => {
+        this.partners.set(data);
+
+        // Plain display as requested, no need for duplication
+        this.duplicatedPartners.set([...data]);
+
+        this.isLoadingPartners.set(false);
+      },
+      error: (error) => {
+        console.error('Erreur chargement partenaires:', error);
+        this.isLoadingPartners.set(false);
+      }
+    });
+  }
+
+  handleLogoError(event: any): void {
+    event.target.src = 'assets/images/placeholder-logo.png';
+  }
+
   loadPlans(): void {
     this.isLoadingPlans = true;
 
@@ -508,22 +543,60 @@ export class PortailComponent implements OnInit, OnDestroy {
   private groupPlansByName(plans: SubscriptionPlan[]): void {
     this.allPlansByName = {};
 
+    // ✅ Filtrer uniquement les profils MOA, PROMOTEUR et SITE_MANAGER
+    const allowedProfiles = ['MOA', 'PROMOTEUR', 'SITE_MANAGER'];
+    const profileOrder = ['PROMOTEUR', 'MOA', 'SITE_MANAGER']; // Ordre d'affichage
+
+    // Mapping des noms de profils en français
+    const profileNameMapping: { [key: string]: string } = {
+      'PROMOTEUR': 'Promoteur',
+      'MOA': 'Maître d\'Ouvrage',
+      'SITE_MANAGER': 'Chef de Chantier'
+    };
+
     plans.forEach(plan => {
-      if (!this.allPlansByName[plan.name]) {
-        this.allPlansByName[plan.name] = {
+      // Normaliser le nom pour le groupement
+      let groupName = plan.name?.toUpperCase() || '';
+
+      // Normalisation des noms
+      if (groupName.includes('PROMOTEUR')) groupName = 'PROMOTEUR';
+      else if (groupName.includes('MOA') || groupName.includes('MAITRE') || groupName.includes('OUVRAGE')) groupName = 'MOA';
+      else if (groupName.includes('SITE_MANAGER') || groupName.includes('CHEF') || groupName.includes('CHANTIER')) groupName = 'SITE_MANAGER';
+      else if (groupName.includes('MANAGER')) groupName = 'SITE_MANAGER';
+
+      // ✅ Filtrer : n'accepter que les profils autorisés
+      if (!allowedProfiles.includes(groupName)) {
+        console.log(`⚠️ Profil ${groupName} filtré (non autorisé sur le portail)`);
+        return; // Ignorer ce plan
+      }
+
+      if (!this.allPlansByName[groupName]) {
+        this.allPlansByName[groupName] = {
           premium: null,
           basic: null
         };
       }
 
       if (plan.label === 'PREMIUM') {
-        this.allPlansByName[plan.name].premium = plan;
+        this.allPlansByName[groupName].premium = plan;
       } else if (plan.label === 'BASIC') {
-        this.allPlansByName[plan.name].basic = plan;
+        this.allPlansByName[groupName].basic = plan;
       }
     });
 
-    console.log('📊 Plans groupés par name:', this.allPlansByName);
+    // Reconstruire planNames selon l'ordre souhaité (uniquement les profils autorisés)
+    const availableNames = Object.keys(this.allPlansByName);
+    this.planNames = profileOrder.filter(name => availableNames.includes(name));
+
+    console.log('✅ Plans filtrés pour le portail:', {
+      allowedProfiles,
+      planNames: this.planNames,
+      plansByName: this.allPlansByName
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      console.log('📊 Plans groupés par name (filtrés):', this.allPlansByName);
+    }
   }
 
   private showPlansForName(index: number): void {
@@ -543,7 +616,8 @@ export class PortailComponent implements OnInit, OnDestroy {
   }
 
   private startPlanRotation(): void {
-    interval(2000)
+    // Rotation toutes les 5 secondes (au lieu de 2 secondes)
+    interval(5000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         const nextIndex = (this.currentNameIndex + 1) % this.planNames.length;
@@ -552,7 +626,16 @@ export class PortailComponent implements OnInit, OnDestroy {
   }
 
   getCurrentName(): string {
-    return this.planNames[this.currentNameIndex] || '';
+    const profileKey = this.planNames[this.currentNameIndex] || '';
+
+    // Mapping des noms de profils en français
+    const profileNameMapping: { [key: string]: string } = {
+      'PROMOTEUR': 'Promoteur',
+      'MOA': 'Maître d\'Ouvrage',
+      'SITE_MANAGER': 'Chef de Chantier'
+    };
+
+    return profileNameMapping[profileKey] || profileKey;
   }
 
   truncateDescription(description: string): string {
@@ -571,15 +654,17 @@ export class PortailComponent implements OnInit, OnDestroy {
   goToSubscription(planType: 'free' | 'basic' | 'premium'): void {
     console.log('🎯 Intention d\'abonnement:', planType);
 
-    sessionStorage.setItem('subscription_intent', planType);
-    sessionStorage.setItem('redirect_after_login', '/mon-compte');
-    sessionStorage.setItem('compte_tab', 'abonnements');
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('subscription_intent', planType);
+      sessionStorage.setItem('redirect_after_login', '/mon-compte');
+      sessionStorage.setItem('compte_tab', 'abonnements');
 
-    console.log('✅ SessionStorage enregistré:', {
-      subscription_intent: sessionStorage.getItem('subscription_intent'),
-      redirect_after_login: sessionStorage.getItem('redirect_after_login'),
-      compte_tab: sessionStorage.getItem('compte_tab')
-    });
+      console.log('✅ SessionStorage enregistré:', {
+        subscription_intent: sessionStorage.getItem('subscription_intent'),
+        redirect_after_login: sessionStorage.getItem('redirect_after_login'),
+        compte_tab: sessionStorage.getItem('compte_tab')
+      });
+    }
 
     this.router.navigate(['/login']);
   }
@@ -590,27 +675,58 @@ export class PortailComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    this.isScrolled = window.scrollY > 20;
+    if (isPlatformBrowser(this.platformId)) {
+      this.isScrolled = window.scrollY > 20;
+    }
   }
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initIntersectionObserver();
+    }
+  }
+
+  private initIntersectionObserver(): void {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          (entry.target as HTMLElement).style.opacity = '1';
+          (entry.target as HTMLElement).style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-fade-in-up, .animate-fade-in-left, .animate-fade-in-right').forEach(el => {
+      (el as HTMLElement).style.opacity = '0';
+      (el as HTMLElement).style.transform = 'translateY(20px)';
+      observer.observe(el);
+    });
+  }
+
   scrollToSection(sectionId: string, event: Event) {
     event.preventDefault();
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    if (isPlatformBrowser(this.platformId)) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-
-      this.mobileMenuOpen = false;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }
+    this.mobileMenuOpen = false;
   }
 }

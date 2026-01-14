@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
 import { AuthService } from './../../features/auth/services/auth.service';
@@ -84,7 +84,7 @@ export class TeamListComponent implements OnInit {
   showDatePicker = false;
   selectedDate: Date | null = null;
   currentDate = new Date();
-  calendarDays: Array<{day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date}> = [];
+  calendarDays: Array<{ day: number, isCurrentMonth: boolean, isToday: boolean, isSelected: boolean, date: Date }> = [];
   currentMonthYear = '';
 
   currentMonth: number = new Date().getMonth();
@@ -94,8 +94,9 @@ export class TeamListComponent implements OnInit {
     private utilisateurService: UtilisateurService,
     private authService: AuthService,
     private detailsWorkerService: DetailsWorkerService,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   get filteredTeamMembers(): TeamMember[] {
     let filtered = this.teamMembers;
@@ -213,7 +214,7 @@ export class TeamListComponent implements OnInit {
 
   // Méthode pour obtenir la classe CSS selon le statut de présence
   getPresentClass(present: boolean): string {
-    return present 
+    return present
       ? 'inline-block px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full'
       : 'inline-block px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full';
   }
@@ -223,7 +224,9 @@ export class TeamListComponent implements OnInit {
     this.showViewModal = true;
     this.isLoadingDetails = true;
     this.detailsError = null;
-    document.body.style.overflow = 'hidden';
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
 
     const performance$ = this.detailsWorkerService.getPerformanceAndTask(member.id).pipe(
       catchError(error => {
@@ -342,7 +345,7 @@ export class TeamListComponent implements OnInit {
 
   getTaskOffsets(): { [key: string]: number } {
     if (!this.selectedMember?.taskDistribution) return {};
-    
+
     const offsets: { [key: string]: number } = {
       'Terminées': 0,
       'En Cours': 0,
@@ -372,12 +375,12 @@ export class TeamListComponent implements OnInit {
     const day = parseInt(parts[1]);
     const monthStr = parts[2].replace('.', '');
     const year = parseInt(parts[3]);
-    
-    const months: {[key: string]: number} = {
+
+    const months: { [key: string]: number } = {
       'janv': 0, 'févr': 1, 'mars': 2, 'avr': 3, 'mai': 4, 'juin': 5,
       'juil': 6, 'août': 7, 'sept': 8, 'oct': 9, 'nov': 10, 'déc': 11
     };
-    
+
     return new Date(year, months[monthStr] || 0, day);
   }
 
@@ -386,7 +389,9 @@ export class TeamListComponent implements OnInit {
     this.selectedMember = null;
     this.detailsError = null;
     this.selectedDate = null;
-    document.body.style.overflow = 'auto';
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
   }
 
   onViewBackdropClick(event: Event): void {
@@ -399,12 +404,12 @@ export class TeamListComponent implements OnInit {
     totalTime: string;
   }> {
     if (!this.selectedMember?.presenceHistory) return [];
-   
+
     // Si aucune date n'est sélectionnée, afficher tout l'historique
     if (!this.selectedDate) {
       return this.selectedMember.presenceHistory;
     }
- 
+
     // Filtrer par la date sélectionnée
     const selectedDateStr = this.formatSelectedDate(this.selectedDate);
     return this.selectedMember.presenceHistory.filter(item =>
@@ -415,198 +420,198 @@ export class TeamListComponent implements OnInit {
 
   private formatSelectedDate(date: Date): string {
     const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
-                    'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
-    
+    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin',
+      'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+
     return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
   }
 
- 
-/**
- * Transforme l'historique de présence depuis l'API
- */
-private transformPresenceHistory(presenceData: PresenceHistory): Array<{
-  date: string;
-  sessions: Array<{ entry: string; exit: string }>;
-  totalTime: string;
-}> {
-  console.log('📊 Transformation de l\'historique de présence:', presenceData);
-  
-  if (!presenceData.logs || presenceData.logs.length === 0) {
-    console.log('⚠️ Aucun log de présence trouvé');
-    return [];
-  }
 
-  const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
-
-  presenceData.logs.forEach(log => {
-    console.log('🔍 Processing log:', log);
-    
-    const dateStr = this.formatDateFromArray(log.checkInTime);
-    const entryTime = this.formatTimeFromArray(log.checkInTime);
-    const exitTime =this.formatTimeFromArray(log.checkOutTime);
-    
-    console.log(`📅 Date: ${dateStr}, Entrée: ${entryTime}, Sortie: ${exitTime}`);
-
-    if (!groupedByDate.has(dateStr)) {
-      groupedByDate.set(dateStr, []);
-    }
-
-    groupedByDate.get(dateStr)!.push({
-      entry: entryTime,
-      exit: exitTime
-    });
-  });
-
-  const result: Array<{
+  /**
+   * Transforme l'historique de présence depuis l'API
+   */
+  private transformPresenceHistory(presenceData: PresenceHistory): Array<{
     date: string;
     sessions: Array<{ entry: string; exit: string }>;
     totalTime: string;
-  }> = [];
+  }> {
+    console.log('📊 Transformation de l\'historique de présence:', presenceData);
 
-  groupedByDate.forEach((sessions, date) => {
-    // Calculer le temps total uniquement pour les sessions complètes (avec sortie)
-    const totalMinutes = sessions.reduce((total, session) => {
-      if (session.exit === 'En cours') return total;
-      return total + this.calculateMinutesBetween(session.entry, session.exit);
-    }, 0);
+    if (!presenceData.logs || presenceData.logs.length === 0) {
+      console.log('⚠️ Aucun log de présence trouvé');
+      return [];
+    }
 
-    result.push({
-      date,
-      sessions,
-      totalTime: this.formatDuration(totalMinutes)
-    });
-  });
+    const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
 
-  // Trier par date décroissante (plus récent d'abord)
-  result.sort((a, b) => {
-    const dateA = this.parseDateString(a.date);
-    const dateB = this.parseDateString(b.date);
-    return dateB.getTime() - dateA.getTime();
-  });
+    presenceData.logs.forEach(log => {
+      console.log('🔍 Processing log:', log);
 
-  console.log('✅ Historique transformé:', result);
-  return result;
-}
+      const dateStr = this.formatDateFromArray(log.checkInTime);
+      const entryTime = this.formatTimeFromArray(log.checkInTime);
+      const exitTime = this.formatTimeFromArray(log.checkOutTime);
 
-/**
- * Formate une date depuis un tableau de nombres [année, mois, jour, heure?, minute?]
- * Exemple: [2024, 12, 8] → "Dim. 8 déc. 2024"
- */
-private formatDateFromArray(timeArray: number[]): string {
-  if (!timeArray || timeArray.length < 3) {
-    console.error('❌ Tableau de date invalide:', timeArray);
-    return 'Date invalide';
-  }
-  
-  const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
-  const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-  const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 
-                  'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
-  
-  const formattedDate = `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
-  console.log(`📅 Date formatée: ${formattedDate} depuis`, timeArray);
-  
-  return formattedDate;
-}
+      console.log(`📅 Date: ${dateStr}, Entrée: ${entryTime}, Sortie: ${exitTime}`);
 
-/**
- * Formate une heure depuis un tableau de nombres [heure, minute, seconde, nanosecondes]
- * Exemple: [10, 38, 3, 935000000] → "10:38"
- */
-private formatTimeFromArray(timeArray: number[]): string {
-  console.log('🕐 Formatage de l\'heure depuis:', timeArray);
-  
-  if (!timeArray || timeArray.length < 2) {
-    console.error('❌ Tableau d\'heure invalide ou incomplet:', timeArray);
-    return '--:--';
-  }
-  
-  // timeArray = [heure, minute, seconde, nanosecondes]
-  const hours = timeArray[0].toString().padStart(2, '0');
-  const minutes = timeArray[1].toString().padStart(2, '0');
-  const formattedTime = `${hours}:${minutes}`;
-  
-  console.log(`🕐 Heure formatée: ${formattedTime}`);
-  return formattedTime;
-}
-
-/**
- * Calcule la différence en minutes entre deux heures au format HH:mm
- */
-private calculateMinutesBetween(entry: string, exit: string): number {
-  console.log(`⏱️ Calcul durée entre ${entry} et ${exit}`);
-  
-  // Si l'heure de sortie est "En cours" ou invalide, retourner 0
-  if (exit === 'En cours' || exit === '--:--' || !exit.includes(':')) {
-    console.log('⚠️ Sortie en cours ou invalide, durée = 0');
-    return 0;
-  }
-  
-  const [entryH, entryM] = entry.split(':').map(Number);
-  const [exitH, exitM] = exit.split(':').map(Number);
-  
-  // Vérifier que les valeurs sont valides
-  if (isNaN(entryH) || isNaN(entryM) || isNaN(exitH) || isNaN(exitM)) {
-    console.error('❌ Heures invalides:', { entry, exit });
-    return 0;
-  }
-  
-  const entryMinutes = entryH * 60 + entryM;
-  const exitMinutes = exitH * 60 + exitM;
-  
-  const duration = exitMinutes - entryMinutes;
-  console.log(`✅ Durée calculée: ${duration} minutes`);
-  
-  return duration > 0 ? duration : 0;
-}
-
-/**
- * Formate une durée en minutes vers le format "Xh XXmin"
- */
-private formatDuration(minutes: number): string {
-  if (minutes <= 0) {
-    return '0h 00min';
-  }
-  
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours}h ${mins.toString().padStart(2, '0')}min`;
-}
-
-/**
- * Obtient le temps total travaillé (filtré ou complet)
- */
-getTotalWorkedTime(): string {
-  console.log('📊 Calcul du temps total travaillé');
-  
-  // Si le selectedMember a déjà le totalWorkedTime de l'API, l'utiliser
-  if (this.selectedMember?.totalWorkedTime && !this.selectedDate) {
-    console.log('✅ Utilisation du temps total depuis l\'API:', this.selectedMember.totalWorkedTime);
-    return this.selectedMember.totalWorkedTime;
-  }
-  
-  // Sinon, calculer depuis l'historique filtré
-  if (!this.selectedMember?.presenceHistory) {
-    console.log('⚠️ Pas d\'historique de présence');
-    return '0h 00min';
-  }
-  
-  const history = this.getFilteredPresenceHistory();
-  const totalMinutes = history.reduce((total, day) => {
-    return total + day.sessions.reduce((dayTotal, session) => {
-      // Ne compter que les sessions terminées
-      if (session.exit === 'En cours' || session.exit === '--:--') {
-        return dayTotal;
+      if (!groupedByDate.has(dateStr)) {
+        groupedByDate.set(dateStr, []);
       }
-      return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
+
+      groupedByDate.get(dateStr)!.push({
+        entry: entryTime,
+        exit: exitTime
+      });
+    });
+
+    const result: Array<{
+      date: string;
+      sessions: Array<{ entry: string; exit: string }>;
+      totalTime: string;
+    }> = [];
+
+    groupedByDate.forEach((sessions, date) => {
+      // Calculer le temps total uniquement pour les sessions complètes (avec sortie)
+      const totalMinutes = sessions.reduce((total, session) => {
+        if (session.exit === 'En cours') return total;
+        return total + this.calculateMinutesBetween(session.entry, session.exit);
+      }, 0);
+
+      result.push({
+        date,
+        sessions,
+        totalTime: this.formatDuration(totalMinutes)
+      });
+    });
+
+    // Trier par date décroissante (plus récent d'abord)
+    result.sort((a, b) => {
+      const dateA = this.parseDateString(a.date);
+      const dateB = this.parseDateString(b.date);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    console.log('✅ Historique transformé:', result);
+    return result;
+  }
+
+  /**
+   * Formate une date depuis un tableau de nombres [année, mois, jour, heure?, minute?]
+   * Exemple: [2024, 12, 8] → "Dim. 8 déc. 2024"
+   */
+  private formatDateFromArray(timeArray: number[]): string {
+    if (!timeArray || timeArray.length < 3) {
+      console.error('❌ Tableau de date invalide:', timeArray);
+      return 'Date invalide';
+    }
+
+    const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin',
+      'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+
+    const formattedDate = `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+    console.log(`📅 Date formatée: ${formattedDate} depuis`, timeArray);
+
+    return formattedDate;
+  }
+
+  /**
+   * Formate une heure depuis un tableau de nombres [heure, minute, seconde, nanosecondes]
+   * Exemple: [10, 38, 3, 935000000] → "10:38"
+   */
+  private formatTimeFromArray(timeArray: number[]): string {
+    console.log('🕐 Formatage de l\'heure depuis:', timeArray);
+
+    if (!timeArray || timeArray.length < 2) {
+      console.error('❌ Tableau d\'heure invalide ou incomplet:', timeArray);
+      return '--:--';
+    }
+
+    // timeArray = [heure, minute, seconde, nanosecondes]
+    const hours = timeArray[0].toString().padStart(2, '0');
+    const minutes = timeArray[1].toString().padStart(2, '0');
+    const formattedTime = `${hours}:${minutes}`;
+
+    console.log(`🕐 Heure formatée: ${formattedTime}`);
+    return formattedTime;
+  }
+
+  /**
+   * Calcule la différence en minutes entre deux heures au format HH:mm
+   */
+  private calculateMinutesBetween(entry: string, exit: string): number {
+    console.log(`⏱️ Calcul durée entre ${entry} et ${exit}`);
+
+    // Si l'heure de sortie est "En cours" ou invalide, retourner 0
+    if (exit === 'En cours' || exit === '--:--' || !exit.includes(':')) {
+      console.log('⚠️ Sortie en cours ou invalide, durée = 0');
+      return 0;
+    }
+
+    const [entryH, entryM] = entry.split(':').map(Number);
+    const [exitH, exitM] = exit.split(':').map(Number);
+
+    // Vérifier que les valeurs sont valides
+    if (isNaN(entryH) || isNaN(entryM) || isNaN(exitH) || isNaN(exitM)) {
+      console.error('❌ Heures invalides:', { entry, exit });
+      return 0;
+    }
+
+    const entryMinutes = entryH * 60 + entryM;
+    const exitMinutes = exitH * 60 + exitM;
+
+    const duration = exitMinutes - entryMinutes;
+    console.log(`✅ Durée calculée: ${duration} minutes`);
+
+    return duration > 0 ? duration : 0;
+  }
+
+  /**
+   * Formate une durée en minutes vers le format "Xh XXmin"
+   */
+  private formatDuration(minutes: number): string {
+    if (minutes <= 0) {
+      return '0h 00min';
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins.toString().padStart(2, '0')}min`;
+  }
+
+  /**
+   * Obtient le temps total travaillé (filtré ou complet)
+   */
+  getTotalWorkedTime(): string {
+    console.log('📊 Calcul du temps total travaillé');
+
+    // Si le selectedMember a déjà le totalWorkedTime de l'API, l'utiliser
+    if (this.selectedMember?.totalWorkedTime && !this.selectedDate) {
+      console.log('✅ Utilisation du temps total depuis l\'API:', this.selectedMember.totalWorkedTime);
+      return this.selectedMember.totalWorkedTime;
+    }
+
+    // Sinon, calculer depuis l'historique filtré
+    if (!this.selectedMember?.presenceHistory) {
+      console.log('⚠️ Pas d\'historique de présence');
+      return '0h 00min';
+    }
+
+    const history = this.getFilteredPresenceHistory();
+    const totalMinutes = history.reduce((total, day) => {
+      return total + day.sessions.reduce((dayTotal, session) => {
+        // Ne compter que les sessions terminées
+        if (session.exit === 'En cours' || session.exit === '--:--') {
+          return dayTotal;
+        }
+        return dayTotal + this.calculateMinutesBetween(session.entry, session.exit);
+      }, 0);
     }, 0);
-  }, 0);
-  
-  const result = this.formatDuration(totalMinutes);
-  console.log(`✅ Temps total calculé: ${result}`);
-  return result;
-}
+
+    const result = this.formatDuration(totalMinutes);
+    console.log(`✅ Temps total calculé: ${result}`);
+    return result;
+  }
   toggleDatePicker(): void {
     this.showDatePicker = !this.showDatePicker;
     if (this.showDatePicker) {
@@ -617,19 +622,19 @@ getTotalWorkedTime(): string {
   generateCalendar(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
-    
+
     const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     this.currentMonthYear = `${monthNames[month]} ${year}`;
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-    
+
     const daysInMonth = lastDay.getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
+
     this.calendarDays = [];
-    
+
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
       this.calendarDays.push({
@@ -640,13 +645,13 @@ getTotalWorkedTime(): string {
         date: new Date(year, month - 1, day)
       });
     }
-    
+
     const today = new Date();
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const isToday = date.toDateString() === today.toDateString();
       const isSelected = this.selectedDate ? date.toDateString() === this.selectedDate.toDateString() : false;
-      
+
       this.calendarDays.push({
         day,
         isCurrentMonth: true,
@@ -655,7 +660,7 @@ getTotalWorkedTime(): string {
         date
       });
     }
-    
+
     const remainingDays = 35 - this.calendarDays.length;
     for (let day = 1; day <= remainingDays; day++) {
       this.calendarDays.push({
@@ -680,10 +685,10 @@ getTotalWorkedTime(): string {
 
   selectDate(day: any): void {
     if (!day.isCurrentMonth) return;
-    
+
     this.selectedDate = day.date;
     this.generateCalendar();
-    
+
     setTimeout(() => {
       this.showDatePicker = false;
     }, 200);
@@ -691,7 +696,7 @@ getTotalWorkedTime(): string {
 
   getDayClasses(day: any): string {
     const classes = [];
-    
+
     if (!day.isCurrentMonth) {
       classes.push('text-gray-300 cursor-not-allowed');
     } else if (day.isToday) {
@@ -701,7 +706,7 @@ getTotalWorkedTime(): string {
     } else {
       classes.push('text-gray-700 hover:bg-gray-100');
     }
-    
+
     return classes.join(' ');
   }
 
@@ -796,41 +801,45 @@ getTotalWorkedTime(): string {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
-        this.submitError = 'Veuillez sélectionner une image valide';
+        this.submitError = 'Veuillez sélectionner une image';
         return;
       }
-      
+
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.submitError = 'La taille de l\'image ne doit pas dépasser 5 MB';
         return;
       }
-      
+
       this.selectedPhoto = file;
       this.newMember.photo = file;
-      
+
       // Créer un aperçu de l'image
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        this.photoPreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-      
+      if (isPlatformBrowser(this.platformId)) {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          this.photoPreview = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+
       this.submitError = null;
     }
   }
-  
+
   removePhoto(): void {
     this.selectedPhoto = null;
     this.newMember.photo = undefined;
     this.photoPreview = null;
     // Réinitialiser l'input file
-    const fileInput = document.getElementById('photo') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
+    if (isPlatformBrowser(this.platformId)) {
+      const fileInput = document.getElementById('photo') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
     }
   }
   private validateForm(): boolean {
@@ -888,7 +897,7 @@ getTotalWorkedTime(): string {
     const adjusted = firstDay === 0 ? 6 : firstDay - 1;
     return Array(adjusted).fill(0);
   }
- 
+
   getCalendarDays(): number[] {
     const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
     return Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -906,16 +915,16 @@ getTotalWorkedTime(): string {
 
   submitAddMember(): void {
     if (!this.validateForm()) return;
-  
+
     if (this.currentPropertyId === null) {
       this.submitError = 'ID de propriété non disponible';
       return;
     }
-  
+
     this.isSubmitting = true;
     this.submitError = null;
     this.submitSuccess = null;
-  
+
     const userData: CreateWorkerRequest = {
       nom: this.newMember.nom.trim(),
       prenom: this.newMember.prenom.trim(),
@@ -928,15 +937,15 @@ getTotalWorkedTime(): string {
       profil: this.newMember.profil,
       photo: this.selectedPhoto || undefined // Ajouter la photo
     };
-  
+
     console.log('📤 Création du worker pour propertyId:', this.currentPropertyId);
-  
+
     this.utilisateurService.createWorker(userData, this.currentPropertyId).subscribe({
       next: (response) => {
         console.log('✅ Worker créé avec succès:', response);
         this.isSubmitting = false;
         this.submitSuccess = 'Membre ajouté avec succès!';
-        
+
         setTimeout(() => {
           this.closeAddMemberModal();
           this.currentPage = 1;
@@ -946,7 +955,7 @@ getTotalWorkedTime(): string {
       error: (error) => {
         this.isSubmitting = false;
         console.error('❌ Erreur lors de la création du worker:', error);
-        
+
         if (error.status === 400) {
           this.submitError = 'Données invalides. Vérifiez les informations saisies.';
         } else if (error.status === 409) {

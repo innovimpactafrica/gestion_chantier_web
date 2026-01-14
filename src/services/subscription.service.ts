@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
 
@@ -73,6 +73,7 @@ export interface SubscriptionPlan {
   unlimitedProjects: boolean;
   yearlyDiscountRate: number;
   active: boolean;
+  targetProfiles?: string[]; // Profils cibles pour ce plan (optionnel)
 }
 
 export interface UserSubscription {
@@ -82,8 +83,8 @@ export interface UserSubscription {
   };
   subscriptionPlan: SubscriptionPlan;
   createdAt: string;
-  endDate:string;
-  startDate:string;
+  endDate: string;
+  startDate: string;
 }
 
 export interface CreateSubscriptionParams {
@@ -117,7 +118,7 @@ export interface OneTouchConfig {
 export class SubscriptionService {
   private baseUrl = `${environment.apiUrl}/subscriptions`;
   private planBaseUrl = `${environment.apiUrl}/subscription-plans`;
-  
+
   // Configuration OneTouch
   private oneTouchConfig: OneTouchConfig = {
     agencyCode: 'SOLI26685',
@@ -151,11 +152,11 @@ export class SubscriptionService {
   seeActive(userId: number): Observable<boolean> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/is-active/${userId}`;
-    
+
     console.log('📡 API Call: seeActive');
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', userId);
-    
+
     return this.http.get<boolean>(url, { headers })
       .pipe(
         tap(isActive => console.log('✅ Is Active:', isActive)),
@@ -169,7 +170,7 @@ export class SubscriptionService {
   canCreateProject(userId: number): Observable<boolean> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/can-create-project/${userId}`;
-    
+
     return this.http.get<boolean>(url, { headers })
       .pipe(
         tap(canCreate => console.log('✅ Can Create Project:', canCreate)),
@@ -187,7 +188,7 @@ export class SubscriptionService {
       .set('size', size.toString());
 
     const url = `${this.baseUrl}/invoices/${userId}`;
-    
+
     console.log('📡 API Call: getFactures');
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', userId);
@@ -213,11 +214,11 @@ export class SubscriptionService {
   getPlanSubscription(name: string): Observable<SubscriptionPlan[]> {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/name/${name}`;
-    
+
     console.log('📡 API Call: getPlanSubscription');
     console.log('🔗 URL complète:', url);
     console.log('👔 Profil:', name);
-    
+
     return this.http.get<SubscriptionPlan[]>(url, { headers })
       .pipe(
         tap(plans => {
@@ -240,10 +241,10 @@ export class SubscriptionService {
   getAllActivePlans(): Observable<SubscriptionPlan[]> {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/active`;
-    
+
     console.log('📡 API Call: getAllActivePlans');
     console.log('🔗 URL:', url);
-    
+
     return this.http.get<SubscriptionPlan[]>(url, { headers })
       .pipe(
         tap(plans => console.log('✅ Plans actifs récupérés:', plans.length)),
@@ -252,16 +253,56 @@ export class SubscriptionService {
   }
 
   /**
+   * Récupère les plans actifs filtrés par profil utilisateur
+   */
+  getPlansByProfile(profile: string): Observable<SubscriptionPlan[]> {
+    console.log('📡 API Call: getPlansByProfile');
+    console.log('👤 Profil demandé:', profile);
+
+    return this.getAllActivePlans().pipe(
+      map(plans => {
+        console.log('📦 Tous les plans actifs:', plans);
+
+        // Filtrer les plans par nom qui contient le profil
+        const filteredPlans = plans.filter(plan => {
+          const planName = plan.name?.toUpperCase() || '';
+          const profileUpper = profile.toUpperCase();
+
+          // Vérifier si le nom du plan contient le profil
+          const matchesByName = planName.includes(profileUpper);
+
+          // Vérifier aussi targetProfiles si disponible
+          const matchesByTargetProfiles = plan.targetProfiles && plan.targetProfiles.includes(profile);
+
+          const matches = matchesByName || matchesByTargetProfiles;
+
+          if (matches) {
+            console.log(`✅ Plan "${plan.name}" (${plan.label}) correspond au profil "${profile}"`);
+          }
+
+          return matches;
+        });
+
+        console.log(`✅ Plans filtrés pour le profil "${profile}":`, filteredPlans.length);
+        console.log('📋 Plans trouvés:', filteredPlans.map(p => `${p.name} (${p.label})`));
+
+        return filteredPlans;
+      }),
+      catchError(error => this.handleError(error, 'getPlansByProfile'))
+    );
+  }
+
+  /**
    * Récupère un plan par son ID
    */
   getPlanById(planId: number): Observable<SubscriptionPlan> {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/${planId}`;
-    
+
     console.log('📡 API Call: getPlanById');
     console.log('🔗 URL:', url);
     console.log('🆔 Plan ID:', planId);
-    
+
     return this.http.get<SubscriptionPlan>(url, { headers })
       .pipe(
         tap(plan => console.log('✅ Plan récupéré:', plan)),
@@ -275,11 +316,11 @@ export class SubscriptionService {
   getSubscriptionByUser(userId: number): Observable<UserSubscription> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/user/${userId}`;
-    
+
     console.log('📡 API Call: getSubscriptionByUser');
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', userId);
-    
+
     return this.http.get<UserSubscription>(url, { headers })
       .pipe(
         tap(subscription => {
@@ -292,12 +333,32 @@ export class SubscriptionService {
       );
   }
 
+  getSubscriptionsByProfile(profile: string): Observable<UserSubscription[]> {
+    const headers = this.getAuthHeaders();
+    const url = `${this.baseUrl}/profile/${profile}`;
+
+    console.log('📡 API Call: getSubscriptionsByProfile');
+    console.log('🔗 URL:', url);
+    console.log('👔 Profile:', profile);
+
+    return this.http.get<UserSubscription[]>(url, { headers })
+      .pipe(
+        tap(subscriptions => {
+          console.log('✅ Abonnements par profil récupérés:', subscriptions.length);
+          subscriptions.forEach((sub, index) => {
+            console.log(`  - Abonnement ${index + 1}:`, sub.subscriptionPlan?.name, 'User:', sub.user.id);
+          });
+        }),
+        catchError(error => this.handleError(error, 'getSubscriptionsByProfile'))
+      );
+  }
+
   /**
    * Crée un abonnement pour un utilisateur
    */
   createSubscription(params: CreateSubscriptionParams): Observable<CreateSubscriptionResponse> {
     const headers = this.getAuthHeaders();
-    
+
     let httpParams = new HttpParams();
     if (params.num_transaction_from_gu) {
       httpParams = httpParams.set('num_transaction_from_gu', params.num_transaction_from_gu);
@@ -313,13 +374,13 @@ export class SubscriptionService {
     }
 
     const url = `${this.baseUrl}/create/${params.userId}/${params.planId}/${params.months}`;
-    
+
     console.log('📡 API Call: createSubscription');
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', params.userId);
     console.log('🎫 PlanId:', params.planId);
     console.log('📅 Months:', params.months);
-    
+
     return this.http.get<CreateSubscriptionResponse>(url, { headers, params: httpParams })
       .pipe(
         tap(response => {
@@ -334,12 +395,12 @@ export class SubscriptionService {
    */
   private buildCallbackUrl(userId: number, planId: number, months: number): string {
     const baseUrl = window.location.origin;
-    
+
     // URL de succès : redirige vers /mon-compte avec les paramètres de paiement
     const successUrl = `${baseUrl}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`;
-    
+
     console.log('🔗 URL de succès construite:', successUrl);
-    
+
     return successUrl;
   }
 
@@ -368,7 +429,7 @@ export class SubscriptionService {
 
       const currentOrigin = window.location.origin;
       const orderNumber = new Date().getTime().toString();
-      
+
       // ✨ MODIFICATION : URLs de redirection vers /mon-compte
       const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}?redirect=${encodeURIComponent(`${currentOrigin}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`)}`;
       const failedUrl = `${currentOrigin}/#/mon-compte?payment=failed&userId=${userId}&planId=${planId}`;
@@ -395,7 +456,7 @@ export class SubscriptionService {
           clientLastName,
           clientPhone
         );
-        
+
         console.log('✅ Redirection vers OneTouch en cours...');
         resolve();
       } catch (error) {
@@ -421,7 +482,7 @@ export class SubscriptionService {
     // Calcul du montant et des mois
     const months = isYearly ? 12 : 1;
     let amount = plan.totalCost;
-    
+
     if (isYearly && plan.yearlyDiscountRate > 0) {
       const yearlyPrice = plan.totalCost * 12;
       const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
@@ -463,24 +524,24 @@ export class SubscriptionService {
    */
   private getAuthHeaders(): HttpHeaders {
     console.log('🔑 Récupération des headers d\'authentification...');
-    
+
     if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
-      
+
       console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
-      
+
       if (!hasAuth) {
         console.warn('⚠️ Aucun header Authorization trouvé!');
       }
-      
+
       return headers;
     }
-    
+
     console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
-    
+
     const token = this.authService?.getToken() || localStorage.getItem('token');
-    
+
     if (token) {
       console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
@@ -488,9 +549,9 @@ export class SubscriptionService {
         'Content-Type': 'application/json'
       });
     }
-    
+
     console.error('❌ Aucun token d\'authentification trouvé!');
-    
+
     return new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -505,14 +566,14 @@ export class SubscriptionService {
     console.error('❌ Status Text:', error.statusText);
     console.error('❌ URL:', error.url);
     console.error('❌ Message:', error.message);
-    
+
     if (error.error) {
       console.error('❌ Error body:', error.error);
     }
-    
+
     let errorMessage = 'Une erreur est survenue';
     let userMessage = errorMessage;
-    
+
     switch (error.status) {
       case 0:
         errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
@@ -547,9 +608,9 @@ export class SubscriptionService {
           userMessage = `Erreur ${error.status}`;
         }
     }
-    
+
     console.error('💬 Message utilisateur:', userMessage);
-    
+
     return throwError(() => ({
       message: errorMessage,
       userMessage: userMessage,

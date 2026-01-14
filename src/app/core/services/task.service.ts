@@ -1,20 +1,21 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 
-import { 
+import {
   Task,
-  TaskCreateRequest, 
-  TaskUpdateRequest, 
-  TaskPriority, 
-  TaskStatus, 
-  ApiResponse, 
-  PaginatedResponse, 
+  TaskCreateRequest,
+  TaskUpdateRequest,
+  TaskPriority,
+  TaskStatus,
+  ApiResponse,
+  PaginatedResponse,
   Executor,
-  RealEstateProperty 
+  RealEstateProperty
 } from '../../models/Task';
 
 // Types pour une meilleure gestion des erreurs
@@ -37,9 +38,10 @@ export interface TaskFilters {
 })
 export class TaskService {
   private readonly http = inject(HttpClient);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly baseUrl = `${environment.apiUrl}/tasks`; // Utilisation de l'URL de l'environnement
-  private readonly authTokenKey = 'Token';
-  
+  private readonly authTokenKey = 'token';
+
   // État réactif pour les tâches (optionnel)
   private readonly tasksSubject = new BehaviorSubject<Task[]>([]);
   public readonly tasks$ = this.tasksSubject.asObservable();
@@ -48,7 +50,7 @@ export class TaskService {
    * Récupère toutes les tâches avec pagination
    */
   getAllTasks(
-    page: number = 1, 
+    page: number = 1,
     limit: number = 10,
     filters?: TaskFilters
   ): Observable<PaginatedResponse<Task>> {
@@ -72,7 +74,7 @@ export class TaskService {
    */
   getTaskById(id: number): Observable<ApiResponse<Task>> {
     this.validateId(id);
-    
+
     return this.http.get<ApiResponse<Task>>(`${this.baseUrl}/${id}`, {
       headers: this.getAuthHeaders()
     }).pipe(
@@ -85,7 +87,7 @@ export class TaskService {
    */
   createTask(taskData: TaskCreateRequest): Observable<ApiResponse<Task>> {
     this.validateTaskCreateRequest(taskData);
-    
+
     const formData = this.buildFormData(taskData);
 
     return this.http.post<ApiResponse<Task>>(this.baseUrl, formData, {
@@ -107,7 +109,7 @@ export class TaskService {
    */
   updateTask(taskData: TaskUpdateRequest): Observable<ApiResponse<Task>> {
     this.validateId(taskData.id);
-    
+
     const { id, ...updateData } = taskData;
     const formData = this.buildFormDataFromObject(updateData);
 
@@ -129,9 +131,9 @@ export class TaskService {
    */
   updateTaskStatus(id: number, status: TaskStatus): Observable<ApiResponse<Task>> {
     this.validateId(id);
-    
-    return this.http.patch<ApiResponse<Task>>(`${this.baseUrl}/${id}/status`, 
-      { status }, 
+
+    return this.http.patch<ApiResponse<Task>>(`${this.baseUrl}/${id}/status`,
+      { status },
       { headers: this.getAuthHeaders() }
     ).pipe(
       map(response => {
@@ -149,7 +151,7 @@ export class TaskService {
    */
   deleteTask(id: number): Observable<ApiResponse<void>> {
     this.validateId(id);
-    
+
     return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`, {
       headers: this.getAuthHeaders()
     }).pipe(
@@ -188,7 +190,7 @@ export class TaskService {
    */
   getTasksByProperty(propertyId: number): Observable<ApiResponse<Task[]>> {
     this.validateId(propertyId);
-    
+
     return this.http.get<ApiResponse<Task[]>>(`${environment.apiUrl}/real-estate-properties/${propertyId}/tasks`, {
       headers: this.getAuthHeaders()
     }).pipe(
@@ -201,7 +203,7 @@ export class TaskService {
    */
   getTasksByExecutor(executorId: number): Observable<ApiResponse<Task[]>> {
     this.validateId(executorId);
-    
+
     return this.http.get<ApiResponse<Task[]>>(`${environment.apiUrl}/executors/${executorId}/tasks`, {
       headers: this.getAuthHeaders()
     }).pipe(
@@ -215,7 +217,7 @@ export class TaskService {
   uploadTaskImages(taskId: number, files: File[]): Observable<ApiResponse<string[]>> {
     this.validateId(taskId);
     this.validateFiles(files);
-    
+
     const formData = new FormData();
     files.forEach(file => formData.append('images', file));
 
@@ -234,7 +236,7 @@ export class TaskService {
     if (!imageUrl?.trim()) {
       return throwError(() => new Error('URL de l\'image requise'));
     }
-    
+
     return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${taskId}/images`, {
       headers: this.getAuthHeaders(),
       body: { imageUrl }
@@ -278,9 +280,9 @@ export class TaskService {
    */
   private handleError(baseMessage: string, error: HttpErrorResponse): Observable<never> {
     console.error(`${baseMessage}:`, error);
-    
+
     let errorMessage = baseMessage;
-    
+
     if (error.error instanceof ErrorEvent) {
       // Erreur côté client
       errorMessage = `${baseMessage}: ${error.error.message}`;
@@ -309,11 +311,11 @@ export class TaskService {
     let headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getAuthToken()}`
     });
-    
+
     if (includeContentType) {
       headers = headers.set('Content-Type', 'application/json');
     }
-    
+
     return headers;
   }
 
@@ -321,7 +323,7 @@ export class TaskService {
    * Récupère le token d'authentification
    */
   private getAuthToken(): string {
-    if (typeof window !== 'undefined' && window.localStorage) {
+    if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem(this.authTokenKey) || '';
     }
     return '';
@@ -332,13 +334,13 @@ export class TaskService {
    */
   private buildHttpParams(params: Record<string, string>): HttpParams {
     let httpParams = new HttpParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         httpParams = httpParams.set(key, value);
       }
     });
-    
+
     return httpParams;
   }
 
@@ -347,7 +349,7 @@ export class TaskService {
    */
   private sanitizeFilters(filters?: TaskFilters): Record<string, string> {
     if (!filters) return {};
-    
+
     return Object.fromEntries(
       Object.entries(filters)
         .filter(([_, value]) => value !== undefined && value !== null && value !== '')
@@ -360,7 +362,7 @@ export class TaskService {
    */
   private buildFormData(taskData: TaskCreateRequest): FormData {
     const formData = new FormData();
-    
+
     // Données de base
     formData.append('title', taskData.title);
     formData.append('description', taskData.description);
@@ -368,7 +370,7 @@ export class TaskService {
     formData.append('startDate', taskData.startDate);
     formData.append('endDate', taskData.endDate);
     formData.append('realEstatePropertyId', taskData.realEstatePropertyId.toString());
-    
+
     // Gestion des executorIds
     if (taskData.executorIds?.length) {
       formData.append('executorIds', JSON.stringify(taskData.executorIds));
@@ -416,7 +418,7 @@ export class TaskService {
    */
   private updateLocalTasks(task: Task, action: 'add' | 'update' | 'delete'): void {
     const currentTasks = this.tasksSubject.value;
-    
+
     switch (action) {
       case 'add':
         this.tasksSubject.next([...currentTasks, task]);
@@ -474,10 +476,10 @@ export class TaskService {
     if (!files?.length) {
       throw new Error('Aucun fichier fourni');
     }
-    
+
     const maxFileSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    
+
     files.forEach(file => {
       if (file.size > maxFileSize) {
         throw new Error(`Le fichier ${file.name} est trop volumineux (max 10MB)`);

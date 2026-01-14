@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { MaterialsService, MaterialsResponse, Order, CreateOrder } from '../../../../../services/materials.service';
@@ -253,7 +254,8 @@ export class StockComponent implements OnInit, OnDestroy {
     private propertyService: PropertyTypeService,
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private userService: UserService // ⚠️ AJOUTER cette injection
+    private userService: UserService, // ⚠️ AJOUTER cette injection
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
       label: ['', [Validators.required, Validators.minLength(2)]],
@@ -872,15 +874,17 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   checkAuthStatus(): void {
-    console.log('=== DEBUG AUTHENTIFICATION ===');
-    console.log('localStorage auth_token:', localStorage.getItem('auth_token'));
-    console.log('localStorage token:', localStorage.getItem('token'));
-    console.log('sessionStorage auth_token:', sessionStorage.getItem('auth_token'));
-    console.log('sessionStorage token:', sessionStorage.getItem('token'));
-    console.log('Property ID:', this.propertyId);
-    console.log('Current page:', this.currentPage);
-    console.log('Page size:', this.pageSize);
-    console.log('================================');
+    if (isPlatformBrowser(this.platformId)) {
+      console.log('=== DEBUG AUTHENTIFICATION ===');
+      console.log('localStorage auth_token:', localStorage.getItem('auth_token'));
+      console.log('localStorage token:', localStorage.getItem('token'));
+      console.log('sessionStorage auth_token:', sessionStorage.getItem('auth_token'));
+      console.log('sessionStorage token:', sessionStorage.getItem('token'));
+      console.log('Property ID:', this.propertyId);
+      console.log('Current page:', this.currentPage);
+      console.log('Page size:', this.pageSize);
+      console.log('================================');
+    }
   }
 
   testApiConnection(): void {

@@ -67,10 +67,10 @@
   </div>
 
   <!-- Task Board -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" *ngIf="!loading">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start" *ngIf="!loading">
     <!-- Task Columns -->
     <div *ngFor="let column of columns; trackBy: trackByColumnId"
-      class="bg-[#f4f5fc] rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col"
+      class="bg-[#f4f5fc] rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-fit"
       (dragover)="onDragOver($event, column.id)" (drop)="onDrop($event, column.id)">
 
       <!-- Column Header -->
@@ -138,9 +138,9 @@
         }
       </style>
       <div class="space-y-4 flex-1 overflow-y-auto pr-1 task-scroll-container"
-        [style.max-height]="column.tasks.length > 3 ? '600px' : 'auto'">
+        [style.max-height]="column.tasks.length > 3 ? '520px' : 'auto'">
         <div *ngFor="let task of column.tasks; trackBy: trackByTaskId"
-          class="bg-white border border-gray-200 rounded-xl p-5 transition-all duration-300 cursor-pointer w-full hover:shadow-lg hover:scale-[1.02] transform"
+          class="bg-white border border-gray-200 rounded-xl p-5 transition-all duration-300 cursor-pointer w-full hover:shadow-xl hover:scale-[1.05] hover:border-orange-200 transform"
           draggable="true" (dragstart)="onDragStart($event, task)" (dragend)="onDragEnd($event)"
           (click)="openDetailModal(task)" [ngClass]="{'opacity-50': isDragging && draggedTask?.id === task.id}">
 
@@ -238,6 +238,19 @@
           </svg>
           <p class="text-base font-medium">Aucune tâche</p>
           <p class="text-sm mt-1">Cliquez sur + pour ajouter une tâche</p>
+        </div>
+      </div>
+
+      <!-- Indicateur Voir plus -->
+      <div *ngIf="column.tasks.length > 3" class="mt-4 pt-4 border-t border-gray-200 flex justify-center">
+        <div class="flex items-center gap-2 text-gray-400 animate-pulse">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+          <span class="text-[10px] uppercase tracking-wider font-bold">Scrollez pour voir plus</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
         </div>
       </div>
     </div>
