@@ -323,7 +323,11 @@
             </td>
 
             <td class="px-6 py-4 text-gray-900">
+<<<<<<< HEAD
               {{ order.supplier.prenom }} {{ order.supplier.nom }}
+=======
+              {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
+>>>>>>> 269d3376d8085b338e9ca42c66de18d01e40a99e
             </td>
 
             <td class="px-6 py-4 text-gray-600">
@@ -1027,6 +1031,9 @@
 LES DEUX MODALES POUR CRÉER UN NOUVEAU MATÉRIEL ET UNE NOUVELLE COMMANDE
 SONT PLACÉES EN BAS DU LAYOUT PRINCIPAL
 -->
+            <td class="px-6 py-4 text-gray-600">
+              <!-- CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }} -->
+            </td>
 
 
 

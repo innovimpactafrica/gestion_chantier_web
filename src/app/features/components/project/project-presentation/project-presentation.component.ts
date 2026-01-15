@@ -38,6 +38,104 @@ export class ProjectPresentationComponent implements OnInit {
   budgetData: BudgetResponse | null = null;
   isLoadingBudget = true;
   budgetError: string | null = null;
+  // Ajouter ces propriétés dans la classe
+isUpdatingStatus = false;
+statusUpdateError: string | null = null;
+
+// Mapping statut français -> anglais
+private statutMap: { [key: string]: string } = {
+  'En cours': 'IN_PROGRESS',
+  'En pause': 'PAUSED',
+  'Terminé': 'COMPLETED',
+  'Planifié': 'PLANNED'
+};
+
+// Mapping statut anglais -> français
+private statutMapReverse: { [key: string]: string } = {
+  'IN_PROGRESS': 'En cours',
+  'PAUSED': 'En pause',
+  'COMPLETED': 'Terminé',
+  'PLANNED': 'Planifié'
+};
+
+/**
+ * Change le statut du projet
+ * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
+ */
+changeStatut(nouveauStatutFr: string): void {
+  if (!this.projet || !this.projet.id) {
+    console.error('Projet non chargé');
+    return;
+  }
+
+  // Empêcher les changements multiples simultanés
+  if (this.isUpdatingStatus) {
+    return;
+  }
+
+  // Vérifier si le statut a réellement changé
+  if (this.statutFrancais === nouveauStatutFr) {
+    return;
+  }
+
+  const nouveauStatutEn = this.statutMap[nouveauStatutFr];
+  
+  if (!nouveauStatutEn) {
+    console.error('Statut invalide:', nouveauStatutFr);
+    return;
+  }
+
+  this.isUpdatingStatus = true;
+  this.statusUpdateError = null;
+
+  // Créer une copie du projet avec le nouveau statut
+  const projetMisAJour: RealEstateProject = {
+    ...this.projet,
+    constructionStatus: nouveauStatutEn
+  };
+
+  console.log('🔄 Mise à jour du statut:', {
+    ancien: this.projet.constructionStatus,
+    nouveau: nouveauStatutEn,
+    projetId: this.projet.id
+  });
+
+  // Appel de la méthode updateProject
+  this.realEstateService.updateProject(this.projet.id, projetMisAJour).subscribe({
+    next: (response) => {
+      console.log('✅ Statut mis à jour avec succès:', response);
+      
+      // Mettre à jour le projet local avec response.data.realEstateProperty
+      if (response && response.data && response.data.realEstateProperty) {
+        this.projet = response.data.realEstateProperty;
+      } else if (response && response.data) {
+        this.projet = response.data as RealEstateProject;
+      }
+
+      this.isUpdatingStatus = false;
+      console.log('✓ Statut changé à:', nouveauStatutFr);
+    },
+    error: (error) => {
+      console.error('❌ Erreur lors de la mise à jour du statut:', error);
+      this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
+      this.isUpdatingStatus = false;
+      
+      // Recharger le projet pour rétablir l'état précédent
+      if (this.projet?.id) {
+        this.loadProjectDetails(this.projet.id);
+      }
+    }
+  });
+}
+
+/**
+ * Vérifie si un statut est sélectionné
+ * @param statut Statut à vérifier
+ * @returns true si le statut correspond au statut actuel
+ */
+isStatutSelected(statut: string): boolean {
+  return this.statutFrancais === statut;
+}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

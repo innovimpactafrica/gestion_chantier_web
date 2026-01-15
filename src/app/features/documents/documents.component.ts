@@ -1,82 +1,15 @@
-import { ProjectBudgetService } from './../../../services/project-details.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// Interfaces pour les documents (à définir localement si pas dans le service)
-interface DocumentType {
-  id: number;
-  label: string;
-  code: string;
-  hasStartDate: boolean;
-  hasEndDate: boolean;
-  type: string;
-}
-
-interface Document {
-  id: number;
-  title: string;
-  file: string;
-  description: string;
-  type: DocumentType | null;
-  startDate: number[];
-  endDate: number[];
-}
-
-interface DocumentsResponse {
-  content: Document[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      unsorted: boolean;
-      sorted: boolean;
-      empty: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  numberOfElements: number;
-  size: number;
-  number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
-    empty: boolean;
-  };
-  first: boolean;
-  empty: boolean;
-}
-
-interface DocumentTypesResponse {
-  content: DocumentType[];
-}
-
-interface CreateDocumentRequest {
-  title: string;
-  file: string;
-  description: string;
-  realEstatePropertyId: number;
-  typeId: number;
-  startDate: string; // format dd-MM-yyyy
-  endDate: string; // format dd-MM-yyyy
-}
-
-interface Person {
-  name: string;
-  role: string;
-  avatar: string;
-}
+import { ActivatedRoute } from '@angular/router';
+import { ProjectBudgetService, Document, DocumentType, CreateDocumentRequest, DocumentsResponse, DocumentTypesResponse } from '../../../services/project-details.service';
+import { environment } from '../../../environments/environment';
 
 interface FileDisplay {
   id: number;
   name: string;
   selected: boolean;
-  createdBy: Person;
+  createdBy: { name: string; role: string; avatar: string }; // On garde la structure mais sans avatars réels
   size: string;
   date: string;
   lastModified: string;
@@ -96,40 +29,66 @@ export class DocumentsComponent implements OnInit {
   documentTypes: DocumentType[] = [];
   recentActivities: FileDisplay[] = [];
   recentFiles: FileDisplay[] = [];
+
   isLoading = false;
   showAddDocumentModal = false;
-  currentPropertyId = 19; // Vous pouvez recevoir cet ID via les paramètres de route
-  selectedFile: File | null = null; // Ajout pour stocker le fichier sélectionné
+
   searchQuery: string = '';
   selectedStatus: string = '';
-  // Formulaire pour nouveau document
+
+  currentPropertyId: number | null = null;
+  selectedFile: File | null = null;
+
   newDocument: CreateDocumentRequest = {
     title: '',
     file: '',
     description: '',
-    realEstatePropertyId: this.currentPropertyId,
+    realEstatePropertyId: 0,
     typeId: 0,
     startDate: '',
     endDate: ''
   };
 
-  constructor(private projectBudgetService: ProjectBudgetService) { }
+  constructor(
+    private projectBudgetService: ProjectBudgetService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.loadDocuments();
-    this.loadDocumentTypes();
+    this.route.paramMap.subscribe(params => {
+      const idParam = params.get('id');
+      if (idParam) {
+        const id = +idParam;
+        if (!isNaN(id) && id > 0) {
+          this.currentPropertyId = id;
+          this.newDocument.realEstatePropertyId = id;
+          this.loadDocuments();
+          this.loadDocumentTypes();
+        } else {
+          console.error('ID de propriété invalide:', idParam);
+        }
+      } else {
+        console.error('Aucun ID de propriété dans l\'URL');
+      }
+    });
   }
 
+  // ────────────────────────────────────────────────
+  // CHARGEMENT DES DONNÉES
+  // ────────────────────────────────────────────────
+
   loadDocuments(): void {
+    if (!this.currentPropertyId) return;
+
     this.isLoading = true;
-    this.projectBudgetService.getDocuments(this.currentPropertyId, 0, 20).subscribe({
+    this.projectBudgetService.getDocuments(this.currentPropertyId, 0, 50).subscribe({
       next: (response: DocumentsResponse) => {
-        this.documents = response.content;
+        this.documents = response.content || [];
         this.transformDocumentsForDisplay();
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement des documents:', error);
+      error: (err) => {
+        console.error('Erreur chargement documents', err);
         this.isLoading = false;
       }
     });
@@ -138,85 +97,178 @@ export class DocumentsComponent implements OnInit {
   loadDocumentTypes(): void {
     this.projectBudgetService.getDocumentsType().subscribe({
       next: (response: DocumentTypesResponse) => {
-        this.documentTypes = response.content;
+        this.documentTypes = response.content || [];
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement des types de documents:', error);
+      error: (err) => console.error('Erreur types documents', err)
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // TRANSFORMATION POUR AFFICHAGE (Activités + Fichiers récents)
+  // ────────────────────────────────────────────────
+
+  private transformDocumentsForDisplay(): void {
+    // Pour les activités récentes : on prend les 4 derniers documents
+    this.recentActivities = this.documents.slice(0, 4).map(doc => ({
+      id: doc.id,
+      name: doc.title,
+      selected: false,
+      createdBy: { name: 'Utilisateur', role: 'Projet', avatar: 'assets/images/default-avatar.png' }, // fallback
+      size: '—', // pas dans l'API → à implémenter si backend renvoie la taille
+      date: this.formatDate(doc.startDate),
+      lastModified: this.formatDate(doc.endDate || doc.startDate),
+      description: doc.description,
+      thumbnail: this.getFileUrl(doc.file) // on utilise l'image réelle si c'est une image, sinon icône
+    }));
+
+    // Pour la liste complète des fichiers récents
+    this.recentFiles = this.documents.map(doc => ({
+      id: doc.id,
+      name: doc.title,
+      selected: false,
+      createdBy: { name: 'Utilisateur', role: 'Projet', avatar: 'assets/images/default-avatar.png' },
+      size: '—',
+      date: this.formatDate(doc.startDate),
+      lastModified: this.formatDate(doc.endDate || doc.startDate),
+      description: doc.description,
+      thumbnail: this.getFileUrl(doc.file)
+    }));
+  }
+
+  // ────────────────────────────────────────────────
+  // FORMATAGE DATES
+  // ────────────────────────────────────────────────
+
+  formatDate(dateArray: number[] | undefined): string {
+    if (!dateArray || dateArray.length < 3) return '—';
+    try {
+      const [year, month, day] = dateArray;
+      return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+    } catch {
+      return '—';
+    }
+  }
+
+  // ────────────────────────────────────────────────
+  // GESTION FICHIER UPLOAD
+  // ────────────────────────────────────────────────
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      const file = input.files[0];
+      this.selectedFile = file;
+      this.newDocument.file = file.name;
+    }
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  removeSelectedFile(): void {
+    this.selectedFile = null;
+    this.newDocument.file = '';
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  }
+
+  getFileSize(file: File | null): string {
+    if (!file) return '—';
+    const bytes = file.size;
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // ────────────────────────────────────────────────
+  // VALIDATION & SAUVEGARDE
+  // ────────────────────────────────────────────────
+
+  isFormValid(): boolean {
+    return !!(
+      this.newDocument.title?.trim() &&
+      this.newDocument.description?.trim() &&
+      this.newDocument.typeId > 0 &&
+      this.newDocument.startDate &&
+      this.newDocument.endDate &&
+      this.selectedFile
+    );
+  }
+
+  saveDocument(): void {
+    if (!this.isFormValid() || !this.currentPropertyId) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    this.isLoading = true;
+
+    const formData = new FormData();
+    formData.append('title', this.newDocument.title.trim());
+    formData.append('description', this.newDocument.description.trim());
+    formData.append('realEstatePropertyId', this.currentPropertyId.toString());
+    formData.append('typeId', this.newDocument.typeId.toString());
+    formData.append('startDate', this.formatDateForBackend(this.newDocument.startDate));
+    formData.append('endDate', this.formatDateForBackend(this.newDocument.endDate));
+
+    if (this.selectedFile) {
+      formData.append('file', this.selectedFile, this.selectedFile.name);
+    }
+
+    this.projectBudgetService.saveDocument(formData).subscribe({
+      next: () => {
+        this.loadDocuments();
+        this.closeAddDocumentModal();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur sauvegarde', err);
+        alert('Erreur lors de l\'enregistrement');
+        this.isLoading = false;
       }
     });
   }
 
-  transformDocumentsForDisplay(): void {
-    const mockPersons: Person[] = [
-      { name: 'Lamine Niang', role: 'Chef de chantier', avatar: 'assets/images/av2.svg' },
-      { name: 'Amine Sene', role: 'Chef de chantier', avatar: 'assets/images/av9.svg' },
-      { name: 'Aziz Diop', role: 'Chef de chantier', avatar: 'assets/images/av1.svg' },
-      { name: 'Alpha Dieye', role: 'Chef de chantier', avatar: 'assets/images/av3.png' }
-    ];
-
-    // Transformer les 4 premiers documents pour les activités récentes
-    this.recentActivities = this.documents.slice(0, 4).map((doc, index) => ({
-      id: doc.id,
-      name: doc.title,
-      selected: false,
-      createdBy: mockPersons[index % mockPersons.length],
-      size: this.getRandomSize(),
-      date: this.formatDate(doc.startDate),
-      lastModified: this.formatDate(doc.endDate),
-      description: doc.description,
-      thumbnail: this.getDocumentThumbnail(doc.file)
-    }));
-
-    // Transformer tous les documents pour la liste des fichiers
-    this.recentFiles = this.documents.map((doc, index) => ({
-      id: doc.id,
-      name: doc.title,
-      selected: false,
-      createdBy: mockPersons[index % mockPersons.length],
-      size: this.getRandomSize(),
-      date: this.formatDate(doc.startDate),
-      lastModified: this.formatDate(doc.endDate),
-      description: doc.description,
-      thumbnail: this.getDocumentThumbnail(doc.file)
-    }));
+  private formatDateForBackend(date: string): string {
+    if (!date) return '';
+    const [year, month, day] = date.split('-');
+    return `${day}-${month}-${year}`;
   }
 
-  getDocumentThumbnail(fileName: string): string {
-    const extension = fileName.split('.').pop()?.toLowerCase();
-    const thumbnails = [
-      'assets/images/doc1.png',
-      'assets/images/doc2.png',
-      'assets/images/doc3.png',
-      'assets/images/doc4.png'
-    ];
-
-    return thumbnails[Math.floor(Math.random() * thumbnails.length)];
-  }
-
-  getRandomSize(): string {
-    const sizes = ['30 MB', '45 MB', '120 MB', '675 MB', '208 MB', '18 MB'];
-    return sizes[Math.floor(Math.random() * sizes.length)];
-  }
-
-  formatDate(dateArray: number[]): string {
-    if (!dateArray || dateArray.length < 3) return '';
-    const date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  }
+  // ────────────────────────────────────────────────
+  // TABLEAU SÉLECTION
+  // ────────────────────────────────────────────────
 
   toggleFileSelection(file: FileDisplay): void {
     file.selected = !file.selected;
   }
 
-  openAddDocumentModal(): void {
-    this.showAddDocumentModal = true;
-    this.resetForm();
-  }
+  // ────────────────────────────────────────────────
+  // MODAL
+  // ────────────────────────────────────────────────
 
+  openAddDocumentModal(): void {
+    if (!this.currentPropertyId) {
+      alert('Aucun projet sélectionné');
+      return;
+    }
+    this.resetForm();
+    this.showAddDocumentModal = true;
+  }
+// Dans DocumentsComponent.ts
+
+getAvatarUrl(avatar: string | undefined): string {
+  // Si avatar existe et n'est pas vide → on l'utilise
+  if (avatar && avatar.trim() !== '') {
+    return avatar;
+  }
+  // Sinon → image par défaut
+  return 'assets/images/profil.png';
+}
   closeAddDocumentModal(): void {
     this.showAddDocumentModal = false;
     this.resetForm();
@@ -227,126 +279,39 @@ export class DocumentsComponent implements OnInit {
       title: '',
       file: '',
       description: '',
-      realEstatePropertyId: this.currentPropertyId,
+      realEstatePropertyId: this.currentPropertyId || 0,
       typeId: 0,
       startDate: '',
       endDate: ''
     };
-    this.selectedFile = null; // Réinitialiser le fichier sélectionné
-  }
-
-  // Méthode corrigée pour gérer la sélection de fichier
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      this.newDocument.file = file.name;
-      console.log('Fichier sélectionné:', file.name, 'Taille:', file.size);
-    } else {
-      this.selectedFile = null;
-      this.newDocument.file = '';
-    }
-  }
-
-  // Méthode pour déclencher la sélection de fichier
-  triggerFileInput(): void {
-    const fileInput = document.querySelector('#fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
-
-  // Méthode pour supprimer le fichier sélectionné
-  removeSelectedFile(): void {
     this.selectedFile = null;
-    this.newDocument.file = '';
-    // Réinitialiser l'input file
-    const fileInput = document.querySelector('#fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
   }
 
-  // Méthode pour obtenir la taille formatée du fichier
-  getFileSize(file: File): string {
-    const bytes = file.size;
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  // ────────────────────────────────────────────────
+  // URL + ICÔNES
+  // ────────────────────────────────────────────────
+
+  getBaseFile(): string {
+    return environment.filebaseUrl;
   }
 
-  saveDocument(): void {
-    if (this.isFormValid()) {
-      this.isLoading = true;
-
-      // Fonction pour convertir yyyy-MM-dd en dd-MM-yyyy
-      const formatDateToBackend = (date: string): string => {
-        if (!date) return '';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
-      };
-
-      // Construction du FormData
-      const formData = new FormData();
-
-      // Ajouter tous les champs du formulaire
-      formData.append('title', this.newDocument.title || '');
-      formData.append('description', this.newDocument.description || '');
-      formData.append('realEstatePropertyId', this.newDocument.realEstatePropertyId.toString() || '');
-      formData.append('typeId', this.newDocument.typeId.toString() || '');
-
-      // Convertir les dates au format dd-MM-yyyy
-      formData.append('startDate', formatDateToBackend(this.newDocument.startDate) || '');
-      formData.append('endDate', formatDateToBackend(this.newDocument.endDate) || '');
-
-      // Ajouter le fichier s'il est sélectionné
-      if (this.selectedFile) {
-        formData.append('file', this.selectedFile, this.selectedFile.name);
-      } else {
-        formData.append('file', '');
-      }
-
-      // Log des données envoyées pour débogage
-      console.log('Données envoyées au backend:', {
-        title: this.newDocument.title,
-        description: this.newDocument.description,
-        realEstatePropertyId: this.newDocument.realEstatePropertyId,
-        typeId: this.newDocument.typeId,
-        startDate: formatDateToBackend(this.newDocument.startDate),
-        endDate: formatDateToBackend(this.newDocument.endDate),
-        file: this.selectedFile ? this.selectedFile.name : 'Aucun fichier'
-      });
-
-      this.projectBudgetService.saveDocument(formData).subscribe({
-        next: (response: Document) => {
-          console.log('Document créé avec succès:', response);
-          this.loadDocuments();
-          this.closeAddDocumentModal();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la création du document:', error);
-          this.isLoading = false;
-          alert('Erreur lors de la création du document: ' + (error.error?.message || error.message));
-        }
-      });
-    } else {
-      console.warn('Formulaire invalide:', this.newDocument);
-      alert('Veuillez remplir tous les champs obligatoires');
-    }
+  getFileUrl(fileName: string): string {
+    return `${this.getBaseFile()}${fileName}`;
   }
 
-  isFormValid(): boolean {
-    const isValid = !!(
-      this.newDocument.title.trim() &&
-      this.newDocument.description.trim() &&
-      this.newDocument.typeId > 0 && // Vérifier que typeId est un ID valide
-      this.newDocument.startDate.match(/^\d{4}-\d{2}-\d{2}$/) && // Vérifier yyyy-MM-dd
-      this.newDocument.endDate.match(/^\d{4}-\d{2}-\d{2}$/) // Vérifier yyyy-MM-dd
-    );
-    console.log('Validation du formulaire:', isValid, this.newDocument);
-    return isValid;
+  getDocumentIcon(fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    const icons: Record<string, string> = {
+      pdf: 'assets/icons/pdf.svg',
+      doc: 'assets/icons/word.svg',
+      docx: 'assets/icons/word.svg',
+      xls: 'assets/icons/excel.svg',
+      xlsx: 'assets/icons/excel.svg',
+      jpg: 'assets/icons/image.svg',
+      jpeg: 'assets/icons/image.svg',
+      png: 'assets/icons/image.svg',
+      gif: 'assets/icons/image.svg'
+    };
+    return icons[ext] || 'assets/icons/file.svg';
   }
 }
