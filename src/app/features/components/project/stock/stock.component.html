@@ -264,7 +264,7 @@
             </td>
 
             <td class="px-6 py-4 text-gray-900">
-              {{ order.supplier?.prenom }} {{ order.supplier?.nom }}
+              {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
             </td>
 
             <td class="px-6 py-4 text-gray-600">
@@ -534,7 +534,7 @@
             </td>
 
             <td class="px-6 py-4 text-gray-600">
-              CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }}
+              <!-- CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }} -->
             </td>
 
             <td class="px-6 py-4 text-gray-900">

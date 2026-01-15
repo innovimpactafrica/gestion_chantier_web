@@ -39,63 +39,69 @@
     </div>
   </div>
 
-  <!-- Contenu Vue Albums -->
-  <div *ngIf="activeTab === 'albums'" class="p-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Carte Album normale -->
-      <div *ngFor="let album of albums" class="rounded-xl overflow-hidden shadow bg-white">
-        <img 
-          [src]="'https://wakana.online/repertoire_chantier/' + album.pictures[0]" 
-          alt="Album" 
-          class="w-full h-48 object-cover"
-        />
-        <div class="p-4">
-          <h3 class="text-lg font-semibold mb-2">{{ album.phaseName }}</h3>
-          <div class="flex items-center text-gray-500 text-sm space-x-4">
-            <div class="flex items-center gap-1">
-              <i class="fa-solid fa-calendar-days"></i>
-              <span>{{ formatDate(album.lastUpdated) }}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <i class="fa-solid fa-image"></i>
-              <span>{{ getPhotoCount( album.pictures) }} photos</span>
-            </div>
+<!-- Contenu Vue Albums -->
+<div *ngIf="activeTab === 'albums'" class="p-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Cartes albums normales avec hover actions -->
+    <div *ngFor="let album of albums" class="group relative rounded-xl overflow-hidden shadow bg-white cursor-pointer">
+
+      <!-- Overlay actions (apparaît au hover) -->
+      <div class="absolute inset-0 bg-black/50 flex items-center justify-center gap-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <button 
+          (click)="onEditAlbum(album); $event.stopPropagation()"
+          class="text-white hover:text-orange-400 transform hover:scale-110 transition-all duration-200"
+          title="Modifier l'album">
+          <i class="fa-solid fa-pen-to-square text-3xl"></i>
+        </button>
+        
+        <button 
+          (click)="onDeleteAlbum(album); $event.stopPropagation()"
+          class="text-white hover:text-red-400 transform hover:scale-110 transition-all duration-200"
+          title="Supprimer l'album">
+          <i class="fa-solid fa-trash text-3xl"></i>
+        </button>
+      </div>
+
+      <!-- Contenu de la carte -->
+      <img 
+        [src]=" getBaseFile() + (album?.pictures?.[0] || 'default-placeholder.jpg')" 
+        alt="{{ album.phaseName }}"
+        class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+        (error)="handleImageError($event, album)"
+      />
+      
+      <div class="p-4">
+        <h3 class="text-lg font-semibold mb-2 text-gray-800">{{ album.phaseName }}</h3>
+        <div class="flex items-center text-gray-500 text-sm space-x-4">
+          <div class="flex items-center gap-1">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>{{ formatDate(album.lastUpdated) }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <i class="fa-solid fa-image"></i>
+            <span>{{ getPhotoCount(album.pictures) }} photos</span>
           </div>
         </div>
       </div>
-    
-      <!-- Carte Album sombre avec actions -->
-      <div class="relative rounded-xl overflow-hidden shadow bg-black">
-        <img src="assets/images/interieur.jpg" alt="Album" class="w-full h-48 object-cover opacity-40" />
-        <div class="absolute inset-0 flex items-center justify-center gap-4 text-white text-xl">
-          <button 
-            (click)="onAlbumAction('view', 0)"
-            class="hover:scale-110 transition" 
-            title="Voir">
-            <i class="fa-solid fa-eye"></i>
-          </button>
-          <button 
-            (click)="onAddClick()"
-            class="hover:scale-110 transition" 
-            title="Ajouter">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-          <button 
-            (click)="onEditAlbum(albums[0])"
-            class="hover:scale-110 transition" 
-            title="Éditer">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-          <button 
-            (click)="onDeleteAlbum(albums[0])"
-            class="hover:scale-110 transition" 
-            title="Supprimer">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
+    </div>
+
+    <!-- Carte "Ajouter" sombre (inchangée) -->
+    <div class="relative rounded-xl overflow-hidden shadow bg-black">
+      <img src="assets/images/interieur.jpg" alt="Ajouter album" class="w-full h-48 object-cover opacity-40" />
+      <div class="absolute inset-0 flex items-center justify-center gap-8 text-white text-3xl">
+        <button 
+          (click)="onAddClick()"
+          class="hover:text-orange-400 hover:scale-110 transition-all duration-200" 
+          title="Créer un nouvel album">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <!-- Tu peux garder les autres boutons si tu veux, ou les supprimer -->
       </div>
     </div>
+
   </div>
+</div>
 
   <!-- Contenu Vue Graphique -->
   <div *ngIf="activeTab === 'graphique'" class="bg-white p-4 rounded-lg shadow">

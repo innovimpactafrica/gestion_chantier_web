@@ -1,0 +1,17 @@
+.group:hover img {
+    transform: scale(1.05);
+  }
+  
+  .group .absolute {
+    backdrop-filter: blur(2px); /* optionnel : léger flou de fond */
+  }
+  
+  /* Pour que le curseur reste pointer sur toute la carte */
+  .group {
+    transition: all 0.3s ease;
+  }
+  
+  .group:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  }
