@@ -809,7 +809,7 @@
                     <a [href]="partner.link || '#'" target="_blank"
                         class="block transition-all duration-300 transform hover:scale-110">
                         <div
-                            class="w-28 h-20 md:w-36 md:h-24 flex items-center justify-center bg-white rounded-2xl p-4 shadow-sm group-hover:shadow-xl border border-gray-100 transition-all">
+                            class="w-28 h-20 md:w-36 md:h-24 flex items-center justify-center group-hover transition-all">
                             <img class="h-10 md:h-14 w-auto object-contain transition-all duration-500"
                                 [src]="partner.logo ? (baseUrl + partner.logo) : 'assets/images/placeholder-logo.png'"
                                 [alt]="partner.name" (error)="handleLogoError($event)" />
@@ -830,7 +830,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#1a1f2e] text-white py-16 px-6 sm:px-8 lg:px-12 xl:px-16">
+    <footer class="bg-[#1a1f2e] text-white py-10 px-6 sm:px-8 lg:px-12 xl:px-16">
         <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- Colonne 1 -->
