@@ -246,6 +246,8 @@ export class StockComponent implements OnInit, OnDestroy {
   // Dans stock.component.ts
   suppliers: User[] = []; // Liste des fournisseurs
   suppliersLoading: boolean = false;
+  showMenu = false;
+
 
   constructor(
     private fb: FormBuilder,
@@ -1687,5 +1689,24 @@ export class StockComponent implements OnInit, OnDestroy {
 
     return statusMapping[displayStatus.toLowerCase()] || [];
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

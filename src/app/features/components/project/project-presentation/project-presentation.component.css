@@ -38,3 +38,50 @@ input[type="radio"].custom-radio {
   input[type="radio"].custom-radio:focus {
     box-shadow: 0 0 0 3px rgba(255, 92, 1, 0.3);
   }
+
+  /* Ajoutez dans project-presentation.component.css */
+
+/* Style personnalisé pour les radio buttons */
+.custom-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #D1D5DB;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.custom-radio:hover {
+  border-color: #FF5C02;
+}
+
+.custom-radio:checked {
+  border-color: #FF5C02;
+  background-color: #FF5C02;
+}
+
+.custom-radio:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.custom-radio:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Animation pour le label lors du chargement */
+label.opacity-50 {
+  transition: opacity 0.2s ease;
+}

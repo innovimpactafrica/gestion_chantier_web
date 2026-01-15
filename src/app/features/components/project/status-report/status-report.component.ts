@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressReportComponent } from "../../dashboard/progess-report/progess-report.component";
 import { FormsModule } from '@angular/forms';
 import { ProjectBudgetService, ProgressAlbum, CreateAlbumRequest, UpdateAlbumRequest } from '../../../../../services/project-details.service';
+import { environment } from '../../../../../environments/environment';
 
 interface TableRow {
   etape: string;
@@ -18,16 +18,16 @@ interface TableRow {
   standalone: true,
   imports: [CommonModule, ProgressReportComponent, FormsModule],
   templateUrl: './status-report.component.html',
-  styleUrl: './status-report.component.css'
+  styleUrl: './status-report.component.css' 
 })
 export class StatusReportComponent implements OnInit {
-  handleImageError($event: ErrorEvent, _t26: ProgressAlbum) {
-    throw new Error('Method not implemented.');
-  }
+handleImageError($event: ErrorEvent,_t26: ProgressAlbum) {
+throw new Error('Method not implemented.');
+}
   @ViewChild(ProgressReportComponent) progressReportComponent!: ProgressReportComponent;
-
+  
   activeTab: 'albums' | 'graphique' | 'tableau' = 'albums';
-
+  
   projectId!: number;
   albums: ProgressAlbum[] = [];
   loading = true;
@@ -40,7 +40,7 @@ export class StatusReportComponent implements OnInit {
   showDeleteModal = false;
   showSuccessMessage = false;
   successMessage = '';
-
+  
   // Album en cours de modification/suppression
   currentAlbum: ProgressAlbum | null = null;
   albumToDelete: ProgressAlbum | null = null;
@@ -63,9 +63,8 @@ export class StatusReportComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private budgetService: ProjectBudgetService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) { }
+    private budgetService: ProjectBudgetService
+  ) {}
 
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
@@ -83,11 +82,11 @@ export class StatusReportComponent implements OnInit {
   }
 
   // === MÉTHODES POUR LA GESTION DES DONNÉES ===
-
+  
   fetchAlbumData(): void {
     this.loading = true;
     this.error = null;
-
+    
     this.budgetService.getAlbum(this.projectId).subscribe({
       next: (data) => {
         this.albums = data;
@@ -103,7 +102,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleFetchError(error: any, type: string): void {
     this.loading = false;
-
+    
     if (error.status === 403) {
       this.error = `Accès refusé lors du chargement des ${type}. Vérifiez vos permissions.`;
     } else if (error.status === 401) {
@@ -117,7 +116,7 @@ export class StatusReportComponent implements OnInit {
 
   setActiveTab(tab: 'albums' | 'graphique' | 'tableau') {
     this.activeTab = tab;
-
+    
     if (tab === 'tableau') {
       this.onTableTabActivated();
     }
@@ -132,7 +131,7 @@ export class StatusReportComponent implements OnInit {
   updateTableWithProgressData(): void {
     if (this.progressReportComponent && this.progressReportComponent.progressData) {
       const progressData = this.progressReportComponent.progressData;
-
+      
       this.lignes = this.lignes.map(ligne => {
         const matchingProgress = progressData.find(p => p.label === ligne.etape);
         if (matchingProgress) {
@@ -161,7 +160,7 @@ export class StatusReportComponent implements OnInit {
   updatePhaseProgress(indicatorId: number, phaseName: string, newProgress: number): void {
     this.updatingPhase = phaseName;
     this.error = null;
-
+    
     this.budgetService.updateIndicator(indicatorId, newProgress)
       .subscribe({
         next: (response) => {
@@ -178,7 +177,7 @@ export class StatusReportComponent implements OnInit {
   private handleProgressUpdateSuccess(phaseName: string, newProgress: number): void {
     this.updatingPhase = null;
     this.updateLocalProgressData(phaseName, newProgress);
-
+    
     setTimeout(() => {
       this.refreshTableData();
     }, 200);
@@ -186,7 +185,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleProgressUpdateError(error: any, phaseName: string): void {
     this.updatingPhase = null;
-
+    
     if (error.status === 403) {
       this.error = `Vous n'avez pas les droits pour modifier ${phaseName}.`;
     } else if (error.status === 401) {
@@ -194,7 +193,7 @@ export class StatusReportComponent implements OnInit {
     } else {
       this.error = `Erreur lors de la mise à jour de ${phaseName}`;
     }
-
+    
     this.revertProgressChange(phaseName);
   }
 
@@ -229,7 +228,7 @@ export class StatusReportComponent implements OnInit {
   onPercentageChange(etape: string, event: any): void {
     const selectedValue = event.target.value;
     const numericValue = parseInt(selectedValue.replace('%', ''));
-
+    
     if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
       console.error('Valeur de pourcentage invalide');
       return;
@@ -258,7 +257,7 @@ export class StatusReportComponent implements OnInit {
       const progressItem = this.progressReportComponent.progressData.find(p => p.label === etape);
       return progressItem ? Math.round(progressItem.value) : 0;
     }
-
+    
     return 0;
   }
 
@@ -279,7 +278,7 @@ export class StatusReportComponent implements OnInit {
         return progressItem.lastUpdated;
       }
     }
-
+    
     switch (etape) {
       case 'Gros œuvre':
         return '04/03/2025';
@@ -295,9 +294,9 @@ export class StatusReportComponent implements OnInit {
       .filter(ligne => ligne.pourcentage && ligne.pourcentage !== '')
       .map(ligne => parseInt(ligne.pourcentage.replace('%', '')))
       .filter(val => !isNaN(val));
-
+    
     if (validPercentages.length === 0) return 0;
-
+    
     const sum = validPercentages.reduce((acc, val) => acc + val, 0);
     return Math.round(sum / validPercentages.length);
   }
@@ -446,7 +445,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleAlbumOperationError(error: any, operation: string): void {
     this.loading = false;
-
+    
     if (error.status === 403) {
       this.error = `Vous n'avez pas les droits pour cette ${operation}. Vérifiez vos permissions.`;
     } else if (error.status === 401) {
@@ -466,33 +465,33 @@ export class StatusReportComponent implements OnInit {
     const files: FileList = event.target.files;
     if (files.length > 0) {
       this.error = null;
-
+      
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-
+        
         if (file.size > 5 * 1024 * 1024) {
           this.error = `Le fichier ${file.name} dépasse la taille maximale de 5MB`;
           continue;
         }
-
+        
         if (!file.type.startsWith('image/')) {
           this.error = `Le fichier ${file.name} n'est pas une image valide`;
           continue;
         }
-
+        
         this.convertToBase64(file);
       }
     }
-
+    
     event.target.value = '';
   }
 
   private convertToBase64(file: File): void {
     const reader = new FileReader();
-
+    
     reader.onload = (e: any) => {
       const base64String = e.target.result;
-
+      
       if (base64String && base64String.startsWith('data:image/')) {
         this.albumForm.pictures.push(base64String);
         console.log('Image ajoutée:', file.name, 'Taille base64:', base64String.length);
@@ -501,12 +500,12 @@ export class StatusReportComponent implements OnInit {
         this.error = `Erreur lors de la conversion de ${file.name}`;
       }
     };
-
+    
     reader.onerror = (error) => {
       console.error('Erreur lors de la lecture du fichier:', error);
       this.error = `Erreur lors de la lecture du fichier ${file.name}`;
     };
-
+    
     reader.readAsDataURL(file);
   }
 
@@ -514,6 +513,9 @@ export class StatusReportComponent implements OnInit {
     this.albumForm.pictures.splice(index, 1);
   }
 
+  getBaseFile(){
+    return environment.filebaseUrl;
+  }
   // === GESTION DES MODALS ===
 
   closeCreateModal(): void {
@@ -554,7 +556,7 @@ export class StatusReportComponent implements OnInit {
     const album = this.albums.find(a => a.id === id);
     if (!album) return;
 
-    switch (action) {
+    switch(action) {
       case 'edit':
         this.onEditAlbum(album);
         break;
@@ -582,22 +584,20 @@ export class StatusReportComponent implements OnInit {
   // === MÉTHODES DE DEBUG (à supprimer en production) ===
 
   debugAuthToken(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
     console.log('=== DEBUG AUTHENTIFICATION ===');
-
+    
     // Vérifier tous les possibles noms de clés dans le localStorage
     console.log('Toutes les clés localStorage:', Object.keys(localStorage));
     console.log('Toutes les clés sessionStorage:', Object.keys(sessionStorage));
-
+    
     // Vérifier différentes variations possibles du nom de la clé
     const possibleKeys = ['authToken', 'auth_token', 'token', 'accessToken', 'access_token', 'jwt', 'bearerToken'];
-
+    
     console.log('=== VÉRIFICATION DES CLÉS POSSIBLES ===');
     possibleKeys.forEach(key => {
       const localValue = localStorage.getItem(key);
       const sessionValue = sessionStorage.getItem(key);
-
+      
       if (localValue) {
         console.log(`localStorage.${key}:`, localValue.substring(0, 50) + '...');
       }
@@ -605,7 +605,7 @@ export class StatusReportComponent implements OnInit {
         console.log(`sessionStorage.${key}:`, sessionValue.substring(0, 50) + '...');
       }
     });
-
+    
     console.log('===============================');
   }
 
@@ -614,9 +614,9 @@ export class StatusReportComponent implements OnInit {
     console.log('ProjectId:', this.projectId);
     console.log('Album form:', this.albumForm);
     console.log('Pictures count:', this.albumForm.pictures.length);
-
+    
     this.debugAuthToken();
-
+    
     this.albumForm.pictures.forEach((pic, index) => {
       console.log(`Image ${index + 1}:`, pic.substring(0, 50) + '...');
     });
