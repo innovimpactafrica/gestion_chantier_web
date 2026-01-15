@@ -21,6 +21,7 @@ interface TableRow {
   styleUrl: './status-report.component.css' 
 })
 export class StatusReportComponent implements OnInit {
+parseInt: any;
 handleImageError($event: ErrorEvent,_t26: ProgressAlbum) {
 throw new Error('Method not implemented.');
 }
@@ -128,23 +129,63 @@ throw new Error('Method not implemented.');
     }, 100);
   }
 
-  updateTableWithProgressData(): void {
-    if (this.progressReportComponent && this.progressReportComponent.progressData) {
-      const progressData = this.progressReportComponent.progressData;
-      
-      this.lignes = this.lignes.map(ligne => {
-        const matchingProgress = progressData.find(p => p.label === ligne.etape);
-        if (matchingProgress) {
-          return {
-            ...ligne,
-            pourcentage: `${Math.round(matchingProgress.value)}%`,
-            date: matchingProgress.lastUpdated || this.getCurrentDatePrivate()
-          };
-        }
-        return ligne;
-      });
-    }
+updateAlbum(): void {
+  if (!this.currentAlbum) {
+    this.error = 'Aucun album sélectionné pour modification';
+    return;
   }
+  
+  if (!this.validateAlbumForm()) return;
+
+  const updatedAlbum: UpdateAlbumRequest = {
+    name: this.albumForm.name.trim(),
+    description: this.albumForm.description.trim(),
+    pictures: this.albumForm.pictures
+  };
+
+
+
+  this.loading = true;
+  this.error = null;
+
+  this.budgetService.updateAlbum(this.currentAlbum.id, updatedAlbum).subscribe({
+    next: (response) => {
+      console.log('✓ Album modifié avec succès:', response);
+      this.handleAlbumOperationSuccess('Album modifié avec succès');
+      this.closeEditModal();
+    },
+    error: (error) => {
+      console.error('✗ Erreur modification album:', error);
+      this.handleAlbumOperationError(error, 'modification');
+    }
+  });
+}
+
+// ============================================
+// PARTIE 8: Amélioration de updateTableWithProgressData
+// ============================================
+
+updateTableWithProgressData(): void {
+  if (this.progressReportComponent && this.progressReportComponent.progressData) {
+    const progressData = this.progressReportComponent.progressData;
+    
+    console.log('Mise à jour tableau avec données:', progressData);
+    
+    this.lignes = this.lignes.map(ligne => {
+      const matchingProgress = progressData.find(p => p.label === ligne.etape);
+      if (matchingProgress) {
+        return {
+          ...ligne,
+          pourcentage: `${Math.round(matchingProgress.value)}%`,
+          date: matchingProgress.lastUpdated || this.getCurrentDatePrivate()
+        };
+      }
+      return ligne;
+    });
+    
+    console.log('Tableau mis à jour:', this.lignes);
+  }
+}
 
   refreshTableData(): void {
     if (this.progressReportComponent) {
@@ -156,23 +197,37 @@ throw new Error('Method not implemented.');
   }
 
   // === MÉTHODES POUR LA GESTION DES INDICATEURS DE PROGRÈS ===
-
-  updatePhaseProgress(indicatorId: number, phaseName: string, newProgress: number): void {
-    this.updatingPhase = phaseName;
-    this.error = null;
-    
-    this.budgetService.updateIndicator(indicatorId, newProgress)
-      .subscribe({
-        next: (response) => {
-          console.log(`${phaseName} mis à jour à ${newProgress}%`, response);
-          this.handleProgressUpdateSuccess(phaseName, newProgress);
-        },
-        error: (error) => {
-          console.error(`Erreur lors de la mise à jour de ${phaseName}:`, error);
-          this.handleProgressUpdateError(error, phaseName);
-        }
-      });
-  }
+updatePhaseProgress(indicatorId: number, phaseName: string, newProgress: number): void {
+  this.updatingPhase = phaseName;
+  this.error = null;
+  
+  console.log(`Mise à jour de l'indicateur ${indicatorId} (${phaseName}) à ${newProgress}%`);
+  
+  this.budgetService.updateIndicator(indicatorId, newProgress)
+    .subscribe({
+      next: (response) => {
+        console.log(`✓ ${phaseName} mis à jour à ${newProgress}%`, response);
+        this.updatingPhase = null;
+        
+        // Mettre à jour les données locales
+        this.updateLocalProgressData(phaseName, newProgress);
+        
+        // Rafraîchir le tableau après un court délai
+        setTimeout(() => {
+          this.refreshTableData();
+        }, 300);
+        
+        // Message de succès
+        this.showSuccessMessage = true;
+        this.successMessage = `${phaseName} mis à jour à ${newProgress}%`;
+        this.hideSuccessMessage();
+      },
+      error: (error) => {
+        console.error(`✗ Erreur mise à jour ${phaseName}:`, error);
+        this.handleProgressUpdateError(error, phaseName);
+      }
+    });
+}
 
   private handleProgressUpdateSuccess(phaseName: string, newProgress: number): void {
     this.updatingPhase = null;
@@ -225,41 +280,99 @@ throw new Error('Method not implemented.');
     }
   }
 
-  onPercentageChange(etape: string, event: any): void {
-    const selectedValue = event.target.value;
-    const numericValue = parseInt(selectedValue.replace('%', ''));
-    
-    if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
-      console.error('Valeur de pourcentage invalide');
-      return;
-    }
-
-    const ligne = this.lignes.find(l => l.etape === etape);
-    if (ligne) {
-      this.updatePhaseProgress(ligne.indicatorId, etape, numericValue);
-    } else {
-      console.warn(`Aucune ligne trouvée pour l'étape: ${etape}`);
-    }
+onPercentageChange(etape: string, event: any): void {
+  const selectedValue = event.target.value;
+  
+  // Vérifier que ce n'est pas vide
+  if (!selectedValue || selectedValue === '') {
+    console.warn('Aucune valeur sélectionnée');
+    return;
   }
+  
+  // Extraire la valeur numérique (supprimer le %)
+  const numericValue = parseInt(selectedValue.replace('%', ''));
+  
+  // Valider la valeur
+  if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
+    console.error('Valeur de pourcentage invalide:', selectedValue);
+    this.error = 'Valeur de pourcentage invalide';
+    return;
+  }
+
+  // Vérifier si la valeur a réellement changé
+  const currentValue = this.getProgressValue(etape);
+  if (currentValue === numericValue) {
+    console.log(`${etape} a déjà la valeur ${numericValue}%`);
+    return;
+  }
+
+  console.log(`Changement de ${etape}: ${currentValue}% → ${numericValue}%`);
+
+  const ligne = this.lignes.find(l => l.etape === etape);
+  if (ligne) {
+    // Mettre à jour immédiatement l'affichage local
+    ligne.pourcentage = `${numericValue}%`;
+    ligne.date = this.getCurrentDate();
+    
+    // Envoyer la mise à jour au serveur
+    this.updatePhaseProgress(ligne.indicatorId, etape, numericValue);
+  } else {
+    console.warn(`Aucune ligne trouvée pour l'étape: ${etape}`);
+    this.error = `Phase "${etape}" non trouvée`;
+  }
+}
+
 
   // === MÉTHODES UTILITAIRES POUR LES DONNÉES ===
-
-  getProgressValue(etape: string): number {
-    const ligne = this.lignes.find(l => l.etape === etape);
-    if (ligne && ligne.pourcentage && ligne.pourcentage !== '') {
-      const value = parseInt(ligne.pourcentage.replace('%', ''));
-      if (!isNaN(value)) {
-        return value;
-      }
+getProgressValue(etape: string): number {
+  // D'abord vérifier dans lignes (données locales les plus récentes)
+  const ligne = this.lignes.find(l => l.etape === etape);
+  if (ligne && ligne.pourcentage && ligne.pourcentage !== '') {
+    const value = parseInt(ligne.pourcentage.replace('%', ''));
+    if (!isNaN(value)) {
+      return value;
     }
-
-    if (this.progressReportComponent && this.progressReportComponent.progressData) {
-      const progressItem = this.progressReportComponent.progressData.find(p => p.label === etape);
-      return progressItem ? Math.round(progressItem.value) : 0;
-    }
-    
-    return 0;
   }
+
+  // Ensuite vérifier dans progressData
+  if (this.progressReportComponent && this.progressReportComponent.progressData) {
+    const progressItem = this.progressReportComponent.progressData.find(p => p.label === etape);
+    if (progressItem) {
+      return Math.round(progressItem.value);
+    }
+  }
+  
+  return 0;
+}
+
+// ============================================
+// PARTIE 5: Nouvelle méthode pour gérer l'upload de nouvelles photos
+// ============================================
+
+onEditFileSelected(event: any): void {
+  const files: FileList = event.target.files;
+  if (files.length > 0) {
+    this.error = null;
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        this.error = `Le fichier ${file.name} dépasse la taille maximale de 5MB`;
+        continue;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        this.error = `Le fichier ${file.name} n'est pas une image valide`;
+        continue;
+      }
+      
+      this.convertToBase64(file);
+    }
+  }
+  
+  event.target.value = '';
+}
 
   getProgressPercentage(etape: string): string {
     const value = this.getProgressValue(etape);
@@ -313,26 +426,32 @@ throw new Error('Method not implemented.');
     return this.getCurrentDate();
   }
 
-  // === MÉTHODES POUR LA GESTION DES ALBUMS ===
-
-  private validateAlbumForm(): boolean {
-    if (!this.albumForm.name.trim()) {
-      this.error = 'Le nom de l\'album est requis';
-      return false;
-    }
-
-    if (!this.projectId || this.projectId <= 0) {
-      this.error = 'ID du projet invalide';
-      return false;
-    }
-
-    if (this.albumForm.pictures.some(pic => !pic.startsWith('data:image/'))) {
-      this.error = 'Toutes les images doivent être au format base64 valide';
-      return false;
-    }
-
-    return true;
+private validateAlbumForm(): boolean {
+  if (!this.albumForm.name.trim()) {
+    this.error = 'Le nom de l\'album est requis';
+    return false;
   }
+
+  if (!this.projectId || this.projectId <= 0) {
+    this.error = 'ID du projet invalide';
+    return false;
+  }
+
+  // CORRECTION: Accepter aussi les URLs normales (pas seulement base64)
+  const hasInvalidPictures = this.albumForm.pictures.some(pic => {
+    // Vérifier si c'est une URL normale ou base64
+    const isValidUrl = pic.startsWith('http://') || pic.startsWith('https://');
+    const isValidBase64 = pic.startsWith('data:image/');
+    return !isValidUrl && !isValidBase64;
+  });
+
+  if (hasInvalidPictures) {
+    this.error = 'Toutes les images doivent être au format base64 ou URL valide';
+    return false;
+  }
+
+  return true;
+}
 
   // === GESTION DES MODALS ===
 
@@ -341,15 +460,26 @@ throw new Error('Method not implemented.');
     this.showCreateModal = true;
   }
 
-  onEditAlbum(album: ProgressAlbum): void {
-    this.currentAlbum = album;
-    this.albumForm = {
-      name: album.phaseName,
-      description: album.description,
-      pictures: [...album.pictures]
-    };
-    this.showEditModal = true;
-  }
+
+onEditAlbum(album: ProgressAlbum): void {
+  this.currentAlbum = album;
+  
+  // Copier les données de l'album
+  this.albumForm = {
+    name: album.phaseName,
+    description: album.description || '',
+    // Cloner le tableau de photos pour éviter les modifications directes
+    pictures: album.pictures ? [...album.pictures] : []
+  };
+  
+  // console.log('Édition album:', {
+  //   id: album.id,
+  //   name: album.phaseName,
+  //   picturesCount: this.albumForm.pictures.length
+  // });
+  
+  this.showEditModal = true;
+}
 
   onDeleteAlbum(album: ProgressAlbum): void {
     this.albumToDelete = album;
@@ -389,33 +519,6 @@ throw new Error('Method not implemented.');
     });
   }
 
-  updateAlbum(): void {
-    if (!this.currentAlbum) return;
-    if (!this.validateAlbumForm()) return;
-
-    const updatedAlbum: UpdateAlbumRequest = {
-      name: this.albumForm.name.trim(),
-      description: this.albumForm.description.trim(),
-      pictures: this.albumForm.pictures
-    };
-
-    console.log('Mise à jour album:', updatedAlbum);
-
-    this.loading = true;
-    this.error = null;
-
-    this.budgetService.updateAlbum(this.currentAlbum.id, updatedAlbum).subscribe({
-      next: (response) => {
-        console.log('Album modifié avec succès:', response);
-        this.handleAlbumOperationSuccess('Album modifié avec succès');
-        this.closeEditModal();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la modification:', error);
-        this.handleAlbumOperationError(error, 'modification');
-      }
-    });
-  }
 
   confirmDelete(): void {
     if (!this.albumToDelete) return;

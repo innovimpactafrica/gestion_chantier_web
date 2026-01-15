@@ -174,7 +174,7 @@
     
                 <!-- Select pour modifier le pourcentage -->
                 <select
-                  [value]="getProgressValue(ligne.etape) + '%'"
+                  [ngModel]="getProgressValue(ligne.etape) + '%'"
                   class="border border-gray-300 rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   style="width: 80px;"
                   (change)="onPercentageChange(ligne.etape, $event)"
@@ -184,7 +184,7 @@
                     'hover:border-orange-400': !isUpdating(ligne.etape)
                   }"
                 >
-                  <option value="" disabled>Modifier</option>
+                  <option [value]="getProgressValue(ligne.etape) + '%'">{{ getProgressValue(ligne.etape) }}%</option>
                   <option *ngFor="let pct of pourcentages" [value]="pct">
                     {{ pct }}
                   </option>
@@ -310,9 +310,11 @@
   </div>
 </div>
 
-<!-- Modal Modifier Album -->
+<!-- ============================================ -->
+<!-- PARTIE 1: Modal Modifier Album (CORRIGÉ) -->
+<!-- ============================================ -->
 <div *ngIf="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+  <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-bold mb-4">Modifier l'album</h2>
     
     <form (ngSubmit)="updateAlbum()" class="space-y-4">
@@ -337,16 +339,68 @@
           placeholder="Description de l'album"></textarea>
       </div>
       
+      <!-- NOUVEAU: Section de gestion des photos -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Photos de l'album</label>
+        
+        <!-- Photos existantes -->
+        <div *ngIf="albumForm.pictures.length > 0" class="mb-3">
+          <p class="text-sm text-gray-600 mb-2">
+            Photos actuelles ({{ albumForm.pictures.length }})
+          </p>
+          <div class="grid grid-cols-3 gap-2">
+            <div *ngFor="let picture of albumForm.pictures; let i = index" class="relative">
+              <img 
+                [src]="picture.startsWith('data:') ? picture : getBaseFile() + picture" 
+                class="w-full h-20 object-cover rounded-md border border-gray-300">
+              <button 
+                type="button"
+                (click)="removePicture(i)"
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
+                title="Supprimer cette photo">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input pour ajouter de nouvelles photos -->
+        <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
+          <input 
+            type="file" 
+            id="editAlbumPhotos"
+            multiple
+            accept="image/*"
+            (change)="onEditFileSelected($event)"
+            class="hidden">
+          
+          <label for="editAlbumPhotos" class="cursor-pointer">
+            <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <p class="mt-1 text-sm text-gray-600">
+              Ajouter de nouvelles photos
+            </p>
+            <p class="text-xs text-gray-500">
+              PNG, JPG, JPEG jusqu'à 5MB
+            </p>
+          </label>
+        </div>
+      </div>
+      
       <div class="flex gap-3 pt-4">
         <button 
           type="button" 
           (click)="closeEditModal()"
-          class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">
+          class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition-colors">
           Annuler
         </button>
         <button 
           type="submit"
-          class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
+          [disabled]="!albumForm.name.trim()"
+          class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           Modifier
         </button>
       </div>

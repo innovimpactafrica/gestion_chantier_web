@@ -17,6 +17,7 @@ import {
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 Chart.register(...registerables);
 
@@ -123,7 +124,9 @@ openPhotoModal(photo: any): void {
   // Empêcher le scroll de la page quand le modal est ouvert
   document.body.style.overflow = 'hidden';
 }
-
+  getBaseFile(){
+    return environment.filebaseUrl;
+  }
 /**
  * Ferme le modal des photos
  */
