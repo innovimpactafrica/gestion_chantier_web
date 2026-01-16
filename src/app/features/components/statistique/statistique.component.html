@@ -25,7 +25,7 @@
     </div>
   
     <!-- Charts Section -->
-    <div class="grid grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 gap-8">
       <!-- Left Section - Pie Chart -->
       <div class="bg-white rounded-lg p-6 shadow-sm">
         <h3 class="text-lg font-semibold text-gray-900 mb-6">Répartition par catégorie</h3>
@@ -66,49 +66,7 @@
         </div>
       </div>
   
-      <!-- Right Section -->
-      <div class="space-y-6">
-        <!-- Monthly Consumption -->
-        <div class="bg-white rounded-lg p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Consommation mensuelle</h3>
-            <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()" 
-                    class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="current">Ce mois-ci</option>
-              <option value="last">Mois dernier</option>
-              <option value="last3">3 derniers mois</option>
-            </select>
-          </div>
-          
-          <!-- Bar Chart -->
-          <div class="space-y-4 mb-4">
-            <div class="flex items-center gap-4" *ngFor="let material of topMaterials">
-              <div class="w-12 text-xs text-gray-600 text-right">{{ material.name }}</div>
-              <div class="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-300" 
-                     [style.width.%]="material.percentage" 
-                     [style.background-color]="material.color"></div>
-              </div>
-              <div class="w-8 text-xs font-semibold text-gray-900 text-right">{{ material.value }}</div>
-            </div>
-          </div>
-          
-          <div class="text-xs text-gray-500 text-center">Top 5 matériaux les plus utilisés</div>
-        </div>
-  
-        <!-- Monthly Evolution -->
-        <div class="bg-white rounded-lg p-6 shadow-sm">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Évolution mensuelle</h3>
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-3 h-1 bg-green-400 rounded-full"></div>
-            <span class="text-sm text-gray-600">Unité utilisées</span>
-          </div>
-          
-          <div class="h-48">
-            <canvas #evolutionChart class="w-full h-full"></canvas>
-          </div>
-        </div>
-      </div>
+   
     </div>
   </div>
 

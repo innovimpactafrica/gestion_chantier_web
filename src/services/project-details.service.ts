@@ -301,12 +301,24 @@ export interface ExpensesResponse {
   empty: boolean;
 }
 
-// project-details.service.ts
+// Ajoutez cette interface dans votre service (expense.service.ts)
 export interface CreateExpenseRequest {
-  description: string;
+  description?: string;
+  date: string; // Format: MM-DD-YYYY
+  amount?: number;
+  budgetId?: number;
+  evidence?: File;
+}
+
+export interface ExpenseResponse {
+  id: number;
+  description?: string;
   date: string;
-  amount: number; // ← Changez 'amont' en 'amount'
-  budgetId: number;
+  amount?: number;
+  budgetId?: number;
+  evidencePath?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateAlbumRequest {
@@ -807,15 +819,39 @@ export class ProjectBudgetService {
       .pipe(catchError(this.handleError));
   }
 
-  createDepense(expense: any): Observable<any> {
-    const headers = this.getAuthHeaders();
+ 
+   /**
+   * Créer une nouvelle dépense avec upload de fichier
+   */
+  createDepense(expenseData: CreateExpenseRequest): Observable<ExpenseResponse> {
+    const formData = new FormData();
+    
+    // Ajouter les champs texte
+    formData.append('date', expenseData.date);
+    
+    if (expenseData.description) {
+      formData.append('description', expenseData.description);
+    }
+    
+    if (expenseData.amount !== undefined && expenseData.amount !== null) {
+      formData.append('amount', expenseData.amount.toString());
+    }
+    
+    if (expenseData.budgetId !== undefined && expenseData.budgetId !== null) {
+      formData.append('budgetId', expenseData.budgetId.toString());
+    }
+    
+    // Ajouter le fichier s'il existe
+    if (expenseData.evidence) {
+      formData.append('evidence', expenseData.evidence, expenseData.evidence.name);
+    }
 
-    return this.http.post<any>(
-      `${this.baseUrl}/expenses`,
-      expense,
-      { headers }
-    ).pipe(catchError(this.handleError));
+    return this.http.post<ExpenseResponse>(
+      `${this.baseUrl}expenses`,
+      formData
+    );
   }
+   
 
   putDepense(id: number, expense: any): Observable<any> {
     const headers = this.getAuthHeaders();

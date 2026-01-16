@@ -38,13 +38,18 @@ export class ProjectBudgetComponent implements OnInit {
   totalPages = 0;
   pageSize = 10;
 
-  newExpense: CreateExpenseRequest & { proof?: string } = {
-    description: '',
-    date: '',
-    amount: 0,
-    budgetId: 0,
-    proof: '' // Added proof field
-  };
+// 1. Ajouter une propriété pour le fichier sélectionné
+selectedFile: File | null = null;
+selectedFileName: string = '';
+
+// 2. Modifier l'interface newExpense pour inclure evidence au lieu de proof
+newExpense: CreateExpenseRequest & { evidence?: File } = {
+  description: '',
+  date: '',
+  amount: 0,
+  budgetId: 0,
+  evidence: undefined
+};
 
   editingExpense: Expense | null = null;
 
@@ -131,7 +136,17 @@ export class ProjectBudgetComponent implements OnInit {
       }
     });
   }
-
+  removeSelectedFile(): void {
+    this.selectedFile = null;
+    this.selectedFileName = '';
+    this.newExpense.evidence = undefined;
+    
+    // Réinitialiser l'input file
+    const fileInput = document.getElementById('evidenceFile') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
   // Méthodes pour calculer les pourcentages
   getBudgetUtilisePercentage(): number {
     if (this.budgetPrevu === 0) return 0;
@@ -215,8 +230,10 @@ export class ProjectBudgetComponent implements OnInit {
       date: this.formatDateForInput(expense.date),
       amount: expense.amount,
       budgetId: this.budgetId,
-      proof: (expense as any).proof || '' // Added proof field
+      evidence: undefined // Pas de fichier lors de l'édition
     };
+    this.selectedFile = null;
+    this.selectedFileName = '';
     this.error = null;
   }
 
@@ -227,16 +244,49 @@ export class ProjectBudgetComponent implements OnInit {
     this.resetExpenseForm();
   }
 
-  resetExpenseForm(): void {
-    this.newExpense = {
-      description: '',
-      date: '',
-      amount: 0,
-      budgetId: this.budgetId,
-      proof: '' // Added proof field
-    };
+// 4. Modifier la méthode resetExpenseForm
+resetExpenseForm(): void {
+  this.newExpense = {
+    description: '',
+    date: '',
+    amount: 0,
+    budgetId: this.budgetId,
+    evidence: undefined
+  };
+  this.selectedFile = null;
+  this.selectedFileName = '';
+}
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Validation du fichier (optionnel)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      
+      if (file.size > maxSize) {
+        this.error = "Le fichier ne doit pas dépasser 5MB";
+        this.selectedFile = null;
+        this.selectedFileName = '';
+        input.value = '';
+        return;
+      }
+      
+      if (!allowedTypes.includes(file.type)) {
+        this.error = "Format non supporté. Utilisez PDF, JPG ou PNG";
+        this.selectedFile = null;
+        this.selectedFileName = '';
+        input.value = '';
+        return;
+      }
+      
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+      this.newExpense.evidence = file;
+      this.error = null;
+    }
   }
-
   confirmDeleteExpense(expense: Expense): void {
     this.expenseToDelete = expense;
     this.showConfirmModal = true;
@@ -321,15 +371,15 @@ export class ProjectBudgetComponent implements OnInit {
 
   // Méthode validateExpenseForm corrigée
   private validateExpenseForm(): boolean {
-    if (!this.newExpense.description.trim()) {
+    if (!this.newExpense?.description || !this.newExpense.description.trim()) {
       this.error = "La description est obligatoire";
       return false;
     }
-    if (!this.newExpense.date) {
+    if (!this.newExpense?.date) {
       this.error = "La date est obligatoire";
       return false;
     }
-    if (this.newExpense.amount <= 0) {
+    if (!this.newExpense?.amount || this.newExpense.amount <= 0) {
       this.error = "Le montant doit être supérieur à 0";
       return false;
     }
@@ -342,7 +392,16 @@ export class ProjectBudgetComponent implements OnInit {
 
   // Méthode createExpense avec gestion d'erreur améliorée
   private createExpenseWithFormattedDate(expenseData: any): void {
-    this.budgetService.createDepense(expenseData).subscribe({
+    // Créer l'objet de requête avec le fichier
+    const requestData: CreateExpenseRequest = {
+      description: expenseData.description,
+      date: expenseData.date,
+      amount: expenseData.amount,
+      budgetId: expenseData.budgetId,
+      evidence: this.selectedFile || undefined
+    };
+  
+    this.budgetService.createDepense(requestData).subscribe({
       next: (response) => {
         console.log('Dépense créée avec succès:', response);
         this.loading = false;
@@ -353,10 +412,9 @@ export class ProjectBudgetComponent implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la création de la dépense:', error);
         this.loading = false;
-
-        // CORRECTION: Gestion spécifique des erreurs
+  
         if (error.includes('403') || error.includes('Forbidden')) {
-          this.error = "Vous n'avez pas les droits pour créer une dépense. Vérifiez votre connexion.";
+          this.error = "Vous n'avez pas les droits pour créer une dépense.";
         } else if (error.includes('401')) {
           this.error = "Session expirée. Veuillez vous reconnecter.";
         } else if (error.includes('400')) {
@@ -367,6 +425,7 @@ export class ProjectBudgetComponent implements OnInit {
       }
     });
   }
+  
 
   // Méthode updateExpense avec gestion d'erreur améliorée
   private updateExpenseWithFormattedDate(expenseData: any): void {

@@ -255,6 +255,64 @@
           placeholder="Montant en F" required>
       </div>
 
+      <!-- Nouveau champ pour le fichier justificatif -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Justificatif <span class="text-gray-500 text-xs">(optionnel)</span>
+        </label>
+        
+        <!-- Zone de drop ou sélection -->
+        <div class="relative">
+          <input 
+            type="file" 
+            id="evidenceFile"
+            name="evidence"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event)"
+            class="hidden">
+          
+          <label for="evidenceFile" 
+            class="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
+            
+            <!-- Si aucun fichier sélectionné -->
+            <div *ngIf="!selectedFileName" class="text-center">
+              <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium text-orange-500">Cliquez pour parcourir</span>
+                ou glissez un fichier
+              </p>
+              <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG (max 5MB)</p>
+            </div>
+            
+            <!-- Si un fichier est sélectionné -->
+            <div *ngIf="selectedFileName" class="flex items-center justify-between w-full">
+              <div class="flex items-center space-x-2">
+                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm text-gray-700 truncate max-w-[200px]">{{ selectedFileName }}</span>
+              </div>
+              <button 
+                type="button"
+                (click)="removeSelectedFile(); $event.stopPropagation()"
+                class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </label>
+        </div>
+        
+        <p class="text-xs text-gray-500 mt-1">
+          Formats acceptés : PDF, JPG, PNG • Taille max : 5MB
+        </p>
+      </div>
+
       <div class="flex justify-end space-x-3 pt-4">
         <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           (click)="closeExpenseModal()">

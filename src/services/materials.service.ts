@@ -127,7 +127,7 @@ interface OrderItem {
   id: number;
   materialId: number;
   quantity: number;
-  unitPrice: number;
+ 
 }
 
 interface Supplier {
@@ -142,16 +142,6 @@ interface Property {
   name: string;
 }
 
-export interface Order {
-  materials: any;
-  id: number;
-  orderDate: number[];
-  status: string;
-  property: Property;
-  supplier: Supplier;
-  items: OrderItem[];
-  trackingInfo: any;
-}
 
 export interface OrdersResponse {
   content: Order[];
@@ -188,16 +178,43 @@ interface CreateOrderItem {
 }
 
 export interface CreateOrder {
-  supplierId: number; // ⚠️ ID du fournisseur (PAS propertyId)
-  deliveryDate?: string; // Date de livraison souhaitée (optionnel)
-  specialInstructions?: string; // Instructions spéciales (optionnel)
-  materials: OrderMaterial[];
+  supplierId: number;
+  materials: {
+    materialId: number;
+    quantity: number;
+  }[];
+ 
+}
+
+export interface Order {
+  id: number;
+  orderDate: number[]; // [année, mois, jour, heure, minute]
+  status: string; // 'EN_ATTENTE' | 'CONFIRMEE' | 'EN_COURS' | 'LIVREE' | 'ANNULEE'
+  supplier: {
+    id: number;
+    prenom: string;
+    nom: string;
+    telephone: string;
+  };
+  materials: {
+    id: number;
+    materialId: number;
+    quantity: number;
+    material?: {
+      label: string;
+      unit: {
+        code: string;
+      };
+    };
+  }[];
 }
 
 export interface OrderMaterial {
+  id: number;
   materialId: number;
+  materialLabel?: string; // Nom du matériau
   quantity: number;
-  unitPrice: number; // ⚠️ Prix unitaire ajouté
+  unitPrice: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -334,18 +351,6 @@ createStock(material: CreateMaterial): Observable<Material> {
 // ✅ Correction de createCommand
 createCommand(order: CreateOrder): Observable<Order> {
   const headers = this.authService.getAuthHeaders();
-
-  // const token = localStorage.getItem('auth_token') || 
-  //              localStorage.getItem('token') || 
-  //              sessionStorage.getItem('auth_token') ||
-  //              sessionStorage.getItem('token');
-  
-  // if (!token) {
-  //   return throwError(() => ({ 
-  //     message: 'Token d\'authentification manquant', 
-  //     status: 401 
-  //   }));
-  // }
 
   console.log('Création d\'une nouvelle commande:', order);
   
@@ -505,7 +510,9 @@ getCommand(propertyId: number, page: number = 0, size: number = 10): Observable<
     .set('size', size.toString());
 
   return this.http.get<OrdersResponse>(
-    `${environment.apiUrl}/orders/supplier/${propertyId}/pending`,
+    `${environment.apiUrl}/orders/property/${propertyId}/pending
+
+`,
     { 
       params,
       headers: this.getHeaders() 

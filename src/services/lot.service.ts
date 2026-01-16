@@ -23,19 +23,14 @@ export interface Subcontractor {
   activated: boolean;
   notifiable: boolean;
   telephone: string;
-  subscriptions: any[];
-  company: {
-    id: number;
-    name: string | null;
-    logo: string;
-    primaryColor: string | null;
-    secondaryColor: string | null;
-  } | null;
+  company: Company | null;
   createdAt: number[];
   funds: number;
   note: number;
   photo: string | null;
   idCard: string | null;
+  dateOfBirth: string | null;
+  qrcode: string | null;
   accountNonExpired: boolean;
   credentialsNonExpired: boolean;
   accountNonLocked: boolean;
@@ -71,6 +66,13 @@ export interface SubcontractorsResponse {
   };
   first: boolean;
   empty: boolean;
+}
+export interface Company {
+  id?: number;
+  name?: string | null;
+  logo?: string;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
 }
 
 export interface Lot {
@@ -115,14 +117,14 @@ export interface LotsResponse {
   first: boolean;
   empty: boolean;
 }
-
 export interface CreateLotRequest {
   name: string;
   description: string;
-  startDate: string; // Format: "YYYY-MM-DD"
-  endDate: string;   // Format: "YYYY-MM-DD"
+  startDate: string;  // Format: dd-MM-yyyy
+  endDate: string;    // Format: dd-MM-yyyy
   realEstatePropertyId: number;
   subcontractorId: number;
+  file?: File;  // Fichier optionnel si nécessaire
 }
 
 

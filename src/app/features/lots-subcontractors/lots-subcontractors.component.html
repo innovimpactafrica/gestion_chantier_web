@@ -50,346 +50,298 @@
     </div>
   </div>
 
-  <!-- Messages d'erreur et succès -->
-  <div *ngIf="errorMessage" class="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
-    <div class="flex">
-      <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-      </svg>
-      <div class="ml-3">
-        <p class="text-sm text-red-800">{{ errorMessage }}</p>
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+  </div>
+
+<!-- Grille des lots optimisée -->
+<div *ngIf="!isLoading && filteredLots.length > 0">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div *ngFor="let lot of filteredLots" 
+         class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col"
+         style="max-width: 358px;">
+      
+      <!-- En-tête de la carte -->
+      <div class="p-4 border-b border-gray-100 flex justify-between items-start">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-bold text-gray-900 truncate">{{ lot.nom }}</h3>
+        </div>
+        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2">
+          Lot {{ lot.id }}
+        </span>
+      </div>
+
+      <!-- Description -->
+      <div class="px-4 py-3">
+        <p class="text-gray-600 text-sm line-clamp-2" [title]="lot.description">
+          {{ lot.description }}
+        </p>
+      </div>
+
+      <!-- Dates -->
+      <div class="px-4 py-2 flex justify-between text-sm text-gray-600">
+        <div class="flex items-center gap-1">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="font-medium">{{ lot.dateDebut }}</span>
+        </div>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+        <div class="flex items-center gap-1">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="font-medium">{{ lot.dateFin }}</span>
+        </div>
+      </div>
+
+      <!-- Barre de progression -->
+      <div class="px-4 py-3">
+        <div class="flex justify-between items-center mb-2 text-sm">
+          <span [class]="lot.statutColor">{{ lot.statut }}</span>
+          <span class="font-semibold text-gray-700">{{ lot.progression }}%</span>
+        </div>
+        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            [style.width.%]="lot.progression" 
+            class="h-full transition-all duration-300 rounded-full bg-orange-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sous-traitant -->
+      <div class="mx-4 my-3">
+        <div class="flex items-center bg-gray-50 rounded-lg p-3 min-h-[55px]">
+          <div class="bg-orange-100 p-2 rounded-full flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div class="ml-3 min-w-0 flex-1">
+            <div class="font-semibold text-gray-900 text-sm truncate" 
+                 [title]="lot.soustraitant?.nom || 'Non assigné'">
+              {{ lot.soustraitant?.nom || 'Non assigné' }}
+            </div>
+            <div class="text-xs text-gray-500 truncate" 
+                 [title]="lot.soustraitant?.company || ''">
+              {{ lot.soustraitant?.company || '' }}
+            </div>
+          </div>
+          <div *ngIf="lot.soustraitant?.telephone" 
+               class="text-xs text-orange-600 font-medium ml-2 hidden sm:block">
+            {{ lot.soustraitant?.telephone }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="px-4 pb-3 flex justify-between border-t border-gray-100 pt-3 mt-auto">
+        <button 
+          (click)="modifierLot(lot.id)" 
+          class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          Modifier
+        </button>
+        <button 
+          (click)="voirDocuments(lot.id)" 
+          class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Documents
+        </button>
+        <button 
+          (click)="voirCommentaires(lot.id)" 
+          class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          Commentaires
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Indicateur de chargement -->
-  <div *ngIf="isLoading" class="p-12 text-center">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
-    <p class="mt-4 text-gray-600 font-medium">Chargement des lots...</p>
-  </div>
-
-  <!-- Grille des lots (Cartes style Figma) -->
-  <div *ngIf="!isLoading && filteredLots.length > 0">
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      <div *ngFor="let lot of filteredLots" class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200" style="width: 358px; height: 337px;">
-        
-        <!-- En-tête de la carte -->
-        <div class="p-4 border-b border-gray-100 flex justify-between items-start">
-          <div class="flex-1">
-            <h3 class="text-lg font-bold text-gray-900">{{ lot.nom }}</h3>
-          </div>
-          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2">Lot {{ lot.id }}</span>
-        </div>
-
-        <!-- Description -->
-        <div class="px-4 py-3">
-          <p class="text-gray-600 text-sm line-clamp-2">{{ lot.description }}</p>
-        </div>
-
-        <!-- Dates -->
-        <div class="px-4 py-2 flex justify-between text-sm text-gray-600">
-          <div class="flex items-center gap-1">
-            <span class="font-medium">Début:</span>
-            <span>{{ lot.dateDebut }}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="font-medium">Fin:</span>
-            <span>{{ lot.dateFin }}</span>
-          </div>
-        </div>
-
-        <!-- Barre de progression -->
-        <div class="px-4 py-3">
-          <div class="flex justify-between items-center mb-2 text-sm">
-            <span [class]="lot.statutColor">{{ lot.statut }}</span>
-            <span class="font-semibold text-gray-700">{{ lot.progression }}%</span>
-          </div>
-          <div class="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              [style.width.%]="lot.progression" 
-              class="h-full transition-all duration-300 rounded-full" 
-              style="background: #FF5C02;">
-            </div>
-          </div>
-        </div>
-
-        <!-- Sous-traitant -->
-        <div class="mx-4 my-3">
-          <div class="flex items-center justify-between bg-[#F5F7FA] rounded-lg p-3 h-[55px]">
-            <div class="flex items-center gap-2 flex-1 min-w-0">
-              <div class="bg-orange-100 p-2 rounded-full flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="font-semibold text-gray-900 text-sm truncate">{{ lot.soustraitant?.nom || 'Non assigné' }}</div>
-                <div class="text-xs text-gray-500 truncate">{{ lot.soustraitant?.company || '' }}</div>
-              </div>
-            </div>
-            <div *ngIf="lot.soustraitant?.telephone" class="text-xs text-orange-600 font-medium ml-2 flex-shrink-0">
-              <!-- {{ lot.soustraitant.telephone }} -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="px-4 pb-3 flex justify-between border-t border-gray-100 pt-3">
-          <button 
-            (click)="modifierLot(lot.id)" 
-            class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            Modifier
-          </button>
-          <button 
-            (click)="voirDocuments(lot.id)" 
-            class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Documents
-          </button>
-          <button 
-            (click)="voirCommentaires(lot.id)" 
-            class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-            Commentaires
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message si aucun lot -->
-  <div *ngIf="!isLoading && filteredLots.length === 0" class="p-12 text-center">
-    <div class="mx-auto h-24 w-24 text-gray-400 mb-4">
+  <!-- Message aucun résultat -->
+  <div *ngIf="!isLoading && filteredLots.length === 0" class="text-center py-20">
+    <div class="mx-auto w-24 h-24 text-gray-400 mb-6">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
       </svg>
     </div>
-    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ lots.length === 0 ? 'Aucun lot trouvé' : 'Aucun résultat' }}</h3>
-    <p class="text-gray-500 mb-6">{{ lots.length === 0 ? 'Créez votre premier lot pour commencer' : 'Essayez de modifier vos critères de recherche' }}</p>
+    <h3 class="text-xl font-medium text-gray-900 mb-2">
+      {{ lots.length === 0 ? 'Aucun lot pour le moment' : 'Aucun lot ne correspond à vos filtres' }}
+    </h3>
+    <p class="text-gray-600 mb-6">
+      {{ lots.length === 0 ? 'Créez votre premier lot pour démarrer' : 'Modifiez vos critères de recherche' }}
+    </p>
     <button 
-      *ngIf="lots.length === 0" 
-      (click)="openCreateModal()" 
-      class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      (click)="openCreateModal()"
+      class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       Créer un lot
     </button>
   </div>
 
-  <!-- Pagination dynamique -->
-  <div *ngIf="totalPages > 1 && !isLoading" class="mt-6 px-6 py-4 bg-white border border-gray-200 rounded-lg">
-    <div class="flex items-center justify-between">
-      <div class="text-sm text-gray-600">
-        Affichage de {{ (currentPage * pageSize) + 1 }} à {{ Math.min((currentPage + 1) * pageSize, totalElements) }} sur {{ totalElements }} lot{{ totalElements > 1 ? 's' : '' }}
-      </div>
-      <div class="flex items-center space-x-2">
-        <button 
-          (click)="previousPage()" 
-          [disabled]="currentPage === 0" 
-          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          Précédent
-        </button>
-        
-        <div class="flex space-x-1">
-          <button 
-            *ngFor="let page of getPageNumbers()" 
-            (click)="goToPage(page)" 
-            [class]="page === currentPage ? 'px-3 py-2 border border-orange-500 bg-orange-500 text-white rounded-lg text-sm font-medium' : 'px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors'">
-            {{ page + 1 }}
-          </button>
-        </div>
-        
-        <button 
-          (click)="nextPage()" 
-          [disabled]="currentPage === totalPages - 1" 
-          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          Suivant
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-    </div>
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1 && !isLoading" class="mt-8 flex justify-center">
+    <nav class="flex items-center gap-2">
+      <button 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 0"
+        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium disabled:opacity-50">
+        Précédent
+      </button>
+
+      <button 
+        *ngFor="let page of getPageNumbers()"
+        (click)="goToPage(page)"
+        [class.bg-orange-500]="page === currentPage"
+        [class.text-white]="page === currentPage"
+        [class.border-orange-500]="page === currentPage"
+        class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors">
+        {{ page + 1 }}
+      </button>
+
+      <button 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages - 1"
+        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium disabled:opacity-50">
+        Suivant
+      </button>
+    </nav>
   </div>
 
-  <!-- Modal de création/modification -->
+  <!-- MODAL CRÉATION / MODIFICATION -->
   <div *ngIf="showCreateModal || showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
       
-      <!-- En-tête du modal -->
-      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl flex justify-between items-center z-10">
-        <h3 class="text-xl font-semibold text-gray-900">
-          {{ showCreateModal ? 'Créer un nouveau lot' : 'Modifier le lot' }}
+      <!-- Header -->
+      <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ showCreateModal ? 'Nouveau Lot' : 'Modifier le Lot' }}
         </h3>
-        <button 
-          (click)="closeModal()" 
-          class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Contenu du modal -->
-      <div class="px-6 py-6">
+      <!-- Body -->
+      <div class="p-6">
         <!-- Messages -->
-        <div *ngIf="errorMessage" class="mb-4 bg-red-50 border border-red-200 rounded-lg p-4 flex">
-          <svg class="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-          <p class="ml-3 text-sm text-red-800">{{ errorMessage }}</p>
-        </div>
-        
-        <div *ngIf="successMessage" class="mb-4 bg-green-50 border border-green-200 rounded-lg p-4 flex">
-          <svg class="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <p class="ml-3 text-sm text-green-800">{{ successMessage }}</p>
+        <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+          {{ errorMessage }}
         </div>
 
         <!-- Formulaire -->
-        <form #lotForm="ngForm">
-          <!-- Désignation du lot -->
-          <div class="mb-5">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Désignation du lot <span class="text-red-500">*</span>
-            </label>
+        <div class="space-y-6">
+          <!-- Nom -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nom du lot *</label>
             <input 
-              type="text" 
               [(ngModel)]="currentLot.name" 
-              name="name" 
-              required 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none" 
-              placeholder="Ex: Gros oeuvre, VRD, Menuiserie...">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+              placeholder="Ex: Gros œuvre">
           </div>
 
           <!-- Description -->
-          <div class="mb-5">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Description <span class="text-red-500">*</span>
-            </label>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
             <textarea 
               [(ngModel)]="currentLot.description" 
-              name="description" 
-              required 
-              rows="3" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none outline-none" 
-              placeholder="Décrivez les travaux inclus dans ce lot..."></textarea>
+              rows="4"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
+              placeholder="Détaillez les travaux inclus..."></textarea>
           </div>
 
           <!-- Dates -->
-          <div class="grid grid-cols-2 gap-4 mb-5">
+          <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Date de début <span class="text-red-500">*</span>
-              </label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Date début *</label>
               <input 
                 type="date" 
-                [(ngModel)]="currentLot.startDate" 
-                name="startDate" 
-                required 
+                [(ngModel)]="currentLot.startDate"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Date de fin <span class="text-red-500">*</span>
-              </label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Date fin *</label>
               <input 
                 type="date" 
-                [(ngModel)]="currentLot.endDate" 
-                name="endDate" 
-                required 
+                [(ngModel)]="currentLot.endDate"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
             </div>
           </div>
 
-          <!-- Sous-traitant (select intelligent) -->
-          <div class="mb-5">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Affecter un sous-traitant <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <input 
-                type="text" 
-                [(ngModel)]="subcontractorSearch" 
-                (input)="filterSubcontractors()" 
-                (focus)="showSubcontractorDropdown = true"
-                name="subcontractorSearch"
-                placeholder="Rechercher un sous-traitant..." 
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-10 outline-none" 
-                autocomplete="off">
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
+          <!-- Sous-traitant -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Sous-traitant *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="subcontractorSearch" 
+              (input)="filterSubcontractors()" 
+              (focus)="showSubcontractorDropdown = true"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none pr-10"
+              placeholder="Rechercher un sous-traitant...">
+
+            <svg class="absolute right-3 top-10 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+
+            <!-- Dropdown -->
+            <div *ngIf="showSubcontractorDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div *ngFor="let sub of filteredSubcontractors" 
+                   (click)="selectSubcontractor(sub)"
+                   class="px-4 py-3 hover:bg-orange-50 cursor-pointer border-b last:border-b-0">
+                <div class="font-medium">{{ sub.name }}</div>
+                <div class="text-sm text-gray-500">{{ sub.company }} • {{ sub.phone }}</div>
               </div>
-              
-              <!-- Dropdown des sous-traitants -->
-              <div 
-                *ngIf="showSubcontractorDropdown && filteredSubcontractors.length > 0" 
-                class="absolute z-20 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
-                <div 
-                  *ngFor="let sub of filteredSubcontractors" 
-                  (click)="selectSubcontractor(sub)" 
-                  class="px-4 py-3 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors">
-                  <div class="font-medium text-gray-900">{{ sub.name }}</div>
-                  <div class="text-sm text-gray-500 mt-0.5">{{ sub.company }} • {{ sub.phone }}</div>
-                </div>
-              </div>
-              
-              <!-- Message si aucun résultat -->
-              <div 
-                *ngIf="showSubcontractorDropdown && filteredSubcontractors.length === 0 && subcontractorSearch" 
-                class="absolute z-20 w-full bg-white border border-gray-300 rounded-lg mt-1 p-4 shadow-lg text-center text-sm text-gray-500">
+
+              <div *ngIf="filteredSubcontractors.length === 0 && subcontractorSearch" class="p-4 text-center text-gray-500 text-sm">
                 Aucun sous-traitant trouvé
               </div>
             </div>
-            
-            <!-- Sous-traitant sélectionné -->
-            <div *ngIf="currentLot.subcontractorId > 0" class="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-sm font-medium text-orange-800">Sous-traitant sélectionné</span>
-              </div>
-              <button 
-                type="button"
-                (click)="currentLot.subcontractorId = 0; subcontractorSearch = ''" 
-                class="text-orange-600 hover:text-orange-800 text-sm font-medium">
-                Changer
-              </button>
-            </div>
           </div>
-        </form>
+
+          <!-- Sous-traitant sélectionné -->
+          <div *ngIf="currentLot.subcontractorId" class="bg-orange-50 border border-orange-200 rounded-lg p-4 flex justify-between items-center">
+            <div>
+              <p class="font-medium text-orange-800">Sous-traitant sélectionné</p>
+              <p class="text-sm text-orange-700">{{ subcontractorSearch }}</p>
+            </div>
+            <button (click)="currentLot.subcontractorId = 0; subcontractorSearch = ''" 
+                    class="text-orange-600 hover:text-orange-800 text-sm font-medium">
+              Changer
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Actions du modal -->
-      <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-xl flex justify-between gap-3">
-        <button 
-          (click)="closeModal()" 
-          type="button"
-          class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+      <!-- Footer -->
+      <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex gap-4">
+        <button (click)="closeModal()" 
+                class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
           Annuler
         </button>
-        <button 
-          (click)="saveLot()" 
-          type="button"
-          [disabled]="isLoading" 
-          class="flex-1 px-6 py-3 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors">
-          <div *ngIf="isLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-          <span>{{ showCreateModal ? 'Enregistrer le lot' : 'Modifier' }}</span>
+        <button (click)="saveLot()" 
+                [disabled]="isLoading"
+                class="flex-1 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+          <div *ngIf="isLoading" class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+          {{ showCreateModal ? 'Créer le lot' : 'Modifier' }}
         </button>
       </div>
     </div>

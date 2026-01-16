@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -12,6 +12,12 @@ import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
+import { Chart } from 'chart.js';
+
+
+Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#7F8C8D';
 
 
 interface StockAlerte {
@@ -88,11 +94,17 @@ interface Movement {
 
 interface Delivery {
   orderDate: number[];
+  supplier: {
+    id: number;
+    prenom: string;
+    nom: string;
+    telephone: string;
+  };
   id: number;
   number: string;
   date: string; // Attendu au format dd-MM-yyyy
   command: string;
-  supplier: string;
+  
   status: 'Complète' | 'Partielle' | 'Annulée';
   proof: string;
 }
@@ -176,10 +188,10 @@ interface DeliveriesResponse {
   selector: 'app-stock',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, StatistiqueComponent],
-  templateUrl: './stock.component.html',
+  templateUrl:'./stock.component.html',
   styleUrls: ['./stock.component.css']
 })
-export class StockComponent implements OnInit, OnDestroy {
+export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   private destroy$ = new Subject<void>();
   stockAlertes: StockAlerte[] = [];
   orders: Order[] = [];
@@ -248,7 +260,6 @@ export class StockComponent implements OnInit, OnDestroy {
   suppliersLoading: boolean = false;
   showMenu = false;
 
-
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
@@ -267,13 +278,11 @@ export class StockComponent implements OnInit, OnDestroy {
       propertyId: [null, [Validators.required]]
     });
 
-    // ⚠️ NOUVEAU FormGroup pour les commandes
-    this.orderForm = this.fb.group({
-      supplierId: ['', Validators.required],
-      deliveryDate: ['', Validators.required],
-      specialInstructions: [''],
-      materials: this.fb.array([])
-    });
+ // ✅ REMPLACER l'orderForm actuel par :
+this.orderForm = this.fb.group({
+  supplierId: ['', Validators.required],
+  materials: this.fb.array([])
+});
 
     this.movementForm = this.fb.group({
       type: ['ENTRY', Validators.required],
@@ -282,7 +291,28 @@ export class StockComponent implements OnInit, OnDestroy {
       comment: ['']
     });
   }
-
+  get materialsArray(): FormArray {
+    return this.orderForm.get('materials') as FormArray;
+  }
+  addMaterialLine(): void {
+    this.materialsArray.push(
+      this.fb.group({
+        materialId: ['', Validators.required],
+        quantity: [1, [Validators.required, Validators.min(1)]]
+      })
+    );
+  }
+  removeMaterialLine(index: number): void {
+    if (this.materialsArray.length > 1) {
+      this.materialsArray.removeAt(index);
+    }
+  }
+  getStockForMaterial(index: number): number {
+    const materialId = this.materialsArray.at(index).get('materialId')?.value;
+    if (!materialId) return 0;
+    const mat = this.materials.find(m => m.id === Number(materialId));
+    return mat ? mat.quantity : 0;
+  }
   // ✅ CORRIGER ngOnInit
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
@@ -505,7 +535,7 @@ export class StockComponent implements OnInit, OnDestroy {
   loadUnits(): void {
     console.log('🔄 Chargement des unités...');
 
-    this.unitParameterService.getByTypePaginated('MATERIAL_CATEGORY', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
+    this.unitParameterService.getByTypePaginated('UNIT', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: PaginatedResponse<UnitParameter>) => {
@@ -589,14 +619,14 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
 
-  calculateOrderTotal(order: Order): number {
-    if (!order.items || order.items.length === 0) {
-      return 0;
-    }
-    return order.items.reduce((total, item) => {
-      return total + (item.quantity * item.unitPrice);
-    }, 0);
-  }
+  // calculateOrderTotal(order: Order): number {
+  //   if (!order.items || order.items.length === 0) {
+  //     return 0;
+  //   }
+  //   return order.items.reduce((total, item) => {
+  //     return total + (item.quantity * item.unitPrice);
+  //   }, 0);
+  // }
 
 
 
@@ -631,14 +661,15 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   // ===== MODIFIER addMaterialToOrder =====
-  addMaterialToOrder(): void {
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.push(this.fb.group({
-      materialId: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      unitPrice: [0, [Validators.required, Validators.min(0)]]
-    }));
-  }
+// ✅ REMPLACER par (ligne ~280 environ) :
+addMaterialToOrder(): void {
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.push(this.fb.group({
+    materialId: ['', Validators.required],
+    quantity: [1, [Validators.required, Validators.min(1)]]
+    // ❌ SUPPRIMER unitPrice
+  }));
+}
 
   // ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
   calculateLineTotal(index: number): void {
@@ -681,74 +712,43 @@ export class StockComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSubmitOrder(): void {
-    // Marquer tous les champs comme touchés
-    Object.keys(this.orderForm.controls).forEach(key => {
-      this.orderForm.get(key)?.markAsTouched();
-    });
-
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.controls.forEach(control => {
-      Object.keys((control as FormGroup).controls).forEach(key => {
-        control.get(key)?.markAsTouched();
-      });
-    });
-
-    if (this.orderForm.valid && !this.loading) {
-      this.loading = true;
-
-      // ⚠️ STRUCTURE CORRECTE selon la capture
-      const orderData: CreateOrder = {
-        supplierId: Number(this.orderForm.value.supplierId), // ID du fournisseur sélectionné
-        deliveryDate: this.orderForm.value.deliveryDate, // Date de livraison
-        specialInstructions: this.orderForm.value.specialInstructions || '',
-        materials: this.orderForm.value.materials.map((m: any) => ({
-          materialId: Number(m.materialId),
-          quantity: Number(m.quantity),
-          unitPrice: Number(m.unitPrice)
-        }))
-      };
-
-      console.log('📦 Données de commande à envoyer:', orderData);
-      console.log('📦 Fournisseur ID:', orderData.supplierId);
-      console.log('📦 Date de livraison:', orderData.deliveryDate);
-      console.log('📦 Matériaux:', orderData.materials);
-      console.log('📦 Total:', this.getOrderTotal());
-
-      this.materialsService.createCommand(orderData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (createdOrder) => {
-            this.loading = false;
-            this.closeOrderModal();
-            this.loadOrders();
-            this.showSuccessMessage('Commande créée avec succès !');
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('❌ Erreur lors de la création de la commande:', error);
-
-            if (error.status === 400) {
-              this.showErrorMessage('Données invalides. Vérifiez tous les champs.');
-            } else if (error.status === 403) {
-              this.showErrorMessage('Accès refusé');
-            } else if (error.status === 401) {
-              this.showErrorMessage('Session expirée');
-            } else if (error.status === 404) {
-              this.showErrorMessage('Fournisseur ou matériau introuvable');
-            } else {
-              this.showErrorMessage(error.message || 'Erreur lors de la création');
-            }
-          }
-        });
-    } else {
-      console.log('❌ Formulaire invalide');
-      console.log('Erreurs formulaire:', this.orderForm.errors);
-      console.log('Valeurs materials:', materials.value);
-      console.log('Erreurs materials:', materials.controls.map(c => c.errors));
-      this.showErrorMessage('Veuillez remplir tous les champs requis');
-    }
+// ✅ REMPLACER onSubmitOrder() par :
+onSubmitOrder(): void {
+  if (!this.orderForm.valid || this.loading) {
+    this.showErrorMessage('Veuillez remplir tous les champs requis');
+    return;
   }
+
+  this.loading = true;
+
+  // ✅ Structure EXACTE du swagger
+  const orderData: CreateOrder = {
+    supplierId: Number(this.orderForm.value.supplierId),
+    materials: this.orderForm.value.materials.map((m: any) => ({
+      materialId: Number(m.materialId),
+      quantity: Number(m.quantity)
+    }))
+  };
+
+  console.log('📦 Données envoyées (format swagger):', orderData);
+
+  this.materialsService.createCommand(orderData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (created) => {
+        console.log('✅ Commande créée:', created);
+        this.loading = false;
+        this.closeOrderModal();
+        this.loadOrders();
+        this.showSuccessMessage('Commande créée avec succès !');
+      },
+      error: (error) => {
+        console.error('❌ Erreur:', error);
+        this.loading = false;
+        this.showErrorMessage(error.message || 'Erreur lors de la création');
+      }
+    });
+}
 
 
   // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
@@ -763,21 +763,13 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   // ===== MODIFIER closeOrderModal =====
-  closeOrderModal(): void {
-    this.showOrderModal = false;
-
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.clear();
-
-    this.orderForm.reset({
-      supplierId: '',
-      deliveryDate: '',
-      specialInstructions: ''
-    });
-
-    // Ajouter une ligne vide
-    this.addMaterialToOrder();
-  }
+closeOrderModal(): void {
+  this.showOrderModal = false;
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.clear();
+  this.orderForm.reset({ supplierId: '' });
+  this.addMaterialToOrder(); // Ajouter une ligne vide
+}
   generateStockAlerts(): void {
     this.stockAlerts = [];
     this.materials.forEach(material => {
@@ -966,18 +958,14 @@ export class StockComponent implements OnInit, OnDestroy {
     }
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-  }
+
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
     this.openDropdownIndex = this.openDropdownIndex === index ? null : index;
   }
 
-  closeDropdown(): void {
-    this.openDropdownIndex = null;
-  }
+
 
   openNewMaterialModal(): void {
     this.showNewMaterialModal = true;
@@ -1355,24 +1343,26 @@ export class StockComponent implements OnInit, OnDestroy {
 
   getOrderStatusClass(status: string): string {
     const classes = {
-      'EN_ATTENTE': 'bg-yellow-100 text-yellow-800',
-      'CONFIRMEE': 'bg-blue-100 text-blue-800',
-      'EN_COURS': 'bg-purple-100 text-purple-800',
-      'LIVREE': 'bg-green-100 text-green-800',
-      'ANNULEE': 'bg-red-100 text-red-800',
-      'PARTIELLEMENT_LIVREE': 'bg-orange-100 text-orange-800'
+      'PENDING': 'bg-yellow-100 text-yellow-800',
+      'CONFIRMED': 'bg-blue-100 text-blue-800',
+      'IN_PROGRESS': 'bg-purple-100 text-purple-800',
+      'DELIVERY': 'bg-green-100 text-green-800',
+      'DELIVERED': 'bg-green-100 text-green-800',
+      'CANCELLED': 'bg-red-100 text-red-800',
+      'PARTIALLY_DELIVERED': 'bg-orange-100 text-orange-800'
     };
     return classes[status as keyof typeof classes] || 'bg-gray-100 text-gray-800';
   }
 
   getOrderStatusText(status: string): string {
     const texts = {
-      'EN_ATTENTE': 'En attente',
-      'CONFIRMEE': 'Confirmée',
-      'EN_COURS': 'En cours',
-      'LIVREE': 'Livrée',
-      'ANNULEE': 'Annulée',
-      'PARTIELLEMENT_LIVREE': 'Partiellement livrée'
+      'PENDING': 'En attente',
+      'CONFIRMED': 'Confirmée',
+      'IN_PROGRESS': 'En cours',
+      'DELIVERY': 'Livrée',
+      'DELIVERED': 'Livrée',
+      'CANCELLED': 'Annulée',
+      'PARTIALLY_DELIVERED': 'Partiellement livrée'
     };
     return texts[status as keyof typeof texts] || status;
   }
@@ -1479,7 +1469,7 @@ export class StockComponent implements OnInit, OnDestroy {
     this.filteredDeliveries = this.deliveries.filter(delivery => {
       const matchesSearch = !this.searchDeliveryTerm ||
         delivery.number.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
-        delivery.supplier.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
+        // delivery.supplier.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
         delivery.command.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase());
 
       let matchesStatus = true;
@@ -1707,6 +1697,182 @@ export class StockComponent implements OnInit, OnDestroy {
 
 
 
+
+//ABOUBACAR SOW
+
+stockAlertsCount = 3;
+openInventoryDropdownIndex: number | null = null;
+
+toggleInventoryDropdown(index: number, event: MouseEvent) {
+  event.stopPropagation(); // IMPORTANT
+  this.openInventoryDropdownIndex =
+    this.openInventoryDropdownIndex === index ? null : index;
+}
+
+openOrderDropdownIndex: number | null = null;
+
+toggleOrderDropdown(index: number, event: MouseEvent): void {
+  event.stopPropagation();
+  this.openOrderDropdownIndex =
+    this.openOrderDropdownIndex === index ? null : index;
+}
+
+
+openDeliveryDropdownIndex: number | null = null;
+
+toggleDeliveryDropdown(index: number, event: MouseEvent): void {
+  event.stopPropagation();
+  this.openDeliveryDropdownIndex =
+    this.openDeliveryDropdownIndex === index ? null : index;
+}
+
+
+closeDropdown(): void {
+  this.openDropdownIndex = null;
+  this.openInventoryDropdownIndex = null;
+  this.openOrderDropdownIndex = null;
+  this.openDeliveryDropdownIndex = null;
+}
+
+
+ngAfterViewInit(): void {
+  if (this.activeTab === 'statistiques') {
+    this.initConsumptionChart();
+    this.initEvolutionChart();
+  }
+}
+
+
+setActiveTab(tab: string): void {
+  this.activeTab = tab;
+
+  if (tab === 'statistiques') {
+    setTimeout(() => {
+      this.initConsumptionChart();
+      this.initEvolutionChart();
+    }, 0);
+  }
+}
+
+
+
+
+// =========================
+  // BAR CHART
+  // =========================
+ initConsumptionChart() {
+  new Chart('consumptionChart', {
+    type: 'bar',
+    data: {
+      labels: ['Ciment', 'Acier', 'Briques', 'Peinture', 'PVC'],
+      datasets: [{
+        data: [100, 160, 330, 80, 60],
+        backgroundColor: [
+          '#FDEDEC',
+          '#BB8FCE',
+          '#F1948A',
+          '#F7DC6F',
+          '#82E0AA'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12,
+              weight: 500
+            },
+            color: '#34495E'
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 11
+            },
+            color: '#7F8C8D'
+          },
+          grid: {
+            color: '#ECF0F1'
+          }
+        }
+      }
+    }
+  });
+}
+
+
+  // =========================
+  // LINE CHART
+  // =========================
+ initEvolutionChart() {
+  new Chart('evolutionChart', {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Fév', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil'],
+      datasets: [{
+        label: 'Unité utilisées',
+        data: [120, 128, 136, 142, 153, 159, 168],
+        borderColor: '#FF5C02',
+        backgroundColor: 'rgba(255, 92, 2, 0.15)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#FF5C02'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              family: 'Inter',
+              size: 12,
+              weight: 500
+            },
+            color: '#34495E'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12
+            },
+            color: '#34495E'
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 11
+            },
+            color: '#7F8C8D'
+          },
+          grid: {
+            color: '#ECF0F1'
+          }
+        }
+      }
+    }
+  });
+}
 
 
 }
