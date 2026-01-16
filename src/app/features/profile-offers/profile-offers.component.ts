@@ -28,6 +28,7 @@ export class ProfileOffersComponent implements OnInit {
   availablePlans: SubscriptionPlan[] = [];
   isLoadingPlans = true;
   animationKey = 0;
+  currentUser: User | null = null;
 
   // Plans filtrés selon le profil
   currentPremiumPlan: SubscriptionPlan | null = null;
@@ -42,7 +43,7 @@ export class ProfileOffersComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.params.subscribe(params => {
       this.userId = params['id'] ? +params['id'] : null;
       // On garde le profil de l'URL comme fallback ou valeur initiale
       const urlProfile = params['profil'] || null;
@@ -66,6 +67,7 @@ export class ProfileOffersComponent implements OnInit {
     this.userService.getUserById(id).subscribe({
       next: (user: User) => {
         console.log('✅ Utilisateur trouvé:', user);
+        this.currentUser = user;
         if (user.profil) {
           this.userProfile = user.profil;
           console.log(`👤 Profil récupéré de l'API: ${this.userProfile}`);
@@ -208,12 +210,19 @@ export class ProfileOffersComponent implements OnInit {
     return description.length > 100 ? description.substring(0, 100) + '...' : description;
   }
 
-  goToSubscription(planType: string): void {
+  async goToSubscription(planType: string): Promise<void> {
     // Rediriger vers la page d'abonnement avec le plan sélectionné
     const plan = planType === 'premium' ? this.currentPremiumPlan :
       planType === 'basic' ? this.currentBasicPlan : null;
 
-    if (plan) {
+    if (plan && this.currentUser) {
+      try {
+        const isYearly = plan.installmentCount === 12;
+        await this.subscriptionService.initiateSubscriptionPayment(this.currentUser, plan, isYearly);
+      } catch (error) {
+        console.error('Erreur lors de l\'initiation du paiement:', error);
+      }
+    } else if (plan) {
       this.router.navigate(['/login'], {
         queryParams: {
           planId: plan.id,
