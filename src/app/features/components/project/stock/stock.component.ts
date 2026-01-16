@@ -1712,6 +1712,8 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
 
 //ABOUBACAR SOW
 
+
+showMouvementModal: boolean = false;
 stockAlertsCount = 3;
 openInventoryDropdownIndex: number | null = null;
 
@@ -1738,6 +1740,13 @@ toggleDeliveryDropdown(index: number, event: MouseEvent): void {
     this.openDeliveryDropdownIndex === index ? null : index;
 }
 
+
+showExportDropdown: boolean = false;
+
+toggleExportDropdown(event: MouseEvent): void {
+  event.stopPropagation();
+  this.showExportDropdown = !this.showExportDropdown;
+}
 
 closeDropdown(): void {
   this.openDropdownIndex = null;

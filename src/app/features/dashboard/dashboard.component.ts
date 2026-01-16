@@ -2,23 +2,25 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { 
-  DashboardService, 
-  TasksKpi, 
-  GlobalIndicator, 
-  BudgetKpi, 
-  CriticalMaterial, 
-  PhaseIndicator, 
-  IncidentStatistic, 
-  CriticalTask, 
-  RecentPhoto, 
-  PageableResponse 
+import {
+  DashboardService,
+  TasksKpi,
+  GlobalIndicator,
+  BudgetKpi,
+  CriticalMaterial,
+  PhaseIndicator,
+  IncidentStatistic,
+  CriticalTask,
+  RecentPhoto,
+  PageableResponse
 } from '../../../services/dashboard.service';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
+Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#7F8C8D';
 Chart.register(...registerables);
 
 @Component({
@@ -49,7 +51,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Données brutes du backend
   private rawData: any = {};
 
-  // Données structurées pour l'affichage 
+  // Données structurées pour l'affichage
   dashboardData = {
     chantiers: {
       enCours: 0,
@@ -109,7 +111,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Propriétés pour le modal des photos
   selectedPhoto: any = null;
-  currentImageIndex: number = 0;  
+  currentImageIndex: number = 0;
 
 // Méthodes pour gérer le modal des photos
 
@@ -120,7 +122,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 openPhotoModal(photo: any): void {
   this.selectedPhoto = photo;
   this.currentImageIndex = 0;
-  
+
   // Empêcher le scroll de la page quand le modal est ouvert
   document.body.style.overflow = 'hidden';
 }
@@ -133,7 +135,7 @@ openPhotoModal(photo: any): void {
 closePhotoModal(): void {
   this.selectedPhoto = null;
   this.currentImageIndex = 0;
-  
+
   // Réactiver le scroll de la page
   document.body.style.overflow = 'auto';
 }
@@ -143,11 +145,11 @@ closePhotoModal(): void {
  */
 previousImage(): void {
   if (!this.selectedPhoto?.images?.length) return;
-  
-  this.currentImageIndex = this.currentImageIndex > 0 
-    ? this.currentImageIndex - 1 
+
+  this.currentImageIndex = this.currentImageIndex > 0
+    ? this.currentImageIndex - 1
     : this.selectedPhoto.images.length - 1;
-    
+
   // Mettre à jour l'image source actuelle
   this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
 }
@@ -157,11 +159,11 @@ previousImage(): void {
  */
 nextImage(): void {
   if (!this.selectedPhoto?.images?.length) return;
-  
-  this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1 
-    ? this.currentImageIndex + 1 
+
+  this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1
+    ? this.currentImageIndex + 1
     : 0;
-    
+
   // Mettre à jour l'image source actuelle
   this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
 }
@@ -174,7 +176,7 @@ selectImageIndex(index: number): void {
   if (!this.selectedPhoto?.images?.length || index < 0 || index >= this.selectedPhoto.images.length) {
     return;
   }
-  
+
   this.currentImageIndex = index;
   this.selectedPhoto.src = this.selectedPhoto.images[index];
 }
@@ -211,25 +213,25 @@ selectImageIndex(index: number): void {
       }
     }
   };
-  
+
   ngAfterViewInit(): void {
     if (this.isBrowser) {
       document.addEventListener('keydown', this.keydownHandler);
     }
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  
+
     if (this.isBrowser) {
       // Nettoyer les listeners
       document.removeEventListener('keydown', this.keydownHandler);
-  
+
       // Réactiver le scroll si le modal était ouvert
       document.body.style.overflow = 'auto';
     }
-  
+
     // Détruire les graphiques
     if (this.progressChartInstance) {
       this.progressChartInstance.destroy();
@@ -244,18 +246,18 @@ selectImageIndex(index: number): void {
       this.repartitionChartInstance.destroy();
     }
   }
-  
 
- 
+
+
 
   private loadDashboardData(): void {
     this.isLoading = true;
     this.hasError = false;
-  
+
     // Vérifier si l'utilisateur est connecté de manière plus robuste
     if (!this.dashboardService.isUserConnected()) {
       console.warn('Utilisateur non connecté, tentative de reconnexion...');
-      
+
       // Attendre un peu pour permettre à l'authentification de se stabiliser
       setTimeout(() => {
         if (this.dashboardService.isUserConnected()) {
@@ -266,13 +268,13 @@ selectImageIndex(index: number): void {
           this.isLoading = false;
         }
       }, 500);
-      
+
       return;
     }
-    
+
     this.continueLoadingData();
   }
-  
+
   private continueLoadingData(): void {
     // Chargement parallèle de toutes les données depuis le backend
     forkJoin({
@@ -379,7 +381,7 @@ selectImageIndex(index: number): void {
         this.rawData = data;
         this.processDashboardData();
         this.isLoading = false;
-        
+
         // Créer les graphiques après le chargement des données
         setTimeout(() => {
           this.createCharts();
@@ -387,7 +389,7 @@ selectImageIndex(index: number): void {
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données:', error);
-        
+
         // Gestion spécifique des erreurs d'authentification
         if (error.status === 401 || error.message?.includes('non connecté')) {
           this.hasError = true;
@@ -396,7 +398,7 @@ selectImageIndex(index: number): void {
           this.hasError = true;
           this.errorMessage = 'Erreur lors du chargement des données du tableau de bord';
         }
-        
+
         this.isLoading = false;
       }
     });
@@ -430,17 +432,17 @@ selectImageIndex(index: number): void {
 
   private processChantiers(): any {
     const vueEnsemble = this.rawData.vueEnsemble;
-    
+
     if (!vueEnsemble) {
       return this.dashboardData.chantiers;
     }
 
     // Selon votre mapping:
     // completedTasks = terminé
-    // overdueTasks = en retard  
+    // overdueTasks = en retard
     // pendingTasks = en cours
     // totalTasks - (completedTasks + overdueTasks + pendingTasks) = en attente
-    
+
     const termines = vueEnsemble.completedTasks || 0;
     const enRetard = vueEnsemble.overdueTasks || 0;
     const enCours = vueEnsemble.pendingTasks || 0;
@@ -470,7 +472,7 @@ selectImageIndex(index: number): void {
 
   private processAvancement(): any {
     const tauxMoyenAvancement = this.rawData.tauxMoyenAvancement;
-    
+
     if (!tauxMoyenAvancement || tauxMoyenAvancement.averageProgressPercentage === undefined) {
       return this.dashboardData.avancement;
     }
@@ -479,7 +481,7 @@ selectImageIndex(index: number): void {
     const circumference = 141.37; // π * 45
     const progression = pourcentage / 100;
     const dashOffset = circumference * (1 - progression);
-    
+
     // Calcul de la position du point sur l'arc
     const angle = Math.PI * progression;
     const pointX = 50 + 45 * Math.cos(Math.PI - angle);
@@ -498,13 +500,13 @@ selectImageIndex(index: number): void {
 
   private processBudget(): any {
     const budget = this.rawData.budget;
-    
+
     if (!budget) {
       return this.dashboardData.budget;
     }
 
     return {
-      planifie: budget.totalPlanned || 0, 
+      planifie: budget.totalPlanned || 0,
       consomme: budget.totalConsumed || 0,
       restant: budget.totalRemaining || 0,
       pourcentageConsomme: Math.round(budget.consumedPercentage || 0),
@@ -514,7 +516,7 @@ selectImageIndex(index: number): void {
 
   private processMateriaux(): any[] {
     const materiauxCritique = this.rawData.materiauxCritique;
-    
+
     if (!materiauxCritique || !Array.isArray(materiauxCritique.content)) {
       return [];
     }
@@ -562,21 +564,21 @@ selectImageIndex(index: number): void {
 
   private processPhases(): any[] {
     const etatAvancement = this.rawData.etatAvancement;
-    
+
     if (!etatAvancement || !Array.isArray(etatAvancement)) {
       return [];
     }
-  
+
     // Définir l'ordre exact des phases avec leurs couleurs spécifiques et libellés lisibles
     const phasesConfig = [
       { id: 'GROS_OEUVRE', nom: 'Gros œuvre', couleur: '#2ECC71' },    // Vert
       { id: 'SECOND_OEUVRE', nom: 'Second œuvre', couleur: '#F39C12' }, // Orange
       { id: 'FINITION', nom: 'Finition', couleur: '#EBECF0' }        // Gris clair
     ];
-    
+
     // Créer un mapping pour l'ordre et les couleurs
     const phaseConfigMap = new Map(phasesConfig.map(phase => [phase.id, phase]));
-    
+
     // Traiter les phases
     const phasesProcessed = etatAvancement.map((phase: PhaseIndicator) => {
       const config = phaseConfigMap.get(phase.phaseName) || { nom: phase.phaseName, couleur: this.generateColor(0) };
@@ -587,7 +589,7 @@ selectImageIndex(index: number): void {
         ordre: phasesConfig.findIndex(p => p.id === phase.phaseName)
       };
     });
-  
+
     // Trier par ordre défini et filtrer les phases non reconnues
     return phasesProcessed
       .filter(phase => phase.ordre !== -1)
@@ -597,7 +599,7 @@ selectImageIndex(index: number): void {
   private processIncidents(): any {
     const statistiqueSignalement = this.rawData.statistiqueSignalement;
     const totalIncidents = this.rawData.incidents || 0;
-    
+
     if (!statistiqueSignalement || !Array.isArray(statistiqueSignalement)) {
       return {
         total: totalIncidents,
@@ -621,11 +623,11 @@ selectImageIndex(index: number): void {
 
   private processTaches(): any[] {
     const tacheCritique = this.rawData.tacheCritique;
-    
+
     if (!tacheCritique || !Array.isArray(tacheCritique)) {
       return [];
     }
-  
+
     return tacheCritique.map((task: CriticalTask) => {
       // Normaliser le statut pour correspondre à nos besoins d'affichage
       let status: 'En retard' | 'Urgent' | 'À jour' = 'À jour';
@@ -634,7 +636,7 @@ selectImageIndex(index: number): void {
       } else if (task.priority === 'HIGH' || task.statusLabel?.includes('urgent')) {
         status = 'Urgent';
       }
-  
+
       return {
         id: task.id,
         nom: task.title,
@@ -646,35 +648,35 @@ selectImageIndex(index: number): void {
       };
     }).sort((a, b) => {
       // Trier d'abord par statut (retard > urgent > à jour)
-      const priorityOrder = { 
-        'En retard': 0, 
-        'Urgent': 1, 
-        'À jour': 2 
+      const priorityOrder = {
+        'En retard': 0,
+        'Urgent': 1,
+        'À jour': 2
       };
-      
+
       // Vérification de type pour éviter l'erreur TS
       const aPriority = priorityOrder[a.status as keyof typeof priorityOrder] || 2;
       const bPriority = priorityOrder[b.status as keyof typeof priorityOrder] || 2;
-      
+
       return aPriority - bPriority;
     });
   }
 
   private calculateRemainingDays(dateArray: number[]): number | null {
     if (!dateArray || dateArray.length < 3) return null;
-    
+
     const [year, month, day] = dateArray;
     const endDate = new Date(year, month - 1, day);
     const today = new Date();
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
 
   private processPhotos(): any[] {
     const photoRecent = this.rawData.photoRecent;
-    
+
     if (!photoRecent || !Array.isArray(photoRecent.content)) {
       return [];
     }
@@ -707,24 +709,24 @@ selectImageIndex(index: number): void {
     const today = new Date();
     const labels: string[] = [];
     const data: number[] = [];
-    
+
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      
+
       const incident = incidents.find(inc => inc.date === dateStr);
-      
+
       if (i === 0) {
         labels.push("Aujourd'hui");
       } else {
         // Figma mockup uses J-6, J-5, etc.
         labels.push(`J-${i}`);
       }
-      
+
       data.push(incident ? incident.count : 0);
     }
-    
+
     return { data, labels };
   }
 
@@ -735,197 +737,150 @@ selectImageIndex(index: number): void {
     this.createRepartitionChart();
   }
 
-  private createProgressChart(): void {
-    if (!this.isBrowser || !this.progressChart || !this.dashboardData.phases?.length) {
-      return;
-    }
+ private createProgressChart(): void {
+  if (!this.isBrowser || !this.progressChart || !this.dashboardData.phases?.length) {
+    return;
+  }
 
-    const ctx = this.progressChart.nativeElement.getContext('2d');
-    if (!ctx) return;
+  const ctx = this.progressChart.nativeElement.getContext('2d');
+  if (!ctx) return;
 
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
-      data: {
-        labels: this.dashboardData.phases.map((phase: any) => phase.nom),
-        datasets: [{
-          data: this.dashboardData.phases.map((phase: any) => phase.pourcentage),
-          backgroundColor: this.dashboardData.phases.map((phase: any) => phase.couleur),
-          borderSkipped: false,
-        }]
+  const config: ChartConfiguration<'bar'> = {
+    type: 'bar',
+    data: {
+      labels: this.dashboardData.phases.map(p => p.nom),
+      datasets: [{
+        data: this.dashboardData.phases.map(p => p.pourcentage),
+        backgroundColor: this.dashboardData.phases.map(p => p.couleur),
+
+        borderRadius: 0,          // 🔥 coins carrés
+        barThickness: 65          // 🔥 barres plus larges
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            grid: { display: false },
-            ticks: { display: false }
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            stepSize: 20   // chiffres visibles (0,20,40…)
           },
-          x: {
-            grid: { display: false },
-            ticks: { font: { size: 12 } }
+          grid: {
+            display: true,
+            color: '#E5E7EB'
+          },
+          border: {
+            display: false
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          },
+          border: {
+            display: false
           }
         }
       }
-    };
-
-    if (this.progressChartInstance) {
-      this.progressChartInstance.destroy();
     }
-    this.progressChartInstance = new Chart(ctx, config);
+  };
+
+  if (this.progressChartInstance) {
+    this.progressChartInstance.destroy();
   }
+
+  this.progressChartInstance = new Chart(ctx, config);
+}
+
+
   private createIncidentsChart(): void {
-    if (!this.isBrowser || !this.incidentsChart || !this.dashboardData.incidents?.donnees?.length) {
-      return;
-    }
-  
-    const ctx = this.incidentsChart.nativeElement.getContext('2d');
-    if (!ctx) return;
-  
-    // Calculer la valeur maximale pour l'axe Y
-    const maxValue = Math.max(...this.dashboardData.incidents.donnees, 5);
-    const yMaxValue = Math.ceil(maxValue * 1.2); // Ajouter 20% de marge
-  
-    const config: ChartConfiguration<'line'> = {
-      type: 'line',
-      data: {
-        labels: this.dashboardData.incidents.labels,
-        datasets: [{
-          data: this.dashboardData.incidents.donnees,
-          borderColor: '#FF6B35', // Couleur orange de la ligne
-          backgroundColor: 'rgba(255, 107, 53, 0.1)', // Zone remplie avec transparence
-          pointBackgroundColor: '#FF6B35',
-          pointBorderColor: '#FF6B35',
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 2, // Ligne plus fine
-          tension: 0.4, // Courbe lisse
-          fill: true // Activer le remplissage sous la courbe
-        }]
+  if (!this.isBrowser || !this.incidentsChart) return;
+
+  const ctx = this.incidentsChart.nativeElement.getContext('2d');
+  if (!ctx) return;
+
+  const config: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: {
+      labels: this.dashboardData.incidents.labels,
+      datasets: [{
+        data: this.dashboardData.incidents.donnees,
+        borderColor: '#FF6B35',
+        backgroundColor: 'rgba(255, 107, 53, 0.12)',
+        fill: true,
+
+        tension: 0, // 🔥 ligne droite
+
+        pointRadius: 5,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#FFFFFF', // 🔥 points blancs
+        pointBorderColor: '#FF6B35',
+        pointBorderWidth: 2,
+
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          displayColors: false
+        }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          intersect: false,
-          mode: 'index'
-        },
-        plugins: {
-          legend: { 
-            display: false 
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: '#6B7280',
+            font: { size: 12 }
           },
-          tooltip: {
-            enabled: true,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: 'white',
-            bodyColor: 'white',
-            borderColor: '#FF6B35',
-            borderWidth: 1,
-            cornerRadius: 6,
-            displayColors: false,
-            callbacks: {
-              title: (context) => {
-                return `${context[0].label}`;
-              },
-              label: (context) => {
-                const value = context.parsed.y;
-                return `${value || 0} incident${(value || 0) > 1 ? 's' : ''}`;
-              }
-            }
+          grid: {
+            color: '#E5E7EB'
           }
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: yMaxValue,
-            grid: { 
-              display: true,
-              color: '#F3F4F6',
-              lineWidth: 1
-            },
-            border: {
-              display: false
-            },
-            ticks: { 
-              stepSize: 1,
-              font: { 
-                size: 12,
-                family: 'Inter, sans-serif'
-              },
-              color: '#6B7280',
-              padding: 8,
-              callback: function(value) {
-                return Number.isInteger(value) ? value : '';
-              }
-            }
+        x: {
+          ticks: {
+            color: '#6B7280',
+            font: { size: 12 }
           },
-          x: {
-            grid: { 
-              display: false 
-            },
-            border: {
-              display: false
-            },
-            ticks: { 
-              font: { 
-                size: 12,
-                family: 'Inter, sans-serif'
-              },
-              color: '#6B7280',
-              padding: 8,
-              maxRotation: 45,
-              minRotation: 0
-            }
-          }
-        },
-        elements: {
-          line: {
-            borderJoinStyle: 'round',
-            borderCapStyle: 'round'
-          },
-          point: {
-            hoverBorderWidth: 2
-          }
-        },
-        layout: {
-          padding: {
-            top: 10,
-            bottom: 10,
-            left: 10,
-            right: 10
+          grid: {
+            display: false
           }
         }
       }
-    };
-  
-    // Détruire le graphique existant s'il existe
-    if (this.incidentsChartInstance) {
-      this.incidentsChartInstance.destroy();
     }
-  
-    // Créer le nouveau graphique
-    this.incidentsChartInstance = new Chart(ctx, config);
+  };
+
+  if (this.incidentsChartInstance) {
+    this.incidentsChartInstance.destroy();
   }
-  
+  this.incidentsChartInstance = new Chart(ctx, config);
+}
+
+
   // Méthode pour mettre à jour les données du graphique des incidents
   updateIncidentsChart(): void {
     if (this.incidentsChartInstance && this.dashboardData.incidents) {
       this.incidentsChartInstance.data.labels = this.dashboardData.incidents.labels;
       this.incidentsChartInstance.data.datasets[0].data = this.dashboardData.incidents.donnees;
-      
+
       // Recalculer l'échelle Y
       const maxValue = Math.max(...this.dashboardData.incidents.donnees, 5);
       const yMaxValue = Math.ceil(maxValue * 1.2);
-      
+
       if (this.incidentsChartInstance.options.scales?.['y']) {
         this.incidentsChartInstance.options.scales['y'].max = yMaxValue;
       }
-      
+
       this.incidentsChartInstance.update();
     }
   }
@@ -934,20 +889,20 @@ selectImageIndex(index: number): void {
     if (!this.isBrowser || !this.budgetChart) {
       return;
     }
-  
+
     const ctx = this.budgetChart.nativeElement.getContext('2d');
     if (!ctx) return;
-  
+
     // Couleurs conformes à la capture d'écran
     const consumedColor = '#FF6B35'; // Orange pour la partie consommée
     const remainingColor = '#F5F5F5'; // Gris très clair pour la partie restante
-  
+
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       data: {
         datasets: [{
           data: [
-            this.dashboardData.budget.pourcentageConsomme, 
+            this.dashboardData.budget.pourcentageConsomme,
             this.dashboardData.budget.pourcentageRestant
           ],
           backgroundColor: [consumedColor, remainingColor],
@@ -961,11 +916,11 @@ selectImageIndex(index: number): void {
         maintainAspectRatio: true, // Changé pour maintenir le ratio
         cutout: '65%', // Trou au centre
         plugins: {
-          legend: { 
-            display: false 
+          legend: {
+            display: false
           },
-          tooltip: { 
-            enabled: false 
+          tooltip: {
+            enabled: false
           }
         },
         // Désactive les animations pour un rendu plus fluide
@@ -975,12 +930,12 @@ selectImageIndex(index: number): void {
         }
       }
     };
-  
+
     // Détruire le graphique existant s'il existe
     if (this.budgetChartInstance) {
       this.budgetChartInstance.destroy();
     }
-    
+
     // Créer le nouveau graphique
     this.budgetChartInstance = new Chart(ctx, config);
   }
@@ -989,15 +944,15 @@ selectImageIndex(index: number): void {
     if (!this.isBrowser || !this.repartitionChart) {
       return;
     }
-  
+
     const ctx = this.repartitionChart.nativeElement.getContext('2d');
     if (!ctx) return;
-  
+
     // Données mockées pour la répartition des études
     const data = [40, 35, 15, 10]; // Complétées, En cours, Initiées, Non initiées
     const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
     const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
-  
+
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       data: {
@@ -1014,10 +969,10 @@ selectImageIndex(index: number): void {
         maintainAspectRatio: true,
         cutout: '60%', // Trou au centre pour le style donut
         plugins: {
-          legend: { 
+          legend: {
             display: false // Légende affichée en bas dans le template
           },
-          tooltip: { 
+          tooltip: {
             enabled: true,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             titleColor: 'white',
@@ -1038,12 +993,12 @@ selectImageIndex(index: number): void {
         }
       }
     };
-  
+
     // Détruire le graphique existant s'il existe
     if (this.repartitionChartInstance) {
       this.repartitionChartInstance.destroy();
     }
-    
+
     // Créer le nouveau graphique
     this.repartitionChartInstance = new Chart(ctx, config);
   }
@@ -1058,7 +1013,7 @@ selectImageIndex(index: number): void {
 
   private normalizePriority(priority: string): 'high' | 'medium' | 'low' {
     if (!priority) return 'low';
-    
+
     const priorityLower = priority.toLowerCase();
     if (priorityLower.includes('high') || priorityLower.includes('élevé') || priorityLower.includes('urgent')) {
       return 'high';
@@ -1073,7 +1028,7 @@ selectImageIndex(index: number): void {
     if (!dateArray || dateArray.length < 3) {
       return new Date().toLocaleDateString('fr-FR');
     }
-    
+
     const [year, month, day] = dateArray;
     const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('fr-FR');
@@ -1082,7 +1037,7 @@ selectImageIndex(index: number): void {
   // Méthodes publiques pour les classes CSS (utilisées dans le template)
   getStatusClass(status: string): string {
     if (!status) return 'text-gray-600 bg-gray-100';
-    
+
     const statusLower = status.toLowerCase();
     if (statusLower.includes('faible') || statusLower.includes('low')) {
       return 'text-orange-600 bg-orange-100';
@@ -1108,7 +1063,7 @@ selectImageIndex(index: number): void {
 
   getPriorityBadge(status: string): string {
     if (!status) return 'bg-gray-100 text-gray-800';
-    
+
     const statusLower = status.toLowerCase();
     if (statusLower.includes('retard') || statusLower.includes('overdue')) {
       return 'bg-red-100 text-red-800';
@@ -1124,7 +1079,7 @@ selectImageIndex(index: number): void {
 
   formatCurrency(amount: number): string {
     if (!amount && amount !== 0) return '0 FCFA';
-    
+
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'XOF',
@@ -1178,17 +1133,17 @@ selectImageIndex(index: number): void {
 // import { isPlatformBrowser } from '@angular/common';
 // import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 // import { ProjectOviewComponent } from "../components/dashboard/project-oview/project-oview.component";
-// import { 
-//   DashboardService, 
-//   TasksKpi, 
-//   GlobalIndicator, 
-//   BudgetKpi, 
-//   CriticalMaterial, 
-//   PhaseIndicator, 
-//   IncidentStatistic, 
-//   CriticalTask, 
-//   RecentPhoto, 
-//   PageableResponse 
+// import {
+//   DashboardService,
+//   TasksKpi,
+//   GlobalIndicator,
+//   BudgetKpi,
+//   CriticalMaterial,
+//   PhaseIndicator,
+//   IncidentStatistic,
+//   CriticalTask,
+//   RecentPhoto,
+//   PageableResponse
 // } from '../../../services/dashboard.service';
 // import { AuthService } from '../../../app/features/auth/services/auth.service'; // Ajoutez cette import
 // import { forkJoin, Subject } from 'rxjs';
@@ -1299,13 +1254,13 @@ selectImageIndex(index: number): void {
 //   ngOnDestroy(): void {
 //     this.destroy$.next();
 //     this.destroy$.complete();
-    
+
 //     // Nettoyer les event listeners
 //     document.removeEventListener('keydown', this.keyboardHandler);
-    
+
 //     // Réactiver le scroll si le modal était ouvert
 //     document.body.style.overflow = 'auto';
-    
+
 //     // Détruire les graphiques
 //     if (this.progressChartInstance) {
 //       this.progressChartInstance.destroy();
@@ -1324,7 +1279,7 @@ selectImageIndex(index: number): void {
 //   private setupAuthListener(): void {
 //     // Si vous avez un Observable pour l'état utilisateur, utilisez-le
 //     // Sinon, on utilise un polling avec timer
-    
+
 //     // Option 1: Si votre AuthService a un Observable currentUser$
 //     // this.authService.currentUser$.pipe(
 //     //   takeUntil(this.destroy$),
@@ -1334,7 +1289,7 @@ selectImageIndex(index: number): void {
 
 //     // Option 2: Polling avec vérification périodique (solution de fallback)
 //     this.checkAuthAndLoadData();
-    
+
 //     // Vérification périodique si pas encore chargé
 //     timer(0, 1000).pipe(
 //       takeUntil(this.destroy$),
@@ -1353,7 +1308,7 @@ selectImageIndex(index: number): void {
 //    */
 //   private checkAuthAndLoadData(): void {
 //     const currentUser = this.authService.currentUser();
-    
+
 //     if (currentUser && currentUser.id) {
 //       // Utilisateur connecté, charger les données
 //       this.loadDashboardData();
@@ -1363,9 +1318,9 @@ selectImageIndex(index: number): void {
 //       this.isWaitingForAuth = true;
 //       this.hasError = false;
 //       this.errorMessage = '';
-      
+
 //       console.log('En attente de la connexion utilisateur...');
-      
+
 //       // Timeout après 30 secondes
 //       timer(30000).pipe(
 //         takeUntil(this.destroy$),
@@ -1502,7 +1457,7 @@ selectImageIndex(index: number): void {
 //         this.isLoading = false;
 //         this.isWaitingForAuth = false;
 //         this.hasError = false;
-        
+
 //         // Créer les graphiques après le chargement des données
 //         setTimeout(() => {
 //           this.createCharts();
@@ -1512,7 +1467,7 @@ selectImageIndex(index: number): void {
 //         console.error('Erreur lors du chargement des données:', error);
 //         this.hasError = true;
 //         this.isWaitingForAuth = false;
-        
+
 //         // Message d'erreur plus spécifique selon le type d'erreur
 //         if (error.status === 401) {
 //           this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
@@ -1523,7 +1478,7 @@ selectImageIndex(index: number): void {
 //         } else {
 //           this.errorMessage = `Erreur lors du chargement des données (${error.status || 'Erreur réseau'})`;
 //         }
-        
+
 //         this.isLoading = false;
 //       }
 //     });
@@ -1561,21 +1516,21 @@ selectImageIndex(index: number): void {
 
 //   previousImage(): void {
 //     if (!this.selectedPhoto?.images?.length) return;
-    
-//     this.currentImageIndex = this.currentImageIndex > 0 
-//       ? this.currentImageIndex - 1 
+
+//     this.currentImageIndex = this.currentImageIndex > 0
+//       ? this.currentImageIndex - 1
 //       : this.selectedPhoto.images.length - 1;
-      
+
 //     this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
 //   }
 
 //   nextImage(): void {
 //     if (!this.selectedPhoto?.images?.length) return;
-    
-//     this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1 
-//       ? this.currentImageIndex + 1 
+
+//     this.currentImageIndex = this.currentImageIndex < this.selectedPhoto.images.length - 1
+//       ? this.currentImageIndex + 1
 //       : 0;
-      
+
 //     this.selectedPhoto.src = this.selectedPhoto.images[this.currentImageIndex];
 //   }
 
@@ -1583,7 +1538,7 @@ selectImageIndex(index: number): void {
 //     if (!this.selectedPhoto?.images?.length || index < 0 || index >= this.selectedPhoto.images.length) {
 //       return;
 //     }
-    
+
 //     this.currentImageIndex = index;
 //     this.selectedPhoto.src = this.selectedPhoto.images[index];
 //   }
@@ -1612,7 +1567,7 @@ selectImageIndex(index: number): void {
 //   }
 
 //   // ===== MÉTHODES DE TRAITEMENT DES DONNÉES (inchangées) =====
-  
+
 //   private processDashboardData(): void {
 //     try {
 //       this.dashboardData.chantiers = this.processChantiers();
@@ -1638,7 +1593,7 @@ selectImageIndex(index: number): void {
 
 //   private processChantiers(): any {
 //     const vueEnsemble = this.rawData.vueEnsemble;
-    
+
 //     if (!vueEnsemble) {
 //       return this.dashboardData.chantiers;
 //     }
@@ -1660,7 +1615,7 @@ selectImageIndex(index: number): void {
 
 //   private processAvancement(): any {
 //     const tauxMoyenAvancement = this.rawData.tauxMoyenAvancement;
-    
+
 //     if (!tauxMoyenAvancement || tauxMoyenAvancement.averageProgressPercentage === undefined) {
 //       return this.dashboardData.avancement;
 //     }
@@ -1669,7 +1624,7 @@ selectImageIndex(index: number): void {
 //     const circumference = 141.37;
 //     const progression = pourcentage / 100;
 //     const dashOffset = circumference * (1 - progression);
-    
+
 //     const angle = Math.PI * progression;
 //     const pointX = 50 + 45 * Math.cos(Math.PI - angle);
 //     const pointY = 50 - 45 * Math.sin(Math.PI - angle);
@@ -1687,13 +1642,13 @@ selectImageIndex(index: number): void {
 
 //   private processBudget(): any {
 //     const budget = this.rawData.budget;
-    
+
 //     if (!budget) {
 //       return this.dashboardData.budget;
 //     }
 
 //     return {
-//       planifie: budget.totalPlanned || 0, 
+//       planifie: budget.totalPlanned || 0,
 //       consomme: budget.totalConsumed || 0,
 //       restant: budget.totalRemaining || 0,
 //       pourcentageConsomme: Math.round(budget.consumedPercentage || 0),
@@ -1703,7 +1658,7 @@ selectImageIndex(index: number): void {
 
 //   private processMateriaux(): any[] {
 //     const materiauxCritique = this.rawData.materiauxCritique;
-    
+
 //     if (!materiauxCritique || !Array.isArray(materiauxCritique.content)) {
 //       return [];
 //     }
@@ -1728,19 +1683,19 @@ selectImageIndex(index: number): void {
 
 //   private processPhases(): any[] {
 //     const etatAvancement = this.rawData.etatAvancement;
-    
+
 //     if (!etatAvancement || !Array.isArray(etatAvancement)) {
 //       return [];
 //     }
-  
+
 //     const phasesConfig = [
 //       { nom: 'GROS_OEUVRE', couleur: '#2ECC71' },
 //       { nom: 'SECOND_OEUVRE', couleur: '#F39C12' },
 //       { nom: 'FINITION', couleur: '#EBECF0' }
 //     ];
-    
+
 //     const phaseConfigMap = new Map(phasesConfig.map(phase => [phase.nom, phase]));
-    
+
 //     const phasesProcessed = etatAvancement.map((phase: PhaseIndicator) => {
 //       const config = phaseConfigMap.get(phase.phaseName) || { couleur: this.generateColor(0) };
 //       return {
@@ -1750,7 +1705,7 @@ selectImageIndex(index: number): void {
 //         ordre: phasesConfig.findIndex(p => p.nom === phase.phaseName)
 //       };
 //     });
-  
+
 //     return phasesProcessed
 //       .filter(phase => phase.ordre !== -1)
 //       .sort((a, b) => a.ordre - b.ordre);
@@ -1759,7 +1714,7 @@ selectImageIndex(index: number): void {
 //   private processIncidents(): any {
 //     const statistiqueSignalement = this.rawData.statistiqueSignalement;
 //     const totalIncidents = this.rawData.incidents || 0;
-    
+
 //     if (!statistiqueSignalement || !Array.isArray(statistiqueSignalement)) {
 //       return {
 //         total: totalIncidents,
@@ -1782,11 +1737,11 @@ selectImageIndex(index: number): void {
 
 //   private processTaches(): any[] {
 //     const tacheCritique = this.rawData.tacheCritique;
-    
+
 //     if (!tacheCritique || !Array.isArray(tacheCritique)) {
 //       return [];
 //     }
-  
+
 //     return tacheCritique.map((task: CriticalTask) => {
 //       let status: 'En retard' | 'Urgent' | 'À jour' = 'À jour';
 //       if (task.statusLabel?.includes('retard') || task.statusLabel?.includes('overdue')) {
@@ -1794,7 +1749,7 @@ selectImageIndex(index: number): void {
 //       } else if (task.priority === 'HIGH' || task.statusLabel?.includes('urgent')) {
 //         status = 'Urgent';
 //       }
-  
+
 //       return {
 //         id: task.id,
 //         nom: task.title,
@@ -1805,34 +1760,34 @@ selectImageIndex(index: number): void {
 //         priority: this.normalizePriority(task.priority)
 //       };
 //     }).sort((a, b) => {
-//       const priorityOrder = { 
-//         'En retard': 0, 
-//         'Urgent': 1, 
-//         'À jour': 2 
+//       const priorityOrder = {
+//         'En retard': 0,
+//         'Urgent': 1,
+//         'À jour': 2
 //       };
-      
+
 //       const aPriority = priorityOrder[a.status as keyof typeof priorityOrder] || 2;
 //       const bPriority = priorityOrder[b.status as keyof typeof priorityOrder] || 2;
-      
+
 //       return aPriority - bPriority;
 //     });
 //   }
 
 //   private calculateRemainingDays(dateArray: number[]): number | null {
 //     if (!dateArray || dateArray.length < 3) return null;
-    
+
 //     const [year, month, day] = dateArray;
 //     const endDate = new Date(year, month - 1, day);
 //     const today = new Date();
 //     const diffTime = endDate.getTime() - today.getTime();
 //     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
 //     return diffDays;
 //   }
 
 //   private processPhotos(): any[] {
 //     const photoRecent = this.rawData.photoRecent;
-    
+
 //     if (!photoRecent || !Array.isArray(photoRecent.content)) {
 //       return [];
 //     }
@@ -1865,14 +1820,14 @@ selectImageIndex(index: number): void {
 //     const today = new Date();
 //     const labels: string[] = [];
 //     const data: number[] = [];
-    
+
 //     for (let i = 6; i >= 0; i--) {
 //       const date = new Date(today);
 //       date.setDate(date.getDate() - i);
 //       const dateStr = date.toISOString().split('T')[0];
-      
+
 //       const incident = incidents.find(inc => inc.date === dateStr);
-      
+
 //       if (i === 0) {
 //         labels.push("Aujourd'hui");
 //       } else if (i === 1) {
@@ -1880,10 +1835,10 @@ selectImageIndex(index: number): void {
 //       } else {
 //         labels.push(`J-${i}`);
 //       }
-      
+
 //       data.push(incident ? incident.count : 0);
 //     }
-    
+
 //     return { data, labels };
 //   }
 
@@ -1944,13 +1899,13 @@ selectImageIndex(index: number): void {
 //     if (!this.isBrowser || !this.incidentsChart || !this.dashboardData.incidents?.donnees?.length) {
 //       return;
 //     }
-  
+
 //     const ctx = this.incidentsChart.nativeElement.getContext('2d');
 //     if (!ctx) return;
-  
+
 //     const maxValue = Math.max(...this.dashboardData.incidents.donnees, 5);
 //     const yMaxValue = Math.ceil(maxValue * 1.2);
-  
+
 //     const config: ChartConfiguration<'line'> = {
 //       type: 'line',
 //       data: {
@@ -1976,8 +1931,8 @@ selectImageIndex(index: number): void {
 //           mode: 'index'
 //         },
 //         plugins: {
-//           legend: { 
-//             display: false 
+//           legend: {
+//             display: false
 //           },
 //           tooltip: {
 //             enabled: true,
@@ -2003,7 +1958,7 @@ selectImageIndex(index: number): void {
 //           y: {
 //             beginAtZero: true,
 //             max: yMaxValue,
-//             grid: { 
+//             grid: {
 //               display: true,
 //               color: '#F3F4F6',
 //               lineWidth: 1
@@ -2011,9 +1966,9 @@ selectImageIndex(index: number): void {
 //             border: {
 //               display: false
 //             },
-//             ticks: { 
+//             ticks: {
 //               stepSize: 1,
-//               font: { 
+//               font: {
 //                 size: 12,
 //                 family: 'Inter, sans-serif'
 //               },
@@ -2025,14 +1980,14 @@ selectImageIndex(index: number): void {
 //             }
 //           },
 //           x: {
-//             grid: { 
-//               display: false 
+//             grid: {
+//               display: false
 //             },
 //             border: {
 //               display: false
 //             },
-//             ticks: { 
-//               font: { 
+//             ticks: {
+//               font: {
 //                 size: 12,
 //                 family: 'Inter, sans-serif'
 //               },
@@ -2062,26 +2017,26 @@ selectImageIndex(index: number): void {
 //         }
 //       }
 //     };
-  
+
 //     if (this.incidentsChartInstance) {
 //       this.incidentsChartInstance.destroy();
 //     }
-  
+
 //     this.incidentsChartInstance = new Chart(ctx, config);
 //   }
-  
+
 //   updateIncidentsChart(): void {
 //     if (this.incidentsChartInstance && this.dashboardData.incidents) {
 //       this.incidentsChartInstance.data.labels = this.dashboardData.incidents.labels;
 //       this.incidentsChartInstance.data.datasets[0].data = this.dashboardData.incidents.donnees;
-      
+
 //       const maxValue = Math.max(...this.dashboardData.incidents.donnees, 5);
 //       const yMaxValue = Math.ceil(maxValue * 1.2);
-      
+
 //       if (this.incidentsChartInstance.options.scales?.['y']) {
 //         this.incidentsChartInstance.options.scales['y'].max = yMaxValue;
 //       }
-      
+
 //       this.incidentsChartInstance.update();
 //     }
 //   }
@@ -2090,19 +2045,19 @@ selectImageIndex(index: number): void {
 //     if (!this.isBrowser || !this.budgetChart) {
 //       return;
 //     }
-  
+
 //     const ctx = this.budgetChart.nativeElement.getContext('2d');
 //     if (!ctx) return;
-  
+
 //     const consumedColor = '#FF6B35';
 //     const remainingColor = '#F5F5F5';
-  
+
 //     const config: ChartConfiguration<'doughnut'> = {
 //       type: 'doughnut',
 //       data: {
 //         datasets: [{
 //           data: [
-//             this.dashboardData.budget.pourcentageConsomme, 
+//             this.dashboardData.budget.pourcentageConsomme,
 //             this.dashboardData.budget.pourcentageRestant
 //           ],
 //           backgroundColor: [consumedColor, remainingColor],
@@ -2116,11 +2071,11 @@ selectImageIndex(index: number): void {
 //         maintainAspectRatio: true,
 //         cutout: '65%',
 //         plugins: {
-//           legend: { 
-//             display: false 
+//           legend: {
+//             display: false
 //           },
-//           tooltip: { 
-//             enabled: false 
+//           tooltip: {
+//             enabled: false
 //           }
 //         },
 //         animation: {
@@ -2129,11 +2084,11 @@ selectImageIndex(index: number): void {
 //         }
 //       }
 //     };
-  
+
 //     if (this.budgetChartInstance) {
 //       this.budgetChartInstance.destroy();
 //     }
-    
+
 //     this.budgetChartInstance = new Chart(ctx, config);
 //   }
 
@@ -2150,7 +2105,7 @@ selectImageIndex(index: number): void {
 
 //   private normalizePriority(priority: string): 'high' | 'medium' | 'low' {
 //     if (!priority) return 'low';
-    
+
 //     const priorityLower = priority.toLowerCase();
 //     if (priorityLower.includes('high') || priorityLower.includes('élevé') || priorityLower.includes('urgent')) {
 //       return 'high';
@@ -2165,7 +2120,7 @@ selectImageIndex(index: number): void {
 //     if (!dateArray || dateArray.length < 3) {
 //       return new Date().toLocaleDateString('fr-FR');
 //     }
-    
+
 //     const [year, month, day] = dateArray;
 //     const date = new Date(year, month - 1, day);
 //     return date.toLocaleDateString('fr-FR');
@@ -2175,7 +2130,7 @@ selectImageIndex(index: number): void {
 
 //   getStatusClass(status: string): string {
 //     if (!status) return 'text-gray-600 bg-gray-100';
-    
+
 //     const statusLower = status.toLowerCase();
 //     if (statusLower.includes('faible') || statusLower.includes('low')) {
 //       return 'text-orange-600 bg-orange-100';
@@ -2201,7 +2156,7 @@ selectImageIndex(index: number): void {
 
 //   getPriorityBadge(status: string): string {
 //     if (!status) return 'bg-gray-100 text-gray-800';
-    
+
 //     const statusLower = status.toLowerCase();
 //     if (statusLower.includes('retard') || statusLower.includes('overdue')) {
 //       return 'bg-red-100 text-red-800';
@@ -2217,7 +2172,7 @@ selectImageIndex(index: number): void {
 
 //   formatCurrency(amount: number): string {
 //     if (!amount && amount !== 0) return '0 FCFA';
-    
+
 //     return new Intl.NumberFormat('fr-FR', {
 //       style: 'currency',
 //       currency: 'XOF',
