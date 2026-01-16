@@ -63,7 +63,7 @@ export const routes: Routes = [
 
   // Route des offres - SANS authentification et SANS layout
   {
-    path: 'offers',
+    path: 'sub/:id/:profil',
     component: ProfileOffersComponent,
     data: {
       authRequired: false,

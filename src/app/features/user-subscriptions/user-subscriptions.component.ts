@@ -157,10 +157,14 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
   }
 
   navigateToOffers(): void {
-    if (this.userId) {
-      // Construction de l'URL avec l'ID uniquement - le profil sera récupéré par l'API
-      const fullUrl = `http://localhost:4200/#/offers?id=${this.userId}`;
-      window.open(fullUrl, '_blank');
+    if (this.userId && this.userProfile) {
+      // Construction de l'URL avec l'ID et le profil pour correspondre à la nouvelle route sub/:id/:profil
+      const url = this.router.serializeUrl(
+        this.router.createUrlTree(['/sub', this.userId, this.userProfile])
+      );
+      window.open(url, '_blank');
+    } else {
+      console.warn('ID utilisateur ou profil manquant pour la navigation vers les offres');
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -12,6 +12,12 @@ import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
+import { Chart } from 'chart.js';
+
+
+Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#7F8C8D';
 
 
 interface StockAlerte {
@@ -179,7 +185,7 @@ interface DeliveriesResponse {
   templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.css']
 })
-export class StockComponent implements OnInit, OnDestroy {
+export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   private destroy$ = new Subject<void>();
   stockAlertes: StockAlerte[] = [];
   orders: Order[] = [];
@@ -966,18 +972,14 @@ export class StockComponent implements OnInit, OnDestroy {
     }
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-  }
+
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
     this.openDropdownIndex = this.openDropdownIndex === index ? null : index;
   }
 
-  closeDropdown(): void {
-    this.openDropdownIndex = null;
-  }
+
 
   openNewMaterialModal(): void {
     this.showNewMaterialModal = true;
@@ -1694,6 +1696,199 @@ export class StockComponent implements OnInit, OnDestroy {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//ABOUBACAR SOW
+
+stockAlertsCount = 3;
+openInventoryDropdownIndex: number | null = null;
+
+toggleInventoryDropdown(index: number, event: MouseEvent) {
+  event.stopPropagation(); // IMPORTANT
+  this.openInventoryDropdownIndex =
+    this.openInventoryDropdownIndex === index ? null : index;
+}
+
+openOrderDropdownIndex: number | null = null;
+
+toggleOrderDropdown(index: number, event: MouseEvent): void {
+  event.stopPropagation();
+  this.openOrderDropdownIndex =
+    this.openOrderDropdownIndex === index ? null : index;
+}
+
+
+openDeliveryDropdownIndex: number | null = null;
+
+toggleDeliveryDropdown(index: number, event: MouseEvent): void {
+  event.stopPropagation();
+  this.openDeliveryDropdownIndex =
+    this.openDeliveryDropdownIndex === index ? null : index;
+}
+
+
+closeDropdown(): void {
+  this.openDropdownIndex = null;
+  this.openInventoryDropdownIndex = null;
+  this.openOrderDropdownIndex = null;
+  this.openDeliveryDropdownIndex = null;
+}
+
+
+
+
+
+
+ngAfterViewInit(): void {
+  if (this.activeTab === 'statistiques') {
+    this.initConsumptionChart();
+    this.initEvolutionChart();
+  }
+}
+
+
+setActiveTab(tab: string): void {
+  this.activeTab = tab;
+
+  if (tab === 'statistiques') {
+    setTimeout(() => {
+      this.initConsumptionChart();
+      this.initEvolutionChart();
+    }, 0);
+  }
+}
+
+
+
+
+// =========================
+  // BAR CHART
+  // =========================
+ initConsumptionChart() {
+  new Chart('consumptionChart', {
+    type: 'bar',
+    data: {
+      labels: ['Ciment', 'Acier', 'Briques', 'Peinture', 'PVC'],
+      datasets: [{
+        data: [100, 160, 330, 80, 60],
+        backgroundColor: [
+          '#FDEDEC',
+          '#BB8FCE',
+          '#F1948A',
+          '#F7DC6F',
+          '#82E0AA'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12,
+              weight: 500
+            },
+            color: '#34495E'
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 11
+            },
+            color: '#7F8C8D'
+          },
+          grid: {
+            color: '#ECF0F1'
+          }
+        }
+      }
+    }
+  });
+}
+
+
+  // =========================
+  // LINE CHART
+  // =========================
+ initEvolutionChart() {
+  new Chart('evolutionChart', {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Fév', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil'],
+      datasets: [{
+        label: 'Unité utilisées',
+        data: [120, 128, 136, 142, 153, 159, 168],
+        borderColor: '#FF5C02',
+        backgroundColor: 'rgba(255, 92, 2, 0.15)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#FF5C02'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              family: 'Inter',
+              size: 12,
+              weight: 500
+            },
+            color: '#34495E'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12
+            },
+            color: '#34495E'
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 11
+            },
+            color: '#7F8C8D'
+          },
+          grid: {
+            color: '#ECF0F1'
+          }
+        }
+      }
+    }
+  });
+}
 
 
 

@@ -8,14 +8,42 @@
     <!-- ===================================================== -->
     <!-- COLONNE GAUCHE : CONTENU PRINCIPAL -->
     <!-- ===================================================== -->
-    <div class="col-span-12 lg:col-span-9 bg-white p-6 rounded-lg shadow-lg flex flex-col">
+    <div class="col-span-12 lg:col-span-8 bg-white p-6 rounded-xl shadow-lg flex flex-col">
 
-      <!-- ===================== -->
+      <div class="flex items-center justify-between mb-6">
+        <!-- ===================== -->
       <!-- TITRE DYNAMIQUE -->
       <!-- ===================== -->
       <h1 class="text-2xl font-bold text-gray-900 mb-4">
         {{ activeTab | titlecase }}
       </h1>
+
+      <div class="flex gap-3">
+
+      <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
+            class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
+                fill="#FF5C02" />
+            </svg>
+            Nouveau matériel
+          </button>
+          <button *ngIf="activeTab === 'commandes'" (click)="openOrderModal()"
+            class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
+                fill="#FF5C02" />
+            </svg>
+            Nouvelle commande
+          </button>
+      </div>
+      </div>
+
+
+
+
 
       <!-- ===================== -->
       <!-- ONGLET -->
@@ -24,12 +52,14 @@
 
         <button (click)="setActiveTab('inventaires')"
           [class]="activeTab === 'inventaires'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-orange-500 text-orange-600'
+            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-            <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1.40691 0.276252C1.50066 0.0856267 1.70691 -0.0237482 1.91629 0.00437678L9.56629 0.960627L17.2163 0.00437678C17.4257 -0.0206232 17.6319 0.0887517 17.7257 0.276252L19.0288 2.8825C19.31 3.44188 19.01 4.12 18.41 4.29188L13.3038 5.75125C12.8694 5.87625 12.4038 5.69188 12.1725 5.30438L9.56629 0.960627L6.96004 5.30438C6.72879 5.69188 6.26316 5.87625 5.82879 5.75125L0.725661 4.29188C0.122536 4.12 -0.174339 3.44188 0.106911 2.8825L1.40691 0.276252ZM9.60066 2.96063L11.3163 5.81688C11.7819 6.59188 12.71 6.96063 13.5819 6.71063L17.5663 5.57313V10.7919C17.5663 11.4794 17.0975 12.0794 16.4288 12.2481L10.0507 13.8419C9.73191 13.9231 9.39754 13.9231 9.08191 13.8419L2.70379 12.2481C2.03504 12.0763 1.56629 11.4763 1.56629 10.7888V5.57L5.55379 6.71063C6.42254 6.96063 7.35379 6.59188 7.81941 5.81688L9.53191 2.96063H9.60066Z" fill="#333333"/>
-</svg>
+           <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M1.84051 1.31531C1.93426 1.12469 2.1405 1.01531 2.34988 1.04344L9.99988 1.99969L17.6499 1.04344C17.8593 1.01844 18.0655 1.12781 18.1593 1.31531L19.4624 3.92156C19.7436 4.48094 19.4436 5.15906 18.8436 5.33094L13.7374 6.79031C13.303 6.91531 12.8374 6.73094 12.6061 6.34344L9.99988 1.99969L7.39363 6.34344C7.16238 6.73094 6.69675 6.91531 6.26238 6.79031L1.15925 5.33094C0.55613 5.15906 0.259255 4.48094 0.540505 3.92156L1.84051 1.31531ZM10.0343 3.99969L11.7499 6.85594C12.2155 7.63094 13.1436 7.99969 14.0155 7.74969L17.9999 6.61219V11.8309C17.9999 12.5184 17.5311 13.1184 16.8624 13.2872L10.4843 14.8809C10.1655 14.9622 9.83113 14.9622 9.5155 14.8809L3.13738 13.2872C2.46863 13.1153 1.99988 12.5153 1.99988 11.8278V6.60906L5.98738 7.74969C6.85613 7.99969 7.78738 7.63094 8.25301 6.85594L9.9655 3.99969H10.0343Z"
+                [attr.fill]="activeTab === 'inventaires' ? '#FF5C02' : '#333333'" />
+            </svg>
 
           </span>
           <span class="font-medium">Inventaires</span>
@@ -37,12 +67,14 @@
 
         <button (click)="setActiveTab('commandes')"
           [class]="activeTab === 'commandes'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-orange-500 text-orange-600'
+            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5 16.6667C4.54167 16.6667 4.14944 16.5036 3.82333 16.1775C3.49722 15.8514 3.33389 15.4589 3.33333 15C3.33278 14.5411 3.49611 14.1489 3.82333 13.8233C4.15056 13.4978 4.54278 13.3344 5 13.3333C5.45722 13.3322 5.84972 13.4956 6.1775 13.8233C6.50528 14.1511 6.66833 14.5433 6.66667 15C6.665 15.4567 6.50194 15.8492 6.1775 16.1775C5.85306 16.5058 5.46056 16.6689 5 16.6667ZM13.3333 16.6667C12.875 16.6667 12.4828 16.5036 12.1567 16.1775C11.8306 15.8514 11.6672 15.4589 11.6667 15C11.6661 14.5411 11.8294 14.1489 12.1567 13.8233C12.4839 13.4978 12.8761 13.3344 13.3333 13.3333C13.7906 13.3322 14.1831 13.4956 14.5108 13.8233C14.8386 14.1511 15.0017 14.5433 15 15C14.9983 15.4567 14.8353 15.8492 14.5108 16.1775C14.1864 16.5058 13.7939 16.6689 13.3333 16.6667ZM3.5 1.66667H15.7917C16.1111 1.66667 16.3542 1.80917 16.5208 2.09417C16.6875 2.37917 16.6944 2.66722 16.5417 2.95833L13.5833 8.29167C13.4306 8.56944 13.2258 8.78472 12.9692 8.9375C12.7125 9.09028 12.4311 9.16667 12.125 9.16667H5.91667L5 10.8333H15V12.5H5C4.375 12.5 3.90278 12.2258 3.58333 11.6775C3.26389 11.1292 3.25 10.5839 3.54167 10.0417L4.66667 8L1.66667 1.66667H0V0H2.70833L3.5 1.66667Z" fill="#333333"/>
-</svg>
+           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M5.83301 18.3337C5.37467 18.3337 4.98245 18.1706 4.65634 17.8445C4.33023 17.5184 4.1669 17.1259 4.16634 16.667C4.16579 16.2081 4.32912 15.8159 4.65634 15.4903C4.98356 15.1648 5.37579 15.0014 5.83301 15.0003C6.29023 14.9992 6.68273 15.1625 7.01051 15.4903C7.33829 15.8181 7.50134 16.2103 7.49967 16.667C7.49801 17.1237 7.33495 17.5162 7.01051 17.8445C6.68606 18.1728 6.29356 18.3359 5.83301 18.3337ZM14.1663 18.3337C13.708 18.3337 13.3158 18.1706 12.9897 17.8445C12.6636 17.5184 12.5002 17.1259 12.4997 16.667C12.4991 16.2081 12.6625 15.8159 12.9897 15.4903C13.3169 15.1648 13.7091 15.0014 14.1663 15.0003C14.6236 14.9992 15.0161 15.1625 15.3438 15.4903C15.6716 15.8181 15.8347 16.2103 15.833 16.667C15.8313 17.1237 15.6683 17.5162 15.3438 17.8445C15.0194 18.1728 14.6269 18.3359 14.1663 18.3337ZM4.33301 3.33366H16.6247C16.9441 3.33366 17.1872 3.47616 17.3538 3.76116C17.5205 4.04616 17.5275 4.33421 17.3747 4.62533L14.4163 9.95866C14.2636 10.2364 14.0588 10.4517 13.8022 10.6045C13.5455 10.7573 13.2641 10.8337 12.958 10.8337H6.74967L5.83301 12.5003H15.833V14.167H5.83301C5.20801 14.167 4.73579 13.8928 4.41634 13.3445C4.0969 12.7962 4.08301 12.2509 4.37467 11.7087L5.49967 9.66699L2.49967 3.33366H0.833008V1.66699H3.54134L4.33301 3.33366Z"
+                [attr.fill]="activeTab === 'commandes' ? '#FF5C02' : '#333333'" />
+            </svg>
 
           </span>
           <span class="font-medium">Commandes</span>
@@ -50,12 +82,14 @@
 
         <button (click)="setActiveTab('livraisons')"
           [class]="activeTab === 'livraisons'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-orange-500 text-orange-600'
+            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10.8333 0C11.2754 0 11.6993 0.175595 12.0118 0.488155C12.3244 0.800716 12.5 1.22464 12.5 1.66667V2.5H13.7667C14.0165 2.50003 14.2631 2.55622 14.4882 2.6644C14.7134 2.77258 14.9114 2.93 15.0675 3.125L16.3008 4.6675C16.5376 4.96308 16.6666 5.33047 16.6667 5.70917V9.16667C16.6667 9.60869 16.4911 10.0326 16.1785 10.3452C15.8659 10.6577 15.442 10.8333 15 10.8333H14.1667C14.1667 11.4964 13.9033 12.1323 13.4344 12.6011C12.9656 13.0699 12.3297 13.3333 11.6667 13.3333C11.0036 13.3333 10.3677 13.0699 9.8989 12.6011C9.43006 12.1323 9.16667 11.4964 9.16667 10.8333H6.66667C6.66667 11.1616 6.602 11.4867 6.47637 11.79C6.35073 12.0934 6.16658 12.369 5.93443 12.6011C5.70229 12.8332 5.42669 13.0174 5.12337 13.143C4.82006 13.2687 4.49497 13.3333 4.16667 13.3333C3.83836 13.3333 3.51327 13.2687 3.20996 13.143C2.90664 13.0174 2.63105 12.8332 2.3989 12.6011C2.16675 12.369 1.9826 12.0934 1.85697 11.79C1.73133 11.4867 1.66667 11.1616 1.66667 10.8333C1.22464 10.8333 0.800716 10.6577 0.488155 10.3452C0.175595 10.0326 0 9.60869 0 9.16667V1.66667C0 1.22464 0.175595 0.800716 0.488155 0.488155C0.800716 0.175595 1.22464 0 1.66667 0H10.8333ZM4.16667 10C3.94565 10 3.73369 10.0878 3.57741 10.2441C3.42113 10.4004 3.33333 10.6123 3.33333 10.8333C3.33333 11.0543 3.42113 11.2663 3.57741 11.4226C3.73369 11.5789 3.94565 11.6667 4.16667 11.6667C4.38768 11.6667 4.59964 11.5789 4.75592 11.4226C4.9122 11.2663 5 11.0543 5 10.8333C5 10.6123 4.9122 10.4004 4.75592 10.2441C4.59964 10.0878 4.38768 10 4.16667 10ZM11.6667 10C11.4457 10 11.2337 10.0878 11.0774 10.2441C10.9211 10.4004 10.8333 10.6123 10.8333 10.8333C10.8333 11.0543 10.9211 11.2663 11.0774 11.4226C11.2337 11.5789 11.4457 11.6667 11.6667 11.6667C11.8877 11.6667 12.0996 11.5789 12.2559 11.4226C12.4122 11.2663 12.5 11.0543 12.5 10.8333C12.5 10.6123 12.4122 10.4004 12.2559 10.2441C12.0996 10.0878 11.8877 10 11.6667 10ZM13.7667 4.16667H12.5V7.5H15V5.70833L13.7667 4.16667Z" fill="#333333"/>
-</svg>
+             <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10.8333 0C11.2754 0 11.6993 0.175595 12.0118 0.488155C12.3244 0.800716 12.5 1.22464 12.5 1.66667V2.5H13.7667C14.0165 2.50003 14.2631 2.55622 14.4882 2.6644C14.7134 2.77258 14.9114 2.93 15.0675 3.125L16.3008 4.6675C16.5376 4.96308 16.6666 5.33047 16.6667 5.70917V9.16667C16.6667 9.60869 16.4911 10.0326 16.1785 10.3452C15.8659 10.6577 15.442 10.8333 15 10.8333H14.1667C14.1667 11.4964 13.9033 12.1323 13.4344 12.6011C12.9656 13.0699 12.3297 13.3333 11.6667 13.3333C11.0036 13.3333 10.3677 13.0699 9.8989 12.6011C9.43006 12.1323 9.16667 11.4964 9.16667 10.8333H6.66667C6.66667 11.1616 6.602 11.4867 6.47637 11.79C6.35073 12.0934 6.16658 12.369 5.93443 12.6011C5.70229 12.8332 5.42669 13.0174 5.12337 13.143C4.82006 13.2687 4.49497 13.3333 4.16667 13.3333C3.83836 13.3333 3.51327 13.2687 3.20996 13.143C2.90664 13.0174 2.63105 12.8332 2.3989 12.6011C2.16675 12.369 1.9826 12.0934 1.85697 11.79C1.73133 11.4867 1.66667 11.1616 1.66667 10.8333C1.22464 10.8333 0.800716 10.6577 0.488155 10.3452C0.175595 10.0326 0 9.60869 0 9.16667V1.66667C0 1.22464 0.175595 0.800716 0.488155 0.488155C0.800716 0.175595 1.22464 0 1.66667 0H10.8333ZM4.16667 10C3.94565 10 3.73369 10.0878 3.57741 10.2441C3.42113 10.4004 3.33333 10.6123 3.33333 10.8333C3.33333 11.0543 3.42113 11.2663 3.57741 11.4226C3.73369 11.5789 3.94565 11.6667 4.16667 11.6667C4.38768 11.6667 4.59964 11.5789 4.75592 11.4226C4.9122 11.2663 5 11.0543 5 10.8333C5 10.6123 4.9122 10.4004 4.75592 10.2441C4.59964 10.0878 4.38768 10 4.16667 10ZM11.6667 10C11.4457 10 11.2337 10.0878 11.0774 10.2441C10.9211 10.4004 10.8333 10.6123 10.8333 10.8333C10.8333 11.0543 10.9211 11.2663 11.0774 11.4226C11.2337 11.5789 11.4457 11.6667 11.6667 11.6667C11.8877 11.6667 12.0996 11.5789 12.2559 11.4226C12.4122 11.2663 12.5 11.0543 12.5 10.8333C12.5 10.6123 12.4122 10.4004 12.2559 10.2441C12.0996 10.0878 11.8877 10 11.6667 10ZM13.7667 4.16667H12.5V7.5H15V5.70833L13.7667 4.16667Z"
+                [attr.fill]="activeTab === 'livraisons' ? '#FF5C02' : '#333333'" />
+            </svg>
 
           </span>
           <span class="font-medium">Livraisons</span>
@@ -63,16 +97,22 @@
 
         <button (click)="setActiveTab('statistiques')"
           [class]="activeTab === 'statistiques'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-orange-500 text-orange-600'
+            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-            <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0.833008 9.16634V10.6663C0.833008 11.5997 0.833008 12.0663 1.01467 12.423C1.17446 12.7366 1.42942 12.9916 1.74301 13.1513C2.09884 13.333 2.56551 13.333 3.49717 13.333H15.833M0.833008 9.16634V0.833008M0.833008 9.16634L4.04384 6.49134L4.04717 6.48884C4.62801 6.00467 4.91884 5.76217 5.23467 5.66384C5.60728 5.54733 6.00897 5.56532 6.36967 5.71467C6.67551 5.84217 6.94301 6.10967 7.47967 6.64634L7.48467 6.65134C8.02967 7.19634 8.30217 7.46967 8.61301 7.59551C8.98087 7.74542 9.39018 7.75901 9.76717 7.63384C10.0863 7.52717 10.378 7.27217 10.9613 6.76217L15.833 2.49967" stroke="#333333" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M2.5 12.5003V14.0003C2.5 14.9337 2.5 15.4003 2.68167 15.757C2.84145 16.0706 3.09641 16.3255 3.41 16.4853C3.76583 16.667 4.2325 16.667 5.16417 16.667H17.5M2.5 12.5003V4.16699M2.5 12.5003L5.71083 9.82533L5.71417 9.82283C6.295 9.33866 6.58583 9.09616 6.90167 8.99783C7.27428 8.88132 7.67596 8.89931 8.03667 9.04866C8.3425 9.17616 8.61 9.44366 9.14667 9.98033L9.15167 9.98533C9.69667 10.5303 9.96917 10.8037 10.28 10.9295C10.6479 11.0794 11.0572 11.093 11.4342 10.9678C11.7533 10.8612 12.045 10.6062 12.6283 10.0962L17.5 5.83366"
+                [attr.stroke]="activeTab === 'statistiques' ? '#FF5C02' : '#333333'" stroke-width="1.66667"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
 
           </span>
           <span class="font-medium">Statistiques</span>
         </button>
+
+
+
 
       </div>
 
@@ -147,46 +187,65 @@
           </tr>
         </thead>
 
-        <tbody>
-          <tr *ngFor="let material of paginatedMaterials; let i = index"
-              class="border-b hover:bg-gray-50">
-            <td class="px-6 py-4 font-medium text-gray-900">
-              {{ getMaterialName(material) }}
-            </td>
-            <td class="px-6 py-4 font-semibold">
-              {{ getMaterialStock(material) }}
-            </td>
-            <td class="px-6 py-4 text-gray-600">
-              {{ getMaterialUnit(material) }}
-            </td>
-            <td class="px-6 py-4 text-gray-600">
-              {{ getMaterialThreshold(material) }}
-            </td>
-            <td class="px-6 py-4">
-              <span
-                [class]="getStatusClass(getMaterialStatus(material))"
-                class="px-3 py-1 rounded-full text-xs font-medium">
-                {{ getStatusText(getMaterialStatus(material)) }}
-              </span>
-            </td>
-            <td class="px-6 py-4">
-              <!-- actions inchangées -->
-               <button
+      <tbody>
+  <tr *ngFor="let material of paginatedMaterials; let i = index"
+      class="border-b hover:bg-gray-50">
 
-                (click)="showMenu = true"
-                class="p-2 rounded-full hover:bg-gray-100"
+    <td class="px-6 py-4 font-medium text-gray-900">
+      {{ getMaterialName(material) }}
+    </td>
 
-               >
-                 <svg width="5" height="18" viewBox="0 0 5 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.33333 13.3333C1.71449 13.3333 1.121 13.5792 0.683417 14.0168C0.245833 14.4543 0 15.0478 0 15.6667C0 16.2855 0.245833 16.879 0.683417 17.3166C1.121 17.7542 1.71449 18 2.33333 18C2.95217 18 3.54566 17.7542 3.98325 17.3166C4.42083 16.879 4.66667 16.2855 4.66667 15.6667C4.66667 15.0478 4.42083 14.4543 3.98325 14.0168C3.54566 13.5792 2.95217 13.3333 2.33333 13.3333ZM2.33333 6.66667C1.71449 6.66667 1.121 6.9125 0.683417 7.35008C0.245833 7.78767 0 8.38116 0 9C0 9.61884 0.245833 10.2123 0.683417 10.6499C1.121 11.0875 1.71449 11.3333 2.33333 11.3333C2.95217 11.3333 3.54566 11.0875 3.98325 10.6499C4.42083 10.2123 4.66667 9.61884 4.66667 9C4.66667 8.38116 4.42083 7.78767 3.98325 7.35008C3.54566 6.9125 2.95217 6.66667 2.33333 6.66667ZM4.66667 2.33333C4.66667 1.71449 4.42083 1.121 3.98325 0.683417C3.54566 0.245833 2.95217 0 2.33333 0C1.71449 0 1.121 0.245833 0.683417 0.683417C0.245833 1.121 0 1.71449 0 2.33333C0 2.95217 0.245833 3.54566 0.683417 3.98325C1.121 4.42083 1.71449 4.66667 2.33333 4.66667C2.95217 4.66667 3.54566 4.42083 3.98325 3.98325C4.42083 3.54566 4.66667 2.95217 4.66667 2.33333Z" fill="#4B4848"/>
-</svg>
-               </button>
+    <td class="px-6 py-4 font-semibold">
+      {{ getMaterialStock(material) }}
+    </td>
 
+    <td class="px-6 py-4 text-gray-600">
+      {{ getMaterialUnit(material) }}
+    </td>
 
+    <td class="px-6 py-4 text-gray-600">
+      {{ getMaterialThreshold(material) }}
+    </td>
 
-            </td>
-          </tr>
-        </tbody>
+    <td class="px-6 py-4">
+      <span
+        [class]="getStatusClass(getMaterialStatus(material))"
+        class="px-3 py-1 rounded-full text-xs font-medium">
+        {{ getStatusText(getMaterialStatus(material)) }}
+      </span>
+    </td>
+
+    <!-- ACTIONS -->
+    <td class="px-6 py-4 relative">
+
+      <!-- BOUTON -->
+      <button
+        (click)="toggleInventoryDropdown(i, $event)"
+        class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+        ⋮
+      </button>
+
+      <!-- DROPDOWN -->
+      <div *ngIf="openInventoryDropdownIndex === i"
+           class="absolute right-0 top-10 w-56 bg-white rounded-xl
+                  shadow-lg border border-gray-200 z-30">
+
+        <button class="menu-item">👁️ Voir détails</button>
+        <button class="menu-item">✏️ Modifier</button>
+        <button class="menu-item">📦 Gérer le stock</button>
+        <button class="menu-item">🕘 Historique</button>
+
+        <hr class="my-1">
+
+        <button class="menu-item text-red-600 hover:bg-red-50">
+          🗑️ Supprimer
+        </button>
+      </div>
+
+    </td>
+  </tr>
+</tbody>
+
       </table>
     </div>
   </div>
@@ -264,7 +323,11 @@
             </td>
 
             <td class="px-6 py-4 text-gray-900">
+<<<<<<< HEAD
+              {{ order.supplier.prenom }} {{ order.supplier.nom }}
+=======
               {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
+>>>>>>> 269d3376d8085b338e9ca42c66de18d01e40a99e
             </td>
 
             <td class="px-6 py-4 text-gray-600">
@@ -284,29 +347,41 @@
             </td>
 
             <!-- Actions -->
-            <td class="px-6 py-4 relative">
-              <button
-                (click)="toggleDropdown(i, $event)"
-                class="p-2 rounded-full hover:bg-gray-100 text-gray-500">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    d="M10 6a2 2 0 110-4 2 2 0 010 4z
-                       M10 12a2 2 0 110-4 2 2 0 010 4z
-                       M10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                </svg>
-              </button>
+           <td class="px-6 py-4 relative">
 
-              <!-- MENU ACTION -->
-              <div *ngIf="openDropdownIndex === i"
-                   class="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-lg
-                          border border-gray-200 z-20">
-                <button class="menu-item">👁️ Voir détails</button>
-                <button class="menu-item">✏️ Modifier</button>
-                <button class="menu-item">📋 Dupliquer</button>
-                <hr>
-                <button class="menu-item text-red-600 hover:bg-red-50">❌ Annuler</button>
-              </div>
-            </td>
+  <!-- Bouton -->
+  <button
+    (click)="toggleOrderDropdown(i, $event)"
+    class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+    ⋮
+  </button>
+
+  <!-- Dropdown -->
+  <div *ngIf="openOrderDropdownIndex === i"
+       class="absolute right-0 top-10 w-56 bg-white rounded-xl
+              shadow-lg border border-gray-200 z-30">
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 1
+    </button>
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 2
+    </button>
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 3
+    </button>
+
+    <hr class="my-1">
+
+    <button class="menu-item flex gap-3 text-red-600 hover:bg-red-50">
+      <span class="w-5"></span> Exemple 4
+    </button>
+
+  </div>
+</td>
+
 
           </tr>
         </tbody>
@@ -404,8 +479,40 @@
   </td>
 
   <td class="px-6 py-4 relative">
-    <!-- bouton menu actions -->
-  </td>
+
+  <!-- Bouton -->
+  <button
+    (click)="toggleDeliveryDropdown(i, $event)"
+    class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+    ⋮
+  </button>
+
+  <!-- Dropdown -->
+  <div *ngIf="openDeliveryDropdownIndex === i"
+       class="absolute right-0 top-10 w-56 bg-white rounded-xl
+              shadow-lg border border-gray-200 z-30">
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 1
+    </button>
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 2
+    </button>
+
+    <button class="menu-item flex gap-3">
+      <span class="w-5"></span> Exemple 3
+    </button>
+
+    <hr class="my-1">
+
+    <button class="menu-item flex gap-3 text-red-600 hover:bg-red-50">
+      <span class="w-5"></span> Exemple 4
+    </button>
+
+  </div>
+</td>
+
 
 </tr>
 
@@ -435,260 +542,863 @@
     <!-- ===================================================== -->
     <!-- COLONNE DROITE : 2 CARTES PAR ONGLET -->
     <!-- ===================================================== -->
-    <div class="col-span-12 lg:col-span-3 hidden lg:block">
+    <div class="col-span-12 lg:col-span-4 hidden lg:block">
 
-      <!-- INVENTAIRES -->
-      <div *ngIf="activeTab === 'inventaires'" class="grid grid-rows-2 gap-6 h-[600px]">
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Inventaires – Graphique 1</h3>
-          Graphique inventaires (1)
-        </div>
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Inventaires – Graphique 2</h3>
-          Graphique inventaires (2)
-        </div>
-      </div>
+   <!-- INVENTAIRES – COLONNE DROITE -->
+<div *ngIf="activeTab === 'inventaires'"
+     class="grid grid-rows-2 gap-6 h-[600px]">
 
-      <!-- COMMANDES -->
-      <div *ngIf="activeTab === 'commandes'" class="grid grid-rows-2 gap-6 h-[600px]">
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Commandes – Graphique 1</h3>
-          Graphique commandes (1)
-        </div>
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Commandes – Graphique 2</h3>
-          Graphique commandes (2)
-        </div>
-      </div>
+  <!-- ========================= -->
+  <!-- CARTE 1 : ALERTES STOCK -->
+  <!-- ========================= -->
+<div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
 
-<div *ngIf="activeTab === 'livraisons'"
-     class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
+</svg>
 
-  <!-- ============================= -->
-  <!-- BARRE RECHERCHE & FILTRES -->
-  <!-- ============================= -->
-  <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-    <div class="flex flex-col sm:flex-row gap-4">
+      <h3 class="text-[16px] font-semibold text-[#34495E]">
+        Alertes stock matériaux
+      </h3>
+    </div>
 
-      <!-- Recherche -->
-      <div class="flex-1 relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
+    <span
+      class="w-6 h-6 flex items-center justify-center
+             text-white text-xs font-semibold rounded-full
+             bg-[#E74C3C]">
+      3
+    </span>
+  </div>
 
-        <input
-          type="text"
-          placeholder="Rechercher par livraison, fournisseur"
-          [(ngModel)]="searchDeliveryTerm"
-          (input)="onDeliverySearchChange()"
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
-                 focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-      </div>
+  <!-- ITEM -->
+  <div class="flex flex-col gap-1">
+    <p class="font-medium text-[#34495E]">Ciment Portland</p>
 
-      <!-- Filtre statut -->
-      <select
-        [(ngModel)]="statusDeliveryFilter"
-        (change)="onDeliveryStatusFilterChange()"
-        class="sm:w-48 p-2 border border-gray-300 rounded-lg
-               focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-        <option value="">Toutes les livraisons</option>
-        <option value="COMPLETE">Complète</option>
-        <option value="PARTIELLE">Partielle</option>
-        <option value="ANNULEE">Annulée</option>
-      </select>
+    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
+    </div>
 
+    <div class="flex justify-between text-sm">
+      <span class="text-[#7F8C8D]">5 sacs restants</span>
+      <span class="text-[#F39C12] font-medium">Stock faible</span>
     </div>
   </div>
 
-  <!-- ============================= -->
-  <!-- TABLE LIVRAISONS -->
-  <!-- ============================= -->
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+  <!-- ITEM -->
+  <div class="flex flex-col gap-1">
+    <p class="font-medium text-[#34495E]">Tuyaux PVC 100mm</p>
 
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Livraison</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commande</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preuve</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-          </tr>
-        </thead>
+    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="h-full w-[60%] bg-[#F39C12] rounded-full"></div>
+    </div>
 
-        <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let delivery of paginatedDeliveries; let i = index"
-              class="hover:bg-gray-50">
+    <div class="flex justify-between text-sm">
+      <span class="text-[#7F8C8D]">12 unités restantes</span>
+      <span class="text-[#F39C12] font-medium">Stock faible</span>
+    </div>
+  </div>
 
-            <td class="px-6 py-4 font-medium text-gray-900">
-              LIV-{{ delivery.id.toString().padStart(4, '0') }}
-            </td>
+  <!-- ITEM -->
+  <div class="flex flex-col gap-1">
+    <p class="font-medium text-[#34495E]">Barres d'acier 10mm</p>
 
-            <td class="px-6 py-4 text-gray-600">
-              {{ formatDeliveryDate(delivery.orderDate) }}
-            </td>
+    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="h-full w-[15%] bg-[#E74C3C] rounded-full"></div>
+    </div>
 
+    <div class="flex justify-between text-sm">
+      <span class="text-[#7F8C8D]">0 barres restantes</span>
+      <span class="text-[#E74C3C] font-medium">Rupture de stock</span>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- ========================= -->
+  <!-- CARTE 2 : MOUVEMENTS -->
+  <!-- ========================= -->
+  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <h3 class="text-[16px] font-semibold text-[#34495E]">
+      Mouvements récents
+    </h3>
+    <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378ZM5.59148 0L6.78042 0.914531L3.21642 5.5478L0 2.73342L0.98775 1.60458L3.00187 3.36586L5.59148 0ZM5.59148 6.99998L6.78042 7.91456L3.21642 12.5478L0 9.73341L0.98775 8.60456L3.00187 10.3658L5.59148 6.99998ZM5.59148 14L6.78042 14.9145L3.21642 19.5478L0 16.7334L0.98775 15.6046L3.00187 17.3659L5.59148 14Z" fill="#777777"/>
+</svg>
+
+  </div>
+
+  <!-- ITEM -->
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 14:30</p>
+      <p class="text-xl text-[#34495E] font-light">
+        <span class="text-[#E74C3C] font-medium">Sortie</span>
+        – 10 sacs de ciment
+      </p>
+    </div>
+    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+      Chantier A
+    </span>
+  </div>
+
+  <hr>
+
+  <!-- ITEM -->
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:15</p>
+      <p class="text-xl text-[#34495E] font-light">
+        <span class="text-green-600 font-medium">Entrée</span>
+        – 50 tuyaux PVC
+      </p>
+    </div>
+    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+      Livraison
+    </span>
+  </div>
+
+  <hr>
+
+  <!-- ITEM -->
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-sm text-[#7F8C8D]">Hier, 16:45</p>
+      <p class="text-xl text-[#34495E] font-light">
+        <span class="text-blue-600 font-medium">Ajustement</span>
+        + 5 kg de clous
+      </p>
+    </div>
+    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+      Inventaire
+    </span>
+  </div>
+
+</div>
+
+
+
+</div>
+
+
+     <!-- COMMANDES – COLONNE DROITE -->
+<div *ngIf="activeTab === 'commandes'"
+     class="grid grid-rows-2 gap-6 h-[600px]">
+
+  <!-- ========================= -->
+  <!-- CARTE 1 : ALERTES COMMANDES -->
+  <!-- ========================= -->
+  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <!-- Icône alerte -->
+         <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
+</svg>
+
+        <h3 class="text-[16px] font-semibold text-[#34495E]">
+          Alertes commandes
+        </h3>
+      </div>
+
+      <!-- Badge dynamique plus tard -->
+      <span
+        class="w-6 h-6 flex items-center justify-center
+               text-white text-xs font-semibold rounded-full
+               bg-[#E74C3C]">
+        3
+      </span>
+    </div>
+
+    <!-- COMMANDE EN ATTENTE -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Commande CMD-0021
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">En attente depuis 5 jours</span>
+        <span class="text-[#F39C12] font-medium">En attente</span>
+      </div>
+    </div>
+
+    <!-- COMMANDE EN LIVRAISON -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Commande CMD-0018
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[50%] bg-[#F39C12] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">Livraison en cours</span>
+        <span class="text-[#F39C12] font-medium">En livraison</span>
+      </div>
+    </div>
+
+    <!-- COMMANDE ANNULÉE -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Commande CMD-0012
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">Commande annulée</span>
+        <span class="text-[#E74C3C] font-medium">Annulée</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================= -->
+  <!-- CARTE 2 : ACTIVITÉ COMMANDES -->
+  <!-- ========================= -->
+  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+      <h3 class="text-[16px] font-semibold text-[#34495E]">
+        Activité commandes
+      </h3>
+
+      <!-- Icône liste -->
+      <svg width="17" height="20" viewBox="0 0 17 20" fill="none"
+           xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378Z"
+              fill="#777777"/>
+      </svg>
+    </div>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 10:45</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-[#F39C12] font-medium">Commande créée</span>
+          – CMD-0023
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Fournisseur
+      </span>
+    </div>
+
+    <hr>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 09:10</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-green-600 font-medium">Livrée</span>
+          – CMD-0019
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Livraison
+      </span>
+    </div>
+
+    <hr>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Hier, 16:20</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-[#E74C3C] font-medium">Annulée</span>
+          – CMD-0015
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Système
+      </span>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- LIVRAISONS – COLONNE DROITE -->
+<div *ngIf="activeTab === 'livraisons'"
+     class="grid grid-rows-2 gap-6 h-[600px]">
+
+  <!-- ========================= -->
+  <!-- CARTE 1 : ALERTES LIVRAISONS -->
+  <!-- ========================= -->
+  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+         <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
+</svg>
+
+        <h3 class="text-[16px] font-semibold text-[#34495E]">
+          Alertes livraisons
+        </h3>
+      </div>
+
+      <!-- Badge dynamique plus tard -->
+      <span
+        class="w-6 h-6 flex items-center justify-center
+               text-white text-xs font-semibold rounded-full
+               bg-[#E74C3C]">
+        2
+      </span>
+    </div>
+
+    <!-- LIVRAISON EN RETARD -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Livraison LIV-0021
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[65%] bg-[#F39C12] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">Retard de 2 jours</span>
+        <span class="text-[#F39C12] font-medium">En retard</span>
+      </div>
+    </div>
+
+    <!-- LIVRAISON PARTIELLE -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Livraison LIV-0017
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[45%] bg-[#F39C12] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">Livraison partielle</span>
+        <span class="text-[#F39C12] font-medium">Partielle</span>
+      </div>
+    </div>
+
+    <!-- LIVRAISON ANNULÉE -->
+    <div class="flex flex-col gap-1">
+      <p class="font-medium text-[#34495E]">
+        Livraison LIV-0012
+      </p>
+
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span class="text-[#7F8C8D]">Livraison annulée</span>
+        <span class="text-[#E74C3C] font-medium">Annulée</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================= -->
+  <!-- CARTE 2 : MOUVEMENTS LIVRAISONS -->
+  <!-- ========================= -->
+  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+      <h3 class="text-[16px] font-semibold text-[#34495E]">
+        Activité livraisons
+      </h3>
+
+       <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
+</svg>
+    </div>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 15:10</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-green-600 font-medium">Livrée</span>
+          – LIV-0020
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Réception
+      </span>
+    </div>
+
+    <hr>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:40</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-[#F39C12] font-medium">Partielle</span>
+          – LIV-0018
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Livraison
+      </span>
+    </div>
+
+    <hr>
+
+    <!-- ITEM -->
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm text-[#7F8C8D]">Hier, 17:05</p>
+        <p class="text-xl text-[#34495E] font-light">
+          <span class="text-[#E74C3C] font-medium">Annulée</span>
+          – LIV-0014
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+        Système
+      </span>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+     <!-- STATISTIQUES -->
+<div *ngIf="activeTab === 'statistiques'"
+     class="grid grid-rows-2 gap-6 h-[600px]">
+
+  <!-- BAR CHART -->
+  <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+    <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
+      Consommation mensuelle
+    </h3>
+
+    <!-- zone graphique -->
+    <div class="flex-1 flex items-center justify-center">
+      <canvas id="consumptionChart" class="w-full h-full"></canvas>
+    </div>
+
+    <p class="text-center text-sm text-[#7F8C8D] ">
+      Top 5 matériaux les plus utilisés
+    </p>
+  </div>
+
+  <!-- LINE CHART -->
+  <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+    <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
+      Évolution mensuelle
+    </h3>
+
+    <div class="flex-1 flex items-center justify-center">
+      <canvas id="evolutionChart" class="w-full h-full"></canvas>
+    </div>
+  </div>
+
+</div>
+
+
+
+    </div>
+
+  </div>
+</div>
+
+<!--
+LES DEUX MODALES POUR CRÉER UN NOUVEAU MATÉRIEL ET UNE NOUVELLE COMMANDE
+SONT PLACÉES EN BAS DU LAYOUT PRINCIPAL
+-->
             <td class="px-6 py-4 text-gray-600">
               <!-- CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }} -->
             </td>
 
-            <td class="px-6 py-4 text-gray-900">
-              {{ formatSupplierName(delivery.supplier) }}
-            </td>
 
-            <td class="px-6 py-4">
-              <span
-                [class]="getDeliveryStatusClass(delivery.status)"
-                class="px-3 py-1 rounded-full text-xs font-medium">
-                {{ getDeliveryStatusText(delivery.status) }}
-              </span>
-            </td>
 
-            <!-- Preuve -->
-            <td class="px-6 py-4">
-              <img *ngIf="delivery.proof && delivery.proof !== 'Aucune'"
-                   [src]="delivery.proof"
-                   class="w-10 h-10 rounded object-cover cursor-pointer"
-                   (click)="downloadDeliveryProof(delivery)">
-              <span *ngIf="!delivery.proof || delivery.proof === 'Aucune'"
-                    class="text-gray-400 text-sm">
-                Aucune
-              </span>
-            </td>
 
-            <!-- Actions -->
-            <td class="px-6 py-4 relative">
-              <button
-                (click)="toggleDropdown(i, $event)"
-                class="p-2 rounded-full hover:bg-gray-100 text-gray-500">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    d="M10 6a2 2 0 110-4 2 2 0 010 4z
-                       M10 12a2 2 0 110-4 2 2 0 010 4z
-                       M10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                </svg>
-              </button>
 
-              <!-- MENU ACTION -->
-              <div *ngIf="openDropdownIndex === i"
-                   class="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-lg
-                          border border-gray-200 z-20">
-                <button class="menu-item">👁️ Voir détails</button>
-                <button class="menu-item">✏️ Modifier</button>
-                <button class="menu-item">📥 Télécharger la preuve</button>
-                <hr>
-                <button class="menu-item text-red-600 hover:bg-red-50">🗑️ Supprimer</button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Modal de création de commande -->
+      <div *ngIf="showOrderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+          <!-- En-tête -->
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Nouvelle commande de matériaux</h2>
+            <button (click)="closeOrderModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <form [formGroup]="orderForm" (ngSubmit)="onSubmitOrder()">
+            <!-- Fournisseur et Date de livraison -->
+            <div class="grid grid-cols-2 gap-6 mb-8">
+              <!-- Fournisseur -->
+              <div>
+                <label class="block text-base font-medium text-gray-900 mb-3">
+                  Fournisseur
+                </label>
+                <div class="relative">
+                  <select formControlName="supplierId"
+                    class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900"
+                    [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched">
+                    <option value="">Sélectionner</option>
+                    <option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                      {{ supplier.prenom }} {{ supplier.nom }} - {{ supplier.telephone }}
+                    </option>
+                  </select>
+                  <svg
+                    class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+                <div *ngIf="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
+                  class="mt-2 text-sm text-red-600">
+                  Veuillez sélectionner un fournisseur
+                </div>
               </div>
-            </td>
 
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <!-- Date de livraison souhaitée -->
+              <div>
+                <label class="block text-base font-medium text-gray-900 mb-3">
+                  Date de livraison souhaitée
+                </label>
+                <div class="relative">
+                  <input type="date" formControlName="deliveryDate"
+                    class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-900"
+                    [class.border-red-500]="orderForm.get('deliveryDate')?.invalid && orderForm.get('deliveryDate')?.touched"
+                    placeholder="jj/mm/aaaa">
+                </div>
+                <div *ngIf="orderForm.get('deliveryDate')?.invalid && orderForm.get('deliveryDate')?.touched"
+                  class="mt-2 text-sm text-red-600">
+                  Veuillez sélectionner une date
+                </div>
+              </div>
+            </div>
 
-  </div>
-</div>
+            <!-- Tableau des matériaux -->
+            <div class="mb-8">
+              <!-- En-têtes du tableau -->
+              <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-t-xl border-b border-gray-200">
+                <div class="col-span-3 text-sm font-semibold text-gray-700">Matériau</div>
+                <div class="col-span-2 text-sm font-semibold text-gray-700">Stock</div>
+                <div class="col-span-2 text-sm font-semibold text-gray-700">Qté à Commander</div>
+                <div class="col-span-2 text-sm font-semibold text-gray-700">Prix Unitaire</div>
+                <div class="col-span-2 text-sm font-semibold text-gray-700">Total (F CFA)</div>
+                <div class="col-span-1"></div>
+              </div>
 
+              <!-- Lignes de matériaux -->
+              <div formArrayName="materials" class="border-x border-b border-gray-200 rounded-b-xl">
+                <div *ngFor="let material of orderMaterials.controls; let i = index" [formGroupName]="i"
+                  class="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors"
+                  [class.border-b]="i < orderMaterials.length - 1"
+                  [class.border-gray-200]="i < orderMaterials.length - 1">
 
-      <!-- STATISTIQUES -->
-      <div *ngIf="activeTab === 'statistiques'" class="grid grid-rows-2 gap-6 h-[600px]">
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Statistiques – Graphique 1</h3>
-          Graphique statistiques (1)
-        </div>
-        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-lg">
-          <h3 class="font-semibold mb-2">Statistiques – Graphique 2</h3>
-          Graphique statistiques (2)
+                  <!-- Matériau -->
+                  <div class="col-span-3">
+                    <div class="relative">
+                      <select formControlName="materialId" (change)="onMaterialSelect(i)"
+                        class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-sm"
+                        [class.border-red-500]="material.get('materialId')?.invalid && material.get('materialId')?.touched">
+                        <option value="">Sélectionner</option>
+                        <option *ngFor="let mat of materials" [value]="mat.id">
+                          {{ mat.label }}
+                        </option>
+                      </select>
+                      <svg
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Stock -->
+                  <div class="col-span-2">
+                    <div class="px-3 py-2.5 bg-gray-100 rounded-lg text-sm text-gray-700 font-medium">
+                      {{ getMaterialStockByIndex(i) }}
+                    </div>
+                  </div>
+
+                  <!-- Quantité à commander -->
+                  <div class="col-span-2">
+                    <input type="number" formControlName="quantity" (input)="calculateLineTotal(i)" min="1"
+                      class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+                      [class.border-red-500]="material.get('quantity')?.invalid && material.get('quantity')?.touched"
+                      placeholder="5">
+                  </div>
+
+                  <!-- Prix Unitaire -->
+                  <div class="col-span-2">
+                    <input type="number" formControlName="unitPrice" (input)="calculateLineTotal(i)" min="0"
+                      class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+                      [class.border-red-500]="material.get('unitPrice')?.invalid && material.get('unitPrice')?.touched"
+                      placeholder="100 000">
+                  </div>
+
+                  <!-- Total -->
+                  <div class="col-span-2">
+                    <div class="px-3 py-2.5 bg-gray-100 rounded-lg text-sm text-gray-900 font-semibold">
+                      {{ getLineTotal(i) | number:'1.0-0' }}
+                    </div>
+                  </div>
+
+                  <!-- Bouton supprimer -->
+                  <div class="col-span-1 flex justify-center">
+                    <button type="button" (click)="removeMaterialFromOrder(i)" [disabled]="orderMaterials.length === 1"
+                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Supprimer">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bouton ajouter matériau -->
+              <button type="button" (click)="addMaterialToOrder()"
+                class="mt-4 flex items-center gap-2 px-5 py-2.5 text-orange-600 hover:bg-orange-50 rounded-xl transition-colors font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Ajouter un matériau</span>
+              </button>
+            </div>
+
+            <!-- Total général -->
+            <div class="flex justify-between items-center mb-8 p-4 bg-gray-50 rounded-xl">
+              <span class="text-lg font-semibold text-gray-900">Total</span>
+              <span class="text-2xl font-bold text-gray-900">{{ getOrderTotal() | number:'1.0-0' }} Fcfa</span>
+            </div>
+
+            <!-- Instructions spéciales -->
+            <div class="mb-8">
+              <label class="block text-base font-medium text-gray-900 mb-3">
+                Instructions spéciales
+              </label>
+              <textarea formControlName="specialInstructions" rows="3"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none text-sm"
+                placeholder="ex : délais, livraison sur chantier"></textarea>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex justify-between gap-4">
+              <button type="button" (click)="closeOrderModal()"
+                class="px-8 py-3.5 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium text-base">
+                Annuler
+              </button>
+              <button type="submit" [disabled]="!orderForm.valid || loading"
+                class="px-8 py-3.5 text-white rounded-xl transition-all font-medium text-base flex items-center gap-2 shadow-lg hover:shadow-xl"
+                style="background-color: #fe8441;" [class.opacity-50]="!orderForm.valid || loading"
+                [class.cursor-not-allowed]="!orderForm.valid || loading">
+                <svg *ngIf="loading" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                {{ loading ? 'Enregistrement...' : 'Enregistrer la commande' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
+
+
+
+
+ <!-- ⚠️ REMPLACER complètement le modal existant dans le HTML -->
+  <div *ngIf="showNewMaterialModal"
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    (click)="closeNewMaterialModal()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+      (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Ajouter un nouveau matériau</h2>
+        <button (click)="closeNewMaterialModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form [formGroup]="materialForm">
+          <div class="space-y-6">
+
+            <!-- Nom du matériau -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nom du matériau <span class="text-red-500">*</span>
+              </label>
+              <input type="text" placeholder="Ex: Ciment Portland" formControlName="label"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                [class.border-red-500]="isFieldInvalid('label')" [class.focus:ring-red-500]="isFieldInvalid('label')">
+              <div *ngIf="isFieldInvalid('label')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('label') }}
+              </div>
+            </div>
+
+            <!-- Quantité actuelle et Seuil critique -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Quantité actuelle -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Quantité actuelle <span class="text-red-500">*</span>
+                </label>
+                <input type="number" placeholder="Ex: 100" formControlName="quantity" min="0"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  [class.border-red-500]="isFieldInvalid('quantity')"
+                  [class.focus:ring-red-500]="isFieldInvalid('quantity')">
+                <div *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
+                  {{ getFieldError('quantity') }}
+                </div>
+              </div>
+
+              <!-- Seuil critique -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Seuil critique <span class="text-red-500">*</span>
+                </label>
+                <input type="number" placeholder="Ex: 10" formControlName="criticalThreshold" min="0"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  [class.border-red-500]="isFieldInvalid('criticalThreshold')"
+                  [class.focus:ring-red-500]="isFieldInvalid('criticalThreshold')">
+                <div *ngIf="isFieldInvalid('criticalThreshold')" class="mt-1 text-sm text-red-600">
+                  {{ getFieldError('criticalThreshold') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Unité et Propriété -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Unité <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="unitId"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
+                  [class.border-red-500]="isFieldInvalid('unitId')"
+                  [class.focus:ring-red-500]="isFieldInvalid('unitId')">
+                  <option value="">Sélectionnez une unité</option>
+                  <option *ngFor="let unit of units" [value]="unit.id">
+                    {{ unit.label }} ({{ unit.code }})
+                  </option>
+                </select>
+                <!-- ⚠️ Message de debug (à retirer en production) -->
+                <div *ngIf="units.length === 0" class="mt-1 text-xs text-gray-500">
+                  ℹ️ Chargement des unités en cours...
+                </div>
+                <div *ngIf="isFieldInvalid('unitId')" class="mt-1 text-sm text-red-600">
+                  Ce champ est requis
+                </div>
+              </div>
+
+              <!-- Propriété -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Propriété <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="propertyId"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
+                  [class.border-red-500]="isFieldInvalid('propertyId')"
+                  [class.focus:ring-red-500]="isFieldInvalid('propertyId')">
+                  <option value="">Sélectionnez une propriété</option>
+                  <option *ngFor="let property of properties" [value]="property.id">
+                    {{ property.typeName || property.name }}
+                  </option>
+                </select>
+                <!-- ⚠️ Message de debug (à retirer en production) -->
+                <div *ngIf="properties.length === 0" class="mt-1 text-xs text-gray-500">
+                  ℹ️ Chargement des propriétés en cours...
+                </div>
+                <div *ngIf="isFieldInvalid('propertyId')" class="mt-1 text-sm text-red-600">
+                  Ce champ est requis
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-4 p-6 border-t border-gray-200">
+        <button type="button" (click)="closeNewMaterialModal()"
+          class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
+          Annuler
+        </button>
+        <button type="submit" (click)="onSaveNewStock()" [disabled]="!isFormValid() || loading"
+          class="text-white rounded-lg font-medium transition-all flex items-center gap-2"
+          style="background-color: #fe8441; border-radius: 10px; padding: 14px 20px; min-width: 160px; height: 46px;"
+          [class.opacity-50]="!isFormValid() || loading" [class.cursor-not-allowed]="!isFormValid() || loading">
+          <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
     </div>
-
   </div>
-</div>
 
 
 
 
-
-
-
-
-<!-- OVERLAY -->
-<div *ngIf="showMenu"
-     class="fixed inset-0 bg-black/30 z-40"
-     (click)="showMenu = false">
-</div>
-
-
-
-
-<!-- POPUP MENU -->
-<div *ngIf="showMenu"
-     class="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-            w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
-
-  <div class="menu-item">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-    <span>Voir détails</span>
-  </div>
-  <div class="divider"></div>
-
-  <div class="menu-item">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-      <path d="m15 5 4 4"/>
-    </svg>
-    <span>Modifier</span>
-  </div>
-  <div class="divider"></div>
-
-  <div class="menu-item">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="17 1 21 5 17 9"/>
-      <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-      <polyline points="7 23 3 19 7 15"/>
-      <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-    </svg>
-    <span>Gérer les mouvements</span>
-  </div>
-  <div class="divider"></div>
-
-  <div class="menu-item">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-      <polyline points="3.29 7 12 12 20.71 7"/>
-      <line x1="12" y1="22" x2="12" y2="12"/>
-    </svg>
-    <span>Commander</span>
-  </div>
-  <div class="divider"></div>
-
-  <div class="menu-item">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <polyline points="12 6 12 12 16 14"/>
-    </svg>
-    <span>Historique</span>
-  </div>
-  <div class="divider"></div>
-
-  <div class="menu-item text-red-600 hover:bg-red-50">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18"/>
-      <line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-    <span>Supprimer</span>
-  </div>
-</div>
 
 
 

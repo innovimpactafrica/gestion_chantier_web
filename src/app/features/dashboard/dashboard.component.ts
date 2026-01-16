@@ -519,17 +519,40 @@ selectImageIndex(index: number): void {
       return [];
     }
 
-    return materiauxCritique.content.map((material: CriticalMaterial) => ({
-      id: material.id,
-      nom: material.label,
-      quantiteActuelle: material.quantity,
-      seuil: material.criticalThreshold,
-      unite: material.unitName,
-      propriete: material.propertyName,
-      status: material.statusLabel,
-      color: material.color,
-      pourcentage: this.calculateMaterialPercentage(material.quantity, material.criticalThreshold)
-    }));
+    return materiauxCritique.content.map((material: CriticalMaterial) => {
+      const ratio = material.criticalThreshold > 0 ? material.quantity / material.criticalThreshold : 100;
+      let statusClass = 'bg-green-500';
+      let textClass = 'text-green-500';
+      let statusLabel = material.statusLabel;
+
+      // Logique personnalisée : Rouge si proche du seuil (<= 110%) ou en dessous
+      if (ratio <= 1.1) {
+        statusClass = 'bg-red-500';
+        textClass = 'text-red-600';
+        // Force le label si nécessaire, ou garde l'original s'il est déjà explicite
+        if (!statusLabel.includes('Critique')) {
+            // Optionnel: on pourrait changer le label ici, mais on garde celui du back pour l'instant
+            // sauf pour la couleur qui est forcée.
+        }
+      } else if (ratio <= 1.5) {
+        statusClass = 'bg-orange-500';
+        textClass = 'text-orange-500';
+      }
+
+      return {
+        id: material.id,
+        nom: material.label,
+        quantiteActuelle: material.quantity,
+        seuil: material.criticalThreshold,
+        unite: material.unitName,
+        propriete: material.propertyName,
+        status: statusLabel,
+        color: material.color,
+        pourcentage: this.calculateMaterialPercentage(material.quantity, material.criticalThreshold),
+        statusClass: statusClass,
+        textClass: textClass
+      };
+    });
   }
 
   private calculateMaterialPercentage(current: number, threshold: number): number {
