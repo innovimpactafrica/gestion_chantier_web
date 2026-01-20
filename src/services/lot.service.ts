@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../app/features/auth/services/auth.service'; // Ajustez le chemin selon votre structure
+import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
 
 // Interfaces pour les types
 export interface RealEstateProperty {
   id: number;
   name: string;
-  // ... autres propriétés
 }
 
 export interface Subcontractor {
@@ -67,6 +66,7 @@ export interface SubcontractorsResponse {
   first: boolean;
   empty: boolean;
 }
+
 export interface Company {
   id?: number;
   name?: string | null;
@@ -86,7 +86,7 @@ export interface Lot {
   subcontractor: Subcontractor;
   comments: any[];
   progressPercentage: number;
-  statutColor:boolean
+  statutColor: boolean;
 }
 
 export interface LotsResponse {
@@ -117,6 +117,7 @@ export interface LotsResponse {
   first: boolean;
   empty: boolean;
 }
+
 export interface CreateLotRequest {
   name: string;
   description: string;
@@ -124,16 +125,15 @@ export interface CreateLotRequest {
   endDate: string;    // Format: dd-MM-yyyy
   realEstatePropertyId: number;
   subcontractorId: number;
-  file?: File;  // Fichier optionnel si nécessaire
+  file?: File;
 }
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class LotService {
   private baseURL = environment.apiBaseUrl;
-  private apiUrl = `${this.baseURL}api/lots`;
+  private apiUrl = `${this.baseURL}/api/lots`;
 
   constructor(
     private http: HttpClient,
@@ -142,9 +142,6 @@ export class LotService {
 
   /**
    * Récupère la liste des sous-traitants avec pagination
-   * @param page Numéro de la page (par défaut 0)
-   * @param size Taille de la page (par défaut 30)
-   * @returns Observable de la réponse paginée des sous-traitants
    */
   getSubcontractors(page: number = 0, size: number = 30): Observable<SubcontractorsResponse> {
     const managerId = this.authService.currentUser()?.id;
@@ -168,10 +165,6 @@ export class LotService {
 
   /**
    * Récupère la liste des lots par propriété avec pagination
-   * @param propertyId ID de la propriété
-   * @param page Numéro de la page (par défaut 0)
-   * @param size Taille de la page (par défaut 10)
-   * @returns Observable de la réponse paginée des lots
    */
   getLotsByProperty(propertyId: number, page: number = 0, size: number = 10): Observable<LotsResponse> {
     const params = new HttpParams()
@@ -180,7 +173,7 @@ export class LotService {
       .set('size', size.toString());
 
     return this.http.get<LotsResponse>(
-      `${this.baseURL}api/lots/by-property`,
+      `${this.apiUrl}/by-property`,
       { 
         params,
         headers: this.getAuthHeaders()
@@ -189,32 +182,64 @@ export class LotService {
   }
 
   /**
-   * Crée un nouveau lot
-   * @param lotData Données du lot à créer
-   * @returns Observable du lot créé
+   * Crée un nouveau lot avec FormData pour supporter l'upload de fichier
    */
-    createLot(lotData: CreateLotRequest): Observable<Lot> {
-        return this.http.post<Lot>(
-          this.apiUrl,
-        lotData,
-        { headers: this.getAuthHeaders() }
-      );
-    }
+ /**
+   * Crée un nouveau lot - Envoi en JSON
+   */
+ createLot(lotData: CreateLotRequest): Observable<Lot> {
+  const payload = {
+    name: lotData.name,
+    description: lotData.description,
+    startDate: lotData.startDate,  // Format dd-MM-yyyy
+    endDate: lotData.endDate,      // Format dd-MM-yyyy
+    realEstatePropertyId: lotData.realEstatePropertyId,
+    subcontractorId: lotData.subcontractorId
+  };
 
+  console.log('📤 Création de lot - Payload JSON:', payload);
 
-// Dans LotService
-updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
-  return this.http.put<Lot>(
-    `${this.apiUrl}/${id}`,
-    lotData,
+  return this.http.post<Lot>(
+    this.apiUrl,
+    payload,
     { headers: this.getAuthHeaders() }
   );
 }
 
+  /**
+   * Met à jour un lot existant
+   */
+  updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
+    const payload = {
+      name: lotData.name,
+      description: lotData.description,
+      startDate: lotData.startDate,
+      endDate: lotData.endDate,
+      realEstatePropertyId: lotData.realEstatePropertyId,
+      subcontractorId: lotData.subcontractorId
+    };
+
+    console.log('📤 Mise à jour de lot - Payload JSON:', payload);
+
+    return this.http.put<Lot>(
+      `${this.apiUrl}/${id}`,
+      payload,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
   /**
-   * Récupère les headers d'authentification
-   * @returns HttpHeaders avec le token d'authentification
+   * Supprime un lot
+   */
+  deleteLot(lotId: number): Observable<any> {
+    return this.http.delete(
+      `${this.apiUrl}/${lotId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /**
+   * Récupère les headers d'authentification (avec Content-Type)
    */
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -225,9 +250,7 @@ updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
   }
 
   /**
-   * Convertit un tableau de date [year, month, day] en string format YYYY-MM-DD
-   * @param dateArray Tableau de date [year, month, day]
-   * @returns String formatée YYYY-MM-DD
+   * Convertit un tableau de date [year, month, day] en string format dd-MM-yyyy
    */
   formatDateArrayToString(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) {
@@ -235,36 +258,50 @@ updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
     }
     
     const [year, month, day] = dateArray;
-    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    return `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
   }
 
   /**
-   * Convertit un objet Date en string format YYYY-MM-DD
-   * @param date Objet Date
-   * @returns String formatée YYYY-MM-DD
+   * Convertit un objet Date en string format dd-MM-yyyy
    */
   formatDateToString(date: Date): string {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
   }
 
   /**
-   * Parse une string date YYYY-MM-DD en tableau [year, month, day]
-   * @param dateString String date format YYYY-MM-DD
-   * @returns Tableau [year, month, day]
+   * Parse une string date dd-MM-yyyy en tableau [year, month, day]
    */
   parseDateStringToArray(dateString: string): number[] {
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [day, month, year] = dateString.split('-').map(Number);
     return [year, month, day];
   }
 
   /**
+   * Convertit yyyy-MM-dd (HTML input) vers dd-MM-yyyy (API)
+   */
+  convertInputDateToAPIFormat(inputDate: string): string {
+    if (!inputDate) return '';
+    
+    const [year, month, day] = inputDate.split('-');
+    return `${day}-${month}-${year}`;
+  }
+
+  /**
+   * Convertit dd-MM-yyyy (API) vers yyyy-MM-dd (HTML input)
+   */
+  convertAPIDateToInputFormat(apiDate: string): string {
+    if (!apiDate) return '';
+    
+    const [day, month, year] = apiDate.split('-');
+    return `${year}-${month}-${day}`;
+  }
+
+  /**
    * Valide les données de création d'un lot
-   * @param lotData Données à valider
-   * @returns Array des erreurs de validation
    */
   validateLotData(lotData: CreateLotRequest): string[] {
     const errors: string[] = [];
@@ -280,29 +317,35 @@ updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
     if (!lotData.startDate) {
       errors.push('La date de début est requise');
     } else {
-      try {
-        new Date(lotData.startDate);
-      } catch {
-        errors.push('Format de date de début invalide');
+      // Valider le format dd-MM-yyyy
+      const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+      if (!dateRegex.test(lotData.startDate)) {
+        errors.push('Format de date de début invalide (attendu: jj-MM-aaaa)');
       }
     }
 
     if (!lotData.endDate) {
       errors.push('La date de fin est requise');
     } else {
-      try {
-        new Date(lotData.endDate);
-      } catch {
-        errors.push('Format de date de fin invalide');
+      const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+      if (!dateRegex.test(lotData.endDate)) {
+        errors.push('Format de date de fin invalide (attendu: jj-MM-aaaa)');
       }
     }
 
     if (lotData.startDate && lotData.endDate) {
-      const start = new Date(lotData.startDate);
-      const end = new Date(lotData.endDate);
-      
-      if (end <= start) {
-        errors.push('La date de fin doit être postérieure à la date de début');
+      try {
+        const [startDay, startMonth, startYear] = lotData.startDate.split('-').map(Number);
+        const [endDay, endMonth, endYear] = lotData.endDate.split('-').map(Number);
+        
+        const start = new Date(startYear, startMonth - 1, startDay);
+        const end = new Date(endYear, endMonth - 1, endDay);
+        
+        if (end <= start) {
+          errors.push('La date de fin doit être postérieure à la date de début');
+        }
+      } catch (error) {
+        errors.push('Erreur lors de la validation des dates');
       }
     }
 
@@ -319,17 +362,13 @@ updateLot(id: number, lotData: CreateLotRequest): Observable<Lot> {
 
   /**
    * Formate le nom complet d'un sous-traitant
-   * @param subcontractor Sous-traitant
-   * @returns Nom complet formaté
    */
   getSubcontractorFullName(subcontractor: Subcontractor): string {
-    return `${subcontractor.prenom} ${subcontractor.nom}`;
+    return `${subcontractor.prenom} ${subcontractor.nom}`.trim();
   }
 
   /**
    * Formate le nom de l'entreprise d'un sous-traitant
-   * @param subcontractor Sous-traitant
-   * @returns Nom de l'entreprise ou "Indépendant"
    */
   getSubcontractorCompanyName(subcontractor: Subcontractor): string {
     return subcontractor.company?.name || 'Indépendant';

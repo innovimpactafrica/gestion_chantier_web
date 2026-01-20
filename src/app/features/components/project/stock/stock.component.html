@@ -12,15 +12,15 @@
 
       <div class="flex items-center justify-between mb-6">
         <!-- ===================== -->
-      <!-- TITRE DYNAMIQUE -->
-      <!-- ===================== -->
-      <h1 class="text-2xl font-bold text-gray-900 mb-4">
-        {{ activeTab | titlecase }}
-      </h1>
+        <!-- TITRE DYNAMIQUE -->
+        <!-- ===================== -->
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">
+          {{ activeTab | titlecase }}
+        </h1>
 
-      <div class="flex gap-3">
+        <div class="flex gap-3">
 
-      <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
+          <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
             class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -38,7 +38,7 @@
             </svg>
             Nouvelle commande
           </button>
-      </div>
+        </div>
       </div>
 
 
@@ -50,12 +50,11 @@
       <!-- ===================== -->
       <div class="flex items-center gap-10 border-b border-gray-200 mb-6">
 
-        <button (click)="setActiveTab('inventaires')"
-          [class]="activeTab === 'inventaires'
+        <button (click)="setActiveTab('inventaires')" [class]="activeTab === 'inventaires'
             ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-           <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M1.84051 1.31531C1.93426 1.12469 2.1405 1.01531 2.34988 1.04344L9.99988 1.99969L17.6499 1.04344C17.8593 1.01844 18.0655 1.12781 18.1593 1.31531L19.4624 3.92156C19.7436 4.48094 19.4436 5.15906 18.8436 5.33094L13.7374 6.79031C13.303 6.91531 12.8374 6.73094 12.6061 6.34344L9.99988 1.99969L7.39363 6.34344C7.16238 6.73094 6.69675 6.91531 6.26238 6.79031L1.15925 5.33094C0.55613 5.15906 0.259255 4.48094 0.540505 3.92156L1.84051 1.31531ZM10.0343 3.99969L11.7499 6.85594C12.2155 7.63094 13.1436 7.99969 14.0155 7.74969L17.9999 6.61219V11.8309C17.9999 12.5184 17.5311 13.1184 16.8624 13.2872L10.4843 14.8809C10.1655 14.9622 9.83113 14.9622 9.5155 14.8809L3.13738 13.2872C2.46863 13.1153 1.99988 12.5153 1.99988 11.8278V6.60906L5.98738 7.74969C6.85613 7.99969 7.78738 7.63094 8.25301 6.85594L9.9655 3.99969H10.0343Z"
                 [attr.fill]="activeTab === 'inventaires' ? '#FF5C02' : '#333333'" />
@@ -65,12 +64,11 @@
           <span class="font-medium">Inventaires</span>
         </button>
 
-        <button (click)="setActiveTab('commandes')"
-          [class]="activeTab === 'commandes'
+        <button (click)="setActiveTab('commandes')" [class]="activeTab === 'commandes'
             ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M5.83301 18.3337C5.37467 18.3337 4.98245 18.1706 4.65634 17.8445C4.33023 17.5184 4.1669 17.1259 4.16634 16.667C4.16579 16.2081 4.32912 15.8159 4.65634 15.4903C4.98356 15.1648 5.37579 15.0014 5.83301 15.0003C6.29023 14.9992 6.68273 15.1625 7.01051 15.4903C7.33829 15.8181 7.50134 16.2103 7.49967 16.667C7.49801 17.1237 7.33495 17.5162 7.01051 17.8445C6.68606 18.1728 6.29356 18.3359 5.83301 18.3337ZM14.1663 18.3337C13.708 18.3337 13.3158 18.1706 12.9897 17.8445C12.6636 17.5184 12.5002 17.1259 12.4997 16.667C12.4991 16.2081 12.6625 15.8159 12.9897 15.4903C13.3169 15.1648 13.7091 15.0014 14.1663 15.0003C14.6236 14.9992 15.0161 15.1625 15.3438 15.4903C15.6716 15.8181 15.8347 16.2103 15.833 16.667C15.8313 17.1237 15.6683 17.5162 15.3438 17.8445C15.0194 18.1728 14.6269 18.3359 14.1663 18.3337ZM4.33301 3.33366H16.6247C16.9441 3.33366 17.1872 3.47616 17.3538 3.76116C17.5205 4.04616 17.5275 4.33421 17.3747 4.62533L14.4163 9.95866C14.2636 10.2364 14.0588 10.4517 13.8022 10.6045C13.5455 10.7573 13.2641 10.8337 12.958 10.8337H6.74967L5.83301 12.5003H15.833V14.167H5.83301C5.20801 14.167 4.73579 13.8928 4.41634 13.3445C4.0969 12.7962 4.08301 12.2509 4.37467 11.7087L5.49967 9.66699L2.49967 3.33366H0.833008V1.66699H3.54134L4.33301 3.33366Z"
                 [attr.fill]="activeTab === 'commandes' ? '#FF5C02' : '#333333'" />
@@ -80,12 +78,11 @@
           <span class="font-medium">Commandes</span>
         </button>
 
-        <button (click)="setActiveTab('livraisons')"
-          [class]="activeTab === 'livraisons'
+        <button (click)="setActiveTab('livraisons')" [class]="activeTab === 'livraisons'
             ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-             <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M10.8333 0C11.2754 0 11.6993 0.175595 12.0118 0.488155C12.3244 0.800716 12.5 1.22464 12.5 1.66667V2.5H13.7667C14.0165 2.50003 14.2631 2.55622 14.4882 2.6644C14.7134 2.77258 14.9114 2.93 15.0675 3.125L16.3008 4.6675C16.5376 4.96308 16.6666 5.33047 16.6667 5.70917V9.16667C16.6667 9.60869 16.4911 10.0326 16.1785 10.3452C15.8659 10.6577 15.442 10.8333 15 10.8333H14.1667C14.1667 11.4964 13.9033 12.1323 13.4344 12.6011C12.9656 13.0699 12.3297 13.3333 11.6667 13.3333C11.0036 13.3333 10.3677 13.0699 9.8989 12.6011C9.43006 12.1323 9.16667 11.4964 9.16667 10.8333H6.66667C6.66667 11.1616 6.602 11.4867 6.47637 11.79C6.35073 12.0934 6.16658 12.369 5.93443 12.6011C5.70229 12.8332 5.42669 13.0174 5.12337 13.143C4.82006 13.2687 4.49497 13.3333 4.16667 13.3333C3.83836 13.3333 3.51327 13.2687 3.20996 13.143C2.90664 13.0174 2.63105 12.8332 2.3989 12.6011C2.16675 12.369 1.9826 12.0934 1.85697 11.79C1.73133 11.4867 1.66667 11.1616 1.66667 10.8333C1.22464 10.8333 0.800716 10.6577 0.488155 10.3452C0.175595 10.0326 0 9.60869 0 9.16667V1.66667C0 1.22464 0.175595 0.800716 0.488155 0.488155C0.800716 0.175595 1.22464 0 1.66667 0H10.8333ZM4.16667 10C3.94565 10 3.73369 10.0878 3.57741 10.2441C3.42113 10.4004 3.33333 10.6123 3.33333 10.8333C3.33333 11.0543 3.42113 11.2663 3.57741 11.4226C3.73369 11.5789 3.94565 11.6667 4.16667 11.6667C4.38768 11.6667 4.59964 11.5789 4.75592 11.4226C4.9122 11.2663 5 11.0543 5 10.8333C5 10.6123 4.9122 10.4004 4.75592 10.2441C4.59964 10.0878 4.38768 10 4.16667 10ZM11.6667 10C11.4457 10 11.2337 10.0878 11.0774 10.2441C10.9211 10.4004 10.8333 10.6123 10.8333 10.8333C10.8333 11.0543 10.9211 11.2663 11.0774 11.4226C11.2337 11.5789 11.4457 11.6667 11.6667 11.6667C11.8877 11.6667 12.0996 11.5789 12.2559 11.4226C12.4122 11.2663 12.5 11.0543 12.5 10.8333C12.5 10.6123 12.4122 10.4004 12.2559 10.2441C12.0996 10.0878 11.8877 10 11.6667 10ZM13.7667 4.16667H12.5V7.5H15V5.70833L13.7667 4.16667Z"
                 [attr.fill]="activeTab === 'livraisons' ? '#FF5C02' : '#333333'" />
@@ -95,12 +92,11 @@
           <span class="font-medium">Livraisons</span>
         </button>
 
-        <button (click)="setActiveTab('statistiques')"
-          [class]="activeTab === 'statistiques'
+        <button (click)="setActiveTab('statistiques')" [class]="activeTab === 'statistiques'
             ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
             : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
           <span class="w-5 h-5">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M2.5 12.5003V14.0003C2.5 14.9337 2.5 15.4003 2.68167 15.757C2.84145 16.0706 3.09641 16.3255 3.41 16.4853C3.76583 16.667 4.2325 16.667 5.16417 16.667H17.5M2.5 12.5003V4.16699M2.5 12.5003L5.71083 9.82533L5.71417 9.82283C6.295 9.33866 6.58583 9.09616 6.90167 8.99783C7.27428 8.88132 7.67596 8.89931 8.03667 9.04866C8.3425 9.17616 8.61 9.44366 9.14667 9.98033L9.15167 9.98533C9.69667 10.5303 9.96917 10.8037 10.28 10.9295C10.6479 11.0794 11.0572 11.093 11.4342 10.9678C11.7533 10.8612 12.045 10.6062 12.6283 10.0962L17.5 5.83366"
                 [attr.stroke]="activeTab === 'statistiques' ? '#FF5C02' : '#333333'" stroke-width="1.66667"
@@ -122,431 +118,402 @@
 
 
       <!-- INVENTAIRES -->
-<div *ngIf="activeTab === 'inventaires'"
-     class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
+      <div *ngIf="activeTab === 'inventaires'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
 
-  <!-- ============================= -->
-  <!-- FILTRES INVENTAIRES -->
-  <!-- ============================= -->
-  <div class="flex gap-4 mb-6">
-    <div class="relative flex-1">
-      <input
-        type="text"
-        placeholder="Rechercher par matériel, unité..."
-        [(ngModel)]="searchMaterialTerm"
-        (input)="onMaterialSearchChange()"
-        class="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg
+        <!-- ============================= -->
+        <!-- FILTRES INVENTAIRES -->
+        <!-- ============================= -->
+        <div class="flex gap-4 mb-6">
+          <div class="relative flex-1">
+            <input type="text" placeholder="Rechercher par matériel, unité..." [(ngModel)]="searchMaterialTerm"
+              (input)="onMaterialSearchChange()" class="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-    </div>
+          </div>
 
-    <select
-      [(ngModel)]="statusMaterialFilter"
-      (change)="onMaterialStatusFilterChange()"
-      class="px-4 py-3 border border-gray-300 rounded-lg
+          <select [(ngModel)]="statusMaterialFilter" (change)="onMaterialStatusFilterChange()" class="px-4 py-3 border border-gray-300 rounded-lg
              focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-      <option value="">Tous les matériaux</option>
-      <option value="stock normal">Stock normal</option>
-      <option value="stock faible">Stock faible</option>
-      <option value="rupture de stock">Rupture de stock</option>
-    </select>
+            <option value="">Tous les matériaux</option>
+            <option value="stock normal">Stock normal</option>
+            <option value="stock faible">Stock faible</option>
+            <option value="rupture de stock">Rupture de stock</option>
+          </select>
 
-    <button *ngIf="searchMaterialTerm || statusMaterialFilter"
-            (click)="resetMaterialFilters()"
-            class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg
+          <button *ngIf="searchMaterialTerm || statusMaterialFilter" (click)="resetMaterialFilters()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg
                    hover:bg-gray-200 transition-colors">
-      Réinitialiser
-    </button>
-  </div>
+            Réinitialiser
+          </button>
+        </div>
 
-  <!-- ============================= -->
-  <!-- LOADING -->
-  <!-- ============================= -->
-  <div *ngIf="loading" class="bg-white rounded-lg p-8 text-center">
-    <div class="flex items-center justify-center gap-3">
-      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-      <span class="text-gray-600">Chargement des matériaux…</span>
-    </div>
-  </div>
+        <!-- ============================= -->
+        <!-- LOADING -->
+        <!-- ============================= -->
+        <div *ngIf="loading" class="bg-white rounded-lg p-8 text-center">
+          <div class="flex items-center justify-center gap-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+            <span class="text-gray-600">Chargement des matériaux…</span>
+          </div>
+        </div>
 
-  <!-- ============================= -->
-  <!-- TABLE INVENTAIRES -->
-  <!-- ============================= -->
-  <div *ngIf="!loading && paginatedMaterials.length > 0"
-       class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <!-- ============================= -->
+        <!-- TABLE INVENTAIRES -->
+        <!-- ============================= -->
+        <div *ngIf="!loading && paginatedMaterials.length > 0"
+          class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
 
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-[#F5F7FA]">
-          <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Matériau</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Stock</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Unité</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Seuil</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">État</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
-          </tr>
-        </thead>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-[#F5F7FA]">
+                <tr>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Matériau</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Stock</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Unité</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Seuil</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">État</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                </tr>
+              </thead>
 
-      <tbody>
-  <tr *ngFor="let material of paginatedMaterials; let i = index"
-      class="border-b hover:bg-gray-50">
+              <tbody>
+                <tr *ngFor="let material of paginatedMaterials; let i = index" class="border-b hover:bg-gray-50">
 
-    <td class="px-6 py-4 font-medium text-gray-900">
-      {{ getMaterialName(material) }}
-    </td>
+                  <td class="px-6 py-4 font-medium text-gray-900">
+                    {{ getMaterialName(material) }}
+                  </td>
 
-    <td class="px-6 py-4 font-semibold">
-      {{ getMaterialStock(material) }}
-    </td>
+                  <td class="px-6 py-4 font-semibold">
+                    {{ getMaterialStock(material) }}
+                  </td>
 
-    <td class="px-6 py-4 text-gray-600">
-      {{ getMaterialUnit(material) }}
-    </td>
+                  <td class="px-6 py-4 text-gray-600">
+                    {{ getMaterialUnit(material) }}
+                  </td>
 
-    <td class="px-6 py-4 text-gray-600">
-      {{ getMaterialThreshold(material) }}
-    </td>
+                  <td class="px-6 py-4 text-gray-600">
+                    {{ getMaterialThreshold(material) }}
+                  </td>
 
-    <td class="px-6 py-4">
-      <span
-        [class]="getStatusClass(getMaterialStatus(material))"
-        class="px-3 py-1 rounded-full text-xs font-medium">
-        {{ getStatusText(getMaterialStatus(material)) }}
-      </span>
-    </td>
+                  <td class="px-6 py-4">
+                    <span [class]="getStatusClass(getMaterialStatus(material))"
+                      class="px-3 py-1 rounded-full text-xs font-medium">
+                      {{ getStatusText(getMaterialStatus(material)) }}
+                    </span>
+                  </td>
 
-    <!-- ACTIONS -->
-    <td class="px-6 py-4 relative">
+                  <!-- ACTIONS -->
+                  <td class="px-6 py-4 relative">
 
-      <!-- BOUTON -->
-      <button
-        (click)="toggleInventoryDropdown(i, $event)"
-        class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
-        ⋮
-      </button>
+                    <!-- BOUTON -->
+                    <button (click)="toggleInventoryDropdown(i, $event)"
+                      class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+                      ⋮
+                    </button>
 
-      <!-- DROPDOWN -->
-      <div *ngIf="openInventoryDropdownIndex === i"
-           class="absolute right-0 top-10 w-56 bg-white rounded-xl
+                    <!-- DROPDOWN -->
+                    <div *ngIf="openInventoryDropdownIndex === i" class="absolute right-0 top-10 w-56 bg-white rounded-xl
                   shadow-lg border border-gray-200 z-30">
 
-        <button class="menu-item">👁️ Voir détails</button>
-        <button class="menu-item">✏️ Modifier</button>
-        <button class="menu-item">📦 Gérer le stock</button>
-        <button class="menu-item">🕘 Historique</button>
+                      <button class="menu-item">👁️ Voir détails</button>
+                      <button class="menu-item">✏️ Modifier</button>
+                      <button class="menu-item">📦 Gérer le stock</button>
+                      <button class="menu-item">🕘 Historique</button>
 
-        <hr class="my-1">
+                      <hr class="my-1">
 
-        <button class="menu-item text-red-600 hover:bg-red-50">
-          🗑️ Supprimer
-        </button>
+                      <button class="menu-item text-red-600 hover:bg-red-50">
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+
       </div>
 
-    </td>
-  </tr>
-</tbody>
 
-      </table>
-    </div>
-  </div>
+      <div *ngIf="activeTab === 'commandes'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
 
-</div>
+        <!-- ============================= -->
+        <!-- BARRE RECHERCHE & FILTRES -->
+        <!-- ============================= -->
+        <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <div class="flex flex-col sm:flex-row gap-4">
 
+            <!-- Recherche -->
+            <div class="flex-1 relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
 
-  <div *ngIf="activeTab === 'commandes'"
-     class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
-
-  <!-- ============================= -->
-  <!-- BARRE RECHERCHE & FILTRES -->
-  <!-- ============================= -->
-  <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-    <div class="flex flex-col sm:flex-row gap-4">
-
-      <!-- Recherche -->
-      <div class="flex-1 relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-
-        <input
-          type="text"
-          placeholder="Rechercher par commande, fournisseur"
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+              <input type="text" placeholder="Rechercher par commande, fournisseur" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
                  focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            </div>
+
+            <!-- Filtre statut -->
+            <select class="sm:w-48 p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+              <option value="">Tous les statuts</option>
+              <option value="EN_ATTENTE">En attente</option>
+              <option value="EN_LIVRAISON">En livraison</option>
+              <option value="LIVREE">Livrée</option>
+              <option value="ANNULEE">Annulée</option>
+            </select>
+
+          </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- TABLE COMMANDES -->
+        <!-- ============================= -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Commande</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-gray-200">
+                <tr *ngFor="let order of paginatedOrders; let i = index" class="hover:bg-gray-50">
+
+                  <td class="px-6 py-4 font-medium text-gray-900">
+                    CMD-{{ order.id.toString().padStart(4, '0') }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-600">
+                    {{ getFormattedDate(order.orderDate) }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-900">
+                    {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
+                  </td>
+
+
+
+                  <td class="px-6 py-4">
+                    <span [class]="getOrderStatusClass(order.status)"
+                      class="px-3 py-1 rounded-full text-xs font-medium">
+                      {{ getOrderStatusText(order.status) }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="px-6 py-4 relative">
+
+                    <!-- Bouton -->
+                    <button (click)="toggleOrderDropdown(i, $event)"
+                      class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+                      ⋮
+                    </button>
+
+                    <!-- Dropdown -->
+                    <!-- Dropdown pour les commandes -->
+                    <div *ngIf="openOrderDropdownIndex === i"
+                      class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+
+                      <!-- Voir détails -->
+                      <button (click)="onOrderAction('voir', order, $event)"
+                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>Voir détails</span>
+                      </button>
+
+                      <!-- Modifier -->
+                      <button (click)="onOrderAction('modifier', order, $event)"
+                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <span>Modifier</span>
+                      </button>
+
+                      <!-- Dupliquer -->
+                      <button (click)="onOrderAction('dupliquer', order, $event)"
+                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <span>Dupliquer</span>
+                      </button>
+
+                      <!-- Imprimer -->
+                      <button (click)="onOrderAction('imprimer', order, $event)"
+                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        <span>Imprimer</span>
+                      </button>
+
+                      <!-- Séparateur -->
+                      <hr class="my-1 border-gray-200" />
+
+                      <!-- Supprimer -->
+                      <button (click)="onOrderAction('supprimer', order, $event)"
+                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-red-600 hover:bg-red-50 transition-colors">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Supprimer</span>
+                      </button>
+                    </div>
+                  </td>
+
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
       </div>
 
-      <!-- Filtre statut -->
-      <select
-        class="sm:w-48 p-2 border border-gray-300 rounded-lg
-               focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-        <option value="">Tous les statuts</option>
-        <option value="EN_ATTENTE">En attente</option>
-        <option value="EN_LIVRAISON">En livraison</option>
-        <option value="LIVREE">Livrée</option>
-        <option value="ANNULEE">Annulée</option>
-      </select>
+      <div *ngIf="activeTab === 'livraisons'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
 
-    </div>
-  </div>
+        <!-- ============================= -->
+        <!-- BARRE RECHERCHE & FILTRES -->
+        <!-- ============================= -->
+        <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <div class="flex flex-col sm:flex-row gap-4">
 
-  <!-- ============================= -->
-  <!-- TABLE COMMANDES -->
-  <!-- ============================= -->
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <!-- Recherche -->
+            <div class="flex-1 relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
 
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Commande</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let order of paginatedOrders; let i = index"
-              class="hover:bg-gray-50">
-
-            <td class="px-6 py-4 font-medium text-gray-900">
-              CMD-{{ order.id.toString().padStart(4, '0') }}
-            </td>
-
-            <td class="px-6 py-4 text-gray-600">
-              {{ getFormattedDate(order.orderDate) }}
-            </td>
-
-            <td class="px-6 py-4 text-gray-900">
-              {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
-            </td>
-
-         
-
-            <td class="px-6 py-4">
-              <span
-                [class]="getOrderStatusClass(order.status)"
-                class="px-3 py-1 rounded-full text-xs font-medium">
-                {{ getOrderStatusText(order.status) }}
-              </span>
-            </td>
-
-            <!-- Actions -->
-           <td class="px-6 py-4 relative">
-
-  <!-- Bouton -->
-  <button
-    (click)="toggleOrderDropdown(i, $event)"
-    class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
-    ⋮
-  </button>
-
-  <!-- Dropdown -->
- <!-- Dropdown pour les commandes -->
-<div *ngIf="openOrderDropdownIndex === i"
-class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
-
-<!-- Voir détails -->
-<button (click)="onOrderAction('voir', order, $event)"
-     class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
-<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-</svg>
-<span>Voir détails</span>
-</button>
-
-<!-- Modifier -->
-<button (click)="onOrderAction('modifier', order, $event)"
-     class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
-<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-</svg>
-<span>Modifier</span>
-</button>
-
-<!-- Dupliquer -->
-<button (click)="onOrderAction('dupliquer', order, $event)"
-     class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
-<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-</svg>
-<span>Dupliquer</span>
-</button>
-
-<!-- Imprimer -->
-<button (click)="onOrderAction('imprimer', order, $event)"
-     class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
-<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-</svg>
-<span>Imprimer</span>
-</button>
-
-<!-- Séparateur -->
-<hr class="my-1 border-gray-200" />
-
-<!-- Supprimer -->
-<button (click)="onOrderAction('supprimer', order, $event)"
-     class="w-full flex items-center gap-3 px-5 py-3 text-left text-red-600 hover:bg-red-50 transition-colors">
-<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-</svg>
-<span>Supprimer</span>
-</button>
-</div>
-</td>
-
-
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
-
-  <div *ngIf="activeTab === 'livraisons'"
-     class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
-
-  <!-- ============================= -->
-  <!-- BARRE RECHERCHE & FILTRES -->
-  <!-- ============================= -->
-  <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-    <div class="flex flex-col sm:flex-row gap-4">
-
-      <!-- Recherche -->
-      <div class="flex-1 relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-
-        <input
-          type="text"
-          placeholder="Rechercher par livraison, fournisseur"
-          [(ngModel)]="searchDeliveryTerm"
-          (input)="onDeliverySearchChange()"
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+              <input type="text" placeholder="Rechercher par livraison, fournisseur" [(ngModel)]="searchDeliveryTerm"
+                (input)="onDeliverySearchChange()" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
                  focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-      </div>
+            </div>
 
-      <!-- Filtre statut -->
-      <select
-        [(ngModel)]="statusDeliveryFilter"
-        (change)="onDeliveryStatusFilterChange()"
-        class="sm:w-48 p-2 border border-gray-300 rounded-lg
+            <!-- Filtre statut -->
+            <select [(ngModel)]="statusDeliveryFilter" (change)="onDeliveryStatusFilterChange()" class="sm:w-48 p-2 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-        <option value="">Toutes les livraisons</option>
-        <option value="COMPLETE">Complète</option>
-        <option value="PARTIELLE">Partielle</option>
-        <option value="ANNULEE">Annulée</option>
-      </select>
+              <option value="">Toutes les livraisons</option>
+              <option value="COMPLETE">Complète</option>
+              <option value="PARTIELLE">Partielle</option>
+              <option value="ANNULEE">Annulée</option>
+            </select>
 
-    </div>
-  </div>
+          </div>
+        </div>
 
-  <!-- ============================= -->
-  <!-- TABLE LIVRAISONS -->
-  <!-- ============================= -->
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- ============================= -->
+        <!-- TABLE LIVRAISONS -->
+        <!-- ============================= -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
 
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Livraison</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-            <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commande</th> -->
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preuve</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-          </tr>
-        </thead>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Livraison</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commande</th> -->
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preuve</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
 
-        <tbody class="divide-y divide-gray-200">
-         <tr *ngFor="let delivery of paginatedDeliveries; let i = index"
-    class="border-b hover:bg-gray-50">
+              <tbody class="divide-y divide-gray-200">
+                <tr *ngFor="let delivery of paginatedDeliveries; let i = index" class="border-b hover:bg-gray-50">
 
-  <td class="px-6 py-4 font-medium">
-    CMD-{{ delivery.id.toString().padStart(4, '0') }}
-  </td>
+                  <td class="px-6 py-4 font-medium">
+                    CMD-{{ delivery.id.toString().padStart(4, '0') }}
+                  </td>
 
-  <td class="px-6 py-4 text-gray-600">
-    {{ getFormattedDate(delivery.orderDate) }}
-  </td>
+                  <td class="px-6 py-4 text-gray-600">
+                    {{ getFormattedDate(delivery.orderDate) }}
+                  </td>
 
-  <td class="px-6 py-4 text-gray-600">
-    {{ delivery.supplier.prenom }}  {{  delivery.supplier.nom }}
-  </td>
+                  <td class="px-6 py-4 text-gray-600">
+                    {{ delivery.supplier.prenom }} {{ delivery.supplier.nom }}
+                  </td>
 
-  <td class="px-6 py-4">
-        <span
-        [class]="getOrderStatusClass(delivery.status)"
-        class="px-3 py-1 rounded-full text-xs font-medium">
-        {{ getOrderStatusText(delivery.status) }}
-      </span>
-  </td>
+                  <td class="px-6 py-4">
+                    <span [class]="getOrderStatusClass(delivery.status)"
+                      class="px-3 py-1 rounded-full text-xs font-medium">
+                      {{ getOrderStatusText(delivery.status) }}
+                    </span>
+                  </td>
 
-  <td class="px-6 py-4">
-    {{ delivery.proof || 'Aucune' }}
-  </td>
+                  <td class="px-6 py-4">
+                    {{ delivery.proof || 'Aucune' }}
+                  </td>
 
-  <td class="px-6 py-4 relative">
+                  <td class="px-6 py-4 relative">
 
-  <!-- Bouton -->
-  <button
-    (click)="toggleDeliveryDropdown(i, $event)"
-    class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
-    ⋮
-  </button>
+                    <!-- Bouton -->
+                    <button (click)="toggleDeliveryDropdown(i, $event)"
+                      class="p-2 rounded-full hover:bg-gray-100 text-gray-600">
+                      ⋮
+                    </button>
 
-  <!-- Dropdown -->
-  <div *ngIf="openDeliveryDropdownIndex === i"
-       class="absolute right-0 top-10 w-56 bg-white rounded-xl
+                    <!-- Dropdown -->
+                    <div *ngIf="openDeliveryDropdownIndex === i" class="absolute right-0 top-10 w-56 bg-white rounded-xl
               shadow-lg border border-gray-200 z-30">
 
-    <button class="menu-item">👁️ Voir détails</button>
-    <button class="menu-item">✏️ Modifier</button>
-    <button class="menu-item">📦 Gérer le stock</button>
-    <button class="menu-item">🕘 Historique</button>
+                      <button class="menu-item">👁️ Voir détails</button>
+                      <button class="menu-item">✏️ Modifier</button>
+                      <button class="menu-item">📦 Gérer le stock</button>
+                      <button class="menu-item">🕘 Historique</button>
 
-    <hr class="my-1">
+                      <hr class="my-1">
 
-    <button class="menu-item text-red-600 hover:bg-red-50">
-      🗑️ Supprimer
-    </button>
+                      <button class="menu-item text-red-600 hover:bg-red-50">
+                        🗑️ Supprimer
+                      </button>
 
-  </div>
-</td>
-
-
-</tr>
-
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
+                    </div>
+                  </td>
 
 
+                </tr>
 
-     <!-- ===================== -->
-<!-- STATISTIQUES : CONTENU PRINCIPAL -->
-<!-- ===================== -->
-<div *ngIf="activeTab === 'statistiques'"
-     class="flex-1 h-[420px] bg-white rounded-lg overflow-hidden">
+              </tbody>
+            </table>
+          </div>
 
-  <!-- Le composant gère lui-même son layout -->
-  <app-statistique></app-statistique>
+        </div>
+      </div>
 
-</div>
+
+
+      <!-- ===================== -->
+      <!-- STATISTIQUES : CONTENU PRINCIPAL -->
+      <!-- ===================== -->
+      <div *ngIf="activeTab === 'statistiques'" class="flex-1 h-[420px] bg-white rounded-lg overflow-hidden">
+
+        <!-- Le composant gère lui-même son layout -->
+        <app-statistique></app-statistique>
+
+      </div>
 
 
     </div>
@@ -556,493 +523,495 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
     <!-- ===================================================== -->
     <div class="col-span-12 lg:col-span-4 hidden lg:block">
 
-   <!-- INVENTAIRES – COLONNE DROITE -->
-<div *ngIf="activeTab === 'inventaires'"
-     class="grid grid-rows-2 gap-6 h-[600px]">
+      <!-- INVENTAIRES – COLONNE DROITE -->
+      <div *ngIf="activeTab === 'inventaires'" class="grid grid-rows-2 gap-6 h-[600px]">
 
-  <!-- ========================= -->
-  <!-- CARTE 1 : ALERTES STOCK -->
-  <!-- ========================= -->
-<div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
+        <!-- ========================= -->
+        <!-- CARTE 1 : ALERTES STOCK -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
 
-  <!-- HEADER -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
-</svg>
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z"
+                  fill="#777777" />
+              </svg>
 
-      <h3 class="text-[16px] font-semibold text-[#34495E]">
-        Alertes stock matériaux
-      </h3>
-    </div>
+              <h3 class="text-[16px] font-semibold text-[#34495E]">
+                Alertes stock matériaux
+              </h3>
+            </div>
 
-    <span
-      class="w-6 h-6 flex items-center justify-center
+            <span class="w-6 h-6 flex items-center justify-center
              text-white text-xs font-semibold rounded-full
              bg-[#E74C3C]">
-      3
-    </span>
-  </div>
+              3
+            </span>
+          </div>
 
-  <!-- ITEM -->
-  <div class="flex flex-col gap-1">
-    <p class="font-medium text-[#34495E]">Ciment Portland</p>
+          <!-- ITEM -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">Ciment Portland</p>
 
-    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-      <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
-    </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
+            </div>
 
-    <div class="flex justify-between text-sm">
-      <span class="text-[#7F8C8D]">5 sacs restants</span>
-      <span class="text-[#F39C12] font-medium">Stock faible</span>
-    </div>
-  </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">5 sacs restants</span>
+              <span class="text-[#F39C12] font-medium">Stock faible</span>
+            </div>
+          </div>
 
-  <!-- ITEM -->
-  <div class="flex flex-col gap-1">
-    <p class="font-medium text-[#34495E]">Tuyaux PVC 100mm</p>
+          <!-- ITEM -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">Tuyaux PVC 100mm</p>
 
-    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-      <div class="h-full w-[60%] bg-[#F39C12] rounded-full"></div>
-    </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[60%] bg-[#F39C12] rounded-full"></div>
+            </div>
 
-    <div class="flex justify-between text-sm">
-      <span class="text-[#7F8C8D]">12 unités restantes</span>
-      <span class="text-[#F39C12] font-medium">Stock faible</span>
-    </div>
-  </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">12 unités restantes</span>
+              <span class="text-[#F39C12] font-medium">Stock faible</span>
+            </div>
+          </div>
 
-  <!-- ITEM -->
-  <div class="flex flex-col gap-1">
-    <p class="font-medium text-[#34495E]">Barres d'acier 10mm</p>
+          <!-- ITEM -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">Barres d'acier 10mm</p>
 
-    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-      <div class="h-full w-[15%] bg-[#E74C3C] rounded-full"></div>
-    </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[15%] bg-[#E74C3C] rounded-full"></div>
+            </div>
 
-    <div class="flex justify-between text-sm">
-      <span class="text-[#7F8C8D]">0 barres restantes</span>
-      <span class="text-[#E74C3C] font-medium">Rupture de stock</span>
-    </div>
-  </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">0 barres restantes</span>
+              <span class="text-[#E74C3C] font-medium">Rupture de stock</span>
+            </div>
+          </div>
 
-</div>
-
-
-  <!-- ========================= -->
-  <!-- CARTE 2 : MOUVEMENTS -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
-
-  <!-- HEADER -->
-  <div class="flex items-center justify-between">
-    <h3 class="text-[16px] font-semibold text-[#34495E]">
-      Mouvements récents
-    </h3>
-    <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378ZM5.59148 0L6.78042 0.914531L3.21642 5.5478L0 2.73342L0.98775 1.60458L3.00187 3.36586L5.59148 0ZM5.59148 6.99998L6.78042 7.91456L3.21642 12.5478L0 9.73341L0.98775 8.60456L3.00187 10.3658L5.59148 6.99998ZM5.59148 14L6.78042 14.9145L3.21642 19.5478L0 16.7334L0.98775 15.6046L3.00187 17.3659L5.59148 14Z" fill="#777777"/>
-</svg>
-
-  </div>
-
-  <!-- ITEM -->
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 14:30</p>
-      <p class="text-xl text-[#34495E] font-light">
-        <span class="text-[#E74C3C] font-medium">Sortie</span>
-        – 10 sacs de ciment
-      </p>
-    </div>
-    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-      Chantier A
-    </span>
-  </div>
-
-  <hr>
-
-  <!-- ITEM -->
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:15</p>
-      <p class="text-xl text-[#34495E] font-light">
-        <span class="text-green-600 font-medium">Entrée</span>
-        – 50 tuyaux PVC
-      </p>
-    </div>
-    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-      Livraison
-    </span>
-  </div>
-
-  <hr>
-
-  <!-- ITEM -->
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-sm text-[#7F8C8D]">Hier, 16:45</p>
-      <p class="text-xl text-[#34495E] font-light">
-        <span class="text-blue-600 font-medium">Ajustement</span>
-        + 5 kg de clous
-      </p>
-    </div>
-    <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-      Inventaire
-    </span>
-  </div>
-
-</div>
+        </div>
 
 
+        <!-- ========================= -->
+        <!-- CARTE 2 : MOUVEMENTS -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
 
-</div>
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <h3 class="text-[16px] font-semibold text-[#34495E]">
+              Mouvements récents
+            </h3>
+            <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378ZM5.59148 0L6.78042 0.914531L3.21642 5.5478L0 2.73342L0.98775 1.60458L3.00187 3.36586L5.59148 0ZM5.59148 6.99998L6.78042 7.91456L3.21642 12.5478L0 9.73341L0.98775 8.60456L3.00187 10.3658L5.59148 6.99998ZM5.59148 14L6.78042 14.9145L3.21642 19.5478L0 16.7334L0.98775 15.6046L3.00187 17.3659L5.59148 14Z"
+                fill="#777777" />
+            </svg>
+
+          </div>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 14:30</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-[#E74C3C] font-medium">Sortie</span>
+                – 10 sacs de ciment
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Chantier A
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:15</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-green-600 font-medium">Entrée</span>
+                – 50 tuyaux PVC
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Livraison
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Hier, 16:45</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-blue-600 font-medium">Ajustement</span>
+                + 5 kg de clous
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Inventaire
+            </span>
+          </div>
+
+        </div>
 
 
-     <!-- COMMANDES – COLONNE DROITE -->
-<div *ngIf="activeTab === 'commandes'"
-     class="grid grid-rows-2 gap-6 h-[600px]">
 
-  <!-- ========================= -->
-  <!-- CARTE 1 : ALERTES COMMANDES -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
-
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <!-- Icône alerte -->
-         <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
-</svg>
-
-        <h3 class="text-[16px] font-semibold text-[#34495E]">
-          Alertes commandes
-        </h3>
       </div>
 
-      <!-- Badge dynamique plus tard -->
-      <span
-        class="w-6 h-6 flex items-center justify-center
+
+      <!-- COMMANDES – COLONNE DROITE -->
+      <div *ngIf="activeTab === 'commandes'" class="grid grid-rows-2 gap-6 h-[600px]">
+
+        <!-- ========================= -->
+        <!-- CARTE 1 : ALERTES COMMANDES -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
+
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <!-- Icône alerte -->
+              <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z"
+                  fill="#777777" />
+              </svg>
+
+              <h3 class="text-[16px] font-semibold text-[#34495E]">
+                Alertes commandes
+              </h3>
+            </div>
+
+            <!-- Badge dynamique plus tard -->
+            <span class="w-6 h-6 flex items-center justify-center
                text-white text-xs font-semibold rounded-full
                bg-[#E74C3C]">
-        3
-      </span>
-    </div>
+              3
+            </span>
+          </div>
 
-    <!-- COMMANDE EN ATTENTE -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Commande CMD-0021
-      </p>
+          <!-- COMMANDE EN ATTENTE -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Commande CMD-0021
+            </p>
 
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[70%] bg-[#F39C12] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">En attente depuis 5 jours</span>
+              <span class="text-[#F39C12] font-medium">En attente</span>
+            </div>
+          </div>
+
+          <!-- COMMANDE EN LIVRAISON -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Commande CMD-0018
+            </p>
+
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[50%] bg-[#F39C12] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">Livraison en cours</span>
+              <span class="text-[#F39C12] font-medium">En livraison</span>
+            </div>
+          </div>
+
+          <!-- COMMANDE ANNULÉE -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Commande CMD-0012
+            </p>
+
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">Commande annulée</span>
+              <span class="text-[#E74C3C] font-medium">Annulée</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- CARTE 2 : ACTIVITÉ COMMANDES -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
+
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <h3 class="text-[16px] font-semibold text-[#34495E]">
+              Activité commandes
+            </h3>
+
+            <!-- Icône liste -->
+            <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378Z"
+                fill="#777777" />
+            </svg>
+          </div>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 10:45</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-[#F39C12] font-medium">Commande créée</span>
+                – CMD-0023
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Fournisseur
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 09:10</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-green-600 font-medium">Livrée</span>
+                – CMD-0019
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Livraison
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Hier, 16:20</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-[#E74C3C] font-medium">Annulée</span>
+                – CMD-0015
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Système
+            </span>
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">En attente depuis 5 jours</span>
-        <span class="text-[#F39C12] font-medium">En attente</span>
-      </div>
-    </div>
 
-    <!-- COMMANDE EN LIVRAISON -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Commande CMD-0018
-      </p>
+      <!-- LIVRAISONS – COLONNE DROITE -->
+      <div *ngIf="activeTab === 'livraisons'" class="grid grid-rows-2 gap-6 h-[600px]">
 
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[50%] bg-[#F39C12] rounded-full"></div>
-      </div>
+        <!-- ========================= -->
+        <!-- CARTE 1 : ALERTES LIVRAISONS -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
 
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">Livraison en cours</span>
-        <span class="text-[#F39C12] font-medium">En livraison</span>
-      </div>
-    </div>
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z"
+                  fill="#777777" />
+              </svg>
 
-    <!-- COMMANDE ANNULÉE -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Commande CMD-0012
-      </p>
+              <h3 class="text-[16px] font-semibold text-[#34495E]">
+                Alertes livraisons
+              </h3>
+            </div>
 
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
-      </div>
-
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">Commande annulée</span>
-        <span class="text-[#E74C3C] font-medium">Annulée</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ========================= -->
-  <!-- CARTE 2 : ACTIVITÉ COMMANDES -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
-
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <h3 class="text-[16px] font-semibold text-[#34495E]">
-        Activité commandes
-      </h3>
-
-      <!-- Icône liste -->
-      <svg width="17" height="20" viewBox="0 0 17 20" fill="none"
-           xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378Z"
-              fill="#777777"/>
-      </svg>
-    </div>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 10:45</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-[#F39C12] font-medium">Commande créée</span>
-          – CMD-0023
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Fournisseur
-      </span>
-    </div>
-
-    <hr>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 09:10</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-green-600 font-medium">Livrée</span>
-          – CMD-0019
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Livraison
-      </span>
-    </div>
-
-    <hr>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Hier, 16:20</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-[#E74C3C] font-medium">Annulée</span>
-          – CMD-0015
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Système
-      </span>
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- LIVRAISONS – COLONNE DROITE -->
-<div *ngIf="activeTab === 'livraisons'"
-     class="grid grid-rows-2 gap-6 h-[600px]">
-
-  <!-- ========================= -->
-  <!-- CARTE 1 : ALERTES LIVRAISONS -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
-
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-         <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
-</svg>
-
-        <h3 class="text-[16px] font-semibold text-[#34495E]">
-          Alertes livraisons
-        </h3>
-      </div>
-
-      <!-- Badge dynamique plus tard -->
-      <span
-        class="w-6 h-6 flex items-center justify-center
+            <!-- Badge dynamique plus tard -->
+            <span class="w-6 h-6 flex items-center justify-center
                text-white text-xs font-semibold rounded-full
                bg-[#E74C3C]">
-        2
-      </span>
-    </div>
+              2
+            </span>
+          </div>
 
-    <!-- LIVRAISON EN RETARD -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Livraison LIV-0021
-      </p>
+          <!-- LIVRAISON EN RETARD -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Livraison LIV-0021
+            </p>
 
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[65%] bg-[#F39C12] rounded-full"></div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[65%] bg-[#F39C12] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">Retard de 2 jours</span>
+              <span class="text-[#F39C12] font-medium">En retard</span>
+            </div>
+          </div>
+
+          <!-- LIVRAISON PARTIELLE -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Livraison LIV-0017
+            </p>
+
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[45%] bg-[#F39C12] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">Livraison partielle</span>
+              <span class="text-[#F39C12] font-medium">Partielle</span>
+            </div>
+          </div>
+
+          <!-- LIVRAISON ANNULÉE -->
+          <div class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              Livraison LIV-0012
+            </p>
+
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">Livraison annulée</span>
+              <span class="text-[#E74C3C] font-medium">Annulée</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- CARTE 2 : MOUVEMENTS LIVRAISONS -->
+        <!-- ========================= -->
+        <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
+
+          <!-- HEADER -->
+          <div class="flex items-center justify-between">
+            <h3 class="text-[16px] font-semibold text-[#34495E]">
+              Activité livraisons
+            </h3>
+
+            <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z"
+                fill="#777777" />
+            </svg>
+          </div>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 15:10</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-green-600 font-medium">Livrée</span>
+                – LIV-0020
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Réception
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:40</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-[#F39C12] font-medium">Partielle</span>
+                – LIV-0018
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Livraison
+            </span>
+          </div>
+
+          <hr>
+
+          <!-- ITEM -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-[#7F8C8D]">Hier, 17:05</p>
+              <p class="text-xl text-[#34495E] font-light">
+                <span class="text-[#E74C3C] font-medium">Annulée</span>
+                – LIV-0014
+              </p>
+            </div>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
+              Système
+            </span>
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">Retard de 2 jours</span>
-        <span class="text-[#F39C12] font-medium">En retard</span>
+
+
+      <!-- STATISTIQUES -->
+      <div *ngIf="activeTab === 'statistiques'" class="grid grid-rows-2 gap-6 h-[600px]">
+
+        <!-- BAR CHART -->
+        <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+          <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
+            Consommation mensuelle
+          </h3>
+
+          <!-- zone graphique -->
+          <div class="flex-1 flex items-center justify-center">
+            <canvas id="consumptionChart" class="w-full h-full"></canvas>
+          </div>
+
+          <p class="text-center text-sm text-[#7F8C8D] ">
+            Top 5 matériaux les plus utilisés
+          </p>
+        </div>
+
+        <!-- LINE CHART -->
+        <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+          <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
+            Évolution mensuelle
+          </h3>
+
+          <div class="flex-1 flex items-center justify-center">
+            <canvas id="evolutionChart" class="w-full h-full"></canvas>
+          </div>
+        </div>
+
       </div>
-    </div>
 
-    <!-- LIVRAISON PARTIELLE -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Livraison LIV-0017
-      </p>
 
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[45%] bg-[#F39C12] rounded-full"></div>
-      </div>
 
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">Livraison partielle</span>
-        <span class="text-[#F39C12] font-medium">Partielle</span>
-      </div>
-    </div>
-
-    <!-- LIVRAISON ANNULÉE -->
-    <div class="flex flex-col gap-1">
-      <p class="font-medium text-[#34495E]">
-        Livraison LIV-0012
-      </p>
-
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div class="h-full w-[20%] bg-[#E74C3C] rounded-full"></div>
-      </div>
-
-      <div class="flex justify-between text-sm">
-        <span class="text-[#7F8C8D]">Livraison annulée</span>
-        <span class="text-[#E74C3C] font-medium">Annulée</span>
-      </div>
     </div>
 
   </div>
-
-  <!-- ========================= -->
-  <!-- CARTE 2 : MOUVEMENTS LIVRAISONS -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-4">
-
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <h3 class="text-[16px] font-semibold text-[#34495E]">
-        Activité livraisons
-      </h3>
-
-       <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
-</svg>
-    </div>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 15:10</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-green-600 font-medium">Livrée</span>
-          – LIV-0020
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Réception
-      </span>
-    </div>
-
-    <hr>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Aujourd'hui, 11:40</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-[#F39C12] font-medium">Partielle</span>
-          – LIV-0018
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Livraison
-      </span>
-    </div>
-
-    <hr>
-
-    <!-- ITEM -->
-    <div class="flex justify-between items-start">
-      <div>
-        <p class="text-sm text-[#7F8C8D]">Hier, 17:05</p>
-        <p class="text-xl text-[#34495E] font-light">
-          <span class="text-[#E74C3C] font-medium">Annulée</span>
-          – LIV-0014
-        </p>
-      </div>
-      <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-        Système
-      </span>
-    </div>
-
-  </div>
-
 </div>
 
 
-
-     <!-- STATISTIQUES -->
-<div *ngIf="activeTab === 'statistiques'"
-     class="grid grid-rows-2 gap-6 h-[600px]">
-
-  <!-- BAR CHART -->
-  <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
-    <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
-      Consommation mensuelle
-    </h3>
-
-    <!-- zone graphique -->
-    <div class="flex-1 flex items-center justify-center">
-      <canvas id="consumptionChart" class="w-full h-full"></canvas>
-    </div>
-
-    <p class="text-center text-sm text-[#7F8C8D] ">
-      Top 5 matériaux les plus utilisés
-    </p>
-  </div>
-
-  <!-- LINE CHART -->
-  <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
-    <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
-      Évolution mensuelle
-    </h3>
-
-    <div class="flex-1 flex items-center justify-center">
-      <canvas id="evolutionChart" class="w-full h-full"></canvas>
-    </div>
-  </div>
-
-</div>
-
-
-
-    </div>
-
-  </div>
-</div>
-
-
-            <td class="px-6 py-4 text-gray-600">
-              <!-- CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }} -->
-            </td>
+<td class="px-6 py-4 text-gray-600">
+  <!-- CMD-{{ delivery.order?.id?.toString().padStart(4, '0') }} -->
+</td>
 
 
 <!-- Modal de création de commande -->
@@ -1070,16 +1039,17 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
           </label>
           <div class="relative">
             <select formControlName="supplierId" size="1"
-                    class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900 text-base cursor-pointer"
-                    [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
-                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.25rem;">
+              class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900 text-base cursor-pointer"
+              [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
+              style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.25rem;">
               <option value="">Sélectionner un fournisseur</option>
               <option *ngFor="let supplier of suppliers" [value]="supplier.id">
                 {{ supplier.prenom }} {{ supplier.nom }} — {{ supplier.telephone }}
               </option>
             </select>
           </div>
-          <div *ngIf="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched" class="mt-2 text-sm text-red-600">
+          <div *ngIf="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
+            class="mt-2 text-sm text-red-600">
             Veuillez sélectionner un fournisseur
           </div>
         </div>
@@ -1089,7 +1059,7 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Matériaux commandés</h3>
             <button type="button" (click)="addMaterialLine()"
-                    class="flex items-center gap-2 px-5 py-2.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors font-medium">
+              class="flex items-center gap-2 px-5 py-2.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors font-medium">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
@@ -1098,7 +1068,8 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
           </div>
 
           <!-- En-têtes -->
-          <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-t-xl border-b border-gray-200 font-medium text-gray-700 text-sm">
+          <div
+            class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-t-xl border-b border-gray-200 font-medium text-gray-700 text-sm">
             <div class="col-span-5">Matériau</div>
             <div class="col-span-3">Stock actuel</div>
             <div class="col-span-3">Quantité</div>
@@ -1107,16 +1078,15 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
 
           <!-- Lignes avec scroll sur select -->
           <div formArrayName="materials" class="max-h-80 overflow-y-auto">
-            <div *ngFor="let material of materialsArray.controls; let i = index"
-                 [formGroupName]="i"
-                 class="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-b-0">
+            <div *ngFor="let material of materialsArray.controls; let i = index" [formGroupName]="i"
+              class="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-b-0">
 
               <!-- Select matériau avec scroll -->
               <div class="col-span-5">
                 <select formControlName="materialId" size="1"
-                        class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-sm cursor-pointer"
-                        [class.border-red-500]="material.get('materialId')?.invalid && material.get('materialId')?.touched"
-                        style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
+                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-sm cursor-pointer"
+                  [class.border-red-500]="material.get('materialId')?.invalid && material.get('materialId')?.touched"
+                  style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
                   <option value="">Sélectionner un matériau</option>
                   <option *ngFor="let mat of materials" [value]="mat.id">
                     {{ mat.label }} ({{ mat?.unit?.code || '—' }})
@@ -1132,15 +1102,14 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
               <!-- Quantité -->
               <div class="col-span-3">
                 <input type="number" formControlName="quantity" min="1" placeholder="Qté"
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
-                       [class.border-red-500]="material.get('quantity')?.invalid && material.get('quantity')?.touched">
+                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+                  [class.border-red-500]="material.get('quantity')?.invalid && material.get('quantity')?.touched">
               </div>
 
               <!-- Supprimer -->
               <div class="col-span-1 flex justify-center">
-                <button type="button" (click)="removeMaterialLine(i)"
-                        [disabled]="materialsArray.length === 1"
-                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <button type="button" (click)="removeMaterialLine(i)" [disabled]="materialsArray.length === 1"
+                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -1156,15 +1125,18 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
     <!-- Footer fixe -->
     <div class="flex justify-end gap-4 p-8 border-t border-gray-200">
       <button type="button" (click)="closeOrderModal()"
-              class="px-8 py-3.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+        class="px-8 py-3.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium">
         Annuler
       </button>
 
       <button type="button" (click)="onSubmitOrder()" [disabled]="orderForm.invalid || loading"
-              class="px-8 py-3.5 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-        <svg *ngIf="loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        class="px-8 py-3.5 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors font-medium flex items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg *ngIf="loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
         </svg>
         Enregistrer
       </button>
@@ -1175,146 +1147,135 @@ class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-lg border border-
 
 
 
- <!-- ⚠️ REMPLACER complètement le modal existant dans le HTML -->
-  <div *ngIf="showNewMaterialModal"
-    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-    (click)="closeNewMaterialModal()">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
-      (click)="$event.stopPropagation()">
+<!-- ⚠️ REMPLACER complètement le modal existant dans le HTML -->
+<div *ngIf="showNewMaterialModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+  (click)="closeNewMaterialModal()">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+    (click)="$event.stopPropagation()">
 
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-900">Ajouter un nouveau matériau</h2>
-        <button (click)="closeNewMaterialModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Ajouter un nouveau matériau</h2>
+      <button (click)="closeNewMaterialModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
 
-      <!-- Modal Body -->
-      <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-        <form [formGroup]="materialForm">
-          <div class="space-y-6">
+    <!-- Modal Body -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+      <form [formGroup]="materialForm">
+        <div class="space-y-6">
 
-            <!-- Nom du matériau -->
+          <!-- Nom du matériau -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nom du matériel <span class="text-red-500">*</span>
+            </label>
+            <input type="text" placeholder="Ex: Ciment Portland" formControlName="label"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              [class.border-red-500]="isFieldInvalid('label')" [class.focus:ring-red-500]="isFieldInvalid('label')">
+            <div *ngIf="isFieldInvalid('label')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('label') }}
+            </div>
+          </div>
+
+          <!-- Quantité actuelle et Seuil critique -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Quantité actuelle -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Nom du matériel <span class="text-red-500">*</span>
+                Quantité actuelle <span class="text-red-500">*</span>
               </label>
-              <input type="text" placeholder="Ex: Ciment Portland" formControlName="label"
+              <input type="number" placeholder="Ex: 100" formControlName="quantity" min="0"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                [class.border-red-500]="isFieldInvalid('label')" [class.focus:ring-red-500]="isFieldInvalid('label')">
-              <div *ngIf="isFieldInvalid('label')" class="mt-1 text-sm text-red-600">
-                {{ getFieldError('label') }}
+                [class.border-red-500]="isFieldInvalid('quantity')"
+                [class.focus:ring-red-500]="isFieldInvalid('quantity')">
+              <div *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('quantity') }}
               </div>
             </div>
 
-            <!-- Quantité actuelle et Seuil critique -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Quantité actuelle -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Quantité actuelle <span class="text-red-500">*</span>
-                </label>
-                <input type="number" placeholder="Ex: 100" formControlName="quantity" min="0"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                  [class.border-red-500]="isFieldInvalid('quantity')"
-                  [class.focus:ring-red-500]="isFieldInvalid('quantity')">
-                <div *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
-                  {{ getFieldError('quantity') }}
-                </div>
-              </div>
-
-              <!-- Seuil critique -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Seuil critique <span class="text-red-500">*</span>
-                </label>
-                <input type="number" placeholder="Ex: 10" formControlName="criticalThreshold" min="0"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                  [class.border-red-500]="isFieldInvalid('criticalThreshold')"
-                  [class.focus:ring-red-500]="isFieldInvalid('criticalThreshold')">
-                <div *ngIf="isFieldInvalid('criticalThreshold')" class="mt-1 text-sm text-red-600">
-                  {{ getFieldError('criticalThreshold') }}
-                </div>
+            <!-- Seuil critique -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Seuil critique <span class="text-red-500">*</span>
+              </label>
+              <input type="number" placeholder="Ex: 10" formControlName="criticalThreshold" min="0"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                [class.border-red-500]="isFieldInvalid('criticalThreshold')"
+                [class.focus:ring-red-500]="isFieldInvalid('criticalThreshold')">
+              <div *ngIf="isFieldInvalid('criticalThreshold')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('criticalThreshold') }}
               </div>
             </div>
-
-            <!-- Unité et Propriété -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Unité <span class="text-red-500">*</span>
-                </label>
-                <select formControlName="unitId"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
-                  [class.border-red-500]="isFieldInvalid('unitId')"
-                  [class.focus:ring-red-500]="isFieldInvalid('unitId')">
-                  <option value="">Sélectionnez une unité</option>
-                  <option *ngFor="let unit of units" [value]="unit.id">
-                    {{ unit.label }} ({{ unit.code }})
-                  </option>
-                </select>
-                <!-- ⚠️ Message de debug (à retirer en production) -->
-                <div *ngIf="units.length === 0" class="mt-1 text-xs text-gray-500">
-                  ℹ️ Chargement des unités en cours...
-                </div>
-                <div *ngIf="isFieldInvalid('unitId')" class="mt-1 text-sm text-red-600">
-                  Ce champ est requis
-                </div>
-              </div>
-
-              <!-- Propriété -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Propriété <span class="text-red-500">*</span>
-                </label>
-                <select formControlName="propertyId"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
-                  [class.border-red-500]="isFieldInvalid('propertyId')"
-                  [class.focus:ring-red-500]="isFieldInvalid('propertyId')">
-                  <option value="">Sélectionnez une propriété</option>
-                  <option *ngFor="let property of properties" [value]="property.id">
-                    {{ property.typeName || property.name }}
-                  </option>
-                </select>
-                <!-- ⚠️ Message de debug (à retirer en production) -->
-                <div *ngIf="properties.length === 0" class="mt-1 text-xs text-gray-500">
-                  ℹ️ Chargement des propriétés en cours...
-                </div>
-                <div *ngIf="isFieldInvalid('propertyId')" class="mt-1 text-sm text-red-600">
-                  Ce champ est requis
-                </div>
-              </div>
-            </div>
-
           </div>
-        </form>
-      </div>
 
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-end gap-4 p-6 border-t border-gray-200">
-        <button type="button" (click)="closeNewMaterialModal()"
-          class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
-          Annuler
-        </button>
-        <button type="submit" (click)="onSaveNewStock()" [disabled]="!isFormValid() || loading"
-          class="text-white rounded-lg font-medium transition-all flex items-center gap-2"
-          style="background-color: #fe8441; border-radius: 10px; padding: 14px 20px; min-width: 160px; height: 46px;"
-          [class.opacity-50]="!isFormValid() || loading" [class.cursor-not-allowed]="!isFormValid() || loading">
-          <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
-        </button>
-      </div>
+          <!-- Unité et Propriété -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Unité <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="unitId"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
+                [class.border-red-500]="isFieldInvalid('unitId')" [class.focus:ring-red-500]="isFieldInvalid('unitId')">
+                <option value="">Sélectionnez une unité</option>
+                <option *ngFor="let unit of units" [value]="unit.id">
+                  {{ unit.label }} ({{ unit.code }})
+                </option>
+              </select>
+              <!-- ⚠️ Message de debug (à retirer en production) -->
+              <div *ngIf="units.length === 0" class="mt-1 text-xs text-gray-500">
+                ℹ️ Chargement des unités en cours...
+              </div>
+              <div *ngIf="isFieldInvalid('unitId')" class="mt-1 text-sm text-red-600">
+                Ce champ est requis
+              </div>
+            </div>
+
+            <!-- Propriété -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Propriété <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="propertyId"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
+                [class.border-red-500]="isFieldInvalid('propertyId')"
+                [class.focus:ring-red-500]="isFieldInvalid('propertyId')">
+                <option value="">Sélectionnez une propriété</option>
+                <option *ngFor="let property of properties" [value]="property.id">
+                  {{ property.typeName || property.name }}
+                </option>
+              </select>
+              <!-- ⚠️ Message de debug (à retirer en production) -->
+              <div *ngIf="properties.length === 0" class="mt-1 text-xs text-gray-500">
+                ℹ️ Chargement des propriétés en cours...
+              </div>
+              <div *ngIf="isFieldInvalid('propertyId')" class="mt-1 text-sm text-red-600">
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex items-center justify-end gap-4 p-6 border-t border-gray-200">
+      <button type="button" (click)="closeNewMaterialModal()"
+        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
+        Annuler
+      </button>
+      <button type="submit" (click)="onSaveNewStock()" [disabled]="!isFormValid() || loading"
+        class="text-white rounded-lg font-medium transition-all flex items-center gap-2"
+        style="background-color: #fe8441; border-radius: 10px; padding: 14px 20px; min-width: 160px; height: 46px;"
+        [class.opacity-50]="!isFormValid() || loading" [class.cursor-not-allowed]="!isFormValid() || loading">
+        <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+        {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
     </div>
   </div>
-
-
-
-
-
-
-
-
-
+</div>

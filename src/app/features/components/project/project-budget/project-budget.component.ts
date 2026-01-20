@@ -7,6 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { ProjectBudgetService, BudgetResponse, Expense, ExpensesResponse, CreateExpenseRequest } from '../../../../../services/project-details.service';
+import { environment } from '../../../../../environments/environment';
+import { DomSanitizer } from '@angular/platform-browser';
 
 Chart.register(...registerables);
 
@@ -42,6 +44,10 @@ export class ProjectBudgetComponent implements OnInit {
 selectedFile: File | null = null;
 selectedFileName: string = '';
 
+// Ajouter ces propriétés au début de la classe
+showEvidenceModal = false;
+selectedExpense: Expense | null = null;
+
 // 2. Modifier l'interface newExpense pour inclure evidence au lieu de proof
 newExpense: CreateExpenseRequest & { evidence?: File } = {
   description: '',
@@ -63,6 +69,7 @@ newExpense: CreateExpenseRequest & { evidence?: File } = {
   constructor(
     private route: ActivatedRoute,
     private budgetService: ProjectBudgetService,
+    private sanitizer: DomSanitizer, // Ajouter cette ligne
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -389,7 +396,9 @@ resetExpenseForm(): void {
     }
     return true;
   }
-
+  getBaseFile(){
+    return environment.filebaseUrl;
+  }
   // Méthode createExpense avec gestion d'erreur améliorée
   private createExpenseWithFormattedDate(expenseData: any): void {
     // Créer l'objet de requête avec le fichier
@@ -606,4 +615,45 @@ resetExpenseForm(): void {
   get pageNumbers(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i);
   }
+
+  // Méthodes pour gérer le modal de preuve
+openEvidenceModal(expense: Expense): void {
+  this.selectedExpense = expense;
+  this.showEvidenceModal = true;
+}
+
+closeEvidenceModal(): void {
+  this.showEvidenceModal = false;
+  this.selectedExpense = null;
+}
+
+// Méthode pour vérifier si c'est une image
+isImage(filename: string): boolean {
+  if (!filename) return false;
+  const extension = filename.toLowerCase().split('.').pop();
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension || '');
+}
+
+// Méthode pour vérifier si c'est un PDF
+isPDF(filename: string): boolean {
+  if (!filename) return false;
+  const extension = filename.toLowerCase().split('.').pop();
+  return extension === 'pdf';
+}
+
+// Méthode pour obtenir l'URL du PDF (avec sanitization pour Angular)
+getPDFUrl(filename: string): any {
+  // Si vous utilisez DomSanitizer, décommentez ces lignes:
+  // import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+  // return this.sanitizer.bypassSecurityTrustResourceUrl(this.getBaseFile() + filename);
+  
+  // Version simple sans sanitizer (peut nécessiter d'ajuster la sécurité Angular)
+  return this.getBaseFile() + filename;
+}
+
+// Méthode pour gérer les erreurs de chargement d'image
+onImageError(event: any): void {
+  console.error('Erreur de chargement de l\'image');
+  event.target.src = 'assets/images/image-not-found.png'; // Image de fallback
+}
 }

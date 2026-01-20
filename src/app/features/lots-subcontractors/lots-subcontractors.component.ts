@@ -78,6 +78,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
+  
   constructor(
     private lotService: LotService,
     private authService: AuthService,
@@ -184,16 +185,22 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   private formatDateFromAPI(date: any): string {
+    // Si c'est un tableau [year, month, day]
     if (Array.isArray(date) && date.length >= 3) {
       const [year, month, day] = date;
       return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-    } else if (typeof date === 'string') {
+    } 
+    // Si c'est une string dd-MM-yyyy
+    else if (typeof date === 'string' && date.includes('-')) {
       const parts = date.split('-');
-      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : 'N/A';
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        return `${day}/${month}/${year}`;
+      }
     }
     return 'N/A';
   }
-
+  
   mapStatus(apiStatus: string): 'En cours' | 'En attente' | 'Planifié' | 'Terminé' {
     const statusMap: Record<string, 'En cours' | 'En attente' | 'Planifié' | 'Terminé'> = {
       'PENDING': 'En attente',
@@ -305,6 +312,8 @@ export class LotsSubcontractorsComponent implements OnInit {
     this.subcontractorSearch = '';
     this.filteredSubcontractors = [...this.availableSubcontractors];
     this.showSubcontractorDropdown = false;
+    this.selectedFile = null;
+    this.selectedFileName = '';
     this.errorMessage = '';
     this.successMessage = '';
     this.showCreateModal = true;
@@ -326,6 +335,8 @@ export class LotsSubcontractorsComponent implements OnInit {
       this.subcontractorSearch = lot.soustraitant?.nom || '';
       this.filteredSubcontractors = [...this.availableSubcontractors];
       this.showSubcontractorDropdown = false;
+      this.selectedFile = null;
+      this.selectedFileName = '';
       this.errorMessage = '';
       this.successMessage = '';
       this.showEditModal = true;
@@ -343,8 +354,16 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   private convertToInputFormat(date: string): string {
+    if (!date) return '';
+    
+    // date est au format dd/MM/yyyy (affichage)
     const parts = date.split('/');
-    return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      // Retourner au format yyyy-MM-dd pour l'input HTML
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    return '';
   }
 
   selectSubcontractor(sub: { id: number; name: string; company: string; phone: string }): void {
@@ -397,24 +416,41 @@ export class LotsSubcontractorsComponent implements OnInit {
       return;
     }
   
-    // Formater les dates au format dd-MM-yyyy
+    // IMPORTANT: Convertir les dates du format yyyy-MM-dd (input HTML) 
+    // vers le format dd-MM-yyyy (attendu par l'API)
     const formattedStartDate = this.formatDateForAPI(this.currentLot.startDate);
     const formattedEndDate = this.formatDateForAPI(this.currentLot.endDate);
   
-    console.log('Dates formatées:', {
-      start: formattedStartDate,
-      end: formattedEndDate
+    console.log('📅 Dates converties:', {
+      original: {
+        start: this.currentLot.startDate,
+        end: this.currentLot.endDate
+      },
+      formatted: {
+        start: formattedStartDate,
+        end: formattedEndDate
+      }
     });
   
+    // Créer l'objet de requête avec les dates formatées
     const request: CreateLotRequest = {
       name: this.currentLot.name,
       description: this.currentLot.description,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
+      startDate: formattedStartDate,  // Format dd-MM-yyyy
+      endDate: formattedEndDate,      // Format dd-MM-yyyy
       realEstatePropertyId: this.currentPropertyId,
       subcontractorId: this.currentLot.subcontractorId,
       file: this.selectedFile || undefined
     };
+  
+    // Validation supplémentaire via le service
+    const validationErrors = this.lotService.validateLotData(request);
+    if (validationErrors.length > 0) {
+      this.errorMessage = validationErrors.join(', ');
+      return;
+    }
+  
+    console.log('📤 Requête finale à envoyer:', request);
   
     this.isLoading = true;
   
@@ -424,35 +460,46 @@ export class LotsSubcontractorsComponent implements OnInit {
   
     operation.subscribe({
       next: (response) => {
-        console.log('✅ Lot sauvegardé:', response);
+        console.log('✅ Lot sauvegardé avec succès:', response);
         this.successMessage = this.showCreateModal ? 'Lot créé avec succès !' : 'Lot modifié avec succès !';
+        this.isLoading = false;
+        
+        // Recharger la liste des lots
         this.chargerLots();
+        
+        // Fermer le modal après un délai
         setTimeout(() => {
           this.closeModal();
           this.successMessage = '';
         }, 1500);
-        this.isLoading = false;
       },
       error: (err) => {
-        console.error('❌ Erreur sauvegarde lot:', err);
+        console.error('❌ Erreur lors de la sauvegarde:', err);
+        this.isLoading = false;
         
         // Gestion détaillée des erreurs
-        if (err.status === 400) {
-          this.errorMessage = err.error?.message || 'Données invalides. Vérifiez les dates.';
+        if (err.status === 0) {
+          this.errorMessage = 'Erreur de connexion au serveur. Vérifiez votre connexion internet.';
+        } else if (err.status === 400) {
+          this.errorMessage = err.error?.message || 'Données invalides. Vérifiez les informations saisies.';
+        } else if (err.status === 401) {
+          this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
         } else if (err.status === 403) {
-          this.errorMessage = "Vous n'avez pas les droits pour cette action";
+          this.errorMessage = "Vous n'avez pas les droits pour effectuer cette action.";
         } else if (err.status === 404) {
-          this.errorMessage = 'Propriété ou sous-traitant introuvable';
+          this.errorMessage = 'Propriété ou sous-traitant introuvable.';
+        } else if (err.status === 500) {
+          this.errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
         } else {
-          this.errorMessage = err.error?.message || 'Erreur lors de la sauvegarde du lot';
+          this.errorMessage = err.error?.message || 'Une erreur est survenue lors de la sauvegarde.';
         }
-        
-        this.isLoading = false;
       }
     });
   }
 
   private formatDateForAPI(date: string): string {
+    if (!date) return '';
+    
     // date est au format yyyy-MM-dd (depuis l'input HTML)
     const parts = date.split('-');
     if (parts.length === 3) {
@@ -462,6 +509,7 @@ export class LotsSubcontractorsComponent implements OnInit {
     }
     return date;
   }
+  
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -490,6 +538,12 @@ export class LotsSubcontractorsComponent implements OnInit {
       this.selectedFile = file;
       this.selectedFileName = file.name;
       this.errorMessage = '';
+      
+      console.log('📎 Fichier sélectionné:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
     }
   }
   
@@ -502,6 +556,8 @@ export class LotsSubcontractorsComponent implements OnInit {
     if (fileInput) {
       fileInput.value = '';
     }
+    
+    console.log('🗑️ Fichier supprimé');
   }
   // 6. Modifier la méthode formatDateForAPI (déjà existante mais vérifier)
 

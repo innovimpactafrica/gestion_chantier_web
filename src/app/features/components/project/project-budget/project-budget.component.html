@@ -109,7 +109,13 @@
               {{ getFormattedDate(expense.date) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ expense.description }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ expense.evidence }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex align items-center gap-2">
+              <svg class="cursor-pointer" (click)="openEvidenceModal(expense)" width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.0003 6.6884C13.8089 6.68239 15.5825 7.18688 17.1172 8.14387C18.6518 9.10087 19.8853 10.4715 20.6757 12.0982C19.0528 15.413 15.738 17.5081 12.0003 17.5081C8.26263 17.5081 4.94788 15.413 3.32493 12.0982C4.11537 10.4715 5.34883 9.10087 6.8835 8.14387C8.41816 7.18688 10.1917 6.68239 12.0003 6.6884ZM12.0003 4.72119C7.0823 4.72119 2.8823 7.78021 1.18066 12.0982C2.8823 16.4163 7.0823 19.4753 12.0003 19.4753C16.9184 19.4753 21.1184 16.4163 22.82 12.0982C21.1184 7.78021 16.9184 4.72119 12.0003 4.72119ZM12.0003 9.63922C12.6525 9.63922 13.278 9.8983 13.7391 10.3595C14.2003 10.8206 14.4594 11.4461 14.4594 12.0982C14.4594 12.7504 14.2003 13.3759 13.7391 13.837C13.278 14.2982 12.6525 14.5573 12.0003 14.5573C11.3482 14.5573 10.7227 14.2982 10.2615 13.837C9.80039 13.3759 9.54132 12.7504 9.54132 12.0982C9.54132 11.4461 9.80039 10.8206 10.2615 10.3595C10.7227 9.8983 11.3482 9.63922 12.0003 9.63922ZM12.0003 7.67201C9.56099 7.67201 7.57411 9.6589 7.57411 12.0982C7.57411 14.5376 9.56099 16.5245 12.0003 16.5245C14.4397 16.5245 16.4266 14.5376 16.4266 12.0982C16.4266 9.6589 14.4397 7.67201 12.0003 7.67201Z" fill="#4B4848"/>
+              </svg>
+                <!-- <img class="h-5 w-5" [src]="getBaseFile()+ expense.evidence" alt=""> -->
+           
+            </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
               {{ formatCurrency(expense.amount) }}
             </td>
@@ -376,6 +382,103 @@
       <button type="button" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
         (click)="deleteExpense()" [disabled]="loading">
         {{ loading ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal pour afficher la preuve -->
+<div *ngIf="showEvidenceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <!-- En-tête du modal -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h3 class="text-xl font-bold text-gray-800">Preuve de la dépense</h3>
+      <button (click)="closeEvidenceModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contenu du modal -->
+    <div class="p-6 overflow-y-auto max-h-[calc(70vh-140px)]">
+      <!-- Informations de la dépense -->
+      <div *ngIf="selectedExpense" class="mb-6 bg-gray-50 rounded-lg p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Date</p>
+            <p class="text-sm font-semibold text-gray-800">{{ getFormattedDate(selectedExpense.date) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Description</p>
+            <p class="text-sm font-semibold text-gray-800">{{ selectedExpense.description }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Montant</p>
+            <p class="text-sm font-semibold text-orange-500">{{ formatCurrency(selectedExpense.amount) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affichage de la preuve -->
+      <div *ngIf="selectedExpense" class="bg-white rounded-lg border border-gray-200">
+        <!-- Message si pas de preuve -->
+        <div *ngIf="!selectedExpense.evidence" class="text-center py-12">
+          <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+          <p class="mt-4 text-gray-500">Aucune preuve disponible</p>
+        </div>
+
+        <!-- Affichage de l'image ou du PDF -->
+        <div *ngIf="selectedExpense.evidence" class="flex flex-col items-center">
+          <!-- Si c'est une image -->
+          <div *ngIf="isImage(selectedExpense.evidence)" class="w-full">
+            <img 
+              [src]="getBaseFile() + selectedExpense.evidence" 
+              [alt]="'Preuve - ' + selectedExpense.description"
+              class="w-full h-auto rounded-lg shadow-sm"
+              (error)="onImageError($event)">
+          </div>
+
+          <!-- Si c'est un PDF -->
+          <div *ngIf="isPDF(selectedExpense.evidence)" class="w-full">
+            <iframe 
+              [src]="getPDFUrl(selectedExpense.evidence)" 
+              class="w-full h-[600px] rounded-lg"
+              frameborder="0">
+            </iframe>
+          </div>
+
+          <!-- Bouton de téléchargement -->
+          <div class="mt-4 w-full flex justify-center">
+            <a 
+              [href]="getBaseFile() + selectedExpense.evidence" 
+              download
+              target="_blank"
+              class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
+                </path>
+              </svg>
+              Télécharger la preuve
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied du modal -->
+    <div class="flex justify-end p-6 border-t border-gray-200">
+      <button 
+        (click)="closeEvidenceModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+        Fermer
       </button>
     </div>
   </div>

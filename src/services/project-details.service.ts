@@ -452,7 +452,7 @@ export interface CreateSignalementRequest {
   providedIn: 'root'
 })
 export class ProjectBudgetService {
-  private baseUrl = `${environment.apiUrl}/`;
+  private baseUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) { }
 

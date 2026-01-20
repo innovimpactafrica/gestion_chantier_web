@@ -15,8 +15,8 @@ import { RouterModule } from '@angular/router';
 export class BreadcrumbComponent implements OnInit {
   breadcrumbs: BreadcrumbItem[] = [];
   showHelpModal = false;
-  emailAddress = 'contact@btpconnect.sn';
-  phoneNumber = '+221 77 123 45 67';
+  emailAddress = 'contact@btpconnect.com';
+  phoneNumber = '+ 221 33 971 41 12';
 
   constructor(
     private router: Router,

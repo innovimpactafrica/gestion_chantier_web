@@ -65,14 +65,14 @@
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
     <div *ngFor="let lot of filteredLots" 
          class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col"
-         style="max-width: 358px;">
+         style="max-width: 450px;">
       
       <!-- En-tête de la carte -->
       <div class="p-4 border-b border-gray-100 flex justify-between items-start">
         <div class="flex-1 min-w-0">
           <h3 class="text-lg font-bold text-gray-900 truncate">{{ lot.nom }}</h3>
         </div>
-        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2">
+        <span class="bg-[#2C3E50] text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2">
           Lot {{ lot.id }}
         </span>
       </div>
@@ -92,9 +92,7 @@
           </svg>
           <span class="font-medium">{{ lot.dateDebut }}</span>
         </div>
-        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
+     
         <div class="flex items-center gap-1">
           <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -147,25 +145,31 @@
         <button 
           (click)="modifierLot(lot.id)" 
           class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
+       
+          <svg class="h-4 w-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2H3.33333C2.97971 2 2.64057 2.14048 2.39052 2.39052C2.14048 2.64057 2 2.97971 2 3.33333V12.6667C2 13.0203 2.14048 13.3594 2.39052 13.6095C2.64057 13.8595 2.97971 14 3.33333 14H12.6667C13.0203 14 13.3594 13.8595 13.6095 13.6095C13.8595 13.3594 14 13.0203 14 12.6667V8" stroke="#FF5C02" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.2504 1.75015C12.5156 1.48493 12.8753 1.33594 13.2504 1.33594C13.6255 1.33594 13.9852 1.48493 14.2504 1.75015C14.5156 2.01537 14.6646 2.37508 14.6646 2.75015C14.6646 3.12522 14.5156 3.48493 14.2504 3.75015L8.24172 9.75948C8.08342 9.91765 7.88786 10.0334 7.67305 10.0962L5.75772 10.6562C5.70036 10.6729 5.63955 10.6739 5.58166 10.6591C5.52377 10.6442 5.47094 10.6141 5.42869 10.5719C5.38643 10.5296 5.35631 10.4768 5.34148 10.4189C5.32665 10.361 5.32766 10.3002 5.34439 10.2428L5.90439 8.32748C5.96741 8.11285 6.08341 7.91752 6.24172 7.75948L12.2504 1.75015Z" stroke="#FF5C02" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          
           Modifier
         </button>
         <button 
           (click)="voirDocuments(lot.id)" 
           class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <svg class="h-4 w-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.54314 2.08042C7.85122 1.76447 8.21898 1.51284 8.62507 1.34012C9.03116 1.16741 9.46751 1.07705 9.90879 1.07428C10.3501 1.07152 10.7875 1.1564 11.1957 1.32402C11.604 1.49163 11.9748 1.73863 12.2869 2.0507C12.5989 2.36276 12.8458 2.73367 13.0134 3.14192C13.1809 3.55017 13.2658 3.98762 13.2629 4.42891C13.2601 4.87019 13.1697 5.30653 12.9969 5.71259C12.8241 6.11866 12.5725 6.48638 12.2565 6.79442L7.07181 11.9798C6.88667 12.168 6.6661 12.3177 6.42281 12.4202C6.17953 12.5228 5.91835 12.5761 5.65434 12.5773C5.39033 12.5784 5.12871 12.5272 4.88457 12.4267C4.64044 12.3262 4.41862 12.1783 4.23191 11.9916C4.0452 11.805 3.8973 11.5832 3.79673 11.3391C3.69617 11.095 3.64493 10.8334 3.64597 10.5694C3.64702 10.3054 3.70032 10.0442 3.80282 9.80085C3.90531 9.55754 4.05496 9.33694 4.24314 9.15175L9.42847 3.96642L10.3711 4.90909L5.18581 10.0944C5.12213 10.1559 5.07134 10.2295 5.0364 10.3108C5.00147 10.3922 4.98307 10.4796 4.98231 10.5682C4.98154 10.6567 4.9984 10.7445 5.03192 10.8264C5.06544 10.9083 5.11495 10.9828 5.17754 11.0454C5.24014 11.1079 5.31457 11.1574 5.3965 11.191C5.47843 11.2245 5.56622 11.2414 5.65474 11.2406C5.74326 11.2398 5.83074 11.2214 5.91208 11.1865C5.99341 11.1515 6.06697 11.1008 6.12847 11.0371L11.3145 5.85175C11.5002 5.66602 11.6475 5.44552 11.7481 5.20285C11.8486 4.96018 11.9003 4.70008 11.9003 4.43742C11.9003 4.17475 11.8486 3.91466 11.7481 3.67199C11.6475 3.42932 11.5002 3.20882 11.3145 3.02309C11.1287 2.83735 10.9082 2.69002 10.6656 2.5895C10.4229 2.48899 10.1628 2.43725 9.90014 2.43725C9.63747 2.43725 9.37738 2.48899 9.13471 2.5895C8.89204 2.69002 8.67154 2.83735 8.48581 3.02309L3.30047 8.20909C2.69328 8.83776 2.3573 9.67977 2.36489 10.5538C2.37249 11.4277 2.72305 12.2638 3.34108 12.8818C3.9591 13.4998 4.79515 13.8504 5.66913 13.858C6.54312 13.8656 7.38513 13.5296 8.01381 12.9224L13.6711 7.26575L14.6138 8.20909L8.95714 13.8658C8.08192 14.741 6.89488 15.2327 5.65714 15.2327C4.4194 15.2327 3.23235 14.741 2.35714 13.8658C1.48192 12.9905 0.990234 11.8035 0.990234 10.5658C0.990234 9.32801 1.48192 8.14097 2.35714 7.26575L7.54314 2.08042Z" fill="#FF5C02"/>
+            </svg>
+            
           Documents
         </button>
         <button 
           (click)="voirCommentaires(lot.id)" 
           class="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-medium transition-colors">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
+          <svg class="h-4 w-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.66699 5.5C7.48833 5.5 5.66699 7.11267 5.66699 9.16667C5.66699 11.2207 7.48833 12.8333 9.66699 12.8333C10.165 12.8339 10.6593 12.7487 11.1283 12.5813L12.8723 13.308C12.93 13.3319 12.9932 13.3392 13.0547 13.329C13.1163 13.3188 13.1738 13.2915 13.2206 13.2502C13.2674 13.209 13.3017 13.1554 13.3196 13.0956C13.3374 13.0358 13.3382 12.9722 13.3217 12.912L12.8923 11.3367C13.3914 10.7233 13.6648 9.95736 13.667 9.16667C13.667 7.11267 11.8457 5.5 9.66699 5.5Z" fill="#FF5C02"/>
+            <path d="M2.66699 6.33333C2.66699 7.124 2.96966 7.85067 3.47633 8.422L3.14366 9.64067C3.09766 9.80933 3.07499 9.894 3.09699 9.94733C3.11699 9.994 3.15699 10.0287 3.20566 10.042C3.26166 10.058 3.34233 10.024 3.50366 9.95667L4.86633 9.38933C4.91299 9.408 4.96077 9.42578 5.00966 9.44267C5.00337 9.3508 5.00026 9.25875 5.00033 9.16667C5.00033 6.70533 7.14766 4.862 9.60899 4.83333C9.00566 3.74667 7.76566 3 6.33366 3C4.30833 3 2.66699 4.49267 2.66699 6.33333Z" fill="#FF5C02"/>
+            </svg>
+            
           Commentaires
         </button>
       </div>
