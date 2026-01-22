@@ -859,6 +859,7 @@ export class ProjectBudgetService {
       .pipe(catchError(this.handleError));
   }
 
+ 
   deleteDepense(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
     return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`, { headers })
@@ -947,6 +948,11 @@ export class ProjectBudgetService {
           return this.handleError(error);
         })
       );
+  }
+  deleteDocument(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.baseUrl}/documents/${id}`, { headers })
+      .pipe(catchError(this.handleError));
   }
 
 

@@ -423,7 +423,6 @@ selectImageIndex(index: number): void {
       this.tachesCritiques = this.dashboardData.taches;
       this.photosRecentes = this.dashboardData.photos;
 
-      console.log('Données processées:', this.dashboardData);
     } catch (error) {
       console.error('Erreur lors du traitement des données:', error);
       // Garder les valeurs par défaut en cas d'erreur
@@ -436,12 +435,6 @@ selectImageIndex(index: number): void {
     if (!vueEnsemble) {
       return this.dashboardData.chantiers;
     }
-
-    // Selon votre mapping:
-    // completedTasks = terminé
-    // overdueTasks = en retard
-    // pendingTasks = en cours
-    // totalTasks - (completedTasks + overdueTasks + pendingTasks) = en attente
 
     const termines = vueEnsemble.completedTasks || 0;
     const enRetard = vueEnsemble.overdueTasks || 0;
@@ -468,6 +461,69 @@ selectImageIndex(index: number): void {
       livrees: 8,
       total: 28
     };
+  }
+  // pour gerer la charte de repartition 
+  private createRepartitionChart(): void {
+    if (!this.isBrowser || !this.repartitionChart) {
+      return;
+    }
+
+    const ctx = this.repartitionChart.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    // Données mockées pour la répartition des études
+    const data = [40, 35, 15, 10]; // Complétées, En cours, Initiées, Non initiées
+    const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
+    const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
+
+    const config: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderWidth: 0,
+          spacing: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '60%', // Trou au centre pour le style donut
+        plugins: {
+          legend: {
+            display: false // Légende affichée en bas dans le template
+          },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            cornerRadius: 6,
+            callbacks: {
+              label: (context) => {
+                return `${context.label}: ${context.parsed}%`;
+              }
+            }
+          }
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: false
+        }
+      }
+    };
+
+    // Détruire le graphique existant s'il existe
+    if (this.repartitionChartInstance) {
+      this.repartitionChartInstance.destroy();
+    }
+
+    // Créer le nouveau graphique
+    this.repartitionChartInstance = new Chart(ctx, config);
   }
 
   private processAvancement(): any {
@@ -940,68 +996,6 @@ selectImageIndex(index: number): void {
     this.budgetChartInstance = new Chart(ctx, config);
   }
 
-  private createRepartitionChart(): void {
-    if (!this.isBrowser || !this.repartitionChart) {
-      return;
-    }
-
-    const ctx = this.repartitionChart.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    // Données mockées pour la répartition des études
-    const data = [40, 35, 15, 10]; // Complétées, En cours, Initiées, Non initiées
-    const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
-    const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
-
-    const config: ChartConfiguration<'doughnut'> = {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: colors,
-          borderWidth: 0,
-          spacing: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        cutout: '60%', // Trou au centre pour le style donut
-        plugins: {
-          legend: {
-            display: false // Légende affichée en bas dans le template
-          },
-          tooltip: {
-            enabled: true,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: 'white',
-            bodyColor: 'white',
-            borderColor: '#e5e7eb',
-            borderWidth: 1,
-            cornerRadius: 6,
-            callbacks: {
-              label: (context) => {
-                return `${context.label}: ${context.parsed}%`;
-              }
-            }
-          }
-        },
-        animation: {
-          animateRotate: true,
-          animateScale: false
-        }
-      }
-    };
-
-    // Détruire le graphique existant s'il existe
-    if (this.repartitionChartInstance) {
-      this.repartitionChartInstance.destroy();
-    }
-
-    // Créer le nouveau graphique
-    this.repartitionChartInstance = new Chart(ctx, config);
-  }
   private getCurrentYear(): number {
     return new Date().getFullYear();
   }

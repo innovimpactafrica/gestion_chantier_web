@@ -434,12 +434,6 @@ export class SubscriptionService {
       const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}?redirect=${encodeURIComponent(`${currentOrigin}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`)}`;
       const failedUrl = `${currentOrigin}/#/mon-compte?payment=failed&userId=${userId}&planId=${planId}`;
 
-      console.log('💳 Paramètres de paiement OneTouch:');
-      console.log('  - Order Number:', orderNumber);
-      console.log('  - Amount:', amount);
-      console.log('  - Success URL:', successUrl);
-      console.log('  - Failed URL:', failedUrl);
-
       try {
         // Appel de la fonction OneTouch
         sendPaymentInfos(
@@ -449,7 +443,7 @@ export class SubscriptionService {
           this.oneTouchConfig.domainName,
           successUrl,
           failedUrl,
-          1,
+          amount,
           'Dakar',
           email,
           clientFirstName,
@@ -457,7 +451,6 @@ export class SubscriptionService {
           clientPhone
         );
 
-        console.log('✅ Redirection vers OneTouch en cours...');
         resolve();
       } catch (error) {
         console.error('❌ Erreur lors du lancement de OneTouch:', error);
@@ -518,7 +511,43 @@ export class SubscriptionService {
       throw error;
     }
   }
+  async initiateSubscriptionPaymentbis(
+    userId: number,
+    plan: SubscriptionPlan,
+    isYearly: boolean
+  ): Promise<void> {
 
+    // Calcul du montant et des mois
+    const months = isYearly ? 12 : 1;
+    let amount = plan.totalCost;
+
+    if (isYearly && plan.yearlyDiscountRate > 0) {
+      const yearlyPrice = plan.totalCost * 12;
+      const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
+      amount = yearlyPrice - discount;
+    } else if (isYearly) {
+      amount = plan.totalCost * 12;
+    }
+
+   
+
+    // Lancement du paiement OneTouch
+    try {
+      await this.callTouchPay(
+        amount,
+        '',
+        '',
+        '',
+        '',
+        userId,
+        plan.id,
+        months
+      );
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initiation du paiement:', error);
+      throw error;
+    }
+  }
   /**
    * Récupère les headers d'authentification avec validation
    */

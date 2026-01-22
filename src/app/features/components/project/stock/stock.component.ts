@@ -12,6 +12,7 @@ import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
+import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
 
 
@@ -259,6 +260,11 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   suppliers: User[] = []; // Liste des fournisseurs
   suppliersLoading: boolean = false;
   showMenu = false;
+  // Ajouter ces propriétés dans la classe StockComponent
+consommationData: ConsommationData[] = [];
+evolutionData: EvolutionData[] = [];
+consommationChart: Chart | null = null;
+evolutionChart: Chart | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -267,7 +273,8 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     private propertyService: PropertyTypeService,
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private userService: UserService, // ⚠️ AJOUTER cette injection
+    private statistiqueService: StatistiqueService, 
+    private userService: UserService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -330,12 +337,48 @@ this.orderForm = this.fb.group({
       this.loadUnits();
       this.loadProperties();
       this.loadCriticalMaterials();
-      this.loadSuppliers(); // ⚠️ AJOUTER cette ligne
+      this.loadStatistiques();
+      this.loadSuppliers();
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
-
+  printOrder(order: Order): void {
+    // console.log('Impression de la commande:', order);
+    // Logique d'impression à implémenter
+    this.showSuccessMessage('Fonctionnalité d\'impression en cours de développement');
+  }
+  loadStatistiques(): void {
+    // Charger données de consommation
+    this.statistiqueService.getConsommation(this.propertyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.consommationData = data;
+          if (this.activeTab === 'statistiques') {
+            setTimeout(() => this.initConsumptionChart(), 100);
+          }
+        },
+        error: (err) => {
+          console.error('Erreur chargement consommation:', err);
+        }
+      });
+  
+    // Charger données d'évolution
+    this.statistiqueService.getEvolution(this.propertyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.evolutionData = data;
+          if (this.activeTab === 'statistiques') {
+            setTimeout(() => this.initEvolutionChart(), 100);
+          }
+        },
+        error: (err) => {
+          console.error('Erreur chargement évolution:', err);
+        }
+      });
+  }
   getMaterialStockByIndex(index: number): string {
     const materials = this.orderForm.get('materials') as FormArray;
     const materialId = materials.at(index).get('materialId')?.value;
@@ -482,7 +525,52 @@ this.orderForm = this.fb.group({
         }
       });
   }
-
+  formatRecentMovementDate(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) return '';
+    
+    const [year, month, day, hours = 0, minutes = 0] = dateArray;
+    const movementDate = new Date(year, month - 1, day, hours, minutes);
+    const now = new Date();
+    
+    const diffMs = now.getTime() - movementDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes < 1 ? "À l'instant" : `Il y a ${diffMinutes} min`;
+    } else if (diffHours < 24) {
+      return `Aujourd'hui, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    } else if (diffHours < 48) {
+      return `Hier, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
+    
+    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  }
+  getMovementBadge(movement: StockMovement): string {
+    if (movement.type === 'ENTRY') {
+      return 'Livraison';
+    } else if (movement.type === 'EXIT') {
+      return movement.material?.property?.name || 'Chantier';
+    }
+    return 'Ajustement';
+  }
+  getAlertPercentage(alert: StockAlert): number {
+    const material = this.materials.find(m => m.id === alert.materialId);
+    if (!material) return 0;
+    
+    if (!material.criticalThreshold || material.criticalThreshold === 0) {
+      return material.quantity > 0 ? 100 : 0;
+    }
+    
+    const percentage = (material.quantity / (material.criticalThreshold * 2)) * 100;
+    return Math.min(Math.max(percentage, 0), 100);
+  }
+  
+  getAlertStatus(alert: StockAlert): string {
+    const material = this.materials.find(m => m.id === alert.materialId);
+    if (!material) return 'NORMAL';
+    return this.getMaterialStatus(material);
+  }
   loadRecentMovements(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
@@ -1084,6 +1172,39 @@ closeOrderModal(): void {
     const [_, __, ___, hours, minutes] = dateArray;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
+// Confirmation de suppression de commande
+confirmDeleteOrder(order: Order): void {
+  if (!order) return;
+  
+  if (order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+    this.showErrorMessage('Impossible de supprimer une commande déjà livrée');
+    return;
+  }
+  
+  const confirmMessage = `Êtes-vous sûr de vouloir supprimer la commande CMD-${order.id.toString().padStart(4, '0')} ?`;
+  
+  // if (confirm(confirmMessage)) {
+  //   this.deleteOrderConfirmed(order);
+  // }
+}
+// deleteOrderConfirmed(order: Order): void {
+//   this.loading = true;
+  
+//   this.materialsService.deleteCommand(order.id)
+//     .pipe(takeUntil(this.destroy$))
+//     .subscribe({
+//       next: () => {
+//         this.loading = false;
+//         this.showSuccessMessage('Commande supprimée avec succès');
+//         this.loadOrders();
+//       },
+//       error: (error) => {
+//         this.loading = false;
+//         console.error('Erreur lors de la suppression:', error);
+//         this.showErrorMessage('Erreur lors de la suppression de la commande');
+//       }
+//     });
+// }
 
   onCreateMovement(): void {
     if (this.movementForm.valid && this.selectedMaterial && !this.loading) {
@@ -1680,23 +1801,44 @@ closeOrderModal(): void {
     return statusMapping[displayStatus.toLowerCase()] || [];
   }
 
+  confirmDeleteMaterial(material: Material): void {
+    if (!material) return;
+    
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer "${material.label}" ?
+    
+  Cette action est irréversible et supprimera également l'historique des mouvements associés.`;
+    
+    if (confirm(confirmMessage)) {
+      this.deleteMaterialConfirmed(material);
+    }
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  deleteMaterialConfirmed(material: Material): void {
+    this.loading = true;
+    
+    this.materialsService.deleteMaterial(material.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.showSuccessMessage(`${material.label} a été supprimé avec succès`);
+          this.loadStock(); // Recharger la liste
+          this.loadStockMovements(); // Recharger les mouvements
+        },
+        error: (error: { status: number; }) => {
+          this.loading = false;
+          console.error('Erreur lors de la suppression:', error);
+          
+          if (error.status === 403) {
+            this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
+          } else if (error.status === 409) {
+            this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes ou mouvements');
+          } else {
+            this.showErrorMessage('Erreur lors de la suppression du matériel');
+          }
+        }
+      });
+  }
 
 //ABOUBACAR SOW
 
@@ -1757,62 +1899,83 @@ setActiveTab(tab: string): void {
 
   if (tab === 'statistiques') {
     setTimeout(() => {
-      this.initConsumptionChart();
-      this.initEvolutionChart();
-    }, 0);
+      if (this.consommationData.length > 0) {
+        this.initConsumptionChart();
+      }
+      if (this.evolutionData.length > 0) {
+        this.initEvolutionChart();
+      }
+    }, 100);
   }
 }
 
 
 
 
-// =========================
-  // BAR CHART
-  // =========================
- initConsumptionChart() {
-  new Chart('consumptionChart', {
+initConsumptionChart() {
+  const canvas = document.getElementById('consumptionChart') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  // Détruire l'ancien graphique s'il existe
+  if (this.consommationChart) {
+    this.consommationChart.destroy();
+  }
+
+  // Préparer les données
+  const labels = this.consommationData.map(item => item.materialLabel);
+  const data = this.consommationData.map(item => item.totalUsedQuantity);
+  
+  // Couleurs dynamiques
+  const colors = [
+    '#FDEDEC', '#BB8FCE', '#F1948A', '#F7DC6F', '#82E0AA',
+    '#85C1E9', '#F8B88B', '#D7BDE2', '#A9DFBF', '#FAD7A0'
+  ];
+
+  this.consommationChart = new Chart(canvas, {
     type: 'bar',
     data: {
-      labels: ['Ciment', 'Acier', 'Briques', 'Peinture', 'PVC'],
+      labels: labels,
       datasets: [{
-        data: [100, 160, 330, 80, 60],
-        backgroundColor: [
-          '#FDEDEC',
-          '#BB8FCE',
-          '#F1948A',
-          '#F7DC6F',
-          '#82E0AA'
-        ]
+        data: data,
+        backgroundColor: colors.slice(0, labels.length),
+        barPercentage: 0.3,      
+        categoryPercentage: 0.8   
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} unités`
+          }
+        }
       },
       scales: {
         x: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 12,
-              weight: 500
+            font: { 
+              family: 'Inter', 
+              size: 12, 
+              weight: 500  
             },
             color: '#34495E'
           },
           grid: { display: false }
         },
         y: {
+          beginAtZero: true, 
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 11
+            font: { 
+              family: 'Inter', 
+              size: 11 
             },
             color: '#7F8C8D'
           },
-          grid: {
-            color: '#ECF0F1'
+          grid: { 
+            color: '#ECF0F1' 
           }
         }
       }
@@ -1820,25 +1983,50 @@ setActiveTab(tab: string): void {
   });
 }
 
+// ⚠️  initEvolutionChart :
+initEvolutionChart() {
+  const canvas = document.getElementById('evolutionChart') as HTMLCanvasElement;
+  if (!canvas) return;
 
-  // =========================
-  // LINE CHART
-  // =========================
- initEvolutionChart() {
-  new Chart('evolutionChart', {
+  // Détruire l'ancien graphique s'il existe
+  if (this.evolutionChart) {
+    this.evolutionChart.destroy();
+  }
+
+  // Préparer les données
+  const labels = this.evolutionData.map(item => {
+    const date = new Date(item.date);
+    return date.toLocaleDateString('fr-FR', { month: 'short' });
+  });
+  const entriesData = this.evolutionData.map(item => item.totalEntries);
+  const exitsData = this.evolutionData.map(item => item.totalExits);
+
+  this.evolutionChart = new Chart(canvas, {
     type: 'line',
     data: {
-      labels: ['Jan', 'Fév', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil'],
-      datasets: [{
-        label: 'Unité utilisées',
-        data: [120, 128, 136, 142, 153, 159, 168],
-        borderColor: '#FF5C02',
-        backgroundColor: 'rgba(255, 92, 2, 0.15)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#FF5C02'
-      }]
+      labels: labels,
+      datasets: [
+        {
+          label: 'Entrées',
+          data: entriesData,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#10B981'
+        },
+        {
+          label: 'Sorties',
+          data: exitsData,
+          borderColor: '#FF5C02',
+          backgroundColor: 'rgba(255, 92, 2, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#FF5C02'
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -1846,11 +2034,7 @@ setActiveTab(tab: string): void {
       plugins: {
         legend: {
           labels: {
-            font: {
-              family: 'Inter',
-              size: 12,
-              weight: 500
-            },
+            font: { family: 'Inter', size: 12, weight: 500 },
             color: '#34495E'
           }
         }
@@ -1858,30 +2042,24 @@ setActiveTab(tab: string): void {
       scales: {
         x: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 12
-            },
+            font: { family: 'Inter', size: 12 },
             color: '#34495E'
           },
           grid: { display: false }
         },
         y: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 11
-            },
+            font: { family: 'Inter', size: 11 },
             color: '#7F8C8D'
           },
-          grid: {
-            color: '#ECF0F1'
-          }
+          grid: { color: '#ECF0F1' }
         }
       }
     }
   });
 }
+
+
 
 
 }

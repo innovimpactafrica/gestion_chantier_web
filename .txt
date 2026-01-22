@@ -1,3 +1,147 @@
-voici mon html de stock le design pour les carde que tu dois rendre l'affichage dynamique est deja bon ne modifie pas de design ni de
+ok corrige moi pour le html de stock aussi sur le liste les dropdown pour inventaires commandes et  livraisons on ale meme design de dropdown mais les menus des dropdown differes un peu. 
 
-les cardes de 2 par colonnes Alertes stock matériaux et Mouvements récents pour inventaires (le stock ) , Alertes commandes et Activité commandes pour commandes , Alertes livraisons et Activité livraisons pour livraison et Consommation mensuelle Évolution mensuelle qui son des charte pour statistique 
+ sur la liste sur action si on clique sur (tu change en modifiant le html le design des dropdown )
+
+width: 230;
+
+height: 296;
+
+border-radius: 8px;
+
+angle: 0 deg;
+
+opacity: 1;
+
+border-width: 1px;
+
+padding-top: 5px;
+
+padding-bottom: 5px;
+
+bg: #FFFF
+
+voici les svg qui son les icone dans le dropdown
+
+pour l'oeil <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M17.9529 9.20352C18.2063 9.55852 18.3329 9.73685 18.3329 9.99935C18.3329 10.2627 18.2063 10.4402 17.9529 10.7952C16.8146 12.3918 13.9071 15.8327 9.99959 15.8327C6.09126 15.8327 3.18459 12.391 2.04626 10.7952C1.79293 10.4402 1.66626 10.2618 1.66626 9.99935C1.66626 9.73602 1.79293 9.55852 2.04626 9.20352C3.18459 7.60685 6.09209 4.16602 9.99959 4.16602C13.9079 4.16602 16.8146 7.60768 17.9529 9.20352Z" stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+
+<path d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z" stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>
+
+pour modifier 
+
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M10 2.5H4.16667C3.72464 2.5 3.30072 2.67559 2.98816 2.98816C2.67559 3.30072 2.5 3.72464 2.5 4.16667V15.8333C2.5 16.2754 2.67559 16.6993 2.98816 17.0118C3.30072 17.3244 3.72464 17.5 4.16667 17.5H15.8333C16.2754 17.5 16.6993 17.3244 17.0118 17.0118C17.3244 16.6993 17.5 16.2754 17.5 15.8333V10" stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+
+<path d="M15.3125 2.18769C15.644 1.85617 16.0937 1.66992 16.5625 1.66992C17.0313 1.66992 17.481 1.85617 17.8125 2.18769C18.144 2.51921 18.3303 2.96885 18.3303 3.43769C18.3303 3.90653 18.144 4.35617 17.8125 4.68769L10.3017 12.1994C10.1038 12.3971 9.85933 12.5418 9.59083 12.6202L7.19666 13.3202C7.12496 13.3411 7.04895 13.3424 6.97659 13.3238C6.90423 13.3053 6.83819 13.2676 6.78537 13.2148C6.73255 13.162 6.6949 13.096 6.67637 13.0236C6.65783 12.9512 6.65908 12.8752 6.68 12.8035L7.38 10.4094C7.45877 10.1411 7.60378 9.8969 7.80166 9.69936L15.3125 2.18769Z" stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>
+
+pour gerer les mouvements
+
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<g clip-path="url(#clip0_570_3261)">
+
+<path d="M16.6667 11.6662C16.8791 11.6665 17.0834 11.7478 17.2379 11.8936C17.3923 12.0394 17.4852 12.2387 17.4977 12.4507C17.5101 12.6628 17.4412 12.8715 17.3048 13.0344C17.1685 13.1973 16.9751 13.302 16.7642 13.3271L16.6667 13.3329H5.34505L7.25589 15.2437C7.40534 15.3937 7.49211 15.5949 7.49858 15.8065C7.50504 16.0182 7.43071 16.2243 7.29068 16.3831C7.15065 16.5419 6.95543 16.6415 6.74466 16.6616C6.53389 16.6816 6.32338 16.6207 6.15589 16.4912L6.07755 16.4221L2.88589 13.2304C2.33172 12.6771 2.68672 11.7446 3.43839 11.6712L3.53422 11.6662H16.6667ZM12.7442 3.57706C12.8877 3.43358 13.0786 3.34739 13.2812 3.33465C13.4837 3.32192 13.6839 3.38352 13.8442 3.50789L13.9226 3.57706L17.1142 6.76873C17.6684 7.32206 17.3134 8.25456 16.5617 8.32789L16.4659 8.33289H3.33339C3.12099 8.33266 2.91669 8.25133 2.76225 8.10552C2.6078 7.95971 2.51486 7.76043 2.50241 7.5484C2.48996 7.33636 2.55895 7.12758 2.69527 6.9647C2.8316 6.80182 3.02497 6.69715 3.23589 6.67206L3.33339 6.66623H14.6551L12.7442 4.75539C12.588 4.59912 12.5002 4.3872 12.5002 4.16623C12.5002 3.94526 12.588 3.73333 12.7442 3.57706Z" fill="#9CA3AF"/>
+
+</g>
+
+<defs>
+
+<clipPath id="clip0_570_3261">
+
+<rect width="20" height="20" fill="white"/>
+
+</clipPath>
+
+</defs>
+
+</svg>
+
+pour commander 
+
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M6.66659 10.0003H13.3333V11.667H6.66659V10.0003ZM8.33325 16.667H4.99992V3.33366H10.8333V7.50033H14.9999V10.0837L16.6666 8.41699V6.66699L11.6666 1.66699H4.99992C4.55789 1.66699 4.13397 1.84259 3.82141 2.15515C3.50885 2.46771 3.33325 2.89163 3.33325 3.33366V16.667C3.33325 17.109 3.50885 17.5329 3.82141 17.8455C4.13397 18.1581 4.55789 18.3337 4.99992 18.3337H8.33325V16.667ZM6.66659 15.0003H10.0833L10.8333 14.2503V13.3337H6.66659V15.0003ZM16.8333 10.8337C16.9166 10.8337 17.0833 10.917 17.1666 11.0003L18.2499 12.0837C18.4166 12.2503 18.4166 12.5837 18.2499 12.7503L17.4166 13.5837L15.6666 11.8337L16.4999 11.0003C16.5833 10.917 16.6666 10.8337 16.8333 10.8337ZM16.8333 14.0837L11.7499 19.167H9.99992V17.417L15.0833 12.3337L16.8333 14.0837Z" fill="#9CA3AF"/>
+
+</svg>
+
+pour historique
+
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M10 17.5C8.08333 17.5 6.41333 16.8647 4.99 15.5942C3.56667 14.3236 2.75056 12.7367 2.54167 10.8333H4.25C4.44444 12.2778 5.08694 13.4722 6.1775 14.4167C7.26806 15.3611 8.54222 15.8333 10 15.8333C11.625 15.8333 13.0036 15.2675 14.1358 14.1358C15.2681 13.0042 15.8339 11.6256 15.8333 10C15.8328 8.37444 15.2669 6.99611 14.1358 5.865C13.0047 4.73389 11.6261 4.16778 10 4.16667C9.04167 4.16667 8.14583 4.38889 7.3125 4.83333C6.47917 5.27778 5.77778 5.88889 5.20833 6.66667H7.5V8.33333H2.5V3.33333H4.16667V5.29167C4.875 4.40278 5.73972 3.71528 6.76083 3.22917C7.78194 2.74306 8.86167 2.5 10 2.5C11.0417 2.5 12.0175 2.69806 12.9275 3.09417C13.8375 3.49028 14.6292 4.02472 15.3025 4.6975C15.9758 5.37028 16.5106 6.16194 16.9067 7.0725C17.3028 7.98306 17.5006 8.95889 17.5 10C17.4994 11.0411 17.3017 12.0169 16.9067 12.9275C16.5117 13.8381 15.9769 14.6297 15.3025 15.3025C14.6281 15.9753 13.8364 16.51 12.9275 16.9067C12.0186 17.3033 11.0428 17.5011 10 17.5ZM12.3333 13.5L9.16667 10.3333V5.83333H10.8333V9.66667L13.5 12.3333L12.3333 13.5Z" fill="#9CA3AF"/>
+
+</svg>
+
+
+
+pour supprimer
+
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path fill-rule="evenodd" clip-rule="evenodd" d="M13.1401 3.80701L12.1935 2.86035L8.00011 7.06035L3.80676 2.86035L2.86011 3.80701L7.06011 8.00035L2.86011 12.1937L3.80676 13.1404L8.00011 8.94035L12.1935 13.1404L13.1401 12.1937L8.94011 8.00035L13.1401 3.80701Z" fill="#FF0000"/>
+
+</svg>
+
+
+
+ le dropdown pour commandes voici les caracteristiques 
+
+width: 230;
+
+height: 248;
+
+border-radius: 8px;
+
+angle: 0 deg;
+
+opacity: 1;
+
+border-width: 1px;
+
+padding-top: 5px;
+
+padding-bottom: 5px;
+
+le dropdown pour commandes voici les caracteristiques 
+
+width: 230;
+
+height: 296;
+
+border-radius: 8px;
+
+angle: 0 deg;
+
+opacity: 1;
+
+border-width: 1px;
+
+padding-top: 5px;
+
+padding-bottom: 5px;
+
+
+
+maintenant je veux que apres tu adapte les trois dropdown du html adapte  sur le dropdown pour inventaire si on clique sur le sous menu gerer mouvement on affiche le modal qui permet d'ajouter un mouvement qui est en bas du code html de stock et la methode createStockMove() qui est dans le ts pour le rendre dynamique le modal va servir d'ajout et respect le design (si ca colle avec les champs que attend la methode de creation de mouvement et je pense que ça va coller corps on en entrer et sortie comme ENTRY et EXIT  et le materialId sera celui du materiel qu'on a cliquer sur l'action )  et rappelle que le dropdown doit etre au dessu de la liste si on clique l'action et l'action doit etre svg comme celui sur livraisons les trois petit point 
+
+le voici
+
+  <svg width="6" height="22" viewBox="0 0 6 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_485_11988)">
+                        <path d="M2.66659 15.0003C2.04775 15.0003 1.45425 15.2462 1.01667 15.6837C0.579085 16.1213 0.333252 16.7148 0.333252 17.3337C0.333252 17.9525 0.579085 18.546 1.01667 18.9836C1.45425 19.4212 2.04775 19.667 2.66659 19.667C3.28542 19.667 3.87892 19.4212 4.3165 18.9836C4.75409 18.546 4.99992 17.9525 4.99992 17.3337C4.99992 16.7148 4.75409 16.1213 4.3165 15.6837C3.87892 15.2462 3.28542 15.0003 2.66659 15.0003ZM2.66659 8.33366C2.04775 8.33366 1.45425 8.57949 1.01667 9.01708C0.579085 9.45466 0.333252 10.0482 0.333252 10.667C0.333252 11.2858 0.579085 11.8793 1.01667 12.3169C1.45425 12.7545 2.04775 13.0003 2.66659 13.0003C3.28542 13.0003 3.87892 12.7545 4.3165 12.3169C4.75409 11.8793 4.99992 11.2858 4.99992 10.667C4.99992 10.0482 4.75409 9.45466 4.3165 9.01708C3.87892 8.57949 3.28542 8.33366 2.66659 8.33366ZM4.99992 4.00033C4.99992 3.38149 4.75409 2.78799 4.3165 2.35041C3.87892 1.91282 3.28542 1.66699 2.66659 1.66699C2.04775 1.66699 1.45425 1.91282 1.01667 2.35041C0.579085 2.78799 0.333252 3.38149 0.333252 4.00033C0.333252 4.61916 0.579085 5.21266 1.01667 5.65024C1.45425 6.08783 2.04775 6.33366 2.66659 6.33366C3.28542 6.33366 3.87892 6.08783 4.3165 5.65024C4.75409 5.21266 4.99992 4.61916 4.99992 4.00033Z" fill="#4B4848"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_485_11988">
+                        <rect width="5.33333" height="21.3333" fill="white"/>
+                        </clipPath>
+                        </defs>
+                        </svg>
+
+voici le ts je pense les methode sont  deja disponibles  et reste adapter les dropdown et la supression pour inventaire on deleteMaterial()   pour livraison deleteDelevery() (si on clique sur supprimer sur les dropdown et aussi ajoute un modal de confirmation de la suppression oui .. non)
+

@@ -453,8 +453,6 @@ getStockMove(propertyId: number, page: number = 0, size: number = 10): Observabl
     .set('page', page.toString())
     .set('size', size.toString());
   
-  console.log(`Requête GET vers: ${this.apiUrl}/movements`);
-  console.log('Paramètres:', { propertyId, page, size });
   
   return this.http.get<StockMovementsResponse>(
     `${this.apiUrl}/movements`, 
