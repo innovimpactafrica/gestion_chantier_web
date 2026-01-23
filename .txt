@@ -1,147 +1,1340 @@
-ok corrige moi pour le html de stock aussi sur le liste les dropdown pour inventaires commandes et  livraisons on ale meme design de dropdown mais les menus des dropdown differes un peu. 
-
- sur la liste sur action si on clique sur (tu change en modifiant le html le design des dropdown )
-
-width: 230;
-
-height: 296;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-width: 1px;
-
-padding-top: 5px;
-
-padding-bottom: 5px;
-
-bg: #FFFF
-
-voici les svg qui son les icone dans le dropdown
-
-pour l'oeil <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path d="M17.9529 9.20352C18.2063 9.55852 18.3329 9.73685 18.3329 9.99935C18.3329 10.2627 18.2063 10.4402 17.9529 10.7952C16.8146 12.3918 13.9071 15.8327 9.99959 15.8327C6.09126 15.8327 3.18459 12.391 2.04626 10.7952C1.79293 10.4402 1.66626 10.2618 1.66626 9.99935C1.66626 9.73602 1.79293 9.55852 2.04626 9.20352C3.18459 7.60685 6.09209 4.16602 9.99959 4.16602C13.9079 4.16602 16.8146 7.60768 17.9529 9.20352Z" stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-
-<path d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z" stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-
-</svg>
-
-pour modifier 
-
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path d="M10 2.5H4.16667C3.72464 2.5 3.30072 2.67559 2.98816 2.98816C2.67559 3.30072 2.5 3.72464 2.5 4.16667V15.8333C2.5 16.2754 2.67559 16.6993 2.98816 17.0118C3.30072 17.3244 3.72464 17.5 4.16667 17.5H15.8333C16.2754 17.5 16.6993 17.3244 17.0118 17.0118C17.3244 16.6993 17.5 16.2754 17.5 15.8333V10" stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-
-<path d="M15.3125 2.18769C15.644 1.85617 16.0937 1.66992 16.5625 1.66992C17.0313 1.66992 17.481 1.85617 17.8125 2.18769C18.144 2.51921 18.3303 2.96885 18.3303 3.43769C18.3303 3.90653 18.144 4.35617 17.8125 4.68769L10.3017 12.1994C10.1038 12.3971 9.85933 12.5418 9.59083 12.6202L7.19666 13.3202C7.12496 13.3411 7.04895 13.3424 6.97659 13.3238C6.90423 13.3053 6.83819 13.2676 6.78537 13.2148C6.73255 13.162 6.6949 13.096 6.67637 13.0236C6.65783 12.9512 6.65908 12.8752 6.68 12.8035L7.38 10.4094C7.45877 10.1411 7.60378 9.8969 7.80166 9.69936L15.3125 2.18769Z" stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-
-</svg>
-
-pour gerer les mouvements
-
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g clip-path="url(#clip0_570_3261)">
-
-<path d="M16.6667 11.6662C16.8791 11.6665 17.0834 11.7478 17.2379 11.8936C17.3923 12.0394 17.4852 12.2387 17.4977 12.4507C17.5101 12.6628 17.4412 12.8715 17.3048 13.0344C17.1685 13.1973 16.9751 13.302 16.7642 13.3271L16.6667 13.3329H5.34505L7.25589 15.2437C7.40534 15.3937 7.49211 15.5949 7.49858 15.8065C7.50504 16.0182 7.43071 16.2243 7.29068 16.3831C7.15065 16.5419 6.95543 16.6415 6.74466 16.6616C6.53389 16.6816 6.32338 16.6207 6.15589 16.4912L6.07755 16.4221L2.88589 13.2304C2.33172 12.6771 2.68672 11.7446 3.43839 11.6712L3.53422 11.6662H16.6667ZM12.7442 3.57706C12.8877 3.43358 13.0786 3.34739 13.2812 3.33465C13.4837 3.32192 13.6839 3.38352 13.8442 3.50789L13.9226 3.57706L17.1142 6.76873C17.6684 7.32206 17.3134 8.25456 16.5617 8.32789L16.4659 8.33289H3.33339C3.12099 8.33266 2.91669 8.25133 2.76225 8.10552C2.6078 7.95971 2.51486 7.76043 2.50241 7.5484C2.48996 7.33636 2.55895 7.12758 2.69527 6.9647C2.8316 6.80182 3.02497 6.69715 3.23589 6.67206L3.33339 6.66623H14.6551L12.7442 4.75539C12.588 4.59912 12.5002 4.3872 12.5002 4.16623C12.5002 3.94526 12.588 3.73333 12.7442 3.57706Z" fill="#9CA3AF"/>
-
-</g>
-
-<defs>
-
-<clipPath id="clip0_570_3261">
-
-<rect width="20" height="20" fill="white"/>
-
-</clipPath>
-
-</defs>
-
-</svg>
-
-pour commander 
-
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path d="M6.66659 10.0003H13.3333V11.667H6.66659V10.0003ZM8.33325 16.667H4.99992V3.33366H10.8333V7.50033H14.9999V10.0837L16.6666 8.41699V6.66699L11.6666 1.66699H4.99992C4.55789 1.66699 4.13397 1.84259 3.82141 2.15515C3.50885 2.46771 3.33325 2.89163 3.33325 3.33366V16.667C3.33325 17.109 3.50885 17.5329 3.82141 17.8455C4.13397 18.1581 4.55789 18.3337 4.99992 18.3337H8.33325V16.667ZM6.66659 15.0003H10.0833L10.8333 14.2503V13.3337H6.66659V15.0003ZM16.8333 10.8337C16.9166 10.8337 17.0833 10.917 17.1666 11.0003L18.2499 12.0837C18.4166 12.2503 18.4166 12.5837 18.2499 12.7503L17.4166 13.5837L15.6666 11.8337L16.4999 11.0003C16.5833 10.917 16.6666 10.8337 16.8333 10.8337ZM16.8333 14.0837L11.7499 19.167H9.99992V17.417L15.0833 12.3337L16.8333 14.0837Z" fill="#9CA3AF"/>
-
-</svg>
-
-pour historique
-
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path d="M10 17.5C8.08333 17.5 6.41333 16.8647 4.99 15.5942C3.56667 14.3236 2.75056 12.7367 2.54167 10.8333H4.25C4.44444 12.2778 5.08694 13.4722 6.1775 14.4167C7.26806 15.3611 8.54222 15.8333 10 15.8333C11.625 15.8333 13.0036 15.2675 14.1358 14.1358C15.2681 13.0042 15.8339 11.6256 15.8333 10C15.8328 8.37444 15.2669 6.99611 14.1358 5.865C13.0047 4.73389 11.6261 4.16778 10 4.16667C9.04167 4.16667 8.14583 4.38889 7.3125 4.83333C6.47917 5.27778 5.77778 5.88889 5.20833 6.66667H7.5V8.33333H2.5V3.33333H4.16667V5.29167C4.875 4.40278 5.73972 3.71528 6.76083 3.22917C7.78194 2.74306 8.86167 2.5 10 2.5C11.0417 2.5 12.0175 2.69806 12.9275 3.09417C13.8375 3.49028 14.6292 4.02472 15.3025 4.6975C15.9758 5.37028 16.5106 6.16194 16.9067 7.0725C17.3028 7.98306 17.5006 8.95889 17.5 10C17.4994 11.0411 17.3017 12.0169 16.9067 12.9275C16.5117 13.8381 15.9769 14.6297 15.3025 15.3025C14.6281 15.9753 13.8364 16.51 12.9275 16.9067C12.0186 17.3033 11.0428 17.5011 10 17.5ZM12.3333 13.5L9.16667 10.3333V5.83333H10.8333V9.66667L13.5 12.3333L12.3333 13.5Z" fill="#9CA3AF"/>
-
-</svg>
-
-
-
-pour supprimer
-
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path fill-rule="evenodd" clip-rule="evenodd" d="M13.1401 3.80701L12.1935 2.86035L8.00011 7.06035L3.80676 2.86035L2.86011 3.80701L7.06011 8.00035L2.86011 12.1937L3.80676 13.1404L8.00011 8.94035L12.1935 13.1404L13.1401 12.1937L8.94011 8.00035L13.1401 3.80701Z" fill="#FF0000"/>
-
-</svg>
-
-
-
- le dropdown pour commandes voici les caracteristiques 
-
-width: 230;
-
-height: 248;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-width: 1px;
-
-padding-top: 5px;
-
-padding-bottom: 5px;
-
-le dropdown pour commandes voici les caracteristiques 
-
-width: 230;
-
-height: 296;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-width: 1px;
-
-padding-top: 5px;
-
-padding-bottom: 5px;
-
-
-
-maintenant je veux que apres tu adapte les trois dropdown du html adapte  sur le dropdown pour inventaire si on clique sur le sous menu gerer mouvement on affiche le modal qui permet d'ajouter un mouvement qui est en bas du code html de stock et la methode createStockMove() qui est dans le ts pour le rendre dynamique le modal va servir d'ajout et respect le design (si ca colle avec les champs que attend la methode de creation de mouvement et je pense que ça va coller corps on en entrer et sortie comme ENTRY et EXIT  et le materialId sera celui du materiel qu'on a cliquer sur l'action )  et rappelle que le dropdown doit etre au dessu de la liste si on clique l'action et l'action doit etre svg comme celui sur livraisons les trois petit point 
-
-le voici
-
-  <svg width="6" height="22" viewBox="0 0 6 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_485_11988)">
-                        <path d="M2.66659 15.0003C2.04775 15.0003 1.45425 15.2462 1.01667 15.6837C0.579085 16.1213 0.333252 16.7148 0.333252 17.3337C0.333252 17.9525 0.579085 18.546 1.01667 18.9836C1.45425 19.4212 2.04775 19.667 2.66659 19.667C3.28542 19.667 3.87892 19.4212 4.3165 18.9836C4.75409 18.546 4.99992 17.9525 4.99992 17.3337C4.99992 16.7148 4.75409 16.1213 4.3165 15.6837C3.87892 15.2462 3.28542 15.0003 2.66659 15.0003ZM2.66659 8.33366C2.04775 8.33366 1.45425 8.57949 1.01667 9.01708C0.579085 9.45466 0.333252 10.0482 0.333252 10.667C0.333252 11.2858 0.579085 11.8793 1.01667 12.3169C1.45425 12.7545 2.04775 13.0003 2.66659 13.0003C3.28542 13.0003 3.87892 12.7545 4.3165 12.3169C4.75409 11.8793 4.99992 11.2858 4.99992 10.667C4.99992 10.0482 4.75409 9.45466 4.3165 9.01708C3.87892 8.57949 3.28542 8.33366 2.66659 8.33366ZM4.99992 4.00033C4.99992 3.38149 4.75409 2.78799 4.3165 2.35041C3.87892 1.91282 3.28542 1.66699 2.66659 1.66699C2.04775 1.66699 1.45425 1.91282 1.01667 2.35041C0.579085 2.78799 0.333252 3.38149 0.333252 4.00033C0.333252 4.61916 0.579085 5.21266 1.01667 5.65024C1.45425 6.08783 2.04775 6.33366 2.66659 6.33366C3.28542 6.33366 3.87892 6.08783 4.3165 5.65024C4.75409 5.21266 4.99992 4.61916 4.99992 4.00033Z" fill="#4B4848"/>
-                        </g>
-                        <defs>
-                        <clipPath id="clip0_485_11988">
-                        <rect width="5.33333" height="21.3333" fill="white"/>
-                        </clipPath>
-                        </defs>
-                        </svg>
-
-voici le ts je pense les methode sont  deja disponibles  et reste adapter les dropdown et la supression pour inventaire on deleteMaterial()   pour livraison deleteDelevery() (si on clique sur supprimer sur les dropdown et aussi ajoute un modal de confirmation de la suppression oui .. non)
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import {
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  ProjectBudgetService,
+  Task,
+  TasksResponse
+} from './../../../services/project-details.service';
+import {
+  UtilisateurService,
+  Worker,
+  WorkersResponse
+} from './../../../services/utilisateur.service';
+import {
+  CommentFileService,
+  Document,
+  DocumentsResponse,
+  JoinFileResponse,
+  AddDocumentRequest
+} from './../../../services/comment-file.service';
+import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
+
+interface User {
+  id: number;
+  avatarUrl: string;
+  name: string;
+}
+
+interface TaskTag {
+  name: string;
+  colorClass: string;
+  textColorClass: string;
+}
+
+interface TaskDisplay extends Task {
+  assignedUsers: User[];
+  additionalUsers: number;
+  tag: TaskTag;
+  comments: number;
+  attachments: number;
+  dueDate: string;
+  isDone?: boolean;
+}
+
+interface TaskColumn {
+  id: 'TODO' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE';
+  title: string;
+  color: string;
+  count: number;
+  tasks: TaskDisplay[];
+}
+
+@Component({
+  selector: 'app-task-board',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './task-board.component.html',
+  styleUrls: ['./task-board.component.scss']
+})
+export class TaskBoardComponent implements OnInit, OnDestroy {
+
+  columns: TaskColumn[] = [];
+  users: User[] = [];
+  workers: Worker[] = [];
+
+  // Form data
+  newTask: Partial<Task> = {};
+  updateTask: Partial<Task> = {};
+
+  // UI state
+  isEditMode = false;
+  selectedTask: TaskDisplay | null = null;
+  showTaskForm = false;
+  showModal = false;
+  showDetailModal = false;
+  showCommentModal = false;
+  showFileModal = false;
+  loading = false;
+  error: string | null = null;
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
+  searchQuery: string = '';
+
+  // Drag and drop state
+  draggedTask: TaskDisplay | null = null;
+  isDragging = false;
+  dragOverColumn: string | null = null;
+  isUpdatingTaskStatus = false;
+
+  // Pagination pour les tâches
+  currentPage = 0;
+  pageSize = 50;
+  totalTasks = 0;
+  totalPages = 0;
+
+
+  // File upload
+  selectedFiles: File[] = [];
+
+  // Property ID
+  currentPropertyId: number = 17;
+
+  // Task form
+  currentTask: any = {
+    id: null,
+    title: '',
+    description: '',
+    priority: 'MEDIUM',
+    startDate: this.getCurrentDateArray(),
+    endDate: this.getCurrentDateArray(),
+    realEstateProperty: { id: this.currentPropertyId },
+    executors: [],
+    status: 'TODO',
+    pictures: []
+  };
+
+  // Comment & File modals
+  currentTaskForComment: TaskDisplay | null = null;
+  currentTaskForFile: TaskDisplay | null = null;
+  comments: Document[] = [];
+  loadingComments = false;
+  commentPage = 0;
+  commentPageSize = 10;
+  totalComments = 0;
+  newComment = {
+    title: '',
+    description: '',
+    file: null as File | null
+  };
+
+  // File modal
+  fileToJoin: File | null = null;
+  fileLibelle: string = '';
+  loadingFileJoin = false;
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private projectBudgetService: ProjectBudgetService,
+    private utilisateurService: UtilisateurService,
+    private commentFileService: CommentFileService,
+    private route: ActivatedRoute
+  ) { }
+
+  setPropertyId(propertyId: number): void {
+    this.currentPropertyId = propertyId;
+    this.currentTask.realEstateProperty = { id: propertyId };
+    this.loadTasks();
+    this.loadWorkers();
+  }
+
+  initializeWithProperty(propertyId: number): void {
+    this.currentPropertyId = propertyId;
+    this.currentTask.realEstateProperty = { id: propertyId };
+    this.initializeUsers();
+    this.loadWorkers();
+    this.loadTasks();
+  }
+
+  ngOnInit(): void {
+    this.initializeUsers();
+    this.resetCurrentTask();
+    this.getPropertyIdFromRoute();
+  }
+
+  private getPropertyIdFromRoute(): void {
+    const idFromUrl = this.route.snapshot.paramMap.get('id');
+    if (idFromUrl) {
+      this.currentPropertyId = +idFromUrl;
+      this.currentTask.realEstateProperty = { id: this.currentPropertyId };
+      console.log('Property ID récupéré depuis l\'URL:', this.currentPropertyId);
+
+      this.loadWorkers();
+      this.loadTasks();
+    } else {
+      console.error("ID de propriété non trouvé dans l'URL.");
+      this.error = "ID de propriété non trouvé dans l'URL.";
+      this.initializeEmptyColumns();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initializeUsers(): void {
+    this.users = [];
+  }
+
+  private loadWorkers(): void {
+    console.log('🔄 Chargement des workers pour la propriété:', this.currentPropertyId);
+
+    this.utilisateurService.getWorkers(0, 100, this.currentPropertyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: WorkersResponse) => {
+          console.log('✅ Workers chargés avec succès:', response);
+          this.workers = response.content;
+          this.users = this.mapWorkersToUsers(this.workers);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des workers:', error);
+          this.users = [];
+        }
+      });
+  }
+
+  private mapWorkersToUsers(workers: Worker[]): User[] {
+    return workers.map((worker) => {
+      return {
+        id: worker.id,
+        avatarUrl: worker.photo ? `${environment.filebaseUrl}${worker.photo}` : 'assets/images/profil.png',
+        name: `${worker.prenom} ${worker.nom}`
+      };
+    });
+  }
+
+  public getFileBaseUrl() {
+    return `${environment.filebaseUrl}`;
+  }
+
+  private loadTasks(): void {
+    if (!this.currentPropertyId) {
+      console.warn('⚠️ Property ID not set, cannot load tasks');
+      this.error = 'ID de propriété non défini';
+      this.initializeEmptyColumns();
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+
+    console.log('🔄 Chargement des tâches pour la propriété:', this.currentPropertyId);
+
+    this.projectBudgetService.getTasks(this.currentPropertyId, this.currentPage, this.pageSize)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response: TasksResponse) => {
+          console.log('✅ Tâches chargées avec succès:', response);
+          this.totalTasks = response.totalElements;
+          this.totalPages = response.totalPages;
+          this.organizeTasks(response.content);
+          this.error = null;
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des tâches:', error);
+
+          let errorMsg = 'Erreur lors du chargement des tâches';
+          if (error.status === 404) {
+            errorMsg = 'Propriété non trouvée';
+          } else if (error.status === 403) {
+            errorMsg = 'Accès refusé à cette propriété';
+          } else if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+
+          this.error = errorMsg;
+          this.errorMessage = errorMsg;
+          this.initializeEmptyColumns();
+        }
+      });
+  }
+
+  forceRefreshTasks(): void {
+    console.log('🔄 Rafraîchissement forcé des tâches...');
+    this.loadTasks();
+  }
+
+  private organizeTasks(apiTasks: Task[]): void {
+    const transformedTasks = apiTasks
+      .map(task => this.transformApiTask(task))
+      .sort((a, b) => (b.id || 0) - (a.id || 0));
+
+    this.columns = [
+      {
+        id: 'TODO',
+        title: 'À faire',
+        color: 'gray',
+        count: transformedTasks.filter(t => t.status === 'TODO').length,
+        tasks: transformedTasks.filter(t => t.status === 'TODO')
+      },
+      {
+        id: 'IN_PROGRESS',
+        title: 'En cours',
+        color: 'yellow-400',
+        count: transformedTasks.filter(t => t.status === 'IN_PROGRESS').length,
+        tasks: transformedTasks.filter(t => t.status === 'IN_PROGRESS')
+      },
+      {
+        id: 'BLOCKED',
+        title: 'Bloqué',
+        color: 'red-400',
+        count: transformedTasks.filter(t => t.status === 'BLOCKED').length,
+        tasks: transformedTasks.filter(t => t.status === 'BLOCKED')
+      },
+      {
+        id: 'DONE',
+        title: 'Terminé',
+        color: 'green-400',
+        count: transformedTasks.filter(t => t.status === 'DONE').length,
+        tasks: transformedTasks.filter(t => t.status === 'DONE')
+      }
+    ];
+  }
+
+  private initializeEmptyColumns(): void {
+    this.columns = [
+      { id: 'TODO', title: 'À faire', color: 'gray', count: 0, tasks: [] },
+      { id: 'IN_PROGRESS', title: 'En cours', color: 'yellow-400', count: 0, tasks: [] },
+      { id: 'BLOCKED', title: 'Bloqué', color: 'red-400', count: 0, tasks: [] },
+      { id: 'DONE', title: 'Terminé', color: 'green-400', count: 0, tasks: [] }
+    ];
+  }
+
+  private transformApiTask(apiTask: Task): TaskDisplay {
+    return {
+      id: apiTask.id,
+      title: apiTask.title,
+      description: apiTask.description,
+      priority: apiTask.priority,
+      status: apiTask.status,
+      startDate: apiTask.startDate,
+      endDate: apiTask.endDate,
+      pictures: apiTask.pictures,
+      realEstateProperty: apiTask.realEstateProperty,
+      executors: apiTask.executors,
+      assignedUsers: this.getAssignedUsers(apiTask.executors),
+      additionalUsers: Math.max(0, apiTask.executors.length - 3),
+      tag: this.getTagForTask(apiTask),
+      comments: 0,
+      attachments: apiTask.pictures?.length || 0,
+      dueDate: apiTask.endDate ? this.formatDate(apiTask.endDate) : 'N/A',
+      isDone: apiTask.status === 'DONE'
+    };
+  }
+
+  private getAssignedUsers(executors: any[]): User[] {
+    if (!executors || executors.length === 0) return [];
+
+    return executors.slice(0, 3).map((executor) => {
+      const worker = this.workers.find(w => w.id === executor.id);
+      if (worker) {
+        return {
+          id: worker.id,
+          avatarUrl: worker.photo ? `${environment.filebaseUrl}${worker.photo}` : 'assets/images/profil.png',
+          name: `${worker.prenom} ${worker.nom}`
+        };
+      }
+
+      return {
+        id: executor.id,
+        avatarUrl: 'assets/images/profil.png',
+        name: `Exécuteur ${executor.id}`
+      };
+    });
+  }
+
+  private getTagForTask(task: Task): TaskTag {
+    const priorityTags: Record<string, TaskTag> = {
+      'LOW': {
+        name: 'Basse priorité',
+        colorClass: 'bg-blue-50',
+        textColorClass: 'text-blue-500'
+      },
+      'MEDIUM': {
+        name: 'Priorité moyenne',
+        colorClass: 'bg-yellow-50',
+        textColorClass: 'text-yellow-500'
+      },
+      'HIGH': {
+        name: 'Haute priorité',
+        colorClass: 'bg-red-50',
+        textColorClass: 'text-red-500'
+      }
+    };
+
+    return priorityTags[task.priority] || {
+      name: 'Tâche',
+      colorClass: 'bg-gray-50',
+      textColorClass: 'text-gray-500'
+    };
+  }
+
+  public formatDate(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) return 'N/A';
+
+    try {
+      const [year, month, day] = dateArray;
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('fr-FR');
+    } catch {
+      return 'N/A';
+    }
+  }
+
+  private resetCurrentTask(): void {
+    const now = new Date();
+    const currentDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+
+    this.currentTask = {
+      id: null,
+      title: '',
+      description: '',
+      priority: 'MEDIUM',
+      startDate: currentDateString,
+      endDate: currentDateString,
+      realEstateProperty: { id: this.currentPropertyId },
+      executors: [],
+      status: 'TODO',
+      pictures: []
+    };
+  }
+
+
+  // ================== DRAG AND DROP METHODS ==================
+
+  onDragStart(event: DragEvent, task: TaskDisplay): void {
+    console.log('🎯 Début du drag de la tâche:', task.title);
+
+    if (event.dataTransfer && task.id) {
+      this.draggedTask = { ...task };
+      this.isDragging = true;
+
+      event.dataTransfer.setData('application/json', JSON.stringify({
+        taskId: task.id,
+        originalStatus: task.status,
+        taskTitle: task.title
+      }));
+      event.dataTransfer.effectAllowed = 'move';
+
+      if (event.target instanceof HTMLElement) {
+        event.target.classList.add('dragging');
+      }
+    }
+  }
+
+  onDragEnd(event: DragEvent): void {
+    console.log('🏁 Fin du drag');
+
+    this.draggedTask = null;
+    this.isDragging = false;
+    this.dragOverColumn = null;
+
+    if (event.target instanceof HTMLElement) {
+      event.target.classList.remove('dragging');
+    }
+  }
+
+  onDragOver(event: DragEvent, columnId?: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    if (columnId && this.isDragging) {
+      this.dragOverColumn = columnId;
+    }
+  }
+
+  onDragLeave(event: DragEvent, columnId: string): void {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = event.clientX;
+    const y = event.clientY;
+
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      if (this.dragOverColumn === columnId) {
+        this.dragOverColumn = null;
+      }
+    }
+  }
+
+  onDrop(event: DragEvent, targetStatus: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log('📥 Drop dans la colonne:', targetStatus);
+
+    this.dragOverColumn = null;
+
+    if (!event.dataTransfer) {
+      console.warn('⚠️ Pas de dataTransfer disponible');
+      return;
+    }
+
+    let dragData;
+    try {
+      const dataTransferText = event.dataTransfer.getData('application/json');
+      if (!dataTransferText) {
+        console.warn('⚠️ Pas de données disponibles dans dataTransfer');
+        return;
+      }
+      dragData = JSON.parse(dataTransferText);
+    } catch (error) {
+      console.error('⚠️ Erreur lors de la parsing des données de drag:', error);
+      return;
+    }
+
+    const { taskId, originalStatus, taskTitle } = dragData;
+
+    if (!taskId || isNaN(Number(taskId))) {
+      console.warn('⚠️ ID de tâche invalide:', taskId);
+      return;
+    }
+
+    if (originalStatus === targetStatus) {
+      console.log('ℹ️ La tâche est déjà dans cette colonne');
+      return;
+    }
+
+    console.log('🔄 Changement de statut demandé:', originalStatus, '->', targetStatus);
+
+    const task = this.findTaskById(Number(taskId));
+    if (!task) {
+      console.warn('⚠️ Tâche introuvable avec l\'ID:', taskId);
+      return;
+    }
+
+    const originalTaskData = { ...task };
+    this.updateTaskStatusLocally(task, targetStatus);
+    this.updateTaskStatusOnServer(Number(taskId), targetStatus, originalTaskData, taskTitle);
+  }
+
+  private findTaskById(taskId: number): TaskDisplay | undefined {
+    for (const column of this.columns) {
+      const task = column.tasks.find(t => t.id === taskId);
+      if (task) return task;
+    }
+    return undefined;
+  }
+
+  private updateTaskStatusLocally(task: TaskDisplay, newStatus: string): void {
+    const oldStatus = task.status;
+
+    const oldColumn = this.columns.find(col => col.id === oldStatus);
+    if (oldColumn) {
+      const taskIndex = oldColumn.tasks.findIndex(t => t.id === task.id);
+      if (taskIndex > -1) {
+        oldColumn.tasks.splice(taskIndex, 1);
+        oldColumn.count = oldColumn.tasks.length;
+      }
+    }
+
+    const newColumn = this.columns.find(col => col.id === newStatus);
+    if (newColumn) {
+      task.status = newStatus as any;
+      task.isDone = newStatus === 'DONE';
+      newColumn.tasks.push(task);
+      newColumn.count = newColumn.tasks.length;
+    }
+
+    console.log('✅ Mise à jour locale terminée');
+  }
+
+  private updateTaskStatusOnServer(
+    taskId: number,
+    newStatus: string,
+    originalTaskData: TaskDisplay,
+    taskTitle: string
+  ): void {
+    if (this.isUpdatingTaskStatus) {
+      console.log('⏳ Mise à jour déjà en cours...');
+      return;
+    }
+
+    this.isUpdatingTaskStatus = true;
+
+    console.log('📤 Envoi de la mise à jour au serveur:', { taskId, status: newStatus });
+
+    this.projectBudgetService.updateTaskStatus(taskId, newStatus)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isUpdatingTaskStatus = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Statut mis à jour avec succès sur le serveur:', response);
+          this.successMessage = `Tâche "${taskTitle}" déplacée vers "${this.getStatusColumnTitle(newStatus)}"`;
+
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la mise à jour du statut:', error);
+
+          let errorMsg = 'Erreur lors du déplacement de la tâche';
+          if (error.status === 403) {
+            errorMsg = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette tâche.';
+          } else if (error.status === 404) {
+            errorMsg = 'Tâche non trouvée.';
+          } else if (error.status === 401) {
+            errorMsg = 'Session expirée. Veuillez vous reconnecter.';
+          } else if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+
+          this.errorMessage = errorMsg;
+          this.revertTaskStatusLocally(originalTaskData);
+
+          setTimeout(() => {
+            this.errorMessage = null;
+          }, 5000);
+        }
+      });
+  }
+
+  private revertTaskStatusLocally(originalTaskData: TaskDisplay): void {
+    console.log('🔄 Annulation du changement local...');
+
+    const currentTask = this.findTaskById(originalTaskData.id!);
+    if (currentTask) {
+      const currentColumn = this.columns.find(col => col.tasks.includes(currentTask));
+      if (currentColumn) {
+        const taskIndex = currentColumn.tasks.indexOf(currentTask);
+        if (taskIndex > -1) {
+          currentColumn.tasks.splice(taskIndex, 1);
+          currentColumn.count = currentColumn.tasks.length;
+        }
+      }
+
+      const originalColumn = this.columns.find(col => col.id === originalTaskData.status);
+      if (originalColumn) {
+        Object.assign(currentTask, originalTaskData);
+        originalColumn.tasks.push(currentTask);
+        originalColumn.count = originalColumn.tasks.length;
+      }
+    } else {
+      console.warn('Impossible de trouver la tâche pour l\'annulation, rechargement complet...');
+      this.loadTasks();
+    }
+  }
+  private formatDateFromInput(dateString: string): string {
+    if (!dateString) {
+      return this.formatDateForApi(this.getCurrentDateArray());
+    }
+
+    // dateString est au format YYYY-MM-DD, convertir en MM-DD-YYYY
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      return `${parts[1]}-${parts[2]}-${parts[0]}`;
+    }
+
+    return this.formatDateForApi(this.getCurrentDateArray());
+  }
+  private formatDateForInput(dateArray: number[] | string): string {
+    if (typeof dateArray === 'string') {
+      // Si c'est déjà une string, convertir de MM-DD-YYYY vers YYYY-MM-DD
+      const parts = dateArray.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[0]}-${parts[1]}`;
+      }
+      return dateArray;
+    }
+
+    if (!dateArray || dateArray.length < 3) {
+      const now = new Date();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      return `${year}-${month}-${day}`;
+    }
+
+    const [year, month, day] = dateArray;
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+  }
+  // ================== MODAL METHODS ==================
+
+  openDetailModal(task: TaskDisplay): void {
+    this.selectedTask = task;
+    this.showDetailModal = true;
+  }
+
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedTask = null;
+  }
+
+  openEditModal(task: TaskDisplay): void {
+    this.isEditMode = true;
+    this.currentTask = {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      startDate: this.formatDateForInput(task.startDate),
+      endDate: this.formatDateForInput(task.endDate),
+      realEstateProperty: task.realEstateProperty,
+      executors: [...task.executors],
+      status: task.status,
+      pictures: task.pictures || []
+    };
+    this.selectedFiles = [];
+    this.error = null;
+    this.showModal = true;
+  }
+
+  openCreateModal(): void {
+    this.isEditMode = false;
+    this.resetCurrentTask();
+    this.selectedFiles = [];
+    this.error = null;
+    this.showModal = true;
+  }
+
+  // closeModal() {
+  //   this.showModal = false;
+  //   this.selectedTask = null;
+  //   this.selectedFiles = [];
+  //   this.error = null;
+  // }
+
+  // ================== COMMENT MODAL METHODS ==================
+
+  openCommentModal(task: TaskDisplay): void {
+    this.currentTaskForComment = task;
+    this.showCommentModal = true;
+    this.loadComments();
+  }
+
+  closeCommentModal(): void {
+    this.showCommentModal = false;
+    this.currentTaskForComment = null;
+    this.comments = [];
+    this.newComment = {
+      title: '',
+      description: '',
+      file: null
+    };
+  }
+
+  private loadComments(): void {
+    if (!this.currentPropertyId) return;
+
+    this.loadingComments = true;
+
+    this.commentFileService.getComment(this.currentPropertyId, this.commentPage, this.commentPageSize)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loadingComments = false;
+        })
+      )
+      .subscribe({
+        next: (response: DocumentsResponse) => {
+          this.comments = response.content;
+          this.totalComments = response.totalElements;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des commentaires:', error);
+          this.errorMessage = 'Erreur lors du chargement des commentaires';
+        }
+      });
+  }
+
+  onCommentFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.newComment.file = file;
+    }
+  }
+
+  submitComment(): void {
+    if (!this.newComment.title || !this.newComment.description || !this.newComment.file) {
+      this.error = 'Veuillez remplir tous les champs';
+      return;
+    }
+
+    const commentData: AddDocumentRequest = {
+      title: this.newComment.title,
+      file: this.newComment.file,
+      description: this.newComment.description,
+      realEstatePropertyId: this.currentPropertyId,
+      typeId: 1 // Vous pouvez ajuster ce typeId selon votre besoin
+    };
+
+    this.loadingComments = true;
+
+    this.commentFileService.addComment(commentData)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loadingComments = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.successMessage = 'Commentaire ajouté avec succès';
+          this.newComment = {
+            title: '',
+            description: '',
+            file: null
+          };
+          this.loadComments();
+          this.loadTasks(); // Update task comment count
+
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'ajout du commentaire:', error);
+          this.errorMessage = 'Erreur lors de l\'ajout du commentaire';
+        }
+      });
+  }
+
+  // ================== FILE MODAL METHODS ==================
+
+  openFileModal(task: TaskDisplay): void {
+    this.currentTaskForFile = task;
+    this.showFileModal = true;
+  }
+
+  closeFileModal(): void {
+    this.showFileModal = false;
+    this.currentTaskForFile = null;
+    this.fileToJoin = null;
+    this.fileLibelle = '';
+  }
+
+  onFileToJoinSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.fileToJoin = file;
+    }
+  }
+
+  joinFileToTask(): void {
+    if (!this.fileToJoin || !this.fileLibelle || !this.currentTaskForFile) {
+      this.error = 'Veuillez sélectionner un fichier et renseigner un libellé';
+      return;
+    }
+
+    this.loadingFileJoin = true;
+
+    this.commentFileService.joinFile(this.currentTaskForFile.id!, this.fileLibelle, this.fileToJoin)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loadingFileJoin = false;
+        })
+      )
+      .subscribe({
+        next: (response: JoinFileResponse) => {
+          this.successMessage = 'Fichier joint avec succès';
+          this.fileToJoin = null;
+          this.fileLibelle = '';
+          this.closeFileModal();
+          this.loadTasks(); // Recharger les tâches pour mettre à jour le compteur de fichiers
+
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la jointure du fichier:', error);
+          this.errorMessage = 'Erreur lors de la jointure du fichier';
+
+          setTimeout(() => {
+            this.errorMessage = null;
+          }, 5000);
+        }
+      });
+  }
+
+  // Reste des méthodes dans le prochain artefact...
+  // 3. Modifier la méthode openModal pour formater les dates correctement
+  openModal(task?: Task) {
+    if (task) {
+      this.isEditMode = true;
+      this.currentTask = {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        startDate: this.formatDateForInput(task.startDate),
+        endDate: this.formatDateForInput(task.endDate),
+        realEstateProperty: task.realEstateProperty,
+        executors: [...task.executors],
+        status: task.status,
+        pictures: task.pictures || []
+      };
+    } else {
+      this.isEditMode = false;
+      this.resetCurrentTask();
+    }
+    this.selectedFiles = [];
+    this.error = null;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedTask = null;
+    this.selectedFiles = [];
+    this.error = null;
+  }
+
+
+  onBackdropClick(event: Event) {
+    if (event.target === event.currentTarget) {
+      this.closeModal();
+    }
+  }
+
+  onFileSelected(event: any) {
+    const files = event.target.files;
+    if (files) {
+      this.selectedFiles = Array.from(files);
+    }
+  }
+
+  validateTaskForm(): boolean {
+    if (!this.currentTask.title?.trim()) {
+      this.error = 'Le titre est requis';
+      return false;
+    }
+    if (!this.currentTask.description?.trim()) {
+      this.error = 'La description est requise';
+      return false;
+    }
+    if (!this.currentTask.realEstateProperty?.id) {
+      this.error = 'Propriété non définie';
+      return false;
+    }
+    return true;
+  }
+
+  editTask(task: TaskDisplay): void {
+    this.openModal(task);
+  }
+
+  deleteTask(taskId: number): void {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+
+    this.projectBudgetService.deleteTask(taskId)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: () => {
+          console.log('✅ Tâche supprimée avec succès');
+          this.successMessage = 'Tâche supprimée avec succès';
+          this.loadTasks();
+
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la suppression de la tâche:', error);
+
+          let errorMsg = 'Erreur lors de la suppression de la tâche';
+          if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+
+          this.errorMessage = errorMsg;
+
+          setTimeout(() => {
+            this.errorMessage = null;
+          }, 5000);
+        }
+      });
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadTasks();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadTasks();
+    }
+  }
+
+  private getCurrentDateArray(): number[] {
+    const now = new Date();
+    return [now.getFullYear(), now.getMonth() + 1, now.getDate()];
+  }
+
+  private getCurrentDate(): string {
+    const now = new Date();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const year = now.getFullYear();
+    return `${year}-${month}-${day}`;
+  }
+
+  private formatDateForApi(dateArray: number[] | string): string {
+    if (typeof dateArray === 'string') {
+      return dateArray;
+    }
+
+    if (!dateArray || dateArray.length < 3) {
+      const now = new Date();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      return `${month}-${day}-${year}`;
+    }
+
+    const [year, month, day] = dateArray;
+    return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}-${year}`;
+  }
+
+  resetForm(): void {
+    this.closeModal();
+    this.selectedFiles = [];
+    this.resetCurrentTask();
+  }
+
+  clearError(): void {
+    this.error = null;
+    this.errorMessage = null;
+  }
+
+  clearSuccess(): void {
+    this.successMessage = null;
+  }
+
+  refreshTasks(): void {
+    this.loadTasks();
+  }
+
+  refreshWorkers(): void {
+    this.loadWorkers();
+  }
+
+  getStatusColumnTitle(status: string): string {
+    const statusMap: Record<string, string> = {
+      'TODO': 'À faire',
+      'IN_PROGRESS': 'En cours',
+      'BLOCKED': 'Bloqué',
+      'DONE': 'Terminé'
+    };
+    return statusMap[status] || status;
+  }
+
+  getPropertyDetails(propertyId: number): any {
+    return {
+      id: propertyId,
+      name: `Propriété ${propertyId}`,
+      address: 'Adresse non disponible',
+      plan: 'Plan non disponible'
+    };
+  }
+
+  getExecutorDetails(executor: any): string {
+    if (!executor) return 'Exécuteur non défini';
+
+    const worker = this.workers.find(w => w.id === executor.id);
+    if (worker) {
+      return `${worker.prenom || ''} ${worker.nom || ''}`.trim();
+    }
+
+    return `Exécuteur ${executor.id}`;
+  }
+
+  getPropertyInfo(task: Task): string {
+    if (task.realEstateProperty) {
+      return `${task.realEstateProperty.name} - ${task.realEstateProperty.address}`;
+    }
+    return 'Propriété non définie';
+  }
+
+  getPropertyName(task?: Task): string {
+    if (task?.realEstateProperty) {
+      return task.realEstateProperty.name;
+    }
+    return `Propriété ${this.currentPropertyId}`;
+  }
+
+  getPriorityLabel(priority: string): string {
+    const labels: Record<string, string> = {
+      'LOW': 'Basse',
+      'MEDIUM': 'Moyenne',
+      'HIGH': 'Haute'
+    };
+    return labels[priority] || priority;
+  }
+
+  trackByColumnId(index: number, column: TaskColumn): string {
+    return column.id;
+  }
+
+  trackByTaskId(index: number, task: TaskDisplay): number {
+    return task.id!;
+  }
+
+  trackByUserId(index: number, user: User): number {
+    return user.id;
+  }
+
+  closeTaskForm(): void {
+    this.showTaskForm = false;
+    this.resetForm();
+  }
+
+  // 5. Modifier saveTask pour convertir les dates correctement
+  saveTask(): void {
+    if (!this.validateTaskForm()) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+    this.successMessage = null;
+
+    const taskData: CreateTaskRequest = {
+      title: this.currentTask.title.trim(),
+      description: this.currentTask.description.trim(),
+      priority: this.currentTask.priority,
+      startDate: this.formatDateFromInput(this.currentTask.startDate),
+      endDate: this.formatDateFromInput(this.currentTask.endDate),
+      realEstatePropertyId: this.currentTask.realEstateProperty?.id || this.currentPropertyId,
+      executorIds: this.currentTask.executors.map((executor: any) => executor.id) || [],
+      pictures: this.currentTask.pictures || []
+    };
+
+    console.log('Task data to send:', taskData);
+
+    if (this.selectedFiles.length > 0) {
+      const filePromises = this.selectedFiles.map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            resolve(e.target.result);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      });
+
+      Promise.all(filePromises)
+        .then(base64Files => {
+          taskData.pictures = [...(taskData.pictures || []), ...base64Files];
+          this.createOrUpdateTask(taskData);
+        })
+        .catch(error => {
+          console.error('Error converting files to base64:', error);
+          this.error = 'Erreur lors de la conversion des fichiers';
+          this.loading = false;
+        });
+    } else {
+      this.createOrUpdateTask(taskData);
+    }
+  }
+
+  // 6. Modifier la méthode getDefaultAvatar pour utiliser le placeholder correct
+  private getDefaultAvatar(index?: number): string {
+    return 'assets/images/profil.png';
+  }
+
+  // Méthode pour gérer le changement du select multiple
+  onExecutorChange(event: any): void {
+    const selectedOptions = Array.from(event.target.selectedOptions) as HTMLOptionElement[];
+    const selectedIds = selectedOptions.map(option => parseInt(option.value));
+
+    // Mettre à jour la liste des executors
+    this.currentTask.executors = selectedIds.map(id => ({ id }));
+  }
+
+  // Méthode pour retirer un exécuteur
+  removeExecutor(userId: number): void {
+    const index = this.currentTask.executors.findIndex((exec: any) => exec.id === userId);
+    if (index > -1) {
+      this.currentTask.executors.splice(index, 1);
+    }
+  }
+
+  // Méthode pour obtenir l'avatar d'un utilisateur
+  getUserAvatar(userId: number): string {
+    const user = this.users.find(u => u.id === userId);
+    return user?.avatarUrl || 'assets/images/profil.png';
+  }
+
+  // Méthode pour obtenir le nom d'un utilisateur
+  getUserName(userId: number): string {
+    const user = this.users.find(u => u.id === userId);
+    return user?.name || 'Utilisateur inconnu';
+  }
+
+
+  // Méthode pour gérer les erreurs de chargement d'images
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/profil.png';
+  }
+  private createOrUpdateTask(taskData: CreateTaskRequest): void {
+    if (this.isEditMode && this.currentTask.id) {
+      this.updateExistingTask(taskData);
+    } else {
+      this.projectBudgetService.createTask(taskData)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.loading = false;
+          })
+        )
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Tâche créée avec succès:', response);
+            this.successMessage = 'Tâche créée avec succès';
+            this.closeModal();
+            this.loadTasks();
+
+            setTimeout(() => {
+              this.successMessage = null;
+            }, 3000);
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la création de la tâche:', error);
+
+            let errorMsg = 'Erreur lors de la création de la tâche';
+            if (error.error?.message) {
+              errorMsg = error.error.message;
+            } else if (error.message) {
+              errorMsg = error.message;
+            }
+
+            this.error = errorMsg;
+            this.errorMessage = errorMsg;
+          }
+        });
+    }
+  }
+
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+  }
+
+  isUserSelected(userId: number): boolean {
+    return this.currentTask.executors.some((exec: any) => exec.id === userId);
+  }
+
+  toggleUserSelection(userId: number): void {
+    const index = this.currentTask.executors.findIndex((exec: any) => exec.id === userId);
+    if (index > -1) {
+      this.currentTask.executors.splice(index, 1);
+    } else {
+      this.currentTask.executors.push({ id: userId });
+    }
+  }
+
+  private updateExistingTask(taskData: CreateTaskRequest): void {
+    if (!this.currentTask.id) {
+      this.error = 'ID de tâche manquant';
+      this.loading = false;
+      return;
+    }
+
+    const updateData: UpdateTaskRequest = {
+      title: taskData.title,
+      description: taskData.description,
+      priority: taskData.priority,
+      startDate: taskData.startDate,
+      endDate: taskData.endDate,
+      status: this.currentTask.status,
+      realEstatePropertyId: taskData.realEstatePropertyId,
+      executorIds: taskData.executorIds,
+      pictures: taskData.pictures
+    };
+
+    this.projectBudgetService.updateTask(this.currentTask.id, updateData)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Tâche mise à jour avec succès:', response);
+          this.successMessage = 'Tâche mise à jour avec succès';
+          this.closeModal();
+          this.loadTasks();
+
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la mise à jour de la tâche:', error);
+
+          let errorMsg = 'Erreur lors de la mise à jour de la tâche';
+          if (error.error?.message) {
+            errorMsg = error.error.message;
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+
+          this.error = errorMsg;
+          this.errorMessage = errorMsg;
+
+          setTimeout(() => {
+            this.errorMessage = null;
+          }, 5000);
+        }
+      });
+  }
+}
+
+
+// adapte moi le ts et le html de mon task-board corrige sur le ts en appellant la methode getWorkers() dans le service utilisateur(que je t'es données juste pour que tu appelle la methode getworkers() pour les workers a qui on assigne les taches ) et appelle moi aussi les methode addComment() et JoinFile() respectivement pour ajouter et joindre un fichier sur une tache donc tu adaptera sur les icones de commentaire et d'épinglage si on clique sur l'icone de commentaire on affiche un modal pour listes les commentaire s'il y'en a a gauche et un petit formulaire pour ajouter un commentaire meme chose pour les fichiers si on clique sur l'icone d'épinglage on affiche un modal meme approche pour les commentaires pour ajouter fichier un champ permet de choisir un fichier et un button joindre .Et enlève le fait que si on clique sur une tache ca affiche le modal de modification le modal de modification doit s'afficher si on clique sur l'icone de modification que tu vas ajouter sur la ou se positionne les iconne de comment et join (en troisieme position icone de modification sur la carde d'une tache) et aussi si on clique sur tache ca doit afficher les details de cette tache sur ce modal adapte moi bien le ts et html et aur les champs soit bien charger lors de la modification ,change aussi  pour l'assignation  a des workers  tache que se soit un select on pourra choisir un ou plusieurs workers sur pour une taches
+
+// paginer aussi la liste des taches sur les 4 cardes par 3 element par cardes re reste on scrolle vers le bas pour voir adapte moi bien ce ts et html ne change par le design juste adapte et ajoutes mes instructions 
 

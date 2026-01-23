@@ -12,7 +12,9 @@ import {
   IncidentStatistic,
   CriticalTask,
   RecentPhoto,
-  PageableResponse
+  StudyKpi, 
+  PageableResponse,
+  ProjectKpi
 } from '../../../services/dashboard.service';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
@@ -54,18 +56,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Données structurées pour l'affichage
   dashboardData = {
     chantiers: {
-      enCours: 0,
-      enRetard: 0,
-      enAttente: 0,
-      termines: 0,
-      total: 0
+      total: 0,
+      inProgress: 0,
+      delayed: 0,
+      pending: 0
     },
     etudes: {
-      enEnsemble: 0,
-      enCours: 0,
-      terminees: 0,
-      livrees: 0,
-      total: 0
+      total: 0,
+      pending: 0,
+      inProgress: 0,
+      delivered: 0,
+      validated: 0,
+      rejected: 0,
+      percentages: {
+        pending: 0,
+        inProgress: 0,
+        delivered: 0,
+        validated: 0,
+        rejected: 0
+      }
     },
     avancement: {
       pourcentage: 0,
@@ -276,17 +285,39 @@ selectImageIndex(index: number): void {
   }
 
   private continueLoadingData(): void {
-    // Chargement parallèle de toutes les données depuis le backend
     forkJoin({
-      vueEnsemble: this.dashboardService.vueEnsemble().pipe(
+      vueEnsembleProject: this.dashboardService.vueEnsembleProject().pipe(
         catchError(error => {
-          console.warn('Erreur vueEnsemble:', error);
+          console.warn('Erreur vueEnsembleProject:', error);
           return of({
-            totalTasks: 0,
-            pendingTasks: 0,
-            completedTasks: 0,
-            overdueTasks: 0
-          } as TasksKpi);
+            total: 0,
+            inProgress: 0,
+            delayed: 0,
+            pending: 0,
+            pendingpending: 0
+          } as ProjectKpi);
+        })
+      ),
+      vueEnsembleEtude: this.dashboardService.getVueEnsembleAndRepartitionEtude().pipe(
+        catchError(error => {
+          console.warn('Erreur vueEnsembleEtude:', error);
+          return of({
+            total: 0,
+            percentages: {
+              PENDING: 0,
+              IN_PROGRESS: 0,
+              DELIVERED: 0,
+              VALIDATED: 0,
+              REJECTED: 0
+            },
+            counts: {
+              PENDING: 0,
+              IN_PROGRESS: 0,
+              DELIVERED: 0,
+              VALIDATED: 0,
+              REJECTED: 0
+            }
+          } as StudyKpi);
         })
       ),
       tauxMoyenAvancement: this.dashboardService.tauxMoyenAvancement().pipe(
@@ -430,36 +461,60 @@ selectImageIndex(index: number): void {
   }
 
   private processChantiers(): any {
-    const vueEnsemble = this.rawData.vueEnsemble;
-
-    if (!vueEnsemble) {
-      return this.dashboardData.chantiers;
+    const projectKpi = this.rawData.vueEnsembleProject;
+  
+    if (!projectKpi) {
+      return {
+        total: 0,
+        inProgress: 0,
+        delayed: 0,
+        pending: 0
+      };
     }
-
-    const termines = vueEnsemble.completedTasks || 0;
-    const enRetard = vueEnsemble.overdueTasks || 0;
-    const enCours = vueEnsemble.pendingTasks || 0;
-    const total = vueEnsemble.totalTasks || 0;
-    const enAttente = Math.max(0, total - termines - enRetard - enCours);
-
+  
     return {
-      enCours,
-      enRetard,
-      enAttente,
-      termines,
-      total
+      total: projectKpi.total || 0,
+      inProgress: projectKpi.inProgress || 0,
+      delayed: projectKpi.delayed || 0,
+      pending: projectKpi.pending || 0
     };
   }
 
   private processEtudes(): any {
-    // Données mockées pour les études
-    // À remplacer par l'appel au backend une fois implémenté
+    const studyKpi = this.rawData.vueEnsembleEtude;
+  
+    if (!studyKpi) {
+      return {
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        delivered: 0,
+        validated: 0,
+        rejected: 0,
+        percentages: {
+          pending: 0,
+          inProgress: 0,
+          delivered: 0,
+          validated: 0,
+          rejected: 0
+        }
+      };
+    }
+  
     return {
-      enEnsemble: 28,
-      enCours: 11,
-      terminees: 9,
-      livrees: 8,
-      total: 28
+      total: studyKpi.total || 0,
+      pending: studyKpi.counts.PENDING || 0,
+      inProgress: studyKpi.counts.IN_PROGRESS || 0,
+      delivered: studyKpi.counts.DELIVERED || 0,
+      validated: studyKpi.counts.VALIDATED || 0,
+      rejected: studyKpi.counts.REJECTED || 0,
+      percentages: {
+        pending: studyKpi.percentages.PENDING || 0,
+        inProgress: studyKpi.percentages.IN_PROGRESS || 0,
+        delivered: studyKpi.percentages.DELIVERED || 0,
+        validated: studyKpi.percentages.VALIDATED || 0,
+        rejected: studyKpi.percentages.REJECTED || 0
+      }
     };
   }
   // pour gerer la charte de repartition 
@@ -470,9 +525,17 @@ selectImageIndex(index: number): void {
 
     const ctx = this.repartitionChart.nativeElement.getContext('2d');
     if (!ctx) return;
-
+    const percentages = this.dashboardData.etudes.percentages;
+  
+    // Données dynamiques basées sur les valeurs réelles de l'API
+    const data = [
+      percentages.validated,   
+      percentages.inProgress,  // En cours (orange)
+      percentages.delivered,   // Livrées (bleu)
+      percentages.pending      // En attente (rouge)
+    ];
     // Données mockées pour la répartition des études
-    const data = [40, 35, 15, 10]; // Complétées, En cours, Initiées, Non initiées
+    // const data = [40, 35, 15, 10]; 
     const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
     const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
 

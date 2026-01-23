@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50 overflow-x-hidden">
     <!-- Header avec Navigation et Toggle de langue -->
     <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
-        <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="max-w-screen-2xl 2xl:max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
             <div class="flex justify-between items-center w-full">
                 <!-- Logo -->
                 <button (click)="scrollToSection('accueil', $event)" class="flex items-center space-x-2 flex-shrink-0">
@@ -185,15 +185,16 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="accueil" class="min-h-screen flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16">
-        <div class="w-full max-w-screen-2xl mx-auto">
+    <section id="accueil"
+    class="min-h-[80vh] flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16 overflow-hidden">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <!-- Left Content -->
-                <div class="space-y-6 animate-fade-in-left">
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <div class="space-y-6 2xl:space-y-8 animate-fade-in-left">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl font-bold text-gray-900 leading-tight">
                         {{ t('hero.title') }}
                     </h1>
-                    <p class="text-lg text-gray-600 leading-relaxed">
+                    <p class="text-lg 2xl:text-3xl text-gray-600 leading-relaxed">
                         {{ t('hero.description') }}
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
@@ -212,7 +213,7 @@
                 <div class="relative animate-fade-in-right flex justify-end">
                     <div class="w-full hover:scale-105 transition-transform duration-300">
                         <div class="w-full">
-                            <div class="text-gray-400">
+                            <div class="text-gray-400 transform scale-100 2xl:scale-125 origin-center">
                                 <img src="assets/images/appli.png" alt="" class="w-full h-auto">
                             </div>
                         </div>
@@ -224,7 +225,7 @@
 
     <!-- À propos Section -->
     <section id="apropos" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <!-- Left Content - Images -->
                 <div class="w-full hover:scale-105 transition-transform duration-300">
@@ -234,15 +235,15 @@
                 </div>
 
                 <!-- Right Content - Text -->
-                <div class="space-y-6 animate-fade-in-right">
+                <div class="space-y-6 2xl:space-y-8 animate-fade-in-right 2xl:pl-16">
                     <div
                         class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold">
                         {{ t('about.badge') }}
                     </div>
-                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900">
+                    <h2 class="text-4xl md:text-5xl 2xl:text-6xl font-bold text-gray-900">
                         {{ t('about.title') }}
                     </h2>
-                    <p class="text-lg text-gray-600 leading-relaxed">
+                    <p class="text-lg 2xl:text-xl text-gray-600 leading-relaxed">
                         {{ t('about.description') }}
                     </p>
                     <ul class="space-y-4">
@@ -341,7 +342,7 @@
     <!-- Fonctionnalités Section -->
     <section id="fonctionnalites" style="background-image: url('assets/images/bg.png');"
         class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-cover bg-center">
-        <div class="max-w-screen-2xl mx-auto ">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto ">
             <div class="text-center mb-4 animate-fade-in-up">
                 <div
                     class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
@@ -466,7 +467,7 @@
             </div>
 
             <!-- Cartes de pricing -->
-            <div *ngIf="!isLoadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div *ngIf="!isLoadingPlans" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto">
                 <!-- Gratuit (essai) - Statique -->
                 <div
                     class="bg-white rounded-lg p-8 shadow-sm border border-gray-200 min-h-[500px] flex flex-col justify-between">
@@ -688,14 +689,14 @@
     </section>
     <!-- Section Téléchargez l'application -->
     <section id="telecharger-app" class="pt-20 pb-0 px-6 sm:px-8 lg:px-12 xl:px-16 bg-gray-50">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Contenu gauche -->
                 <div>
                     <h2 class="text-4xl font-bold text-gray-900 mb-6">
                         {{ t('download.title') }}
                     </h2>
-                    <p class="text-lg text-gray-600 mb-8">
+                    <p class="text-4xl text-gray-600 mb-8">
                         {{ t('download.description') }}
                     </p>
 
@@ -820,7 +821,7 @@
         </div> -->
 
         <!-- Logos des entreprises - Slider animé style -->
-        <div class="max-w-screen-2xl mx-auto py-12">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto py-12">
 
             <!-- Loader state -->
             <div *ngIf="isLoadingPartners()" class="flex justify-center items-center py-8">
@@ -858,7 +859,7 @@
 
     <!-- Footer -->
     <footer class="bg-[#1a1f2e] text-white py-10 px-6 sm:px-8 lg:px-12 xl:px-16">
-        <div class="max-w-screen-2xl mx-auto">
+        <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- Colonne 1 -->
                 <div>

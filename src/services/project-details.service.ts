@@ -547,7 +547,7 @@ export class ProjectBudgetService {
 
     // ✅ CORRECTION: URL fixée - était `${this.baseUrl}/tasks` au lieu de `${this.baseUrl}tasks`
     return this.http.post<any>(
-      `${this.baseUrl}tasks`, // ← CORRECTION ICI
+      `${this.baseUrl}/tasks`, // ← CORRECTION ICI
       formData,
       { headers }
     ).pipe(
@@ -570,7 +570,7 @@ export class ProjectBudgetService {
     console.log('📤 Mise à jour statut:', { taskId: id, newStatus: status });
 
     return this.http.put<any>(
-      `${this.baseUrl}tasks/${id}/status`,
+      `${this.baseUrl}/tasks/${id}/status`,
       formData,
       { headers }
     ).pipe(
@@ -651,7 +651,7 @@ export class ProjectBudgetService {
     });
 
     return this.http.put<any>(
-      `${this.baseUrl}tasks/${id}`,
+      `${this.baseUrl}/tasks/${id}`,
       formData,
       { headers }
     ).pipe(
@@ -847,7 +847,7 @@ export class ProjectBudgetService {
     }
 
     return this.http.post<ExpenseResponse>(
-      `${this.baseUrl}expenses`,
+      `${this.baseUrl}/expenses`,
       formData
     );
   }
@@ -872,7 +872,7 @@ export class ProjectBudgetService {
     console.log('🗑️ Suppression tâche:', id);
 
     return this.http.delete<void>(
-      `${this.baseUrl}tasks/${id}`,
+      `${this.baseUrl}/tasks/${id}`,
       { headers }
     ).pipe(
       catchError((error) => {
@@ -941,7 +941,7 @@ export class ProjectBudgetService {
     const token = headers.get('Authorization')?.replace('Bearer ', '');
     console.log('Token envoyé:', token ? token.substring(0, 20) + '...' : 'Aucun token');
 
-    return this.http.post<any>(`${this.baseUrl}documents/add`, formData, { headers })
+    return this.http.post<any>(`${this.baseUrl}/documents/add`, formData, { headers })
       .pipe(
         catchError((error) => {
           console.error('Erreur détaillée lors de la création du document:', error);
