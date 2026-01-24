@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EtudeBetService, Etude, EtudeResponse, CreateEtudeRequest, UpdateBetRequest } from '../../../../../services/etude-bet.service';
+import { UserService } from '../../../../../services/user.service';
 
 interface EtudeBET {
   id: number;
@@ -24,6 +25,22 @@ interface Comment {
   content: string;
   authorName: string;
   createdAt: number[];
+}
+
+// 1. Ajouter l'interface User et UserPageResponse
+interface User {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  profil: string;
+}
+
+interface UserPageResponse {
+  content: User[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
 }
 
 @Component({
@@ -93,25 +110,45 @@ export class EtudeBetComponent implements OnInit {
   rejectReason: string = '';
 
   // Available BETs for autocomplete
-  availableBETs: { id: number, name: string }[] = [
-    { id: 1, name: 'Sonora BET' },
-    { id: 2, name: 'Alpha Dieye' },
-    { id: 3, name: 'BET Structura' },
-    { id: 4, name: 'ClimaTech' }
-  ];
+  // availableBETs: { id: number, name: string }[] = [
+  //   { id: 1, name: 'Sonora BET' },
+  //   { id: 2, name: 'Alpha Dieye' },
+  //   { id: 3, name: 'BET Structura' },
+  //   { id: 4, name: 'ClimaTech' }
+  // ];
+
+  availableBETs: User[] = [];
+loadingBETs: boolean = false;
   
   Math: any = Math;
 
   constructor(
     private etudeBetService: EtudeBetService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
-    // Récupérer le propertyId depuis les paramètres de route
     this.getPropertyIdFromRoute();
+  this.loadBETUsers();
   }
-
+// 4. Ajouter la méthode pour charger les utilisateurs BET
+private loadBETUsers(): void {
+  this.loadingBETs = true;
+  
+  // Assurez-vous d'injecter UserService dans le constructor
+  this.userService.getUserByProfil('BET', '', 0, 100).subscribe({
+    next: (response: UserPageResponse) => {
+      this.availableBETs = response.content;
+      this.loadingBETs = false;
+      console.log('BETs chargés:', this.availableBETs);
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des BETs:', error);
+      this.loadingBETs = false;
+    }
+  });
+}
   private getPropertyIdFromRoute(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
@@ -267,38 +304,63 @@ export class EtudeBetComponent implements OnInit {
   }
 
   // Progress bar for detail view
-  getProgressSteps(statut: string): { step: number; isCompleted: boolean; isCurrent: boolean; label: string }[] {
-    const steps = [
-      { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false },
-      { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false },
-      { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false },
-      { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false }
-    ];
+// 5. Modifier la méthode getProgressSteps pour gérer les icônes
+getProgressSteps(statut: string): { 
+  step: number; 
+  isCompleted: boolean; 
+  isCurrent: boolean; 
+  label: string;
+  showCheck: boolean;
+}[] {
+  const steps = [
+    { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false, showCheck: false }
+  ];
 
-    switch (statut) {
-      case 'En attente':
-        steps[0].isCurrent = true;
-        break;
-      case 'En cours':
-        steps[0].isCompleted = true;
-        steps[1].isCurrent = true;
-        break;
-      case 'Livrée':
-        steps[0].isCompleted = true;
-        steps[1].isCompleted = true;
-        steps[2].isCurrent = true;
-        break;
-      case 'Validée':
-      case 'Rejetée':
-        steps[0].isCompleted = true;
-        steps[1].isCompleted = true;
-        steps[2].isCompleted = true;
-        steps[3].isCompleted = true;
-        break;
-    }
-
-    return steps;
+  switch (statut) {
+    case 'En attente':
+      steps[0].isCurrent = true;
+      break;
+    case 'En cours':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCurrent = true;
+      break;
+    case 'Livrée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCurrent = true;
+      break;
+    case 'Validée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCompleted = true;
+      steps[2].showCheck = true;
+      steps[3].isCompleted = true;
+      steps[3].showCheck = true;
+      break;
+    case 'Rejetée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCompleted = true;
+      steps[2].showCheck = true;
+      steps[3].isCompleted = true;
+      steps[3].showCheck = true;
+      break;
   }
+
+  return steps;
+}
+
+
 
   // Modal actions
   openCreateModal() {
@@ -505,31 +567,31 @@ export class EtudeBetComponent implements OnInit {
       this.isLoading = true;
       this.etudeBetService.acceptEtude(this.selectedEtude.id).subscribe({
         next: (response) => {
-          console.log('Étude validée avec succès');
+          console.log('✅ Étude validée avec succès');
           this.loadEtudes();
           this.closeAllModals();
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors de la validation:', error);
+          console.error('❌ Erreur lors de la validation:', error);
           this.isLoading = false;
         }
       });
     }
   }
-
+  
   rejectEtude() {
-    if (this.selectedEtude && this.rejectReason.trim()) {
+    if (this.selectedEtude) {
       this.isLoading = true;
       this.etudeBetService.rejectEtude(this.selectedEtude.id).subscribe({
         next: (response) => {
-          console.log('Étude rejetée avec succès');
+          console.log('✅ Étude rejetée avec succès');
           this.loadEtudes();
           this.closeAllModals();
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du rejet:', error);
+          console.error('❌ Erreur lors du rejet:', error);
           this.isLoading = false;
         }
       });
@@ -550,6 +612,7 @@ export class EtudeBetComponent implements OnInit {
   canValidateOrReject(statut: string): boolean {
     return statut === 'Livrée';
   }
+  
 
   // Download report
   downloadReport(rapport: { id: number; nom: string; url: string }) {
@@ -628,6 +691,6 @@ export class EtudeBetComponent implements OnInit {
   // Utility method to get BET name by ID
   getBETNameById(betId: number): string {
     const bet = this.availableBETs.find(b => b.id === betId);
-    return bet ? bet.name : '';
+    return bet ? bet.nom : '';
   }
 }

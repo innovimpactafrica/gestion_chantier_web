@@ -4,6 +4,14 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
+// Ajoutez cette interface avec les autres
+export interface ProgressIndicator {
+  id: number;
+  phaseName: 'GROS_OEUVRE' | 'SECOND_OEUVRE' | 'FINITION';
+  progressPercentage: number;
+  lastUpdated: string;
+}
+
 export interface BudgetResponse {
   id: number;
   plannedBudget: number;
@@ -766,6 +774,45 @@ export class ProjectBudgetService {
     ).pipe(catchError(this.handleError));
   }
 
+
+// Ajoutez cette méthode dans la classe ProjectBudgetService
+/**
+ * Récupère les indicateurs de progression d'un projet
+ */
+getIndicatorsByProperty(propertyId: number): Observable<ProgressIndicator[]> {
+  console.log(`📊 Récupération des indicateurs du projet ${propertyId}`);
+
+  return this.http.get<ProgressIndicator[]>(
+    `${this.baseUrl}/indicators/property/${propertyId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+/**
+ * Formate le nom de phase pour l'affichage
+ */
+formatPhaseName(phaseName: string): string {
+  const phaseMap: Record<string, string> = {
+    'GROS_OEUVRE': 'Gros œuvre',
+    'SECOND_OEUVRE': 'Second œuvre',
+    'FINITION': 'Finition'
+  };
+  return phaseMap[phaseName] || phaseName;
+}
+
+/**
+ * Formate la date ISO en format dd/MM/yyyy
+ */
+formatIndicatorDate(dateString: string): string {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+}
   // === MÉTHODES EXISTANTES ===
 
   GetProjectBudget(propertyId: number): Observable<any> {

@@ -8,7 +8,7 @@ import { RealEstateProject, RealestateService } from '../../../../core/services/
 import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
 import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service';
 import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-project-presentation',
@@ -18,6 +18,7 @@ import { of } from 'rxjs';
   styleUrl: './project-presentation.component.css'
 })
 export class ProjectPresentationComponent implements OnInit {
+  private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
   private realEstateService = inject(RealestateService);
   private dashboardService = inject(DashboardService);
@@ -58,11 +59,14 @@ private statutMapReverse: { [key: string]: string } = {
   'PLANNED': 'Planifié'
 };
 // === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
-@ViewChild(StatusReportComponent) statusReportComponent!: StatusReportComponent;
+// ✅ SOLUTION
+@ViewChild(StatusReportComponent) statusReportComponent?: StatusReportComponent;
 
 triggerAddAlbum(): void {
   if (this.statusReportComponent) {
     this.statusReportComponent.onAddClick();
+  } else {
+    console.warn('StatusReportComponent pas encore initialisé');
   }
 }
 /**
@@ -152,6 +156,10 @@ isStatutSelected(statut: string): boolean {
       this.loadProgression();
       this.loadBudget(projectId);
     }
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private phaseDisplayNames: { [key: string]: string } = {

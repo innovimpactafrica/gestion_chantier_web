@@ -254,3 +254,75 @@ et inspire toi du logique de la partie demande c'est la meme chose pour le rejet
 
 
 
+adapte moi bien la partie des indicateurs sur  mon html de status-report
+
+je veux que le pourcentage actuelle s'affiche comme sur la capture sur le select 50% pour Gros oeuvre (un peu comme la meme logique que sur la status modification du status sur lot ) mais c'est un select cette fois et voici aide moi car si je fait une modification par exemple je donne 100 % au gros oeuvre apres mon select les gros oeuvre se modifie mais maximum a 67 il ne depasse pas les 67 sur l'affichage alors que cote backend la modification donne bien le retour
+
+Response body
+
+Download
+
+{
+  "id": 49,
+  "phaseName": "GROS_OEUVRE",
+  "progressPercentage": 100,
+  "lastUpdated": "2026-01-24T11:02:17"
+}
+
+et pour les ensemble
+
+Response body
+
+Download
+
+[
+  {
+    "id": 70,
+    "phaseName": "GROS_OEUVRE",
+    "progressPercentage": 100,
+    "lastUpdated": "2026-01-03T02:07:15"
+  },
+  {
+    "id": 71,
+    "phaseName": "SECOND_OEUVRE",
+    "progressPercentage": 95,
+    "lastUpdated": "2026-01-03T02:07:16"
+  },
+  {
+    "id": 72,
+    "phaseName": "FINITION",
+    "progressPercentage": 24,
+    "lastUpdated": "2026-01-03T02:07:16"
+  }
+]
+
+et vocii la methode l'endpoint et les parametre qui permet de modifier 
+
+je pense qu'il y'a probleme sur l'id fixer 
+
+ // Données du tableau avec les IDs des indicateurs
+  lignes: TableRow[] = [
+    { etape: 'Gros œuvre', pourcentage: '', date: '', indicatorId: 49 },
+    { etape: 'Second œuvre', pourcentage: '', date: '', indicatorId: 50 },
+    { etape: 'Finition', pourcentage: '', date: '', indicatorId: 51 }
+  ];
+
+
+parce adapte en ajoutant la methode getIndicatorByProject() le type de retour est donne en haut et vocii l'endpoint /indicators/property/{propertyId}
+
+adapte le si c'est ca le probleme 
+
+  <input 
+                #commentInput
+                type="text" 
+                placeholder="Ajouter un commentaire......"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                (keyup.enter)="addCommentDetail(commentInput.value); commentInput.value=''">
+              <button 
+                (click)="addCommentDetail(commentInput.value); commentInput.value=''"
+                class="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90"
+                style="background-color: #FF5C01;"
+                [disabled]="!commentInput.value.trim()">
+                Envoyer
+              </button>
+
