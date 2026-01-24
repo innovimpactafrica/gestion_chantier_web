@@ -249,12 +249,7 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
 
   const url = `${this.baseUrl}/user/by-profil`;
   
-  console.log('📡 API Call: getUserByProfil');
-  console.log('🔗 URL:', url);
-  console.log('👔 Profil:', profil);
-  console.log('🔍 Keyword:', keyword || 'Aucun');
-  console.log('📄 Page:', page);
-  console.log('📊 Size:', size);
+
   
   return this.http.get<UserPageResponse>(url, { headers, params })
     .pipe(
@@ -275,9 +270,7 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
 createUser(userData: CreateUserRequest): Observable<any> {
   const url = `${this.baseUrl}/auth/signup`;
   
-  console.log('📡 API Call: createUser (inscription)');
-  console.log('🔗 URL:', url);
-  
+
   // Créer un FormData pour envoyer le fichier
   const formData = new FormData();
   formData.append('nom', userData.nom);
@@ -295,19 +288,7 @@ createUser(userData: CreateUserRequest): Observable<any> {
     formData.append('photo', userData.photo, userData.photo.name);
     console.log('📸 Photo ajoutée:', userData.photo.name);
   }
-  
-  console.log('👤 Données nouvel utilisateur:', {
-    nom: userData.nom,
-    prenom: userData.prenom,
-    email: userData.email,
-    telephone: userData.telephone,
-    profil: userData.profil,
-    date: userData.date,
-    lieunaissance: userData.lieunaissance,
-    adress: userData.adress,
-    photo: userData.photo ? userData.photo.name : 'Aucune',
-    password: '***'
-  });
+
   
   // Vérification des champs obligatoires
   const requiredFields = ['nom', 'prenom', 'email', 'password', 'telephone', 'adress', 'profil'];
@@ -354,7 +335,6 @@ createUser(userData: CreateUserRequest): Observable<any> {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
       
-      console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
       
       if (!hasAuth) {
         console.warn('⚠️ Aucun header Authorization trouvé!');

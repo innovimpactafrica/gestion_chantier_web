@@ -5,6 +5,21 @@ import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
 
 // Interfaces pour les types
+
+export interface Comment {
+  id: number;
+  text: string;
+  userId: number;
+  username: string;
+  lotId: number;
+  createdAt: number[];
+}
+
+export interface CreateCommentRequest {
+  lotId: number;
+  userId: number;
+  commentText: string;
+}
 export interface RealEstateProperty {
   id: number;
   name: string;
@@ -139,7 +154,94 @@ export class LotService {
     private http: HttpClient,
     private authService: AuthService
   ) {}
+// Ajoutez ces interfaces en haut du fichier après les interfaces existantes
 
+
+// Ajoutez ces méthodes dans la classe LotService
+
+/**
+ * Récupère un lot par son ID
+ */
+getLotById(lotId: number): Observable<Lot> {
+  console.log(`📖 Récupération du lot ${lotId}`);
+
+  return this.http.get<Lot>(
+    `${this.apiUrl}/${lotId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+/**
+ * Récupère les commentaires d'un lot
+ */
+getCommentsForLot(lotId: number): Observable<Comment[]> {
+  console.log(`💬 Récupération des commentaires du lot ${lotId}`);
+
+  return this.http.get<Comment[]>(
+    `${this.apiUrl}/${lotId}/comments`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+/**
+ * Crée un commentaire pour un lot
+ */
+createCommentToLot(lotId: number, userId: number, commentText: string): Observable<Comment> {
+  if (!commentText?.trim()) {
+    throw new Error('Le texte du commentaire est requis');
+  }
+
+  const params = new HttpParams()
+    .set('userId', userId.toString())
+    .set('commentText', commentText.trim());
+
+  console.log(`💬 Ajout commentaire au lot ${lotId}:`, { userId, commentText });
+
+  return this.http.post<Comment>(
+    `${this.apiUrl}/${lotId}/comments`,
+    null,
+    { 
+      params,
+      headers: this.getAuthHeaders()
+    }
+  );
+}
+
+/**
+ * Formate un tableau de date en string lisible
+ */
+formatCommentDate(dateArray: number[]): string {
+  if (!dateArray || dateArray.length < 6) {
+    return 'Date inconnue';
+  }
+
+  const [year, month, day, hour, minute] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute);
+  
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  // Si moins d'une heure
+  if (diffMins < 60) {
+    return diffMins <= 1 ? "À l'instant" : `Il y a ${diffMins} min`;
+  }
+  
+  // Si moins de 24h
+  if (diffHours < 24) {
+    return `Il y a ${diffHours}h`;
+  }
+  
+  // Si moins de 7 jours
+  if (diffDays < 7) {
+    return `Il y a ${diffDays}j`;
+  }
+  
+  // Sinon date complète
+  return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year} à ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+}
   /**
    * Récupère la liste des sous-traitants avec pagination
    */
@@ -205,7 +307,64 @@ export class LotService {
     { headers: this.getAuthHeaders() }
   );
 }
+/**
+ * Met à jour la progression d'un lot
+ */
+updateLotProgress(lotId: number, percentage: number): Observable<Lot> {
+  if (percentage < 0 || percentage > 100) {
+    throw new Error('Le pourcentage doit être entre 0 et 100');
+  }
 
+  const params = new HttpParams().set('percentage', percentage.toString());
+
+  console.log(`📊 Mise à jour progression lot ${lotId}: ${percentage}%`);
+
+  return this.http.put<Lot>(
+    `${this.apiUrl}/${lotId}/progress`,
+    null,
+    { 
+      params,
+      headers: this.getAuthHeaders()
+    }
+  );
+}
+
+/**
+ * Change le statut d'un lot
+ */
+changeStatus(lotId: number, status: string): Observable<Lot> {
+  const validStatuses = ['PENDING', 'IN_PROGRESS', 'PLANNED', 'COMPLETED'];
+  
+  if (!validStatuses.includes(status)) {
+    throw new Error(`Statut invalide. Valeurs autorisées: ${validStatuses.join(', ')}`);
+  }
+
+  const params = new HttpParams().set('status', status);
+
+  console.log(`🔄 Changement statut lot ${lotId}: ${status}`);
+
+  return this.http.put<Lot>(
+    `${this.apiUrl}/${lotId}/status`,
+    null,
+    { 
+      params,
+      headers: this.getAuthHeaders()
+    }
+  );
+}
+
+/**
+ * Convertit le statut français vers le statut API
+ */
+convertStatusToAPI(displayStatus: string): string {
+  const statusMap: Record<string, string> = {
+    'En attente': 'PENDING',
+    'En cours': 'IN_PROGRESS',
+    'Planifié': 'PLANNED',
+    'Terminé': 'COMPLETED'
+  };
+  return statusMap[displayStatus] || 'PENDING';
+}
   /**
    * Met à jour un lot existant
    */

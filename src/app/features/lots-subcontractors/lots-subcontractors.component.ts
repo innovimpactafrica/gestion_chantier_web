@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LotService, Lot, LotsResponse, CreateLotRequest } from '../../../services/lot.service';
+import { LotService, Lot, LotsResponse, CreateLotRequest, Comment } from '../../../services/lot.service';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { UserService } from '../../../services/user.service';
 
@@ -52,12 +52,30 @@ export class LotsSubcontractorsComponent implements OnInit {
   // États de chargement
   isLoading = false;
   isLoadingSubcontractors = false;
+  isLoadingComments = false;
 
   // Modals
   showCreateModal = false;
   showEditModal = false;
+  showProgressModal = false;
+  showCommentsModal = false;
+  showDetailsModal = false;
+  
+  // Progression et statut
+  showStatusDropdown: number | null = null;
+  progressInput: number = 0;
+  selectedLotForProgress: number | null = null;
+  
+  // Commentaires et détails
+  selectedLotId: number | null = null;
+  selectedLotDetails: Lot | null = null;
+  lotComments: Comment[] = [];
+  newCommentText = '';
+  
+  // Fichiers
   selectedFile: File | null = null;
   selectedFileName: string = '';
+  
   // Lot en cours d'édition
   currentLot: CurrentLot = {
     name: '',
@@ -77,8 +95,15 @@ export class LotsSubcontractorsComponent implements OnInit {
   // Messages
   errorMessage: string = '';
   successMessage: string = '';
-
   
+  // Statuts disponibles
+  availableStatuses = [
+    { value: 'PENDING', label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
+    { value: 'IN_PROGRESS', label: 'En cours', color: 'bg-blue-100 text-blue-800' },
+    { value: 'PLANNED', label: 'Planifié', color: 'bg-purple-100 text-purple-800' },
+    { value: 'COMPLETED', label: 'Terminé', color: 'bg-green-100 text-green-800' }
+  ];
+
   constructor(
     private lotService: LotService,
     private authService: AuthService,
@@ -184,7 +209,8 @@ export class LotsSubcontractorsComponent implements OnInit {
     });
   }
 
-  private formatDateFromAPI(date: any): string {
+  // IMPORTANT: Cette méthode doit être PUBLIC car elle est utilisée dans le template
+   formatDateFromAPI(date: any): string {
     // Si c'est un tableau [year, month, day]
     if (Array.isArray(date) && date.length >= 3) {
       const [year, month, day] = date;
@@ -200,7 +226,7 @@ export class LotsSubcontractorsComponent implements OnInit {
     }
     return 'N/A';
   }
-  
+
   mapStatus(apiStatus: string): 'En cours' | 'En attente' | 'Planifié' | 'Terminé' {
     const statusMap: Record<string, 'En cours' | 'En attente' | 'Planifié' | 'Terminé'> = {
       'PENDING': 'En attente',
@@ -299,7 +325,110 @@ export class LotsSubcontractorsComponent implements OnInit {
     return pages;
   }
 
-  // ========== GESTION DES MODALS ==========
+  // ========== GESTION DE LA PROGRESSION ==========
+  openProgressModal(lotId: number, currentProgress: number): void {
+    this.selectedLotForProgress = lotId;
+    this.progressInput = currentProgress;
+    this.showProgressModal = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  closeProgressModal(): void {
+    this.showProgressModal = false;
+    this.selectedLotForProgress = null;
+    this.progressInput = 0;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  updateProgress(): void {
+    if (this.selectedLotForProgress === null) return;
+
+    if (this.progressInput < 0 || this.progressInput > 100) {
+      this.errorMessage = 'Le pourcentage doit être entre 0 et 100';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.lotService.updateLotProgress(this.selectedLotForProgress, this.progressInput).subscribe({
+      next: (response) => {
+        console.log('✅ Progression mise à jour:', response);
+        this.successMessage = 'Progression mise à jour avec succès !';
+        
+        const lotIndex = this.lots.findIndex(l => l.id === this.selectedLotForProgress);
+        if (lotIndex !== -1) {
+          this.lots[lotIndex].progression = this.progressInput;
+          this.filtrerLots();
+        }
+        
+        this.isLoading = false;
+        
+        setTimeout(() => {
+          this.closeProgressModal();
+          this.successMessage = '';
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('❌ Erreur mise à jour progression:', err);
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour de la progression';
+      }
+    });
+  }
+
+  // ========== GESTION DU STATUT ==========
+  toggleStatusDropdown(lotId: number, event: Event): void {
+    event.stopPropagation();
+    this.showStatusDropdown = this.showStatusDropdown === lotId ? null : lotId;
+  }
+
+  changeStatus(lotId: number, newStatus: string, event: Event): void {
+    event.stopPropagation();
+    
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.lotService.changeStatus(lotId, newStatus).subscribe({
+      next: (response) => {
+        console.log('✅ Statut changé:', response);
+        this.successMessage = 'Statut modifié avec succès !';
+        
+        const lotIndex = this.lots.findIndex(l => l.id === lotId);
+        if (lotIndex !== -1) {
+          this.lots[lotIndex].statut = this.mapStatus(newStatus);
+          this.lots[lotIndex].statutColor = this.getStatusColor(this.lots[lotIndex].statut);
+          this.filtrerLots();
+        }
+        
+        this.showStatusDropdown = null;
+        this.isLoading = false;
+        
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 2000);
+      },
+      error: (err) => {
+        console.error('❌ Erreur changement statut:', err);
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Erreur lors du changement de statut';
+        this.showStatusDropdown = null;
+      }
+    });
+  }
+
+  getStatusAPIValue(displayStatus: string): string {
+    return this.lotService.convertStatusToAPI(displayStatus);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    this.showStatusDropdown = null;
+  }
+
+  // ========== GESTION DES MODALS CRÉATION/ÉDITION ==========
   openCreateModal(): void {
     this.currentLot = {
       name: '',
@@ -356,11 +485,9 @@ export class LotsSubcontractorsComponent implements OnInit {
   private convertToInputFormat(date: string): string {
     if (!date) return '';
     
-    // date est au format dd/MM/yyyy (affichage)
     const parts = date.split('/');
     if (parts.length === 3) {
       const [day, month, year] = parts;
-      // Retourner au format yyyy-MM-dd pour l'input HTML
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
     return '';
@@ -380,12 +507,11 @@ export class LotsSubcontractorsComponent implements OnInit {
     return sub ? sub.id : 0;
   }
 
-  // ========== SAUVEGARDE ==========
+  // ========== SAUVEGARDE DU LOT ==========
   saveLot(): void {
     this.errorMessage = '';
     this.successMessage = '';
   
-    // Validation basique
     if (!this.currentLot.name?.trim()) {
       this.errorMessage = 'Le nom du lot est requis';
       return;
@@ -416,41 +542,24 @@ export class LotsSubcontractorsComponent implements OnInit {
       return;
     }
   
-    // IMPORTANT: Convertir les dates du format yyyy-MM-dd (input HTML) 
-    // vers le format dd-MM-yyyy (attendu par l'API)
     const formattedStartDate = this.formatDateForAPI(this.currentLot.startDate);
     const formattedEndDate = this.formatDateForAPI(this.currentLot.endDate);
   
-    console.log('📅 Dates converties:', {
-      original: {
-        start: this.currentLot.startDate,
-        end: this.currentLot.endDate
-      },
-      formatted: {
-        start: formattedStartDate,
-        end: formattedEndDate
-      }
-    });
-  
-    // Créer l'objet de requête avec les dates formatées
     const request: CreateLotRequest = {
       name: this.currentLot.name,
       description: this.currentLot.description,
-      startDate: formattedStartDate,  // Format dd-MM-yyyy
-      endDate: formattedEndDate,      // Format dd-MM-yyyy
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       realEstatePropertyId: this.currentPropertyId,
       subcontractorId: this.currentLot.subcontractorId,
       file: this.selectedFile || undefined
     };
   
-    // Validation supplémentaire via le service
     const validationErrors = this.lotService.validateLotData(request);
     if (validationErrors.length > 0) {
       this.errorMessage = validationErrors.join(', ');
       return;
     }
-  
-    console.log('📤 Requête finale à envoyer:', request);
   
     this.isLoading = true;
   
@@ -464,10 +573,8 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.successMessage = this.showCreateModal ? 'Lot créé avec succès !' : 'Lot modifié avec succès !';
         this.isLoading = false;
         
-        // Recharger la liste des lots
         this.chargerLots();
         
-        // Fermer le modal après un délai
         setTimeout(() => {
           this.closeModal();
           this.successMessage = '';
@@ -477,7 +584,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         console.error('❌ Erreur lors de la sauvegarde:', err);
         this.isLoading = false;
         
-        // Gestion détaillée des erreurs
         if (err.status === 0) {
           this.errorMessage = 'Erreur de connexion au serveur. Vérifiez votre connexion internet.';
         } else if (err.status === 400) {
@@ -500,23 +606,21 @@ export class LotsSubcontractorsComponent implements OnInit {
   private formatDateForAPI(date: string): string {
     if (!date) return '';
     
-    // date est au format yyyy-MM-dd (depuis l'input HTML)
     const parts = date.split('-');
     if (parts.length === 3) {
       const [year, month, day] = parts;
-      // Retourner au format dd-MM-yyyy pour l'API
       return `${day}-${month}-${year}`;
     }
     return date;
   }
-  
+
+  // ========== GESTION DES FICHIERS ==========
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       
-      // Validation du fichier
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       
       if (file.size > maxSize) {
@@ -538,16 +642,9 @@ export class LotsSubcontractorsComponent implements OnInit {
       this.selectedFile = file;
       this.selectedFileName = file.name;
       this.errorMessage = '';
-      
-      console.log('📎 Fichier sélectionné:', {
-        name: file.name,
-        size: file.size,
-        type: file.type
-      });
     }
   }
-  
-  // 5. Méthode pour supprimer le fichier sélectionné
+
   removeSelectedFile(): void {
     this.selectedFile = null;
     this.selectedFileName = '';
@@ -556,18 +653,136 @@ export class LotsSubcontractorsComponent implements OnInit {
     if (fileInput) {
       fileInput.value = '';
     }
-    
-    console.log('🗑️ Fichier supprimé');
-  }
-  // 6. Modifier la méthode formatDateForAPI (déjà existante mais vérifier)
-
-
-  // ========== AUTRES ACTIONS ==========
-  voirDocuments(id: number): void {
-    console.log('Voir documents pour lot:', id);
   }
 
-  voirCommentaires(id: number): void {
-    console.log('Voir commentaires pour lot:', id);
+  // ========== GESTION DES COMMENTAIRES ==========
+  voirCommentaires(lotId: number): void {
+    this.selectedLotId = lotId;
+    this.showCommentsModal = true;
+    this.newCommentText = '';
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.loadComments(lotId);
+  }
+
+  loadComments(lotId: number): void {
+    this.isLoadingComments = true;
+    this.errorMessage = '';
+
+    this.lotService.getCommentsForLot(lotId).subscribe({
+      next: (comments) => {
+        console.log('✅ Commentaires chargés:', comments);
+        this.lotComments = comments;
+        this.isLoadingComments = false;
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement commentaires:', err);
+        this.errorMessage = 'Impossible de charger les commentaires';
+        this.isLoadingComments = false;
+        this.lotComments = [];
+      }
+    });
+  }
+
+  addComment(): void {
+    if (!this.newCommentText.trim()) {
+      this.errorMessage = 'Veuillez saisir un commentaire';
+      return;
+    }
+
+    if (!this.selectedLotId) {
+      this.errorMessage = 'Lot non sélectionné';
+      return;
+    }
+
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) {
+      this.errorMessage = 'Utilisateur non connecté';
+      return;
+    }
+
+    this.isLoadingComments = true;
+    this.errorMessage = '';
+
+    this.lotService.createCommentToLot(this.selectedLotId, userId, this.newCommentText).subscribe({
+      next: (comment) => {
+        console.log('✅ Commentaire ajouté:', comment);
+        this.successMessage = 'Commentaire ajouté avec succès !';
+        this.newCommentText = '';
+        
+        this.loadComments(this.selectedLotId!);
+        
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 2000);
+      },
+      error: (err) => {
+        console.error('❌ Erreur ajout commentaire:', err);
+        this.errorMessage = err.error?.message || 'Erreur lors de l\'ajout du commentaire';
+        this.isLoadingComments = false;
+      }
+    });
+  }
+
+  closeCommentsModal(): void {
+    this.showCommentsModal = false;
+    this.selectedLotId = null;
+    this.lotComments = [];
+    this.newCommentText = '';
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  formatCommentDate(dateArray: number[]): string {
+    return this.lotService.formatCommentDate(dateArray);
+  }
+
+  // ========== GESTION DES DÉTAILS DU LOT ==========
+  voirDocuments(lotId: number): void {
+    this.selectedLotId = lotId;
+    this.showDetailsModal = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.loadLotDetails(lotId);
+  }
+
+  loadLotDetails(lotId: number): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.lotService.getLotById(lotId).subscribe({
+      next: (lot) => {
+        console.log('✅ Détails du lot chargés:', lot);
+        this.selectedLotDetails = lot;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement détails:', err);
+        this.errorMessage = 'Impossible de charger les détails du lot';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedLotId = null;
+    this.selectedLotDetails = null;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  getStatusLabel(status: string): string {
+    const statusMap: Record<string, string> = {
+      'PENDING': 'En attente',
+      'IN_PROGRESS': 'En cours',
+      'PLANNED': 'Planifié',
+      'COMPLETED': 'Terminé'
+    };
+    return statusMap[status] || status;
+  }
+
+  getStatusColorClass(status: string): string {
+    return this.getStatusColor(this.mapStatus(status));
   }
 }

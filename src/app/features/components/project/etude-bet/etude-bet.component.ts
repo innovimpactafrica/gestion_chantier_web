@@ -468,7 +468,7 @@ export class EtudeBetComponent implements OnInit {
       
       this.editReport.authorId = this.currentPropertyId;
       
-      this.etudeBetService.updateBet(this.selectedReport.id, this.editReport).subscribe({
+      this.etudeBetService.updateReport(this.selectedReport.id, this.editReport).subscribe({
         next: (response) => {
           console.log('Rapport mis à jour avec succès:', response);
           this.loadEtudes();
@@ -486,7 +486,7 @@ export class EtudeBetComponent implements OnInit {
   deleteReport(rapport: { id: number; nom: string }, etude: EtudeBET) {
     if (confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${rapport.nom}" ?`)) {
       this.isLoading = true;
-      this.etudeBetService.deleteBet(rapport.id).subscribe({
+      this.etudeBetService.deleteReport(rapport.id).subscribe({
         next: (response) => {
           console.log('Rapport supprimé avec succès');
           this.loadEtudes();

@@ -196,40 +196,53 @@
           </button> -->
         </div>
 
-        <!-- Navigation par onglets -->
-        <div class="border-b border-gray-200">
-          <nav class="flex">
-            <a (click)="setActiveTab('general')"
-              class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-              [class]="isActiveTab('general') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
-              Informations générales
-            </a>
-            <a (click)="setActiveTab('avancement')"
-              class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-              [class]="isActiveTab('avancement') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd" />
-              </svg>
-              État d'avancement
-            </a>
-            <a (click)="setActiveTab('budget')"
-              class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-              [class]="isActiveTab('budget') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                  clip-rule="evenodd" />
-              </svg>
-              Budget
-            </a>
-          </nav>
-        </div>
+      <!-- Navigation par onglets -->
+<div class="border-b border-gray-200">
+  <div class="flex justify-between items-center">
+    <nav class="flex">
+      <a (click)="setActiveTab('general')"
+        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+        [class]="isActiveTab('general') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        Informations générales
+      </a>
+      <a (click)="setActiveTab('avancement')"
+        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+        [class]="isActiveTab('avancement') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd" />
+        </svg>
+        État d'avancement
+      </a>
+      <a (click)="setActiveTab('budget')"
+        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+        [class]="isActiveTab('budget') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+            clip-rule="evenodd" />
+        </svg>
+        Budget
+      </a>
+    </nav>
+    
+    <!-- Bouton Ajouter (visible seulement sur État d'avancement) -->
+    <div *ngIf="isActiveTab('avancement')" class="pr-6">
+      <button (click)="triggerAddAlbum()"
+        class="px-6 py-2.5 bg-orange-500 text-white rounded-lg flex items-center hover:bg-orange-600 transition-colors shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Ajouter
+      </button>
+    </div>
+  </div>
+</div>
 
         <!-- Contenu des onglets -->
         <div class="p-6">

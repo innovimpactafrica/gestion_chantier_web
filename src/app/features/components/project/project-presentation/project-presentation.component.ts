@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { Projet } from '../../../../models/projet';
 import { CommonModule } from '@angular/common';
 import { StatusReportComponent } from '../status-report/status-report.component';
@@ -57,7 +57,14 @@ private statutMapReverse: { [key: string]: string } = {
   'COMPLETED': 'Terminé',
   'PLANNED': 'Planifié'
 };
+// === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
+@ViewChild(StatusReportComponent) statusReportComponent!: StatusReportComponent;
 
+triggerAddAlbum(): void {
+  if (this.statusReportComponent) {
+    this.statusReportComponent.onAddClick();
+  }
+}
 /**
  * Change le statut du projet
  * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')

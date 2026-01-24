@@ -52,7 +52,7 @@ throw new Error('Method not implemented.');
     description: '',
     pictures: [] as string[]
   };
-
+  showViewModal = false;
   pourcentages: string[] = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '66%', '70%', '80%', '90%', '100%'];
 
   // Données du tableau avec les IDs des indicateurs
@@ -100,7 +100,16 @@ throw new Error('Method not implemented.');
       }
     });
   }
+// === NOUVELLE MÉTHODE POUR VOIR L'ALBUM ===
+onViewAlbum(album: ProgressAlbum): void {
+  this.currentAlbum = album;
+  this.showViewModal = true;
+}
 
+closeViewModal(): void {
+  this.showViewModal = false;
+  this.currentAlbum = null;
+}
   private handleFetchError(error: any, type: string): void {
     this.loading = false;
     

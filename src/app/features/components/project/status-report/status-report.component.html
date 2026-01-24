@@ -44,59 +44,61 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
     <!-- Cartes albums normales avec hover actions -->
-    <div *ngFor="let album of albums" class="group relative rounded-xl overflow-hidden shadow bg-white cursor-pointer">
+    <div *ngFor="let album of albums" class="group relative rounded-xl overflow-hidden shadow-md bg-white cursor-pointer">
 
       <!-- Overlay actions (apparaît au hover) -->
-      <div class="absolute inset-0 bg-black/50 flex items-center justify-center gap-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+      <div class="absolute inset-0 bg-black/60 flex items-center justify-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <button 
+          (click)="onViewAlbum(album); $event.stopPropagation()"
+          class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200 border border-white/30"
+          title="Voir l'album">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+        
         <button 
           (click)="onEditAlbum(album); $event.stopPropagation()"
-          class="text-white hover:text-orange-400 transform hover:scale-110 transition-all duration-200"
+          class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200 border border-white/30"
           title="Modifier l'album">
-          <i class="fa-solid fa-pen-to-square text-3xl"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
         </button>
         
         <button 
           (click)="onDeleteAlbum(album); $event.stopPropagation()"
-          class="text-white hover:text-red-400 transform hover:scale-110 transition-all duration-200"
+          class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-red-500/70 hover:scale-110 transition-all duration-200 border border-white/30"
           title="Supprimer l'album">
-          <i class="fa-solid fa-trash text-3xl"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
         </button>
       </div>
 
       <!-- Contenu de la carte -->
       <img 
-        [src]=" getBaseFile() + (album?.pictures?.[0] || 'default-placeholder.jpg')" 
+        [src]="getBaseFile() + (album?.pictures?.[0] || 'default-placeholder.jpg')" 
         alt="{{ album.phaseName }}"
         class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
         (error)="handleImageError($event, album)"
       />
       
-      <div class="p-4">
+      <div class="p-4 bg-white">
         <h3 class="text-lg font-semibold mb-2 text-gray-800">{{ album.phaseName }}</h3>
         <div class="flex items-center text-gray-500 text-sm space-x-4">
           <div class="flex items-center gap-1">
-            <i class="fa-solid fa-calendar-days"></i>
+            <i class="fa-solid fa-calendar-days text-sm"></i>
             <span>{{ formatDate(album.lastUpdated) }}</span>
           </div>
           <div class="flex items-center gap-1">
-            <i class="fa-solid fa-image"></i>
+            <i class="fa-solid fa-image text-sm"></i>
             <span>{{ getPhotoCount(album.pictures) }} photos</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Carte "Ajouter" sombre (inchangée) -->
-    <div class="relative rounded-xl overflow-hidden shadow bg-black">
-      <img src="assets/images/interieur.jpg" alt="Ajouter album" class="w-full h-48 object-cover opacity-40" />
-      <div class="absolute inset-0 flex items-center justify-center gap-8 text-white text-3xl">
-        <button 
-          (click)="onAddClick()"
-          class="hover:text-orange-400 hover:scale-110 transition-all duration-200" 
-          title="Créer un nouvel album">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-        <!-- Tu peux garder les autres boutons si tu veux, ou les supprimer -->
       </div>
     </div>
 
@@ -126,73 +128,72 @@
 
   <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="overflow-x-auto">
-      <table class="min-w-full text-left text-sm border border-gray-200">
-        <thead class="bg-[#F5F7FA] text-gray-800 font-semibold">
+      <table class="min-w-full text-left text-sm">
+        <thead class="bg-[#F5F7FA]">
           <tr>
-            <th class="py-3 px-4 border-b">Étape</th>
-            <th class="py-3 px-4 border-b">%Pourcentage</th>
-            <th class="py-3 px-4 border-b">Date Mise À Jour</th>
+            <th class="py-4 px-6 font-semibold text-gray-800 text-base">Étape</th>
+            <th class="py-4 px-6 font-semibold text-gray-800 text-base">%Pourcentage</th>
+            <th class="py-4 px-6 font-semibold text-gray-800 text-base">Date Mise À Jour</th>
           </tr>
         </thead>
         <tbody class="text-gray-700">
-          <tr *ngFor="let ligne of lignes; let i = index" class="border-b">
-            <td class="py-3 px-4">{{ ligne.etape }}</td>
-            <td class="py-3 px-4">
-              <div class="flex items-center gap-3">
-                <span class="font-semibold text-lg" 
-                      [ngClass]="{
-                        'text-green-600': getProgressValue(ligne.etape) >= 80,
-                        'text-yellow-600': getProgressValue(ligne.etape) >= 50 && getProgressValue(ligne.etape) < 80,
-                        'text-red-600': getProgressValue(ligne.etape) < 50,
-                        'text-gray-500': getProgressValue(ligne.etape) === 0
-                      }">
-                  {{ getProgressValue(ligne.etape) }}%
-                </span>
-                
-                <div class="flex-grow max-w-32">
-                  <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full transition-all duration-500 rounded-full"
-                         [style.width.%]="getProgressValue(ligne.etape)"
-                         [ngClass]="{
-                           'bg-green-500': getProgressValue(ligne.etape) >= 80,
-                           'bg-yellow-500': getProgressValue(ligne.etape) >= 50 && getProgressValue(ligne.etape) < 80,
-                           'bg-red-500': getProgressValue(ligne.etape) < 50 && getProgressValue(ligne.etape) > 0,
-                           'bg-gray-300': getProgressValue(ligne.etape) === 0
-                         }">
-                    </div>
-                  </div>
-                </div>
-    
+          <tr *ngFor="let ligne of lignes; let i = index" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <!-- Colonne Étape -->
+            <td class="py-6 px-6">
+              <span class="text-base font-medium text-gray-800">{{ ligne.etape }}</span>
+            </td>
+            
+            <!-- Colonne %Pourcentage avec Select -->
+            <td class="py-6 px-6">
+              <div class="relative">
                 <!-- Indicateur de chargement -->
-                <div *ngIf="isUpdating(ligne.etape)" class="flex items-center text-xs text-gray-500">
-                  <svg class="animate-spin h-4 w-4 text-orange-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div *ngIf="isUpdating(ligne.etape)" 
+                     class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md z-10">
+                  <svg class="animate-spin h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Mise à jour...</span>
                 </div>
-    
-                <!-- Select pour modifier le pourcentage -->
-                <select
-                  [ngModel]="getProgressValue(ligne.etape) + '%'"
-                  class="border border-gray-300 rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  style="width: 80px;"
-                  (change)="onPercentageChange(ligne.etape, $event)"
-                  [disabled]="isUpdating(ligne.etape)"
-                  [ngClass]="{
-                    'opacity-50 cursor-not-allowed': isUpdating(ligne.etape),
-                    'hover:border-orange-400': !isUpdating(ligne.etape)
-                  }"
-                >
-                  <option [value]="getProgressValue(ligne.etape) + '%'">{{ getProgressValue(ligne.etape) }}%</option>
-                  <option *ngFor="let pct of pourcentages" [value]="pct">
-                    {{ pct }}
-                  </option>
-                </select>
+
+                <!-- Select personnalisé -->
+                <div class="relative">
+                  <select
+                    [ngModel]="getProgressValue(ligne.etape) > 0 ? getProgressValue(ligne.etape) + '%' : ''"
+                    (change)="onPercentageChange(ligne.etape, $event)"
+                    [disabled]="isUpdating(ligne.etape)"
+                    class="w-[357px] h-[40px] appearance-none border border-[#CBD5E1] rounded-[5px] px-3 py-2.5 pr-10 text-sm font-normal text-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    [ngClass]="{
+                      'text-gray-400': getProgressValue(ligne.etape) === 0,
+                      'text-gray-800': getProgressValue(ligne.etape) > 0
+                    }"
+                    style="font-family: Inter; font-size: 14px; line-height: 100%;">
+                    
+                    <!-- Option par défaut si aucun pourcentage -->
+                    <option value="" [selected]="getProgressValue(ligne.etape) === 0" disabled>
+                      Sélectionner une pourcentage
+                    </option>
+                    
+                    <!-- Options des pourcentages -->
+                    <option *ngFor="let pct of pourcentages" 
+                            [value]="pct"
+                            [selected]="getProgressValue(ligne.etape) + '%' === pct">
+                      {{ pct }}
+                    </option>
+                  </select>
+                  
+                  <!-- Icône flèche dropdown personnalisée -->
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </td>
-            <td class="py-3 px-4">
-              <span class="text-gray-600">
+            
+            <!-- Colonne Date -->
+            <td class="py-6 px-6">
+              <span class="text-base text-gray-600">
                 {{ getProgressDate(ligne.etape) || getCurrentDate() }}
               </span>
             </td>
@@ -201,16 +202,19 @@
       </table>
       
       <!-- Message d'erreur si présent -->
-      <div *ngIf="error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-        <p class="text-red-600 text-sm">{{ error }}</p>
-        <button 
-          (click)="error = null" 
-          class="mt-2 text-red-500 hover:text-red-700 text-xs underline">
-          Fermer
-        </button>
+      <div *ngIf="error" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+        <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <div class="flex-1">
+          <p class="text-red-700 text-sm font-medium">{{ error }}</p>
+          <button 
+            (click)="error = null" 
+            class="mt-2 text-red-600 hover:text-red-800 text-xs font-medium underline">
+            Fermer
+          </button>
+        </div>
       </div>
-      
-    
     </div>  
   </div>
 </div>
@@ -432,6 +436,47 @@
           class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">
           Oui, supprimer
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Voir Album -->
+<div *ngIf="showViewModal && currentAlbum" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <!-- Header -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">{{ currentAlbum.phaseName }}</h2>
+        <p class="text-gray-600 text-sm mt-1">{{ formatDate(currentAlbum.lastUpdated) }} • {{ getPhotoCount(currentAlbum.pictures) }} photos</p>
+      </div>
+      <button 
+        (click)="closeViewModal()"
+        class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Galerie de photos -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let picture of currentAlbum.pictures; let i = index" 
+             class="relative group cursor-pointer rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+          <img 
+            [src]="getBaseFile() + picture" 
+            [alt]="'Photo ' + (i + 1)"
+            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110">
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+        </div>
+      </div>
+      
+      <!-- Message si pas de photos -->
+      <div *ngIf="!currentAlbum.pictures || currentAlbum.pictures.length === 0" 
+           class="text-center py-12 text-gray-500">
+        <i class="fa-solid fa-images text-4xl mb-3"></i>
+        <p>Aucune photo dans cet album</p>
       </div>
     </div>
   </div>
