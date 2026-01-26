@@ -141,17 +141,27 @@ export class DemandeComponent implements OnInit, OnDestroy {
       this.loading = false;
       return;
     }
-
+  
     if (!this.isBETUser()) {
       this.error = 'Accès réservé aux utilisateurs BET';
       this.loading = false;
       return;
     }
-
+  
     this.loading = true;
     this.error = null;
     
-    this.demandeService.getDemande(1, page, this.pageSize).subscribe({
+    // ✅ CORRECTION : Vérifier que currentUser() n'est pas null
+    const userId = this.authService.currentUser();
+    
+    if (!userId || !userId.id) {
+      console.error('❌ Utilisateur non connecté ou ID manquant');
+      this.error = 'Utilisateur non connecté';
+      this.loading = false;
+      return;
+    }
+    
+    this.demandeService.getDemande(userId.id, page, this.pageSize).subscribe({
       next: (response) => {
         this.demandes = response.content;
         this.totalElements = response.totalElements;

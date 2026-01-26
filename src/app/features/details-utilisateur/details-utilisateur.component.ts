@@ -4,20 +4,28 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { UserService, User } from '../../../services/user.service';
+import { SubscriptionService, UserSubscription, Invoice } from '../../../services/subscription.service';
 
 interface Abonnement {
+  id: number;
   plan: string;
+  label: string;
   montant: string;
   dateDebut: string;
   dateFin: string;
   statut: 'Actif' | 'Expiré';
+  nombreProjets: string;
 }
 
 interface Paiement {
+  id: number;
   idFacture: string;
   date: string;
   montant: string;
-  statut: 'Payé';
+  createdAt:string;
+  statut: string;
+  methodePaiement: string;
+  planLabel: string;
 }
 
 @Component({
@@ -34,11 +42,16 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   successMessage: string = '';
 
-  // Historique des abonnements (à extraire de utilisateur.subscription)
+  // Historique des abonnements
   abonnements: Abonnement[] = [];
+  isLoadingAbonnements: boolean = false;
 
-  // Historique des paiements (si disponible dans votre API)
+  // Historique des paiements
   paiements: Paiement[] = [];
+  isLoadingPaiements: boolean = false;
+  currentPageFactures: number = 0;
+  totalPagesFactures: number = 0;
+  totalFactures: number = 0;
 
   // Modales
   showEditModal: boolean = false;
@@ -60,7 +73,8 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private userService: UserService
+    private userService: UserService,
+    private subscriptionService: SubscriptionService
   ) {}
 
   ngOnInit(): void {
@@ -111,8 +125,9 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
             adress: user.adress
           };
 
-          // Charger l'historique des abonnements
+          // Charger l'historique des abonnements et factures
           this.loadAbonnements();
+          this.loadFactures();
           
           this.isLoading = false;
         },
@@ -125,45 +140,155 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Charge l'historique des abonnements
+   * Charge l'historique des abonnements depuis l'API
    */
   loadAbonnements(): void {
-    if (!this.utilisateur?.subscription) {
-      console.log('ℹ️ Pas d\'abonnement pour cet utilisateur');
-      return;
-    }
+    this.isLoadingAbonnements = true;
+    console.log('📥 Chargement de l\'abonnement utilisateur:', this.utilisateurId);
 
-    const sub = this.utilisateur.subscription;
-    
-    this.abonnements = [{
-      plan: sub.subscriptionPlan.name || 'N/A',
-      montant: `${sub.subscriptionPlan.totalCost} FCFA`,
-      dateDebut: this.formatDate(sub.startDate),
-      dateFin: this.formatDate(sub.endDate),
-      statut: sub.active ? 'Actif' : 'Expiré'
-    }];
-
-    // Créer un paiement factice basé sur l'abonnement
-    if (sub.dateInvoice) {
-      this.paiements = [{
-        idFacture: `INV-${sub.id}`,
-        date: this.formatDate(sub.dateInvoice),
-        montant: `${sub.paidAmount} FCFA`,
-        statut: 'Payé'
-      }];
-    }
-
-    console.log('📋 Abonnements chargés:', this.abonnements.length);
-    console.log('💰 Paiements chargés:', this.paiements.length);
+    this.subscriptionService.getSubscriptionByUser(this.utilisateurId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (subscription: UserSubscription) => {
+          console.log('✅ Abonnement chargé:', subscription);
+          
+          if (subscription && subscription.subscriptionPlan) {
+            const plan = subscription.subscriptionPlan;
+            const isActive = this.isSubscriptionActive(subscription.endDate);
+            
+            this.abonnements = [{
+              id: subscription.id,
+              plan: plan.name || 'N/A',
+              label: plan.label || 'N/A',
+              montant: `${plan.totalCost.toLocaleString('fr-FR')} FCFA`,
+              dateDebut: this.formatDateFromString(subscription.startDate),
+              dateFin: this.formatDateFromString(subscription.endDate),
+              statut: isActive ? 'Actif' : 'Expiré',
+              nombreProjets: plan.unlimitedProjects 
+                ? 'Illimité' 
+                : `${plan.projectLimit} projet(s)`
+            }];
+            
+            console.log('📋 Abonnement formaté:', this.abonnements[0]);
+          } else {
+            this.abonnements = [];
+            console.log('ℹ️ Aucun abonnement actif trouvé');
+          }
+          
+          this.isLoadingAbonnements = false;
+        },
+        error: (error) => {
+          console.error('❌ Erreur chargement abonnement:', error);
+          this.abonnements = [];
+          this.isLoadingAbonnements = false;
+          
+          // Ne pas afficher d'erreur si c'est juste une 404 (pas d'abonnement)
+          if (error.status !== 404) {
+            console.warn('⚠️ Erreur lors du chargement de l\'abonnement:', error.userMessage);
+          }
+        }
+      });
   }
 
   /**
-   * Formate une date au format JJ/MM/AAAA
+   * Charge l'historique des factures depuis l'API
+   */
+  loadFactures(page: number = 0): void {
+    this.isLoadingPaiements = true;
+    console.log('📥 Chargement des factures utilisateur:', this.utilisateurId);
+
+    this.subscriptionService.getFactures(this.utilisateurId, page, 10)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Factures chargées:', response);
+          
+          this.paiements = response.content.map((invoice: Invoice) => ({
+            id: invoice.id,
+            idFacture: invoice.invoiceNumber || `INV-${invoice.id}`,
+            date: this.formatDateFromString(invoice.createdAt),
+            montant: `${invoice.amount.toLocaleString('fr-FR')} FCFA`,
+            statut: invoice.paid ? 'Payé' : 'En attente',
+            methodePaiement: invoice.paymentMethod || 'N/A',
+            planLabel: invoice.planLabel || 'N/A',
+            createdAt:invoice.createdAt
+          }));
+          
+          this.currentPageFactures = response.number;
+          this.totalPagesFactures = response.totalPages;
+          this.totalFactures = response.totalElements;
+          
+          console.log('📋 Factures formatées:', this.paiements.length);
+          this.isLoadingPaiements = false;
+        },
+        error: (error) => {
+          console.error('❌ Erreur chargement factures:', error);
+          this.paiements = [];
+          this.isLoadingPaiements = false;
+          
+          // Ne pas afficher d'erreur si c'est juste une 404 (pas de factures)
+          if (error.status !== 404) {
+            console.warn('⚠️ Erreur lors du chargement des factures:', error.userMessage);
+          }
+        }
+      });
+  }
+
+  /**
+   * Vérifie si un abonnement est actif
+   */
+  private isSubscriptionActive(endDate: string): boolean {
+    if (!endDate) return false;
+    const end = new Date(endDate);
+    const now = new Date();
+    return end > now;
+  }
+
+  /**
+   * Formate une date ISO au format JJ/MM/AAAA
+   */
+  private formatDateFromString(dateString: string): string {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (error) {
+      console.error('Erreur formatage date:', error);
+      return 'N/A';
+    }
+  }
+
+  /**
+   * Formate une date au format JJ/MM/AAAA (pour les dates en array)
    */
   formatDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return 'N/A';
     const [year, month, day] = dateArray;
     return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  }
+
+  /**
+   * Navigation pagination factures
+   */
+  goToPageFactures(page: number): void {
+    if (page >= 0 && page < this.totalPagesFactures) {
+      this.loadFactures(page);
+    }
+  }
+
+  previousPageFactures(): void {
+    if (this.currentPageFactures > 0) {
+      this.goToPageFactures(this.currentPageFactures - 1);
+    }
+  }
+
+  nextPageFactures(): void {
+    if (this.currentPageFactures < this.totalPagesFactures - 1) {
+      this.goToPageFactures(this.currentPageFactures + 1);
+    }
   }
 
   /**
@@ -220,6 +345,12 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       : 'bg-red-100 text-red-700';
   }
 
+  getStatutPaiementClass(statut: string): string {
+    return statut === 'Payé' 
+      ? 'bg-green-100 text-green-700' 
+      : 'bg-yellow-100 text-yellow-700';
+  }
+
   openEditModal(): void {
     if (!this.utilisateur) return;
     
@@ -243,7 +374,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     this.successMessage = '';
   }
 
-
   openSuspendModal(): void {
     this.showSuspendModal = true;
   }
@@ -251,8 +381,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   closeSuspendModal(): void {
     this.showSuspendModal = false;
   }
-
-
 
   openDeleteModal(): void {
     this.showDeleteModal = true;
@@ -262,151 +390,136 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     this.showDeleteModal = false;
   }
 
-/**
- * Supprime l'utilisateur
- */
-deleteUser(): void {
-  if (!this.utilisateur) return;
-  
-  this.isLoading = true;
-  this.errorMessage = '';
-  
-  console.log('🗑️ Suppression de l\'utilisateur:', this.utilisateur.id);
+  /**
+   * Supprime l'utilisateur
+   */
+  deleteUser(): void {
+    if (!this.utilisateur) return;
+    
+    this.isLoading = true;
+    this.errorMessage = '';
 
-  this.userService.deleteUser(this.utilisateur.id)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        console.log('✅ Utilisateur supprimé avec succès');
-        this.successMessage = 'Utilisateur supprimé avec succès';
-        this.isLoading = false;
-        this.closeDeleteModal();
-        
-        // Redirection immédiate vers la liste
-        setTimeout(() => {
-          this.router.navigate(['/utilisateurs']);
-        }, 500);
-      },
-      error: (error) => {
-        console.error('❌ Erreur suppression:', error);
-        this.errorMessage = error.userMessage || 'Erreur lors de la suppression';
-        this.isLoading = false;
-        this.closeDeleteModal();
-      }
-    });
-}
-
-/**
- * Sauvegarde les modifications de l'utilisateur
- */
-saveUser(): void {
-  if (!this.utilisateur) return;
-  
-  // Validation des champs obligatoires
-  if (!this.userForm.prenom?.trim() || !this.userForm.nom?.trim() || 
-      !this.userForm.email?.trim() || !this.userForm.telephone?.trim() || 
-      !this.userForm.profil) {
-    this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
-    return;
-  }
-
-  // Validation email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(this.userForm.email.trim())) {
-    this.errorMessage = 'Format d\'email invalide';
-    return;
-  }
-
-  // Validation téléphone
-  const phoneRegex = /^\d{8,}$/;
-  const cleanPhone = this.userForm.telephone.replace(/\s/g, '');
-  if (!phoneRegex.test(cleanPhone)) {
-    this.errorMessage = 'Le téléphone doit contenir au moins 8 chiffres';
-    return;
-  }
-  
-  this.errorMessage = '';
-  this.successMessage = '';
-  this.isLoading = true;
-
-  const userData: Partial<User> = {
-    prenom: this.userForm.prenom.trim(),
-    nom: this.userForm.nom.trim(),
-    telephone: cleanPhone,
-    email: this.userForm.email.trim().toLowerCase(),
-    profil: this.userForm.profil,
-    adress: this.userForm.adress?.trim() || ''
-  };
-
-  console.log('💾 Sauvegarde des modifications:', userData);
-
-  this.userService.putUser(this.utilisateur.id, userData)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (updatedUser) => {
-        console.log('✅ Utilisateur mis à jour:', updatedUser);
-        this.successMessage = 'Utilisateur modifié avec succès';
-        this.utilisateur = updatedUser;
-        this.isLoading = false;
-        
-        // Fermer le modal après 1.5 secondes
-        setTimeout(() => {
-          this.closeEditModal();
-          // Optionnel: recharger les données pour être sûr
-          this.loadUserData();
-        }, 1500);
-      },
-      error: (error) => {
-        console.error('❌ Erreur modification:', error);
-        
-        let userMsg = 'Erreur lors de la modification';
-        if (error.status === 400) {
-          userMsg = 'Données invalides. Vérifiez tous les champs.';
-        } else if (error.status === 409) {
-          userMsg = 'Un utilisateur avec cet email existe déjà.';
-        } else if (error.status === 404) {
-          userMsg = 'Utilisateur introuvable.';
+    this.userService.deleteUser(this.utilisateur.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Utilisateur supprimé avec succès';
+          this.isLoading = false;
+          this.closeDeleteModal();
+          
+          setTimeout(() => {
+            this.router.navigate(['/utilisateurs']);
+          }, 500);
+        },
+        error: (error) => {
+          console.error('❌ Erreur suppression:', error);
+          this.errorMessage = error.userMessage || 'Erreur lors de la suppression';
+          this.isLoading = false;
+          this.closeDeleteModal();
         }
-        
-        this.errorMessage = error.userMessage || userMsg;
-        this.isLoading = false;
-      }
-    });
-}
+      });
+  }
 
-/**
- * Suspend ou active l'utilisateur
- */
-confirmSuspension(): void {
-  if (!this.utilisateur) return;
-  
-  this.isLoading = true;
-  this.errorMessage = '';
-  
-  const currentStatus = this.getUserStatus();
-  const action = currentStatus === 'Actif' ? 'suspension' : 'activation';
-  
-  console.log(`🔒 ${action} de l'utilisateur:`, this.utilisateur.id);
-  
-  // TODO: Remplacez par votre vraie méthode API
-  // Exemple: this.userService.toggleUserStatus(this.utilisateur.id)
-  
-  // Simulation pour l'instant
-  setTimeout(() => {
-    this.successMessage = currentStatus === 'Actif' 
-      ? 'Utilisateur suspendu avec succès' 
-      : 'Utilisateur activé avec succès';
-    this.isLoading = false;
+  /**
+   * Sauvegarde les modifications de l'utilisateur
+   */
+  saveUser(): void {
+    if (!this.utilisateur) return;
+    
+    if (!this.userForm.prenom?.trim() || !this.userForm.nom?.trim() || 
+        !this.userForm.email?.trim() || !this.userForm.telephone?.trim() || 
+        !this.userForm.profil) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.userForm.email.trim())) {
+      this.errorMessage = 'Format d\'email invalide';
+      return;
+    }
+
+    const phoneRegex = /^\d{8,}$/;
+    const cleanPhone = this.userForm.telephone.replace(/\s/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      this.errorMessage = 'Le téléphone doit contenir au moins 8 chiffres';
+      return;
+    }
+    
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoading = true;
+
+    const userData = this.userService.formatUpdateUserData(
+      this.userForm.nom.trim(),
+      this.userForm.prenom.trim(),
+      this.userForm.email.trim().toLowerCase(),
+      cleanPhone,
+      this.userForm.adress?.trim() || '',
+      this.userForm.profil
+    );
+
+    this.userService.putUser(this.utilisateur.id, userData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedUser) => {
+          console.log('✅ Utilisateur mis à jour:', updatedUser);
+          this.successMessage = 'Utilisateur modifié avec succès';
+          this.utilisateur = updatedUser;
+          this.isLoading = false;
+          
+          setTimeout(() => {
+            this.closeEditModal();
+            this.loadUserData();
+          }, 1500);
+        },
+        error: (error) => {
+          console.error('❌ Erreur modification:', error);
+          
+          let userMsg = 'Erreur lors de la modification';
+          if (error.status === 400) {
+            userMsg = 'Données invalides. Vérifiez tous les champs.';
+          } else if (error.status === 409) {
+            userMsg = 'Un utilisateur avec cet email existe déjà.';
+          } else if (error.status === 404) {
+            userMsg = 'Utilisateur introuvable.';
+          }
+          
+          this.errorMessage = error.userMessage || userMsg;
+          this.isLoading = false;
+        }
+      });
+  }
+
+  /**
+   * Suspend ou active l'utilisateur
+   */
+  confirmSuspension(): void {
+    if (!this.utilisateur) return;
+    
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    const currentStatus = this.getUserStatus();
+    const action = currentStatus === 'Actif' ? 'suspension' : 'activation';
+    
+    console.log(`🔒 ${action} de l'utilisateur:`, this.utilisateur.id);
     
     setTimeout(() => {
-      this.closeSuspendModal();
-      this.loadUserData(); // Recharger pour voir les changements
-    }, 1500);
-  }, 500);
-}
+      this.successMessage = currentStatus === 'Actif' 
+        ? 'Utilisateur suspendu avec succès' 
+        : 'Utilisateur activé avec succès';
+      this.isLoading = false;
+      
+      setTimeout(() => {
+        this.closeSuspendModal();
+        this.loadUserData();
+      }, 1500);
+    }, 500);
+  }
 
   downloadFacture(paiement: Paiement): void {
     console.log('📄 Télécharger facture:', paiement.idFacture);
-    // Implémenter le téléchargement de facture
+    // TODO: Implémenter le téléchargement de facture
   }
 }

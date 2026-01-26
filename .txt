@@ -326,3 +326,147 @@ adapte le si c'est ca le probleme 
                 Envoyer
               </button>
 
+
+-----------------------------------------------
+<!-- Historique des abonnements -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+  <div class="p-6 border-b border-gray-200">
+    <h2 class="text-xl font-bold text-gray-900">Historique des abonnements</h2>
+  </div>
+
+  <!-- Loader abonnements -->
+  <div *ngIf="isLoadingAbonnements" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF5C01]"></div>
+  </div>
+
+  <!-- Table abonnements -->
+  <div *ngIf="!isLoadingAbonnements && abonnements.length > 0" class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Niveau</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date début</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date fin</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Projets</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let abonnement of abonnements" class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ abonnement.plan }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.label }}</td>
+          <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ abonnement.montant }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.dateDebut }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.dateFin }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.nombreProjets }}</td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 rounded-full text-xs font-medium"
+              [ngClass]="getStatutAbonnementClass(abonnement.statut)">
+              {{ abonnement.statut }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Message si aucun abonnement -->
+  <div *ngIf="!isLoadingAbonnements && abonnements.length === 0" class="px-6 py-12 text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <p class="text-gray-500 font-medium">Aucun abonnement pour cet utilisateur</p>
+    <p class="text-gray-400 text-sm mt-2">L'utilisateur n'a pas encore souscrit à un plan d'abonnement</p>
+  </div>
+</div>
+
+<!-- Historique des paiements -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+  <div class="p-6 border-b border-gray-200">
+    <h2 class="text-xl font-bold text-gray-900">Historique des paiements</h2>
+  </div>
+
+  <!-- Loader paiements -->
+  <div *ngIf="isLoadingPaiements" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF5C01]"></div>
+  </div>
+
+  <!-- Table paiements -->
+  <div *ngIf="!isLoadingPaiements && paiements.length > 0" class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">N° Facture</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Méthode</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Action</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let paiement of paiements" class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ paiement.idFacture }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.planLabel }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.date }}</td>
+          <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ paiement.montant }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.methodePaiement }}</td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 rounded-full text-xs font-medium"
+              [ngClass]="getStatutPaiementClass(paiement.statut)">
+              {{ paiement.statut }}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <button (click)="downloadFacture(paiement)"
+              class="text-[#0D47A1] hover:text-[#0c3d8a] transition-colors" title="Télécharger">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 15.577L8.461 12.039L9.169 11.319L11.5 13.65V5H12.5V13.65L14.83 11.32L15.539 12.039L12 15.577ZM6.616 19C6.15533 19 5.771 18.846 5.463 18.538C5.155 18.23 5.00067 17.8453 5 17.384V14.961H6V17.384C6 17.538 6.064 17.6793 6.192 17.808C6.32 17.9367 6.461 18.0007 6.615 18H17.385C17.5383 18 17.6793 17.936 17.808 17.808C17.9367 17.68 18.0007 17.5387 18 17.384V14.961H19V17.384C19 17.8447 18.846 18.229 18.538 18.537C18.23 18.845 17.8453 18.9993 17.384 19H6.616Z"
+                  fill="currentColor" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Message si aucun paiement -->
+  <div *ngIf="!isLoadingPaiements && paiements.length === 0" class="px-6 py-12 text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <p class="text-gray-500 font-medium">Aucun paiement enregistré</p>
+    <p class="text-gray-400 text-sm mt-2">Aucune facture n'a encore été générée pour cet utilisateur</p>
+  </div>
+
+  <!-- Pagination factures -->
+  <div *ngIf="!isLoadingPaiements && paiements.length > 0 && totalPagesFactures > 1" 
+       class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+    <div class="text-sm text-gray-600">
+      Page {{ currentPageFactures + 1 }} sur {{ totalPagesFactures }} ({{ totalFactures }} facture(s))
+    </div>
+    <div class="flex space-x-2">
+      <button 
+        (click)="previousPageFactures()" 
+        [disabled]="currentPageFactures === 0"
+        [class.opacity-50]="currentPageFactures === 0"
+        [class.cursor-not-allowed]="currentPageFactures === 0"
+        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        Précédent
+      </button>
+      <button 
+        (click)="nextPageFactures()" 
+        [disabled]="currentPageFactures >= totalPagesFactures - 1"
+        [class.opacity-50]="currentPageFactures >= totalPagesFactures - 1"
+        [class.cursor-not-allowed]="currentPageFactures >= totalPagesFactures - 1"
+        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        Suivant
+      </button>
+    </div>
+  </div>
+</div>

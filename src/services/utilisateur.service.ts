@@ -198,6 +198,8 @@ export class UtilisateurService {
     );
   }
 
+  
+
   /**
    * Récupère la liste des sous-traitants avec pagination
    * @param page Numéro de la page (par défaut 0)

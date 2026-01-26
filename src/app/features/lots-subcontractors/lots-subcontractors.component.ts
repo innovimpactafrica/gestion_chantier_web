@@ -12,7 +12,7 @@ interface LotDisplay {
   description: string;
   dateDebut: string;
   dateFin: string;
-  statut: 'En cours' | 'En attente' | 'Planifié' | 'Terminé';
+  statut: 'En cours' | 'En attente' |  'Terminé';
   progression: number;
   soustraitant?: { nom: string; telephone: string; company?: string };
   statutColor: string;
@@ -100,7 +100,6 @@ export class LotsSubcontractorsComponent implements OnInit {
   availableStatuses = [
     { value: 'PENDING', label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
     { value: 'IN_PROGRESS', label: 'En cours', color: 'bg-blue-100 text-blue-800' },
-    { value: 'PLANNED', label: 'Planifié', color: 'bg-purple-100 text-purple-800' },
     { value: 'COMPLETED', label: 'Terminé', color: 'bg-green-100 text-green-800' }
   ];
 
@@ -227,11 +226,10 @@ export class LotsSubcontractorsComponent implements OnInit {
     return 'N/A';
   }
 
-  mapStatus(apiStatus: string): 'En cours' | 'En attente' | 'Planifié' | 'Terminé' {
-    const statusMap: Record<string, 'En cours' | 'En attente' | 'Planifié' | 'Terminé'> = {
+  mapStatus(apiStatus: string): 'En cours' | 'En attente' | 'Terminé' {
+    const statusMap: Record<string, 'En cours' | 'En attente' | 'Terminé'> = {
       'PENDING': 'En attente',
       'IN_PROGRESS': 'En cours',
-      'PLANNED': 'Planifié',
       'COMPLETED': 'Terminé'
     };
     return statusMap[apiStatus] ?? 'En attente';
@@ -241,7 +239,6 @@ export class LotsSubcontractorsComponent implements OnInit {
     const colorMap = {
       'En cours': 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium',
       'En attente': 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium',
-      'Planifié': 'bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium',
       'Terminé': 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium'
     };
     return colorMap[status as keyof typeof colorMap] || 'bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium';
@@ -776,7 +773,6 @@ export class LotsSubcontractorsComponent implements OnInit {
     const statusMap: Record<string, string> = {
       'PENDING': 'En attente',
       'IN_PROGRESS': 'En cours',
-      'PLANNED': 'Planifié',
       'COMPLETED': 'Terminé'
     };
     return statusMap[status] || status;

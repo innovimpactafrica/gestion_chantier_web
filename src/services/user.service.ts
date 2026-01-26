@@ -5,6 +5,19 @@ import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
 
+// Ajouter cette interface après CreateUserRequest
+export interface UpdateUserRequest {
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  date?: string;          // ✅ AJOUTER
+  lieunaissance?: string; // ✅ AJOUTER
+  adress: string;
+  profil: string;
+  photo?: File;
+}
+
 // Interfaces pour le typage des réponses
 export interface SubscriptionPlan {
   id: number;
@@ -51,6 +64,8 @@ export interface User {
   activated: boolean;
   notifiable: boolean;
   telephone: string;
+  lieunaissance:string,
+  date:string,
   subscription: UserSubscription;
   company: any;
   createdAt: number[];
@@ -188,30 +203,172 @@ getAllUsers(keyword?: string, profil?: string, page: number = 0, size: number = 
       catchError(error => this.handleError(error, 'getAllUsers'))
     );
 }
-  /**
-   * Met à jour un utilisateur
-   */
-  putUser(id: number, userData: Partial<User>): Observable<User> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/user/${id}`;
-    
-    console.log('📡 API Call: putUser');
-    console.log('🔗 URL:', url);
-    console.log('👤 User ID:', id);
-    console.log('📝 Données à mettre à jour:', userData);
-    
-    return this.http.put<User>(url, userData, { headers })
-      .pipe(
-        tap(updatedUser => {
-          console.log('✅ Utilisateur mis à jour:');
-          console.log('  - Nom:', updatedUser.nom);
-          console.log('  - Prénom:', updatedUser.prenom);
-          console.log('  - Email:', updatedUser.email);
-        }),
-        catchError(error => this.handleError(error, 'putUser'))
-      );
+
+/**
+ * Met à jour un utilisateur avec support de photo
+ */
+putUser(id: number, userData: UpdateUserRequest): Observable<User> {
+  const url = `${this.baseUrl}/user/${id}`;
+  
+  
+  
+  // Créer un FormData pour envoyer les données + fichier photo
+  const formData = new FormData();
+  formData.append('nom', userData.nom);
+  formData.append('prenom', userData.prenom);
+  formData.append('email', userData.email);
+  formData.append('telephone', userData.telephone);
+  formData.append('adress', userData.adress || '');
+  formData.append('profil', userData.profil);
+  
+  // Champs optionnels
+  if (userData.date) {
+    formData.append('date', userData.date);
+  }
+  if (userData.lieunaissance) {
+    formData.append('lieunaissance', userData.lieunaissance);
+  }
+  
+  // Ajouter la photo si elle existe
+  if (userData.photo) {
+    formData.append('photo', userData.photo, userData.photo.name);
+  }
+  
+  console.log('📝 Données à mettre à jour:', {
+    nom: userData.nom,
+    prenom: userData.prenom,
+    email: userData.email,
+    telephone: userData.telephone,
+    profil: userData.profil,
+    hasPhoto: !!userData.photo
+  });
+  
+  // Headers sans Content-Type pour FormData
+  const headers = this.getAuthHeaders();
+  const formDataHeaders = new HttpHeaders({
+    'Authorization': headers.get('Authorization') || ''
+  });
+  
+  return this.http.put<User>(url, formData, { headers: formDataHeaders })
+    .pipe(
+      tap(updatedUser => {
+        console.log('✅ Utilisateur mis à jour:', updatedUser);
+      }),
+      catchError(error => this.handleError(error, 'putUser'))
+    );
+}
+
+/**
+ * Formate les données de mise à jour d'utilisateur
+ */
+formatUpdateUserData(
+  nom: string,
+  prenom: string,
+  email: string,
+  telephone: string,
+  adress: string,
+  profil: string,
+  photo?: File,
+  date?: string,
+  lieunaissance?: string
+): UpdateUserRequest {
+  return {
+    nom,
+    prenom,
+    email,
+    telephone,
+    adress,
+    profil,
+    photo,
+    date,
+    lieunaissance
+  };
+}
+
+/**
+ * Met à jour un utilisateur avec FormData (pour gérer les fichiers)
+ * À ajouter dans user.service.ts
+ */
+updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
+  const token = this.authService.getToken();
+  
+  if (!token) {
+    console.error('❌ Aucun token trouvé');
+    return throwError(() => ({
+      message: 'Non authentifié',
+      userMessage: 'Vous devez être connecté',
+      status: 401
+    }));
   }
 
+  // ⚠️ IMPORTANT: Ne pas définir Content-Type pour FormData
+  // Le navigateur le définira automatiquement avec le boundary correct
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  const url = `${this.baseUrl}/user/${userId}`;
+
+  console.log('📡 API Call: updateUserWithFormData');
+  console.log('🔗 URL:', url);
+  console.log('🆔 User ID:', userId);
+  console.log('📦 FormData préparé avec photo');
+
+  return this.http.put<User>(url, formData, { headers })
+    .pipe(
+      tap(user => {
+        console.log('✅ Utilisateur modifié:', user);
+        console.log('  - ID:', user.id);
+        console.log('  - Nom complet:', user.prenom, user.nom);
+        console.log('  - Email:', user.email);
+        console.log('  - Photo:', user.photo ? 'Mise à jour' : 'Non modifiée');
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la modification de l\'utilisateur:', error);
+        
+        let errorMessage = 'Une erreur est survenue lors de la modification';
+        let userMessage = errorMessage;
+
+        switch (error.status) {
+          case 400:
+            errorMessage = 'Données invalides';
+            userMessage = 'Les données fournies sont invalides';
+            break;
+          case 401:
+            errorMessage = 'Non authentifié';
+            userMessage = 'Votre session a expiré';
+            break;
+          case 403:
+            errorMessage = 'Accès refusé';
+            userMessage = 'Vous n\'avez pas les permissions nécessaires';
+            break;
+          case 404:
+            errorMessage = 'Utilisateur non trouvé';
+            userMessage = 'L\'utilisateur n\'existe pas';
+            break;
+          case 409:
+            errorMessage = 'Conflit - Email déjà utilisé';
+            userMessage = 'Cet email est déjà utilisé par un autre utilisateur';
+            break;
+          case 413:
+            errorMessage = 'Fichier trop volumineux';
+            userMessage = 'La photo est trop volumineuse (max 5MB)';
+            break;
+          default:
+            if (error.error?.message) {
+              userMessage = error.error.message;
+            }
+        }
+
+        return throwError(() => ({
+          message: errorMessage,
+          userMessage: userMessage,
+          status: error.status,
+          originalError: error
+        }));
+      })
+    );
+}
   /**
    * Supprime un utilisateur
    */

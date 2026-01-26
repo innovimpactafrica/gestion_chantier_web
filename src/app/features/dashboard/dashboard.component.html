@@ -1,168 +1,114 @@
 <!-- Dashboard Container -->
 <div class="min-h-screen bg-[#F5F7FA] p-2">
   <!-- Loading State -->
- <div
-   *ngIf="isLoading"
-   class="min-h-screen flex items-center justify-center bg-[#F5F7FA]"
- >
-   <div
-     class="bg-white rounded-2xl px-12 py-10 flex flex-col items-center
-            shadow-md"
-   >
- 
-     <!-- Spinner -->
-     <div class="relative w-20 h-20 mb-6">
-       <!-- Outer ring -->
-       <div
-         class="absolute inset-0 rounded-full border-4 border-[#FFE5DA]"
-       ></div>
- 
-       <!-- Animated ring -->
-       <div
-         class="absolute inset-0 rounded-full border-4
-                border-[#FF5C02] border-t-transparent animate-spin"
-       ></div>
- 
-       <!-- Center dot -->
-       <div
-         class="absolute inset-0 flex items-center justify-center"
-       >
-         <div class="w-3 h-3 rounded-full bg-[#FF5C02] animate-pulse"></div>
-       </div>
-     </div>
- 
-     <!-- Text -->
-     <p class="text-[20px] font-bold text-[#2C3E50]">
-       Chargement du tableau de bord
-     </p>
- 
-     <span class="text-sm text-[#7F8C8D] mt-2 text-center">
-       Analyse des données en cours,<br />
-       veuillez patienter…
-     </span>
-   </div>
- </div>
- 
- 
- <!-- Error State -->
- <div
-   *ngIf="hasError && !isLoading"
-   class="min-h-screen flex items-center justify-center bg-[#F5F7FA]"
- >
-   <div
-     class="bg-white rounded-2xl px-10 py-8 max-w-md w-full text-center shadow-md"
-   >
-     <!-- Icon -->
-     <div
-       class="w-16 h-16 mx-auto mb-4 flex items-center justify-center
-              rounded-full bg-[#FFE5DA]"
-     >
-       <svg
-         class="w-8 h-8 text-[#FF5C02]"
-         fill="none"
-         stroke="currentColor"
-         viewBox="0 0 24 24"
-       >
-         <path
-           stroke-linecap="round"
-           stroke-linejoin="round"
-           stroke-width="2"
-           d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-         />
-       </svg>
-     </div>
- 
-     <!-- Title -->
-     <h3 class="text-[20px] font-bold text-[#2C3E50] mb-2">
-       Impossible de charger les données
-     </h3>
- 
-     <!-- Message -->
-     <p class="text-[#7F8C8D] text-sm mb-6">
-       {{ errorMessage }}
-     </p>
- 
-     <!-- Action -->
-     <button
-       (click)="refreshDashboard()"
-       class="px-6 py-2 rounded-xl
+  <div *ngIf="isLoading" class="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
+    <div class="bg-white rounded-2xl px-12 py-10 flex flex-col items-center
+            shadow-md">
+
+      <!-- Spinner -->
+      <div class="relative w-20 h-20 mb-6">
+        <!-- Outer ring -->
+        <div class="absolute inset-0 rounded-full border-4 border-[#FFE5DA]"></div>
+
+        <!-- Animated ring -->
+        <div class="absolute inset-0 rounded-full border-4
+                border-[#FF5C02] border-t-transparent animate-spin"></div>
+
+        <!-- Center dot -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-3 h-3 rounded-full bg-[#FF5C02] animate-pulse"></div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <p class="text-[20px] font-bold text-[#2C3E50]">
+        Chargement du tableau de bord
+      </p>
+
+      <span class="text-sm text-[#7F8C8D] mt-2 text-center">
+        Analyse des données en cours,<br />
+        veuillez patienter…
+      </span>
+    </div>
+  </div>
+
+
+  <!-- Error State -->
+  <div *ngIf="hasError && !isLoading" class="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
+    <div class="bg-white rounded-2xl px-10 py-8 max-w-md w-full text-center shadow-md">
+      <!-- Icon -->
+      <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center
+              rounded-full bg-[#FFE5DA]">
+        <svg class="w-8 h-8 text-[#FF5C02]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+
+      <!-- Title -->
+      <h3 class="text-[20px] font-bold text-[#2C3E50] mb-2">
+        Impossible de charger les données
+      </h3>
+
+      <!-- Message -->
+      <p class="text-[#7F8C8D] text-sm mb-6">
+        {{ errorMessage }}
+      </p>
+
+      <!-- Action -->
+      <button (click)="refreshDashboard()" class="px-6 py-2 rounded-xl
               bg-[#FF5C02] text-white font-semibold
-              hover:bg-[#e14f02] transition"
-     >
-       Réessayer
-     </button>
-   </div>
- </div>
- 
- 
- 
-    <!-- leyout principale -->
-   <div *ngIf="!isLoading && !hasError" >
-     <!-- Header -->
-     <div class="flex items-center justify-between mb-10">
-       <!-- Title -->
-       <h1 class="text-4xl font-bold text-[#2C3E50]">Tableau de bord</h1>
- 
-       <!-- Right actions -->
- 
-       <div class="flex items-center gap-5">
-         <!-- Search input -->
-         <div class="relative w-[360px]">
-           <span
-             class="absolute inset-y-0 left-4 flex items-center text-[#777777]"
-           >
-             <svg
-               width="24"
-               height="24"
-               viewBox="0 0 24 24"
-               fill="none"
-               xmlns="http://www.w3.org/2000/svg"
-             >
-               <path
-                 d="M21.7099 20.2899L17.9999 16.6099C19.44 14.8143 20.1374 12.5352 19.9487 10.2412C19.76 7.94721 18.6996 5.81269 16.9854 4.27655C15.2713 2.74041 13.0337 1.91941 10.7328 1.98237C8.43194 2.04534 6.24263 2.98747 4.61505 4.61505C2.98747 6.24263 2.04534 8.43194 1.98237 10.7328C1.91941 13.0337 2.74041 15.2713 4.27655 16.9854C5.81269 18.6996 7.94721 19.76 10.2412 19.9487C12.5352 20.1374 14.8143 19.44 16.6099 17.9999L20.2899 21.6799C20.3829 21.7736 20.4935 21.848 20.6153 21.8988C20.7372 21.9496 20.8679 21.9757 20.9999 21.9757C21.1319 21.9757 21.2626 21.9496 21.3845 21.8988C21.5063 21.848 21.6169 21.7736 21.7099 21.6799C21.8901 21.4934 21.9909 21.2442 21.9909 20.9849C21.9909 20.7256 21.8901 20.4764 21.7099 20.2899ZM10.9999 17.9999C9.61544 17.9999 8.26206 17.5894 7.11091 16.8202C5.95977 16.051 5.06256 14.9578 4.53275 13.6787C4.00293 12.3996 3.86431 10.9921 4.13441 9.63427C4.4045 8.27641 5.07119 7.02912 6.05016 6.05016C7.02912 5.07119 8.27641 4.4045 9.63427 4.13441C10.9921 3.86431 12.3996 4.00293 13.6787 4.53275C14.9578 5.06256 16.051 5.95977 16.8202 7.11091C17.5894 8.26206 17.9999 9.61544 17.9999 10.9999C17.9999 12.8564 17.2624 14.6369 15.9497 15.9497C14.6369 17.2624 12.8564 17.9999 10.9999 17.9999Z"
-                 fill="#777777"
-               />
-             </svg>
-           </span>
-           <input
-             type="text"
-             placeholder="Rechercher par projet"
-             class="w-full h-[56px] pl-12 pr-4 text-[20px] text-[#777777] placeholder-[#777777] bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-0"
-           />
-         </div>
- 
-         <!-- Year selector -->
-         <div
-           class="font-semibold flex items-center justify-between h-[56px] px-7 bg-white border border-gray-100 rounded-xl cursor-pointer min-w-[180px]"
-         >
-           <span class="text-[20px] font-medium text-[#333333]">
-             {{ dashboardData.annee }}
-           </span>
-           <span class="text-[#777777] text-base">
-             <svg
-               width="16"
-               height="9"
-               viewBox="0 0 16 9"
-               fill="none"
-               xmlns="http://www.w3.org/2000/svg"
-             >
-               <path
-                 d="M1 1L8 8L15 1"
-                 stroke="#777777"
-                 stroke-width="2"
-                 stroke-linecap="round"
-                 stroke-linejoin="round"
-               />
-             </svg>
-           </span>
-         </div>
-       </div>
-     </div>
- 
-     <!-- LIGNE 1 -->
-     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-       <!-- Vue d'ensemble des chantiers -->
-       <div class="bg-white rounded-xl p-5">
+              hover:bg-[#e14f02] transition">
+        Réessayer
+      </button>
+    </div>
+  </div>
+
+
+
+  <!-- leyout principale -->
+  <div *ngIf="!isLoading && !hasError">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-10">
+      <!-- Title -->
+      <h1 class="text-4xl font-bold text-[#2C3E50]">Tableau de bord</h1>
+
+      <!-- Right actions -->
+
+      <div class="flex items-center gap-5">
+        <!-- Search input -->
+        <div class="relative w-[360px]">
+          <span class="absolute inset-y-0 left-4 flex items-center text-[#777777]">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M21.7099 20.2899L17.9999 16.6099C19.44 14.8143 20.1374 12.5352 19.9487 10.2412C19.76 7.94721 18.6996 5.81269 16.9854 4.27655C15.2713 2.74041 13.0337 1.91941 10.7328 1.98237C8.43194 2.04534 6.24263 2.98747 4.61505 4.61505C2.98747 6.24263 2.04534 8.43194 1.98237 10.7328C1.91941 13.0337 2.74041 15.2713 4.27655 16.9854C5.81269 18.6996 7.94721 19.76 10.2412 19.9487C12.5352 20.1374 14.8143 19.44 16.6099 17.9999L20.2899 21.6799C20.3829 21.7736 20.4935 21.848 20.6153 21.8988C20.7372 21.9496 20.8679 21.9757 20.9999 21.9757C21.1319 21.9757 21.2626 21.9496 21.3845 21.8988C21.5063 21.848 21.6169 21.7736 21.7099 21.6799C21.8901 21.4934 21.9909 21.2442 21.9909 20.9849C21.9909 20.7256 21.8901 20.4764 21.7099 20.2899ZM10.9999 17.9999C9.61544 17.9999 8.26206 17.5894 7.11091 16.8202C5.95977 16.051 5.06256 14.9578 4.53275 13.6787C4.00293 12.3996 3.86431 10.9921 4.13441 9.63427C4.4045 8.27641 5.07119 7.02912 6.05016 6.05016C7.02912 5.07119 8.27641 4.4045 9.63427 4.13441C10.9921 3.86431 12.3996 4.00293 13.6787 4.53275C14.9578 5.06256 16.051 5.95977 16.8202 7.11091C17.5894 8.26206 17.9999 9.61544 17.9999 10.9999C17.9999 12.8564 17.2624 14.6369 15.9497 15.9497C14.6369 17.2624 12.8564 17.9999 10.9999 17.9999Z"
+                fill="#777777" />
+            </svg>
+          </span>
+          <input type="text" placeholder="Rechercher par projet"
+            class="w-full h-[56px] pl-12 pr-4 text-[20px] text-[#777777] placeholder-[#777777] bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-0" />
+        </div>
+
+        <!-- Year selector -->
+        <div
+          class="font-semibold flex items-center justify-between h-[56px] px-7 bg-white border border-gray-100 rounded-xl cursor-pointer min-w-[180px]">
+          <span class="text-[20px] font-medium text-[#333333]">
+            {{ dashboardData.annee }}
+          </span>
+          <span class="text-[#777777] text-base">
+            <svg width="16" height="9" viewBox="0 0 16 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L8 8L15 1" stroke="#777777" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIGNE 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+      <!-- Vue d'ensemble des chantiers -->
+      <div class="bg-white rounded-xl p-5">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[24px] font-bold text-[#2C3E50]">
             Vue d'ensemble des chantiers
@@ -171,7 +117,7 @@
             <!-- SVG icon reste inchangé -->
           </span>
         </div>
-      
+
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">En cours</span>
@@ -179,21 +125,21 @@
               {{ dashboardData.chantiers.inProgress }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">En retard</span>
             <p class="text-[30px] font-bold text-[#E74C3C] leading-tight">
               {{ dashboardData.chantiers.delayed }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">En attente</span>
             <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
               {{ dashboardData.chantiers.pending }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">Total</span>
             <p class="text-[30px] font-bold text-[#2ECC71] leading-tight">
@@ -202,9 +148,9 @@
           </div>
         </div>
       </div>
- 
-       <!-- Vue d'ensemble des études -->
-       <div class="bg-white rounded-xl p-5">
+
+      <!-- Vue d'ensemble des études -->
+      <div class="bg-white rounded-xl p-5">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[24px] font-bold text-[#2C3E50]">
             Vue d'ensemble des études
@@ -213,7 +159,7 @@
             <!-- SVG icon reste inchangé -->
           </span>
         </div>
-      
+
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">En attente</span>
@@ -221,21 +167,21 @@
               {{ dashboardData.etudes.pending }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">En cours</span>
             <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
               {{ dashboardData.etudes.inProgress }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">Livrées</span>
             <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
               {{ dashboardData.etudes.delivered }}
             </p>
           </div>
-      
+
           <div class="bg-gray-50 rounded-lg px-4 py-3">
             <span class="text-[17px] font-medium text-[#7F8C8D]">Validées</span>
             <p class="text-[30px] font-bold text-[#3498DB] leading-tight">
@@ -244,9 +190,9 @@
           </div>
         </div>
       </div>
- 
-       <!-- Répartition des études (%) -->
-       <div class="bg-white rounded-xl p-5">
+
+      <!-- Répartition des études (%) -->
+      <div class="bg-white rounded-xl p-5">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[24px] font-semibold text-[#2C3E50]">
             Répartition des études (%)
@@ -255,12 +201,12 @@
             <!-- SVG icon reste inchangé -->
           </span>
         </div>
-      
+
         <div class="flex items-center gap-6">
           <div class="w-40 h-40 flex-shrink-0">
             <canvas #repartitionChart></canvas>
           </div>
-      
+
           <div class="flex-1 space-y-4 text-sm">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
@@ -271,7 +217,7 @@
                 {{ dashboardData.etudes.percentages.validated | number: '1.0-1' }}%
               </span>
             </div>
-      
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-orange-400"></span>
@@ -281,7 +227,7 @@
                 {{ dashboardData.etudes.percentages.inProgress | number: '1.0-1' }}%
               </span>
             </div>
-      
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-blue-500"></span>
@@ -291,7 +237,7 @@
                 {{ dashboardData.etudes.percentages.delivered | number: '1.0-1' }}%
               </span>
             </div>
-      
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-red-500"></span>
@@ -304,470 +250,454 @@
           </div>
         </div>
       </div>
-     </div>
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-     <!-- LIGNE 2 : Indicateurs clés -->
- <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
- 
-  <!-- Taux moyen d'avancement -->
- <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
- 
-   <!-- Header -->
-   <div class="flex items-center justify-between mb-5">
-     <h2 class="text-[26px] font-bold text-[#2C3E50]">
-       Taux moyen d'avancement
-     </h2>
-     <span class="text-[#7F8C8D]">
- 
-       <svg width="23" height="23" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M9 15H11V9H9V15ZM10 7C10.2833 7 10.521 6.904 10.713 6.712C10.905 6.52 11.0007 6.28267 11 6C10.9993 5.71733 10.9033 5.48 10.712 5.288C10.5207 5.096 10.2833 5 10 5C9.71667 5 9.47933 5.096 9.288 5.288C9.09667 5.48 9.00067 5.71733 9 6C8.99933 6.28267 9.09533 6.52033 9.288 6.713C9.48067 6.90567 9.718 7.00133 10 7ZM10 20C8.61667 20 7.31667 19.7373 6.1 19.212C4.88334 18.6867 3.825 17.9743 2.925 17.075C2.025 16.1757 1.31267 15.1173 0.788001 13.9C0.263335 12.6827 0.000667933 11.3827 1.26582e-06 10C-0.000665401 8.61733 0.262001 7.31733 0.788001 6.1C1.314 4.88267 2.02633 3.82433 2.925 2.925C3.82367 2.02567 4.882 1.31333 6.1 0.788C7.318 0.262667 8.618 0 10 0C11.382 0 12.682 0.262667 13.9 0.788C15.118 1.31333 16.1763 2.02567 17.075 2.925C17.9737 3.82433 18.6863 4.88267 19.213 6.1C19.7397 7.31733 20.002 8.61733 20 10C19.998 11.3827 19.7353 12.6827 19.212 13.9C18.6887 15.1173 17.9763 16.1757 17.075 17.075C16.1737 17.9743 15.1153 18.687 13.9 19.213C12.6847 19.739 11.3847 20.0013 10 20Z" fill="#777777"/>
- </svg>
- 
-     </span>
-   </div>
- 
-   <!-- Gauge -->
-   <div class="flex-1 flex items-center justify-center">
-     <div class="relative w-56 h-32">
- 
-       <svg viewBox="0 0 100 50" class="w-full h-full">
-         <!-- Background -->
-         <path
-           d="M5,50 A45,45 0 0,1 95,50"
-           fill="none"
-           stroke="#EDF2F7"
-           stroke-width="10"
-           stroke-linecap="round"
-         />
- 
-         <!-- Progress -->
-         <path
-           d="M5,50 A45,45 0 0,1 95,50"
-           fill="none"
-           stroke="#FF5C02"
-           stroke-width="10"
-           stroke-linecap="round"
-           [attr.stroke-dasharray]="avancement.display.circumference"
-           [attr.stroke-dashoffset]="avancement.display.dashOffset"
-         />
- 
-         <!-- Point -->
-         <circle
-           [attr.cx]="avancement.display.pointX"
-           [attr.cy]="avancement.display.pointY"
-           r="6"
-           fill="#FF5C02"
-           stroke="#fff"
-           stroke-width="3"
-         />
-       </svg>
- 
-       <!-- Center text -->
-       <div class="absolute inset-0 flex flex-col items-center justify-center">
-         <span class="text-[36px] font-bold text-[#2C3E50]">
-           {{ avancement.pourcentage }}%
-         </span>
-         <span class="text-[14px] font-medium text-[#7F8C8D]">
-           Taux moyen
-         </span>
-       </div>
- 
-     </div>
-   </div>
- </div>
- 
- 
-  <!-- Budget global -->
- <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
- 
-   <!-- Header -->
-   <div class="flex items-center justify-between mb-5">
-     <h2 class="text-[26px] font-bold text-[#2C3E50]">
-       Budget global
-     </h2>
-     <span class="text-[#7F8C8D]">
-       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M13.5 16C13.5 16.3978 13.342 16.7794 13.0607 17.0607C12.7794 17.342 12.3978 17.5 12 17.5C11.6022 17.5 11.2206 17.342 10.9393 17.0607C10.658 16.7794 10.5 16.3978 10.5 16C10.5 15.6022 10.658 15.2206 10.9393 14.9393C11.2206 14.658 11.6022 14.5 12 14.5C12.3978 14.5 12.7794 14.658 13.0607 14.9393C13.342 15.2206 13.5 15.6022 13.5 16Z" fill="#777777"/>
- <path d="M14.347 0.659912L17.527 5.11591L19.624 4.40091L21.538 9.99991H22.5V21.9999H1.5V9.99991H2.01V9.98991L2.658 9.99591L14.347 0.659912ZM9.397 9.99991H19.425L18.388 6.96691L16.866 7.45391L9.397 9.99991ZM7.839 8.41691L15.55 5.78991L13.946 3.53991L7.839 8.41691ZM5.5 11.9999H3.5V13.9999C4.03043 13.9999 4.53914 13.7892 4.91421 13.4141C5.28929 13.0391 5.5 12.5303 5.5 11.9999ZM15.5 15.9999C15.5 15.5403 15.4095 15.0852 15.2336 14.6605C15.0577 14.2359 14.7999 13.85 14.4749 13.525C14.1499 13.2 13.764 12.9422 13.3394 12.7663C12.9148 12.5904 12.4596 12.4999 12 12.4999C11.5404 12.4999 11.0852 12.5904 10.6606 12.7663C10.236 12.9422 9.85013 13.2 9.52513 13.525C9.20012 13.85 8.94231 14.2359 8.76642 14.6605C8.59053 15.0852 8.5 15.5403 8.5 15.9999C8.5 16.9282 8.86875 17.8184 9.52513 18.4748C10.1815 19.1312 11.0717 19.4999 12 19.4999C12.9283 19.4999 13.8185 19.1312 14.4749 18.4748C15.1313 17.8184 15.5 16.9282 15.5 15.9999ZM20.5 19.9999V17.9999C19.9696 17.9999 19.4609 18.2106 19.0858 18.5857C18.7107 18.9608 18.5 19.4695 18.5 19.9999H20.5ZM18.5 11.9999C18.5 12.5303 18.7107 13.0391 19.0858 13.4141C19.4609 13.7892 19.9696 13.9999 20.5 13.9999V11.9999H18.5ZM3.5 19.9999H5.5C5.5 19.4695 5.28929 18.9608 4.91421 18.5857C4.53914 18.2106 4.03043 17.9999 3.5 17.9999V19.9999Z" fill="#777777"/>
- </svg>
- 
-     </span>
-   </div>
- 
-   <!-- Content -->
-   <div class="flex-1 flex items-center gap-6">
- 
-     <!-- Donut -->
-     <div class="relative w-40 h-40 flex-shrink-0">
-       <canvas #budgetChart class="w-full h-full"></canvas>
- 
-       <!-- Center text -->
-       <div class="absolute inset-0 flex flex-col items-center justify-center">
-         <span class="text-[26px] font-bold text-[#2C3E50]">
-           {{ budget.pourcentageConsomme }}%
-         </span>
-         <span class="text-[14px] font-medium text-[#7F8C8D]">
-           consommé
-         </span>
-       </div>
-     </div>
- 
-     <!-- Legend -->
-     <div class="flex-1 space-y-4 text-sm">
- 
-       <div class="flex items-center gap-3">
-         <span class="w-2.5 h-2.5 rounded-full bg-[#FF5C02]"></span>
-         <span class="text-[#34495E] font-medium">
-           Consommé :
-         </span>
-         <span class="font-bold text-[#2C3E50]">
-           {{ formatCurrency(budget.consomme) }}
-         </span>
-       </div>
- 
-       <div class="flex items-center gap-3">
-         <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-         <span class="text-[#34495E] font-medium">
-           Restant :
-         </span>
-         <span class="font-bold text-[#2C3E50]">
-           {{ formatCurrency(budget.restant) }}
-         </span>
-       </div>
- 
-     </div>
-   </div>
- </div>
- 
- 
-   <!-- Alertes stock matériaux -->
-   <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
- 
-     <!-- Header -->
-     <div class="flex items-center justify-between mb-4">
-       <div class="flex items-center gap-2">
-         <span class="text-[#7F8C8D]">
-         </span>
-         <h2 class="text-[26px] font-bold text-[#2C3E50]">
-           Alertes stock matériaux
-         </h2>
-       </div>
- 
-       <span>
- 
-           <svg width="25" height="23" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z" fill="#777777"/>
- </svg>
- 
-       </span>
-     </div>
- 
-     <!-- Alerts list -->
-     <div class="flex-1 overflow-y-auto space-y-5">
- 
-       <div *ngFor="let alerte of stockAlertes" class="flex flex-col gap-1">
-         <p class="font-medium text-[#34495E]">
-           {{ alerte.nom }}
-         </p>
- 
-         <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-           <div
-             class="h-full rounded-full transition-all"
-             [style.width.%]="alerte.pourcentage"
-             [class]="alerte.statusClass">
-           </div>
-         </div>
- 
-         <div class="flex justify-between text-sm">
-           <span class="text-[#7F8C8D]">
-             {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil :
-             {{ alerte.seuil }} {{ alerte.unite }}
-           </span>
- 
-           <span class="font-medium" [class]="alerte.textClass">
-             {{ alerte.status }}
-           </span>
-         </div>
-       </div>
- 
-       <div
-         *ngIf="stockAlertes.length === 0"
-         class="text-center text-[#7F8C8D] text-sm">
-         Aucune alerte
-       </div>
-     </div>
-   </div>
- 
- </div>
- 
- 
- 
- 
- 
-  <!-- LIGNE 3: Graphiques (2 cards) -->
-     <div class="dashboard-grid-special">
- 
-       <!-- État d'avancement -->
-       <div class="dashboard-card">
-         <div class="dashboard-card-header">
-           <h2 class="text-[27px] font-bold text-gray-900">État d'avancement</h2>
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-             class="text-gray-400 flex-shrink-0">
-             <g clip-path="url(#clip0_3205_3606)">
-               <path
-                 d="M7.5 16.5001H12V24.0001H7.5V16.5001ZM1.5 21.0001H6V24.0001H1.5V21.0001ZM19.5 18.0001H24V24.0001H19.5V18.0001ZM13.5 13.5001H18V24.0001H13.5V13.5001ZM24 0.105103L15.48 7.5601L7.275 5.0101L0 10.6501V13.5001L7.725 7.5001L16.02 10.0801L24 3.0901V0.105103Z"
-                 fill="currentColor" />
-             </g>
-             <defs>
-               <clipPath id="clip0_3205_3606">
-                 <rect width="24" height="24" fill="white" />
-               </clipPath>
-             </defs>
-           </svg>
-         </div>
-         <div class="dashboard-card-content">
-           <div class="h-56">
-             <canvas #progressChart></canvas>
-           </div>
-         </div>
-       </div>
- 
-       <!-- Incidents signalés (7 jours) -->
-       <div class="dashboard-card">
-         <div class="dashboard-card-header">
-           <h2 class="text-[27px] font-bold text-gray-900">Incidents signalés (7 jours)</h2>
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-             class="text-gray-400 flex-shrink-0">
-             <path
-               d="M12.8661 2.99996L22.3921 19.5C22.4799 19.652 22.5261 19.8244 22.5261 20C22.5261 20.1755 22.4799 20.3479 22.3921 20.4999C22.3043 20.652 22.1781 20.7782 22.0261 20.866C21.8741 20.9537 21.7016 21 21.5261 21H2.4741C2.29856 21 2.12612 20.9537 1.9741 20.866C1.82209 20.7782 1.69585 20.652 1.60809 20.4999C1.52032 20.3479 1.47412 20.1755 1.47412 20C1.47412 19.8244 1.52033 19.652 1.6081 19.5L11.1341 2.99996C11.2219 2.84795 11.3481 2.72172 11.5001 2.63396C11.6521 2.5462 11.8246 2.5 12.0001 2.5C12.1756 2.5 12.3481 2.5462 12.5001 2.63396C12.6521 2.72172 12.7783 2.84795 12.8661 2.99996ZM11.0001 16V18H13.0001V16H11.0001ZM11.0001 8.99996V14H13.0001V8.99996H11.0001Z"
-               fill="currentColor" />
-           </svg>
-         </div>
-         <div class="dashboard-card-content">
-           <div class="h-56">
-             <canvas #incidentsChart></canvas>
-           </div>
-         </div>
-       </div>
-     </div>
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-     <!-- LIGNE 4 : Suivi & Performance -->
- <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
- 
-   <!-- Tâches critiques -->
-   <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
-     <!-- Header -->
-     <div class="flex items-center justify-between mb-4">
-       <h2 class="text-[25px] font-bold text-[#2C3E50]">
-         Tâches critiques à échéance
-       </h2>
-       <svg width="22" height="27" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path fill-rule="evenodd" clip-rule="evenodd" d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378ZM5.59148 0L6.78042 0.914531L3.21642 5.5478L0 2.73342L0.98775 1.60458L3.00187 3.36586L5.59148 0ZM5.59148 6.99998L6.78042 7.91456L3.21642 12.5478L0 9.73341L0.98775 8.60456L3.00187 10.3658L5.59148 6.99998ZM5.59148 14L6.78042 14.9145L3.21642 19.5478L0 16.7334L0.98775 15.6046L3.00187 17.3659L5.59148 14Z" fill="#777777"/>
- </svg>
- 
-     </div>
- 
-     <!-- Content -->
-     <div class="flex-1 overflow-y-auto space-y-4 pr-1">
-       <div *ngFor="let tache of tachesCritiques" class="flex items-center gap-3">
-         <span
-           class="w-2.5 h-2.5 rounded-full"
-           [ngClass]="{
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- LIGNE 2 : Indicateurs clés -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
+
+      <!-- Taux moyen d'avancement -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-[26px] font-bold text-[#2C3E50]">
+            Taux moyen d'avancement
+          </h2>
+          <span class="text-[#7F8C8D]">
+
+            <svg width="23" height="23" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M9 15H11V9H9V15ZM10 7C10.2833 7 10.521 6.904 10.713 6.712C10.905 6.52 11.0007 6.28267 11 6C10.9993 5.71733 10.9033 5.48 10.712 5.288C10.5207 5.096 10.2833 5 10 5C9.71667 5 9.47933 5.096 9.288 5.288C9.09667 5.48 9.00067 5.71733 9 6C8.99933 6.28267 9.09533 6.52033 9.288 6.713C9.48067 6.90567 9.718 7.00133 10 7ZM10 20C8.61667 20 7.31667 19.7373 6.1 19.212C4.88334 18.6867 3.825 17.9743 2.925 17.075C2.025 16.1757 1.31267 15.1173 0.788001 13.9C0.263335 12.6827 0.000667933 11.3827 1.26582e-06 10C-0.000665401 8.61733 0.262001 7.31733 0.788001 6.1C1.314 4.88267 2.02633 3.82433 2.925 2.925C3.82367 2.02567 4.882 1.31333 6.1 0.788C7.318 0.262667 8.618 0 10 0C11.382 0 12.682 0.262667 13.9 0.788C15.118 1.31333 16.1763 2.02567 17.075 2.925C17.9737 3.82433 18.6863 4.88267 19.213 6.1C19.7397 7.31733 20.002 8.61733 20 10C19.998 11.3827 19.7353 12.6827 19.212 13.9C18.6887 15.1173 17.9763 16.1757 17.075 17.075C16.1737 17.9743 15.1153 18.687 13.9 19.213C12.6847 19.739 11.3847 20.0013 10 20Z"
+                fill="#777777" />
+            </svg>
+
+          </span>
+        </div>
+
+        <!-- Gauge -->
+        <div class="flex-1 flex items-center justify-center">
+          <div class="relative w-56 h-32">
+
+            <svg viewBox="0 0 100 50" class="w-full h-full">
+              <!-- Background -->
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#EDF2F7" stroke-width="10"
+                stroke-linecap="round" />
+
+              <!-- Progress -->
+              <path d="M5,50 A45,45 0 0,1 95,50" fill="none" stroke="#FF5C02" stroke-width="10" stroke-linecap="round"
+                [attr.stroke-dasharray]="avancement.display.circumference"
+                [attr.stroke-dashoffset]="avancement.display.dashOffset" />
+
+              <!-- Point -->
+              <circle [attr.cx]="avancement.display.pointX" [attr.cy]="avancement.display.pointY" r="6" fill="#FF5C02"
+                stroke="#fff" stroke-width="3" />
+            </svg>
+
+            <!-- Center text -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-[36px] font-bold text-[#2C3E50]">
+                {{ avancement.pourcentage }}%
+              </span>
+              <span class="text-[14px] font-medium text-[#7F8C8D]">
+                Taux moyen
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Budget global -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-[26px] font-bold text-[#2C3E50]">
+            Budget global
+          </h2>
+          <span class="text-[#7F8C8D]">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M13.5 16C13.5 16.3978 13.342 16.7794 13.0607 17.0607C12.7794 17.342 12.3978 17.5 12 17.5C11.6022 17.5 11.2206 17.342 10.9393 17.0607C10.658 16.7794 10.5 16.3978 10.5 16C10.5 15.6022 10.658 15.2206 10.9393 14.9393C11.2206 14.658 11.6022 14.5 12 14.5C12.3978 14.5 12.7794 14.658 13.0607 14.9393C13.342 15.2206 13.5 15.6022 13.5 16Z"
+                fill="#777777" />
+              <path
+                d="M14.347 0.659912L17.527 5.11591L19.624 4.40091L21.538 9.99991H22.5V21.9999H1.5V9.99991H2.01V9.98991L2.658 9.99591L14.347 0.659912ZM9.397 9.99991H19.425L18.388 6.96691L16.866 7.45391L9.397 9.99991ZM7.839 8.41691L15.55 5.78991L13.946 3.53991L7.839 8.41691ZM5.5 11.9999H3.5V13.9999C4.03043 13.9999 4.53914 13.7892 4.91421 13.4141C5.28929 13.0391 5.5 12.5303 5.5 11.9999ZM15.5 15.9999C15.5 15.5403 15.4095 15.0852 15.2336 14.6605C15.0577 14.2359 14.7999 13.85 14.4749 13.525C14.1499 13.2 13.764 12.9422 13.3394 12.7663C12.9148 12.5904 12.4596 12.4999 12 12.4999C11.5404 12.4999 11.0852 12.5904 10.6606 12.7663C10.236 12.9422 9.85013 13.2 9.52513 13.525C9.20012 13.85 8.94231 14.2359 8.76642 14.6605C8.59053 15.0852 8.5 15.5403 8.5 15.9999C8.5 16.9282 8.86875 17.8184 9.52513 18.4748C10.1815 19.1312 11.0717 19.4999 12 19.4999C12.9283 19.4999 13.8185 19.1312 14.4749 18.4748C15.1313 17.8184 15.5 16.9282 15.5 15.9999ZM20.5 19.9999V17.9999C19.9696 17.9999 19.4609 18.2106 19.0858 18.5857C18.7107 18.9608 18.5 19.4695 18.5 19.9999H20.5ZM18.5 11.9999C18.5 12.5303 18.7107 13.0391 19.0858 13.4141C19.4609 13.7892 19.9696 13.9999 20.5 13.9999V11.9999H18.5ZM3.5 19.9999H5.5C5.5 19.4695 5.28929 18.9608 4.91421 18.5857C4.53914 18.2106 4.03043 17.9999 3.5 17.9999V19.9999Z"
+                fill="#777777" />
+            </svg>
+
+          </span>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 flex items-center gap-6">
+
+          <!-- Donut -->
+          <div class="relative w-40 h-40 flex-shrink-0">
+            <canvas #budgetChart class="w-full h-full"></canvas>
+
+            <!-- Center text -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-[26px] font-bold text-[#2C3E50]">
+                {{ budget.pourcentageConsomme }}%
+              </span>
+              <span class="text-[14px] font-medium text-[#7F8C8D]">
+                consommé
+              </span>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex-1 space-y-4 text-sm">
+
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#FF5C02]"></span>
+              <span class="text-[#34495E] font-medium">
+                Consommé :
+              </span>
+              <span class="font-bold text-[#2C3E50]">
+                {{ formatCurrency(budget.consomme) }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+              <span class="text-[#34495E] font-medium">
+                Restant :
+              </span>
+              <span class="font-bold text-[#2C3E50]">
+                {{ formatCurrency(budget.restant) }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Alertes stock matériaux -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-[#7F8C8D]">
+            </span>
+            <h2 class="text-[26px] font-bold text-[#2C3E50]">
+              Alertes stock matériaux
+            </h2>
+          </div>
+
+          <span>
+
+            <svg width="25" height="23" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11.392 0.499956L20.918 17C21.0057 17.152 21.0519 17.3244 21.0519 17.5C21.052 17.6755 21.0057 17.8479 20.918 17.9999C20.8302 18.152 20.704 18.2782 20.552 18.366C20.4 18.4537 20.2275 18.5 20.052 18.5H0.999975C0.82444 18.5 0.651999 18.4537 0.499984 18.366C0.347968 18.2782 0.221734 18.152 0.133968 17.9999C0.0462029 17.8479 -1.11483e-06 17.6755 0 17.5C1.11487e-06 17.3244 0.0462074 17.152 0.133975 17L9.65997 0.499956C9.74775 0.347949 9.87398 0.221722 10.026 0.133962C10.178 0.0462015 10.3504 0 10.526 0C10.7015 0 10.8739 0.0462015 11.026 0.133962C11.178 0.221722 11.3042 0.347949 11.392 0.499956ZM9.52597 13.5V15.5H11.526V13.5H9.52597ZM9.52597 6.49996V11.5H11.526V6.49996H9.52597Z"
+                fill="#777777" />
+            </svg>
+
+          </span>
+        </div>
+
+        <!-- Alerts list -->
+        <div class="flex-1 overflow-y-auto space-y-5">
+
+          <!-- ✅ Ajout du pipe slice pour afficher les 3 premières alertes -->
+          <div *ngFor="let alerte of stockAlertes | slice:0:3" class="flex flex-col gap-1">
+            <p class="font-medium text-[#34495E]">
+              {{ alerte.nom }}
+            </p>
+
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all" [style.width.%]="alerte.pourcentage"
+                [class]="alerte.statusClass">
+              </div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="text-[#7F8C8D]">
+                {{ alerte.quantiteActuelle }} {{ alerte.unite }} / seuil :
+                {{ alerte.seuil }} {{ alerte.unite }}
+              </span>
+
+              <span class="font-medium" [class]="alerte.textClass">
+                {{ alerte.status }}
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="stockAlertes.length === 0" class="text-center text-[#7F8C8D] text-sm">
+            Aucune alerte
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+
+    <!-- LIGNE 3: Graphiques (2 cards) -->
+    <div class="dashboard-grid-special">
+
+      <!-- État d'avancement -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-[27px] font-bold text-gray-900">État d'avancement</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="text-gray-400 flex-shrink-0">
+            <g clip-path="url(#clip0_3205_3606)">
+              <path
+                d="M7.5 16.5001H12V24.0001H7.5V16.5001ZM1.5 21.0001H6V24.0001H1.5V21.0001ZM19.5 18.0001H24V24.0001H19.5V18.0001ZM13.5 13.5001H18V24.0001H13.5V13.5001ZM24 0.105103L15.48 7.5601L7.275 5.0101L0 10.6501V13.5001L7.725 7.5001L16.02 10.0801L24 3.0901V0.105103Z"
+                fill="currentColor" />
+            </g>
+            <defs>
+              <clipPath id="clip0_3205_3606">
+                <rect width="24" height="24" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+        </div>
+        <div class="dashboard-card-content">
+          <div class="h-56">
+            <canvas #progressChart></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Incidents signalés (7 jours) -->
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <h2 class="text-[27px] font-bold text-gray-900">Incidents signalés (7 jours)</h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="text-gray-400 flex-shrink-0">
+            <path
+              d="M12.8661 2.99996L22.3921 19.5C22.4799 19.652 22.5261 19.8244 22.5261 20C22.5261 20.1755 22.4799 20.3479 22.3921 20.4999C22.3043 20.652 22.1781 20.7782 22.0261 20.866C21.8741 20.9537 21.7016 21 21.5261 21H2.4741C2.29856 21 2.12612 20.9537 1.9741 20.866C1.82209 20.7782 1.69585 20.652 1.60809 20.4999C1.52032 20.3479 1.47412 20.1755 1.47412 20C1.47412 19.8244 1.52033 19.652 1.6081 19.5L11.1341 2.99996C11.2219 2.84795 11.3481 2.72172 11.5001 2.63396C11.6521 2.5462 11.8246 2.5 12.0001 2.5C12.1756 2.5 12.3481 2.5462 12.5001 2.63396C12.6521 2.72172 12.7783 2.84795 12.8661 2.99996ZM11.0001 16V18H13.0001V16H11.0001ZM11.0001 8.99996V14H13.0001V8.99996H11.0001Z"
+              fill="currentColor" />
+          </svg>
+        </div>
+        <div class="dashboard-card-content">
+          <div class="h-56">
+            <canvas #incidentsChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- LIGNE 4 : Suivi & Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
+
+      <!-- Tâches critiques -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+            Tâches critiques à échéance
+          </h2>
+          <svg width="22" height="27" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M8.69395 1.83788H16.6939V3.83784H8.69395V1.83788ZM8.69395 8.83786H16.6939V10.8379H8.69395V8.83786ZM8.69395 15.8378H16.6939V17.8379H8.69395V15.8378ZM5.59148 0L6.78042 0.914531L3.21642 5.5478L0 2.73342L0.98775 1.60458L3.00187 3.36586L5.59148 0ZM5.59148 6.99998L6.78042 7.91456L3.21642 12.5478L0 9.73341L0.98775 8.60456L3.00187 10.3658L5.59148 6.99998ZM5.59148 14L6.78042 14.9145L3.21642 19.5478L0 16.7334L0.98775 15.6046L3.00187 17.3659L5.59148 14Z"
+              fill="#777777" />
+          </svg>
+
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+          <div *ngFor="let tache of tachesCritiques" class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-full" [ngClass]="{
              'bg-red-500': tache.status === 'En retard',
              'bg-orange-400': tache.status === 'Urgent',
              'bg-green-500': tache.status === 'À jour'
-           }"
-         ></span>
- 
-         <div class="flex-1 min-w-0">
-           <p class="text-sm font-semibold text-[#2C3E50] truncate">
-             {{ tache.nom }}
-           </p>
-           <p class="text-xs text-[#7F8C8D]">
-             Échéance : {{ tache.echeance }}
-           </p>
-         </div>
- 
-         <span
-           class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
-           [ngClass]="{
+           }"></span>
+
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-[#2C3E50] truncate">
+                {{ tache.nom }}
+              </p>
+              <p class="text-xs text-[#7F8C8D]">
+                Échéance : {{ tache.echeance }}
+              </p>
+            </div>
+
+            <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap" [ngClass]="{
              'bg-red-100 text-red-700': tache.status === 'En retard',
              'bg-orange-100 text-orange-700': tache.status === 'Urgent',
              'bg-green-100 text-green-700': tache.status === 'À jour'
-           }"
-         >
-           {{ tache.status }}
-         </span>
-       </div>
-     </div>
-   </div>
- 
-   <!-- Photos récentes -->
-   <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
-     <!-- Header -->
-     <div class="flex items-center justify-between mb-4">
-       <h2 class="text-[25px] font-bold text-[#2C3E50]">
-         Photos récentes
-       </h2>
-       <svg width="26" height="24" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M4 2.25C4 1.65326 4.23705 1.08097 4.65901 0.65901C5.08097 0.237053 5.65326 0 6.25 0H15.25C15.8467 0 16.419 0.237053 16.841 0.65901C17.2629 1.08097 17.5 1.65326 17.5 2.25V11.25C17.5 11.8467 17.2629 12.419 16.841 12.841C16.419 13.2629 15.8467 13.5 15.25 13.5H13.5V15.25C13.5 15.8467 13.2629 16.419 12.841 16.841C12.419 17.2629 11.8467 17.5 11.25 17.5H2.25C1.65326 17.5 1.08097 17.2629 0.65901 16.841C0.237053 16.419 0 15.8467 0 15.25V6.25C0 5.65326 0.237053 5.08097 0.65901 4.65901C1.08097 4.23705 1.65326 4 2.25 4H4V2.25ZM12 6.25C12 6.05109 11.921 5.86032 11.7803 5.71967C11.6397 5.57902 11.4489 5.5 11.25 5.5H2.25C2.05109 5.5 1.86032 5.57902 1.71967 5.71967C1.57902 5.86032 1.5 6.05109 1.5 6.25V13.192L7.168 10.254C7.57959 10.0404 8.04711 9.95922 8.50661 10.0215C8.9661 10.0838 9.39513 10.2865 9.735 10.602L12 12.706V6.25ZM1.5 15.25C1.5 15.664 1.836 16 2.25 16H11.25C11.4489 16 11.6397 15.921 11.7803 15.7803C11.921 15.6397 12 15.4489 12 15.25V14.753L8.714 11.702C8.60088 11.5968 8.45805 11.5292 8.30501 11.5082C8.15198 11.4873 7.99622 11.5141 7.859 11.585L1.5 14.882V15.25ZM5.5 4H11.25C11.8467 4 12.419 4.23705 12.841 4.65901C13.2629 5.08097 13.5 5.65326 13.5 6.25V12H15.25C15.4489 12 15.6397 11.921 15.7803 11.7803C15.921 11.6397 16 11.4489 16 11.25V2.25C16 2.05109 15.921 1.86032 15.7803 1.71967C15.6397 1.57902 15.4489 1.5 15.25 1.5H6.25C6.05109 1.5 5.86032 1.57902 5.71967 1.71967C5.57902 1.86032 5.5 2.05109 5.5 2.25V4Z" fill="#777777"/>
- </svg>
- 
-     </div>
- 
-     <!-- Grid photos -->
-     <div class="flex-1 grid grid-cols-3 gap-3">
-       <div
-         *ngFor="let photo of photosRecentes | slice:0:6"
-         class="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
-         (click)="openPhotoModal(photo)"
-       >
-         <img
-           [src]="getBaseFile() + photo.src"
-           class="w-full h-full object-cover"
-         />
- 
-         <div
-           class="absolute bottom-2 left-2 bg-black bg-opacity-70
-                  text-white text-xs px-2 py-1 rounded"
-         >
-           <div class="font-semibold truncate">
-             {{ photo.phase || photo.alt }}
-           </div>
-           <div class="opacity-80">{{ photo.date }}</div>
-         </div>
-       </div>
-     </div>
-   </div>
- 
-   <!-- Résumé des performances -->
-   <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
-     <!-- Header -->
-     <div class="flex items-center justify-between mb-4">
-       <h2 class="text-[25px] font-bold text-[#2C3E50]">
-         Résumé des performances
-       </h2>
-       <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M4.5 20.25C4.30189 20.2474 4.11263 20.1676 3.97253 20.0275C3.83244 19.8874 3.75259 19.6981 3.75 19.5V4.5C3.75 4.30109 3.82902 4.11032 3.96967 3.96967C4.11032 3.82902 4.30109 3.75 4.5 3.75C4.69891 3.75 4.88968 3.82902 5.03033 3.96967C5.17098 4.11032 5.25 4.30109 5.25 4.5V19.5C5.24741 19.6981 5.16756 19.8874 5.02747 20.0275C4.88737 20.1676 4.69811 20.2474 4.5 20.25Z" fill="#777777"/>
- <path d="M19.5 20.25H4.5C4.30109 20.25 4.11032 20.171 3.96967 20.0303C3.82902 19.8896 3.75 19.6989 3.75 19.5C3.75 19.3011 3.82902 19.1103 3.96967 18.9696C4.11032 18.829 4.30109 18.75 4.5 18.75H19.5C19.6989 18.75 19.8897 18.829 20.0303 18.9696C20.171 19.1103 20.25 19.3011 20.25 19.5C20.25 19.6989 20.171 19.8896 20.0303 20.0303C19.8897 20.171 19.6989 20.25 19.5 20.25ZM14 14.75C13.9015 14.7504 13.8038 14.7312 13.7128 14.6934C13.6218 14.6557 13.5392 14.6001 13.47 14.53L11 12.06L8.53 14.53C8.38783 14.6624 8.19978 14.7346 8.00548 14.7311C7.81118 14.7277 7.62579 14.649 7.48838 14.5116C7.35097 14.3742 7.27225 14.1888 7.26883 13.9945C7.2654 13.8002 7.33752 13.6121 7.47 13.47L10.47 10.47C10.6106 10.3295 10.8012 10.2506 11 10.2506C11.1988 10.2506 11.3894 10.3295 11.53 10.47L14 12.94L17.47 9.46997C17.6122 9.33749 17.8002 9.26537 17.9945 9.26879C18.1888 9.27222 18.3742 9.35093 18.5116 9.48835C18.649 9.62576 18.7277 9.81115 18.7312 10.0054C18.7346 10.1997 18.6625 10.3878 18.53 10.53L14.53 14.53C14.4608 14.6001 14.3782 14.6557 14.2872 14.6934C14.1962 14.7312 14.0985 14.7504 14 14.75Z" fill="#777777"/>
- <path d="M18.5 13.84C18.3019 13.8374 18.1126 13.7576 17.9725 13.6175C17.8324 13.4774 17.7526 13.2881 17.75 13.09V10.25H15C14.8011 10.25 14.6103 10.171 14.4697 10.0303C14.329 9.88968 14.25 9.69891 14.25 9.5C14.25 9.30109 14.329 9.11032 14.4697 8.96967C14.6103 8.82902 14.8011 8.75 15 8.75H18.5C18.6981 8.75259 18.8874 8.83244 19.0275 8.97253C19.1676 9.11263 19.2474 9.30189 19.25 9.5V13.09C19.2474 13.2881 19.1676 13.4774 19.0275 13.6175C18.8874 13.7576 18.6981 13.8374 18.5 13.84Z" fill="#777777"/>
- </svg>
- 
-     </div>
- 
-    <!-- Metrics -->
- <div class="flex-1 grid grid-cols-2 grid-rows-3 gap-4">
- 
-   <!-- Taux moyen -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Taux moyen d'avancement
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.tauxAvancement }}%
-     </p>
-   </div>
- 
-   <!-- Budget consommé -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Budget consommé
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.budgetConsomme }}%
-     </p>
-   </div>
- 
-   <!-- Incidents -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Incidents (7j)
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.incidents }}
-     </p>
-   </div>
- 
-   <!-- Présence moyenne -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Présence moyenne
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.presenceMoyenne }}%
-     </p>
-   </div>
- 
-   <!-- Tâches en retard -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Tâches en retard
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.tachesRetard }}
-     </p>
-   </div>
- 
-   <!-- Matériaux en alerte -->
-   <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
-     <p class="text-xs text-[#7F8C8D] mb-1">
-       Matériaux en alerte
-     </p>
-     <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
-       {{ performances.materiauxAlerte }}
-     </p>
-   </div>
- 
- </div>
- 
- 
-   </div>
- 
- </div>
- 
- 
- 
-   </div>
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- </div>
+           }">
+              {{ tache.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photos récentes -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+            Photos récentes
+          </h2>
+          <svg width="26" height="24" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 2.25C4 1.65326 4.23705 1.08097 4.65901 0.65901C5.08097 0.237053 5.65326 0 6.25 0H15.25C15.8467 0 16.419 0.237053 16.841 0.65901C17.2629 1.08097 17.5 1.65326 17.5 2.25V11.25C17.5 11.8467 17.2629 12.419 16.841 12.841C16.419 13.2629 15.8467 13.5 15.25 13.5H13.5V15.25C13.5 15.8467 13.2629 16.419 12.841 16.841C12.419 17.2629 11.8467 17.5 11.25 17.5H2.25C1.65326 17.5 1.08097 17.2629 0.65901 16.841C0.237053 16.419 0 15.8467 0 15.25V6.25C0 5.65326 0.237053 5.08097 0.65901 4.65901C1.08097 4.23705 1.65326 4 2.25 4H4V2.25ZM12 6.25C12 6.05109 11.921 5.86032 11.7803 5.71967C11.6397 5.57902 11.4489 5.5 11.25 5.5H2.25C2.05109 5.5 1.86032 5.57902 1.71967 5.71967C1.57902 5.86032 1.5 6.05109 1.5 6.25V13.192L7.168 10.254C7.57959 10.0404 8.04711 9.95922 8.50661 10.0215C8.9661 10.0838 9.39513 10.2865 9.735 10.602L12 12.706V6.25ZM1.5 15.25C1.5 15.664 1.836 16 2.25 16H11.25C11.4489 16 11.6397 15.921 11.7803 15.7803C11.921 15.6397 12 15.4489 12 15.25V14.753L8.714 11.702C8.60088 11.5968 8.45805 11.5292 8.30501 11.5082C8.15198 11.4873 7.99622 11.5141 7.859 11.585L1.5 14.882V15.25ZM5.5 4H11.25C11.8467 4 12.419 4.23705 12.841 4.65901C13.2629 5.08097 13.5 5.65326 13.5 6.25V12H15.25C15.4489 12 15.6397 11.921 15.7803 11.7803C15.921 11.6397 16 11.4489 16 11.25V2.25C16 2.05109 15.921 1.86032 15.7803 1.71967C15.6397 1.57902 15.4489 1.5 15.25 1.5H6.25C6.05109 1.5 5.86032 1.57902 5.71967 1.71967C5.57902 1.86032 5.5 2.05109 5.5 2.25V4Z"
+              fill="#777777" />
+          </svg>
+
+        </div>
+
+        <!-- Grid photos -->
+        <div class="flex-1 grid grid-cols-3 gap-3">
+          <div *ngFor="let photo of photosRecentes | slice:0:6"
+            class="relative aspect-square rounded-lg overflow-hidden cursor-pointer" (click)="openPhotoModal(photo)">
+            <img [src]="getBaseFile() + photo.src" class="w-full h-full object-cover" />
+
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-70
+                  text-white text-xs px-2 py-1 rounded">
+              <div class="font-semibold truncate">
+                {{ photo.phase || photo.alt }}
+              </div>
+              <div class="opacity-80">{{ photo.date }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé des performances -->
+      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+            Résumé des performances
+          </h2>
+          <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4.5 20.25C4.30189 20.2474 4.11263 20.1676 3.97253 20.0275C3.83244 19.8874 3.75259 19.6981 3.75 19.5V4.5C3.75 4.30109 3.82902 4.11032 3.96967 3.96967C4.11032 3.82902 4.30109 3.75 4.5 3.75C4.69891 3.75 4.88968 3.82902 5.03033 3.96967C5.17098 4.11032 5.25 4.30109 5.25 4.5V19.5C5.24741 19.6981 5.16756 19.8874 5.02747 20.0275C4.88737 20.1676 4.69811 20.2474 4.5 20.25Z"
+              fill="#777777" />
+            <path
+              d="M19.5 20.25H4.5C4.30109 20.25 4.11032 20.171 3.96967 20.0303C3.82902 19.8896 3.75 19.6989 3.75 19.5C3.75 19.3011 3.82902 19.1103 3.96967 18.9696C4.11032 18.829 4.30109 18.75 4.5 18.75H19.5C19.6989 18.75 19.8897 18.829 20.0303 18.9696C20.171 19.1103 20.25 19.3011 20.25 19.5C20.25 19.6989 20.171 19.8896 20.0303 20.0303C19.8897 20.171 19.6989 20.25 19.5 20.25ZM14 14.75C13.9015 14.7504 13.8038 14.7312 13.7128 14.6934C13.6218 14.6557 13.5392 14.6001 13.47 14.53L11 12.06L8.53 14.53C8.38783 14.6624 8.19978 14.7346 8.00548 14.7311C7.81118 14.7277 7.62579 14.649 7.48838 14.5116C7.35097 14.3742 7.27225 14.1888 7.26883 13.9945C7.2654 13.8002 7.33752 13.6121 7.47 13.47L10.47 10.47C10.6106 10.3295 10.8012 10.2506 11 10.2506C11.1988 10.2506 11.3894 10.3295 11.53 10.47L14 12.94L17.47 9.46997C17.6122 9.33749 17.8002 9.26537 17.9945 9.26879C18.1888 9.27222 18.3742 9.35093 18.5116 9.48835C18.649 9.62576 18.7277 9.81115 18.7312 10.0054C18.7346 10.1997 18.6625 10.3878 18.53 10.53L14.53 14.53C14.4608 14.6001 14.3782 14.6557 14.2872 14.6934C14.1962 14.7312 14.0985 14.7504 14 14.75Z"
+              fill="#777777" />
+            <path
+              d="M18.5 13.84C18.3019 13.8374 18.1126 13.7576 17.9725 13.6175C17.8324 13.4774 17.7526 13.2881 17.75 13.09V10.25H15C14.8011 10.25 14.6103 10.171 14.4697 10.0303C14.329 9.88968 14.25 9.69891 14.25 9.5C14.25 9.30109 14.329 9.11032 14.4697 8.96967C14.6103 8.82902 14.8011 8.75 15 8.75H18.5C18.6981 8.75259 18.8874 8.83244 19.0275 8.97253C19.1676 9.11263 19.2474 9.30189 19.25 9.5V13.09C19.2474 13.2881 19.1676 13.4774 19.0275 13.6175C18.8874 13.7576 18.6981 13.8374 18.5 13.84Z"
+              fill="#777777" />
+          </svg>
+
+        </div>
+
+        <!-- Metrics -->
+        <div class="flex-1 grid grid-cols-2 grid-rows-3 gap-4">
+
+          <!-- Taux moyen -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Taux moyen d'avancement
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.tauxAvancement }}%
+            </p>
+          </div>
+
+          <!-- Budget consommé -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Budget consommé
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.budgetConsomme }}%
+            </p>
+          </div>
+
+          <!-- Incidents -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Incidents (7j)
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.incidents }}
+            </p>
+          </div>
+
+          <!-- Présence moyenne -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Présence moyenne
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.presenceMoyenne }}%
+            </p>
+          </div>
+
+          <!-- Tâches en retard -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Tâches en retard
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.tachesRetard }}
+            </p>
+          </div>
+
+          <!-- Matériaux en alerte -->
+          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+            <p class="text-xs text-[#7F8C8D] mb-1">
+              Matériaux en alerte
+            </p>
+            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+              {{ performances.materiauxAlerte }}
+            </p>
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>

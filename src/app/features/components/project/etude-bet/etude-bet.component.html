@@ -391,8 +391,17 @@
             <!-- Card Rapports associés -->
             <div class="border rounded-lg p-5" style="border-color: #EAEFF6;">
               <h4 class="text-md font-semibold text-gray-900 mb-4">Rapports associés</h4>
+              <button 
+              *ngIf="selectedEtude.statut === 'En attente'"
+              (click)="openCreateReportModal()"
+              class="p-1.5 text-orange-500 hover:bg-orange-50 rounded-md transition-colors group"
+              title="Ajouter un rapport">
+              <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+            </button>
               
-              <div *ngIf="selectedEtude?.rapports && selectedEtude.rapports!.length > 0" class="space-y-3">
+              <div *ngIf="selectedEtude.rapports && selectedEtude.rapports!.length > 0" class="space-y-3">
                 <div 
                   *ngFor="let rapport of selectedEtude.rapports" 
                   class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -418,7 +427,7 @@
                 </div>
               </div>
               
-              <div *ngIf="!selectedEtude?.rapports || selectedEtude.rapports!.length === 0" 
+              <div *ngIf="!selectedEtude.rapports || selectedEtude.rapports!.length === 0" 
                    class="text-center py-8 text-gray-500 italic text-sm">
                 Aucun rapport
               </div>
@@ -571,3 +580,126 @@
     </div>
   </div>
 </div>  
+
+<!-- Modal de création de rapport -->
+<div *ngIf="showCreateReportModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeCreateReportModal()"></div>
+    
+    <div class="bg-white rounded-lg p-8 max-w-lg w-full relative z-10">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Nouveau rapport</h2>
+        <button 
+          (click)="closeCreateReportModal()"
+          [disabled]="isCreatingReport"
+          class="text-gray-400 hover:text-gray-600 transition-colors disabled:cursor-not-allowed">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="space-y-4">
+        <!-- Champ Titre -->
+        <div>
+          <label for="reportTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            Titre <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="reportTitle"
+            [(ngModel)]="newReport.title"
+            placeholder="Ex: Rapport technique"
+            [disabled]="isCreatingReport"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </div>
+
+        <!-- Champ Version -->
+        <div>
+          <label for="reportVersion" class="block text-sm font-medium text-gray-700 mb-2">
+            Version <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="reportVersion"
+            [(ngModel)]="newReport.version"
+            placeholder="Ex: 1"
+            [disabled]="isCreatingReport"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </div>
+
+        <!-- Champ Document -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Document <span class="text-red-500">*</span>
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"
+               [class.bg-gray-50]="isCreatingReport">
+            <input 
+              type="file" 
+              id="reportFileInput" 
+              (change)="onReportFileSelected($event)"
+              accept=".pdf,.doc,.docx,.xls,.xlsx"
+              [disabled]="isCreatingReport"
+              class="hidden">
+            
+            <label 
+              for="reportFileInput" 
+              [class.cursor-not-allowed]="isCreatingReport"
+              [class.opacity-50]="isCreatingReport"
+              class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-600 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              Choisir un fichier
+            </label>
+            
+            <div class="mt-2 text-sm" 
+                 [class.text-gray-500]="!hasReportFileSelected()"
+                 [class.text-gray-700]="hasReportFileSelected()">
+              {{ getReportFileName() }}
+            </div>
+            
+            <p class="mt-2 text-xs text-gray-500">
+              Formats acceptés : PDF, Word, Excel
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message d'erreur -->
+      <div *ngIf="createReportError" class="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start">
+        <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span>{{ createReportError }}</span>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="flex gap-3 mt-6">
+        <button 
+          (click)="createReport()"
+          [disabled]="isCreatingReport "
+          class="flex-1 px-4 py-2.5 text-white rounded-lg font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          style="background-color: #FF5C02;">
+          <span *ngIf="!isCreatingReport">Envoyer</span>
+          <span *ngIf="isCreatingReport" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Envoi en cours...
+          </span>
+        </button>
+        <button 
+          (click)="cancelCreateReport()"
+          [disabled]="isCreatingReport"
+          class="flex-1 px-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

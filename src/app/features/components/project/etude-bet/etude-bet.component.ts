@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EtudeBetService, Etude, EtudeResponse, CreateEtudeRequest, UpdateBetRequest } from '../../../../../services/etude-bet.service';
 import { UserService } from '../../../../../services/user.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { DemandeService } from '../../../../../services/demande.service';
 
 interface EtudeBET {
   id: number;
@@ -109,13 +111,15 @@ export class EtudeBetComponent implements OnInit {
   
   rejectReason: string = '';
 
-  // Available BETs for autocomplete
-  // availableBETs: { id: number, name: string }[] = [
-  //   { id: 1, name: 'Sonora BET' },
-  //   { id: 2, name: 'Alpha Dieye' },
-  //   { id: 3, name: 'BET Structura' },
-  //   { id: 4, name: 'ClimaTech' }
-  // ];
+  showCreateReportModal = false;
+  isCreatingReport = false;
+  createReportError: string | null = null;
+  
+  newReport = {
+    title: '',
+    version: '',
+    file: null as File | null
+  };
 
   availableBETs: User[] = [];
 loadingBETs: boolean = false;
@@ -125,7 +129,9 @@ loadingBETs: boolean = false;
   constructor(
     private etudeBetService: EtudeBetService,
     private route: ActivatedRoute,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthService,
+    private demandeService: DemandeService
   ) {}
 
   ngOnInit() {
@@ -623,74 +629,322 @@ getProgressSteps(statut: string): {
     }
   }
 
-  /**
-   * Ajoute un commentaire depuis le modal de détail
-   */
-  addCommentDetail(content: string) {
-    if (content.trim() && this.selectedEtude) {
-      this.isLoading = true;
-      
-      const commentData = {
-        content: content.trim()
-      };
-
-      // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
-      const userId = 1;
-
-      this.etudeBetService.createComment(
-        this.selectedEtude.id, 
-        userId, 
-        commentData
-      ).subscribe({
-        next: (response) => {
-          console.log('Commentaire ajouté avec succès:', response);
-          // Recharger les commentaires pour afficher le nouveau
-          this.loadCommentsForDetail(this.selectedEtude!);
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'ajout du commentaire:', error);
-          this.isLoading = false;
-        }
-      });
-    }
+/**
+ * Ajoute un commentaire depuis le modal de détail
+ */
+addCommentDetail(content: string) {
+  // Validation du contenu
+  if (!content?.trim()) {
+    console.warn('⚠️ Contenu du commentaire vide');
+    return;
   }
+  
+  // Validation de l'étude sélectionnée
+  if (!this.selectedEtude || !this.selectedEtude.id) {
+    console.error('❌ Aucune étude sélectionnée');
+    return;
+  }
+  
+  // Récupération de l'utilisateur connecté
+  const currentUser = this.authService.currentUser();
+  
+  // Validation de l'utilisateur
+  if (!currentUser) {
+    console.error('❌ Utilisateur non connecté');
+    alert('Vous devez être connecté pour ajouter un commentaire');
+    return;
+  }
+  
+  if (!currentUser.id) {
+    console.error('❌ ID utilisateur manquant');
+    alert('Erreur d\'authentification. Veuillez vous reconnecter.');
+    return;
+  }
+  
+  this.isLoading = true;
+  
+  const commentData = {
+    content: content.trim()
+  };
+
+
+  this.etudeBetService.createComment(
+    this.selectedEtude.id, 
+    currentUser.id, 
+    commentData
+  ).subscribe({
+    next: (response) => {
+      console.log('✅ Commentaire ajouté avec succès:', response);
+      
+      // Recharger les commentaires pour afficher le nouveau
+      if (this.selectedEtude) {
+        this.loadCommentsForDetail(this.selectedEtude);
+      }
+    },
+    error: (error) => {
+      console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
+      
+      // Message d'erreur plus précis selon le type d'erreur
+      if (error.status === 401) {
+        alert('Session expirée. Veuillez vous reconnecter.');
+      } else if (error.status === 403) {
+        alert('Vous n\'avez pas les permissions pour ajouter un commentaire.');
+      } else if (error.status === 404) {
+        alert('L\'étude n\'existe plus.');
+      } else {
+        alert('Erreur lors de l\'ajout du commentaire. Veuillez réessayer.');
+      }
+      
+      this.isLoading = false;
+    }
+  });
+}
 
   /**
    * Ajoute un nouveau commentaire dans le modal dédié
    */
-  addComment() {
-    if (this.newComment.trim() && this.selectedEtudeForComments) {
-      this.isLoading = true;
+  // addComment() {
+  //   if (this.newComment.trim() && this.selectedEtudeForComments) {
+  //     this.isLoading = true;
       
-      const commentData = {
-        content: this.newComment
-      };
+  //     const commentData = {
+  //       content: this.newComment
+  //     };
 
-      // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
-      const userId = 1;
+  //     // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
+  //     const userId = this.authService.getConnectedUserId();
 
-      this.etudeBetService.createComment(
-        this.selectedEtudeForComments.id, 
-        userId, 
-        commentData
-      ).subscribe({
-        next: (response) => {
-          console.log('Commentaire ajouté avec succès:', response);
-          // Recharger les commentaires pour afficher le nouveau
-          this.loadComments(this.selectedEtudeForComments!);
-          this.newComment = '';
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'ajout du commentaire:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
+  //     this.etudeBetService.createComment(
+  //       this.selectedEtudeForComments.id, 
+  //       userId, 
+  //       commentData
+  //     ).subscribe({
+  //       next: (response) => {
+  //         console.log('Commentaire ajouté avec succès:', response);
+  //         // Recharger les commentaires pour afficher le nouveau
+  //         this.loadComments(this.selectedEtudeForComments!);
+  //         this.newComment = '';
+  //       },
+  //       error: (error) => {
+  //         console.error('Erreur lors de l\'ajout du commentaire:', error);
+  //         this.isLoading = false;
+  //       }
+  //     });
+  //   }
+  // }
 
   // Utility method to get BET name by ID
   getBETNameById(betId: number): string {
     const bet = this.availableBETs.find(b => b.id === betId);
     return bet ? bet.nom : '';
   }
+  // 2. AJOUTER CES MÉTHODES
+
+/**
+ * Ouvre le modal de création de rapport
+ */
+openCreateReportModal(): void {
+  if (!this.selectedEtude) {
+    console.error('❌ Aucune étude sélectionnée');
+    return;
+  }
+  
+  this.newReport = {
+    title: '',
+    version: '1',
+    file: null
+  };
+  this.createReportError = null;
+  this.showCreateReportModal = true;
+  
+  console.log('📄 Ouverture modal création rapport pour étude:', this.selectedEtude.titre);
+}
+
+/**
+ * Ferme le modal de création de rapport
+ */
+closeCreateReportModal(): void {
+  this.showCreateReportModal = false;
+  this.isCreatingReport = false;
+  this.createReportError = null;
+  this.newReport = {
+    title: '',
+    version: '1',
+    file: null
+  };
+}
+
+/**
+ * Gère la sélection du fichier
+ */
+onReportFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.newReport.file = input.files[0];
+    console.log('📎 Fichier sélectionné:', this.newReport.file.name);
+  }
+}
+
+/**
+ * Valide le formulaire de création de rapport
+ */
+private isCreateReportFormValid(): boolean {
+  return !!(
+    this.newReport.title?.trim() && 
+    this.newReport.version?.trim() && 
+    this.newReport.file
+  );
+}
+
+/**
+ * Récupère le nom du fichier sélectionné
+ */
+getReportFileName(): string {
+  return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
+}
+
+/**
+ * Vérifie si un fichier est sélectionné
+ */
+hasReportFileSelected(): boolean {
+  return !!this.newReport.file;
+}
+
+/**
+ * Crée un nouveau rapport
+ */
+createReport(): void {
+  // Validation du formulaire
+  if (!this.isCreateReportFormValid()) {
+    this.createReportError = 'Veuillez remplir tous les champs obligatoires';
+    return;
+  }
+
+  // Validation de l'étude sélectionnée
+  if (!this.selectedEtude) {
+    this.createReportError = 'Aucune étude sélectionnée';
+    return;
+  }
+
+  // Validation du fichier
+  if (!this.newReport.file) {
+    this.createReportError = 'Veuillez sélectionner un fichier';
+    return;
+  }
+
+  // Récupération de l'utilisateur connecté
+  const currentUser = this.authService?.currentUser();
+  
+  if (!currentUser || !currentUser.id) {
+    this.createReportError = 'Utilisateur non connecté. Veuillez vous reconnecter.';
+    return;
+  }
+
+  this.isCreatingReport = true;
+  this.createReportError = null;
+
+  // Préparation des données du rapport
+  const reportData = {
+    title: this.newReport.title.trim(),
+    versionNumber: parseInt(this.newReport.version),
+    studyRequestId: this.selectedEtude.id,
+    authorId: currentUser.id
+  };
+
+  console.log('📤 Création du rapport:', {
+    ...reportData,
+    fileName: this.newReport.file.name,
+    fileSize: this.newReport.file.size
+  });
+
+  // Appel du service pour créer le rapport
+  const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
+    next: (response) => {
+      console.log('✅ Rapport créé avec succès:', response);
+      
+      // Mise à jour de l'étude sélectionnée avec le nouveau rapport
+      if (this.selectedEtude) {
+        if (!this.selectedEtude.rapports) {
+          this.selectedEtude.rapports = [];
+        }
+        
+        // Ajouter le nouveau rapport à la liste
+        this.selectedEtude.rapports.push({
+          id: response.id,
+          nom: response.title || this.newReport.title,
+          taille: this.formatFileSize(this.newReport.file!.size),
+          dateSubmission: this.getCurrentDateFormatted(),
+          url: response.fileUrl || '',
+          versionNumber: response.versionNumber || parseInt(this.newReport.version)
+        });
+      }
+      
+      // Recharger les études pour avoir les données à jour
+      this.loadEtudes();
+      
+      // Fermer le modal
+      this.closeCreateReportModal();
+      
+      this.isCreatingReport = false;
+    },
+    error: (error) => {
+      console.error('❌ Erreur lors de la création du rapport:', error);
+      
+      // Gestion des erreurs spécifiques
+      if (error.status === 401) {
+        this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
+      } else if (error.status === 403) {
+        this.createReportError = 'Vous n\'avez pas les permissions pour créer un rapport.';
+      } else if (error.status === 413) {
+        this.createReportError = 'Le fichier est trop volumineux.';
+      } else {
+        this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
+      }
+      
+      this.isCreatingReport = false;
+    }
+  });
+}
+/**
+ * Retourne la date actuelle formatée en string (jj-mm-aaaa)
+ */
+private getCurrentDateFormatted(): string {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  
+  return `${day}-${month}-${year}`;  // ✅ Format jj-mm-aaaa avec tirets
+}
+
+/**
+ * Annule la création du rapport
+ */
+cancelCreateReport(): void {
+  this.closeCreateReportModal();
+}
+
+/**
+ * Formate la taille du fichier
+ */
+private formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
+ * Formate une date en string
+ */
+// private formatDate(date: Date): string {
+//   return date.toLocaleDateString('fr-FR', {
+//     day: '2-digit',
+//     month: '2-digit',
+//     year: 'numeric'
+//   });
+// }
 }
