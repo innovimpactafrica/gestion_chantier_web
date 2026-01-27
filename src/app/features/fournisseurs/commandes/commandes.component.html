@@ -40,7 +40,7 @@
         <option value="En attente">En attente</option>
         <option value="Validée">Validée</option>
         <option value="Rejetée">Rejetée</option>
-        <option value="En cours">En cours</option>
+        <option value="En livraison">En livraison</option>
         <option value="Livrée">Livrée</option>
       </select>
       <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,9 +86,8 @@
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commande</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chantier</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fournisseur</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Articles</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
@@ -98,10 +97,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let commande of filteredCommandes" class="hover:bg-gray-50">
-            <!-- Commande ID -->
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">CMD-{{ commande.id }}</div>
-            </td>
+          
 
             <!-- Chantier -->
             <td class="px-6 py-4 whitespace-nowrap">
@@ -145,22 +141,32 @@
 
             <!-- Statut -->
             <td class="px-6 py-4 whitespace-nowrap">
-              <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(commande.status)">
+              <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full border ' + getStatusClass(commande.status)">
                 {{ mapStatusToFrench(commande.status) }}
               </span>
             </td>
 
             <!-- Actions -->
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button 
-                (click)="openDetails(commande)"
-                class="text-gray-600 hover:text-gray-900"
-                title="Voir les détails">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-              </button>
+              <div class="flex items-center space-x-2">
+                <button 
+                  (click)="openDetails(commande)"
+                  class="text-gray-600 hover:text-gray-900"
+                  title="Voir les détails">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+                <button 
+                  (click)="openDeleteConfirm(commande)"
+                  class="text-red-600 hover:text-red-900"
+                  title="Supprimer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -228,34 +234,36 @@
     </div>
   </div>
 
-  <!-- Modal de détails -->
-  <div *ngIf="showModal && selectedCommande" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" tabindex="-1">
-    <!-- Backdrop -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()" aria-hidden="true"></div>
+<!-- Modal de détails -->
+<div *ngIf="showModal && selectedCommande" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" tabindex="-1">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()" aria-hidden="true"></div>
 
-    <!-- Modal Content -->
-    <div class="flex items-center justify-center min-h-screen p-4">
-      <div class="relative bg-white rounded-lg shadow-xl w-full max-w-4xl transform transition-all" #modalContent>
-        <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center space-x-3">
-            <h3 class="text-xl font-semibold text-gray-900" id="modal-title">Commande #CMD-{{ selectedCommande.id }}</h3>
-            <span [ngClass]="getStatusClass(selectedCommande.status)" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">
-              {{ mapStatusToFrench(selectedCommande.status) }}
-            </span>
-          </div>
-          <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Fermer le modal">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
+  <!-- Modal Content -->
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-4xl transform transition-all" #modalContent>
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center space-x-3">
+          <h3 class="text-xl font-semibold text-gray-900" id="modal-title">Commande #CMD-{{ selectedCommande.id }}</h3>
+          <span [ngClass]="getStatusClass(selectedCommande.status)" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border">
+            {{ mapStatusToFrench(selectedCommande.status) }}
+          </span>
         </div>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Fermer le modal">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
 
-        <!-- Body -->
-        <div class="px-6 py-6">
-          <div class="grid grid-cols-2 gap-6">
-            <!-- Left Column: Informations -->
-            <div>
+      <!-- Body -->
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left Column: Informations et Matériaux -->
+          <div class="space-y-6">
+            <!-- Card: Informations -->
+            <div class="border border-gray-200 rounded-lg p-5 bg-white">
               <h4 class="text-lg font-semibold text-gray-900 mb-4">Informations</h4>
               <div class="space-y-3">
                 <div class="flex justify-between py-2 border-b border-gray-100">
@@ -263,80 +271,145 @@
                   <span class="text-sm font-medium text-gray-900">{{ selectedCommande.property.name || 'N/A' }}</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Client</span>
+                  <span class="text-sm text-gray-600">Chef de projet</span>
                   <span class="text-sm font-medium text-gray-900">
                     {{ selectedCommande.supplier.prenom }} {{ selectedCommande.supplier.nom }}
                   </span>
                 </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Téléphone</span>
-                  <span class="text-sm font-medium text-gray-900">{{ selectedCommande.supplier.telephone || 'N/A' }}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Date de commande</span>
+                <div class="flex justify-between py-2">
+                  <span class="text-sm text-gray-600">Date de création</span>
                   <span class="text-sm font-medium text-gray-900">{{ formatDate(selectedCommande.orderDate) }}</span>
-                </div>
-              </div>
-
-              <!-- Articles commandés -->
-              <div class="mt-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h4 class="text-lg font-semibold text-gray-900">Articles commandés</h4>
-                  <span class="text-sm font-medium text-gray-600">{{ selectedCommande.items.length || 0 }}</span>
-                </div>
-                <div *ngIf="selectedCommande.items.length; else noItems" class="space-y-3">
-                  <div class="grid grid-cols-4 gap-3 text-xs font-semibold text-gray-600 pb-2 border-b">
-                    <div>Article</div>
-                    <div class="text-center">Quantité</div>
-                    <div class="text-right">Prix Unit.</div>
-                    <div class="text-right">Total</div>
-                  </div>
-                  <div *ngFor="let item of selectedCommande.items" class="grid grid-cols-4 gap-3 py-3 border-b border-gray-100">
-                    <div class="text-sm text-gray-900">ID: {{ item.materialId }}</div>
-                    <div class="text-sm text-gray-600 text-center">{{ item.quantity }}</div>
-                    <div class="text-sm text-gray-900 text-right">{{ formatPrice(item.unitPrice) }}</div>
-                    <div class="text-sm font-medium text-gray-900 text-right">{{ formatPrice(item.quantity * item.unitPrice) }}</div>
-                  </div>
-                </div>
-                <ng-template #noItems>
-                  <div class="text-sm text-gray-600 italic">Aucun article disponible</div>
-                </ng-template>
-                <div class="flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200">
-                  <span class="text-base font-semibold text-gray-900">Total</span>
-                  <span class="text-lg font-bold text-gray-900">{{ formatPrice(calculateTotal(selectedCommande.items)) }} FCFA</span>
                 </div>
               </div>
             </div>
 
-            <!-- Right Column: Informations de suivi -->
-            <div>
-              <h4 class="text-lg font-semibold text-gray-900 mb-4">Informations de suivi</h4>
+            <!-- Card: Matériaux commandés -->
+            <div class="border border-gray-200 rounded-lg p-5 bg-white">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-gray-900">Matériaux commandés</h4>
+                <span class="text-sm font-medium text-gray-600">{{ selectedCommande.items.length || 0 }}</span>
+              </div>
+              
+              <div *ngIf="selectedCommande.items.length; else noItems" class="space-y-3">
+                <!-- Table Header -->
+                <div class="grid grid-cols-4 gap-3 text-xs font-semibold text-gray-600 pb-2 border-b border-gray-200">
+                  <div>Matériau</div>
+                  <div class="text-center">Stock</div>
+                  <div class="text-right">Prix Unitaire</div>
+                  <div class="text-right">Total (F CFA)</div>
+                </div>
+                
+                <!-- Table Rows -->
+                <div *ngFor="let item of selectedCommande.items" class="grid grid-cols-4 gap-3 py-3 border-b border-gray-100">
+                  <div class="text-sm text-gray-900">{{ 'N: ' + item.materialId }}</div>
+                  <div class="text-sm text-gray-600 text-center">{{ item.quantity }}</div>
+                  <div class="text-sm text-gray-900 text-right">{{ formatPrice(item.unitPrice) }}</div>
+                  <div class="text-sm font-medium text-gray-900 text-right">{{ formatPrice(item.quantity * item.unitPrice) }}</div>
+                </div>
+              </div>
+              
+              <ng-template #noItems>
+                <div class="text-sm text-gray-600 italic">Aucun article disponible</div>
+              </ng-template>
+              
+              <!-- Total -->
+              <div class="flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200">
+                <span class="text-base font-semibold text-gray-900">Total</span>
+                <span class="text-lg font-bold text-gray-900">{{ formatPrice(calculateTotal(selectedCommande.items)) }} Fcfa</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Historique des activités -->
+          <div>
+            <div class="border border-gray-200 rounded-lg p-5 bg-white h-full">
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Historique des activités</h4>
               <div *ngIf="selectedCommande.trackingInfo; else noTracking" class="space-y-3">
                 <div class="p-4 bg-gray-50 rounded-lg">
                   <p class="text-sm text-gray-600">Informations de suivi disponibles</p>
-                  <pre class="text-xs text-gray-700 mt-2">{{ selectedCommande.trackingInfo | json }}</pre>
+                  <pre class="text-xs text-gray-700 mt-2 overflow-auto">{{ selectedCommande.trackingInfo | json }}</pre>
                 </div>
               </div>
               <ng-template #noTracking>
-                <div class="text-center py-12">
-                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col items-center justify-center h-full min-h-[300px]">
+                  <svg class="h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                     </path>
                   </svg>
-                  <p class="mt-2 text-sm text-gray-600 italic">Aucune information de suivi</p>
+                  <p class="mt-4 text-sm text-gray-500 italic">Aucun historique</p>
                 </div>
               </ng-template>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Footer -->
-        <div class="flex items-center justify-end px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <button (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            Fermer
+      <!-- Footer -->
+      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+        <button (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Fermer
+        </button>
+        
+        <!-- Boutons d'action pour commandes en attente -->
+        <div *ngIf="isPendingOrder()" class="flex items-center gap-3">
+          <button (click)="openValidateConfirm()" 
+            class="px-6 py-2 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-90"
+            style="background-color: #1A365D;">
+            Valider la commande
+          </button>
+          <button (click)="openRejectConfirm()" 
+            class="px-6 py-2 text-sm font-medium bg-white border rounded-lg transition-colors hover:bg-red-50"
+            style="border-color: #F44336; color: #F44336;">
+            Rejeter
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal de confirmation -->
+  <div *ngIf="showConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-96 animate-fadeIn">
+      <!-- Icône d'alerte -->
+      <div class="flex justify-center mb-4">
+        <svg width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M51.2422 58.166L43.8203 58.166L43.8203 28.4785L51.2422 28.4785L51.2422 58.166Z" fill="#EFBD8E" />
+          <path d="M47.5 65.291C45.3685 65.291 43.6406 67.0189 43.6406 69.1504C43.6406 71.2819 45.3685 73.0098 47.5 73.0098C49.6315 73.0098 51.3594 71.2819 51.3594 69.1504C51.3594 67.0189 49.6315 65.291 47.5 65.291Z" fill="#EFBD8E" />
+          <path d="M47.5 94.9776C59.6972 95.3703 71.5436 90.595 80.446 81.6968C89.3483 72.7986 94.5815 60.5025 95 47.5C94.5815 34.4975 89.3483 22.2014 80.446 13.3032C71.5436 4.40504 59.6972 -0.370316 47.5 0.0224457C35.3028 -0.370316 23.4564 4.40504 14.554 13.3032C5.65166 22.2014 0.418472 34.4975 0 47.5C0.418472 60.5025 5.65166 72.7986 14.554 81.6968C23.4564 90.595 35.3028 95.3703 47.5 94.9776ZM47.5 7.93537C57.7293 7.54133 67.6886 11.4827 75.1994 18.8972C82.7101 26.3117 87.1609 36.5959 87.5781 47.5C87.1609 58.4041 82.7101 68.6883 75.1994 76.1028C67.6886 83.5174 57.7293 87.4587 47.5 87.0646C37.2707 87.4587 27.3114 83.5174 19.8006 76.1028C12.2899 68.6883 7.83908 58.4041 7.42188 47.5C7.83908 36.5959 12.2899 26.3117 19.8006 18.8972C27.3114 11.4827 37.2707 7.54133 47.5 7.93537Z" fill="#EFBD8E" />
+        </svg>
+      </div>
+
+      <!-- Titre du modal -->
+      <h3 class="text-center text-lg font-semibold mb-2">
+        {{ getConfirmModalText().title }}
+      </h3>
+
+      <!-- Message de confirmation -->
+      <p class="text-center text-gray-600 mb-6" [innerHTML]="getConfirmModalText().message"></p>
+
+      <!-- Boutons d'action -->
+      <div class="flex gap-3">
+        <!-- Bouton d'action principal -->
+        <button (click)="confirmAction()" [disabled]="isProcessing"
+          [ngClass]="{
+            'bg-orange-500 hover:bg-orange-600': confirmModalAction === 'delete',
+            'bg-red-500 hover:bg-red-600': confirmModalAction === 'reject',
+            'hover:opacity-90': confirmModalAction === 'validate'
+          }"
+          [style.background-color]="confirmModalAction === 'validate' ? '#1A365D' : null"
+          class="flex-1 text-white font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50">
+          <span *ngIf="confirmModalAction === 'validate'">Valider</span>
+          <span *ngIf="confirmModalAction === 'reject'">Rejeter</span>
+          <span *ngIf="confirmModalAction === 'delete'">Supprimer</span>
+        </button>
+
+        <!-- Bouton Annuler -->
+        <button (click)="cancelConfirmAction()" [disabled]="isProcessing"
+          class="flex-1 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 px-4 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50">
+          Annuler
+        </button>
       </div>
     </div>
   </div>

@@ -36,7 +36,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     { value: 'BET', label: 'Bureau d\'études' },
     { value: 'SUPPLIER', label: 'Fournisseur' },
     { value: 'SUBCONTRACTOR', label: 'Sous-traitant' },
-    { value: 'CLIENT', label: 'Client' }
   ];
 
   labelOptions = [
@@ -254,63 +253,70 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Met à jour un plan existant
-   */
-  private updatePlan(): void {
-    if (!this.planId) return;
+/**
+ * Met à jour un plan existant
+ */
+private updatePlan(): void {
+  if (!this.planId) return;
 
-    // ✅ CORRECTION: Utiliser CreatePlanRequest avec l'ID du plan
-    const planData: CreatePlanRequest = {
-      id: this.planId,
-      name: this.formData.name,
-      label: this.formData.label,
-      description: this.formData.description.trim(),
-      totalCost: this.formData.totalCost!,
-      installmentCount: this.formData.installmentCount,
-      projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
-      unlimitedProjects: this.formData.unlimitedProjects,
-      yearlyDiscountRate: this.formData.yearlyDiscountRate,
-      active: this.formData.active
-    };
+  const planData: CreatePlanRequest = {
+    id: this.planId,
+    name: this.formData.name,
+    label: this.formData.label,
+    description: this.formData.description.trim(),
+    totalCost: this.formData.totalCost!,
+    installmentCount: this.formData.installmentCount,
+    projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
+    unlimitedProjects: this.formData.unlimitedProjects,
+    yearlyDiscountRate: this.formData.yearlyDiscountRate,
+    active: this.formData.active
+  };
 
-    console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
+  console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
 
-    this.planService.putPlanAbonnement(this.planId, planData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (updatedPlan) => {
-          console.log('✅ Plan mis à jour avec succès:', updatedPlan);
-          this.isSaving = false;
-          
-          // Afficher la notification
-          this.planLabel = updatedPlan.label;
-          this.notificationType = 'updated';
-          this.showNotification = true;
+  this.planService.putPlanAbonnement(this.planId, planData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        console.log('✅ Plan mis à jour avec succès');
+        this.isSaving = false;
+        
+        // Afficher la notification avec le label du formulaire
+        this.planLabel = this.getLabelDisplay(this.formData.label);
+        this.notificationType = 'updated';
+        this.showNotification = true;
 
-          // Masquer la notification et rediriger après 2 secondes
-          setTimeout(() => {
-            this.showNotification = false;
-            this.goBack();
-          }, 2000);
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour:', error);
-          this.isSaving = false;
-          
-          let errorMsg = 'Erreur lors de la mise à jour du plan';
-          if (error.status === 400) {
-            errorMsg = 'Données invalides. Vérifiez tous les champs.';
-          } else if (error.status === 404) {
-            errorMsg = 'Plan introuvable.';
-          } else if (error.status === 409) {
-            errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
-          }
-          
-          alert(error.userMessage || errorMsg);
+        // Masquer la notification et rediriger après 2 secondes
+        setTimeout(() => {
+          this.showNotification = false;
+          this.goBack();
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour:', error);
+        this.isSaving = false;
+        
+        let errorMsg = 'Erreur lors de la mise à jour du plan';
+        if (error.status === 400) {
+          errorMsg = 'Données invalides. Vérifiez tous les champs.';
+        } else if (error.status === 404) {
+          errorMsg = 'Plan introuvable.';
+        } else if (error.status === 409) {
+          errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
         }
-      });
-  }
+        
+        alert(error.userMessage || errorMsg);
+      }
+    });
+}
+
+/**
+ * Retourne le label formaté pour l'affichage
+ */
+private getLabelDisplay(label: string): string {
+  const option = this.labelOptions.find(opt => opt.value === label);
+  return option ? option.label : label;
+}
 
   /**
    * Annule et retourne à la liste

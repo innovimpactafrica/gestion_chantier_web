@@ -132,9 +132,9 @@ export class PlanAbonnementService {
 
 /**
  * Met à jour un plan d'abonnement
- * ✅ CORRECTION: Accepte CreatePlanRequest au lieu de Partial<SubscriptionPlan>
+ * ✅ CORRECTION: L'endpoint retourne void (pas de corps de réponse)
  */
-putPlanAbonnement(id: number, planData: CreatePlanRequest | Partial<SubscriptionPlan>): Observable<SubscriptionPlan> {
+putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
   const headers = this.getAuthHeaders();
   const url = `${this.baseUrl}/subscription-plans/${id}`;
   
@@ -143,13 +143,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest | Partial<Subscription
   console.log('🆔 Plan ID:', id);
   console.log('📝 Données à mettre à jour:', planData);
   
-  return this.http.put<SubscriptionPlan>(url, planData, { headers })
+  return this.http.put<void>(url, planData, { headers })
     .pipe(
-      tap(updatedPlan => {
-        console.log('✅ Plan d\'abonnement mis à jour:');
-        console.log('  - ID:', updatedPlan.id);
-        console.log('  - Nom:', updatedPlan.name);
-        console.log('  - Label:', updatedPlan.label);
+      tap(() => {
+        console.log('✅ Plan d\'abonnement mis à jour avec succès (ID:', id, ')');
       }),
       catchError(error => this.handleError(error, 'putPlanAbonnement'))
     );

@@ -125,6 +125,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.showToggleModal = true;
   }
 
+  // ✅ CORRECTION: Gestion correcte du retour void de l'API
   confirmToggleAction(): void {
     if (!this.selectedPlanForAction) return;
 
@@ -150,13 +151,17 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.planService.putPlanAbonnement(this.selectedPlanForAction.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedPlan) => {
-          console.log('✅ Statut du plan mis à jour:', updatedPlan);
+        next: () => {
+          console.log('✅ Statut du plan mis à jour avec succès');
           
-          // Mettre à jour le plan dans la liste
+          // ✅ Mettre à jour manuellement le plan dans la liste locale
           const index = this.allPlans.findIndex(p => p.id === this.selectedPlanForAction!.id);
           if (index !== -1) {
-            this.allPlans[index] = updatedPlan;
+            // Créer une copie du plan avec le nouveau statut
+            this.allPlans[index] = {
+              ...this.allPlans[index],
+              active: newStatus
+            };
             this.searchPlans(); // Rafraîchir la liste filtrée
           }
           

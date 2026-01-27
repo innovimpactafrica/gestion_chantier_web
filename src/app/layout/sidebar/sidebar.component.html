@@ -81,7 +81,7 @@
       </li>
 
       <!-- Réclamations (ADMIN uniquement) -->
-      <li *ngIf="isADMINProfile()">
+      <!-- <li *ngIf="isADMINProfile()">
         <a (click)="navigateTo('/reclamations', 'Reclamations', 'reclamations')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('reclamations') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
@@ -94,16 +94,16 @@
             <span class="text-sm">Réclamations</span>
           </div>
         </a>
-      </li>
+      </li> -->
       <!-- HR (Standard uniquement) -->
-      <li *ngIf="isADMINProfile()">
+      <!-- <li *ngIf="isADMINProfile()">
         <a (click)="navigateTo('/humanresources', 'Ressources humaines', 'hr')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                (isActive('hr') ? 'bg-[#FF5C02] text-white' : '')">
           <img src="assets/images/humain.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
                    (isActive('hr') ? 'brightness-0 invert' : '')" srcset="">
           <span class="text-sm">Ressources humaines</span>
         </a>
-      </li>
+      </li> -->
 
       <!-- Sous-traitant (Standard uniquement) -->
       <li *ngIf="isADMINProfile()">
@@ -289,7 +289,7 @@
       </li>
 
       <!-- ========== MON COMPTE (Tous sauf SUPPLIER) ========== -->
-      <li *ngIf="!isSUPPLIERProfile()">
+      <li >
         <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" [class]="'flex items-center py-3 px-4 gap-2 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('mon-compte') ? 'bg-[#FF5C02] text-white' : '')">
           <svg [class]="'transition-all duration-200'" width="24" height="24" viewBox="0 0 24 24" fill="none"

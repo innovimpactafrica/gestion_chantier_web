@@ -37,6 +37,12 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   notificationType: 'deleted' | 'activated' | 'deactivated' = 'deleted';
   planLabel = '';
 
+  // 🆕 Options pour formater le label
+  labelOptions = [
+    { value: 'BASIC', label: 'Basic' },
+    { value: 'PREMIUM', label: 'Premium' }
+  ];
+
   distributionData = {
     paid: 75,
     unpaid: 25
@@ -150,7 +156,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     this.showToggleModal = true;
   }
 
-  // 🆕 Confirme l'activation/désactivation
+  // ✅ CORRECTION: Confirme l'activation/désactivation sans attendre de retour
   confirmToggleAction(): void {
     if (!this.plan) return;
 
@@ -175,10 +181,16 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     this.planService.putPlanAbonnement(this.plan.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedPlan) => {
-          console.log('✅ Statut du plan mis à jour:', updatedPlan);
-          this.plan = updatedPlan;
-          this.planLabel = updatedPlan.label;
+        next: () => {
+          console.log('✅ Statut du plan mis à jour avec succès');
+          
+          // ✅ Mettre à jour manuellement le statut du plan local
+          if (this.plan) {
+            this.plan.active = newStatus;
+          }
+          
+          // ✅ Utiliser le label formaté
+          this.planLabel = this.getLabelDisplay(this.plan!.label);
           this.notificationType = newStatus ? 'activated' : 'deactivated';
           this.showToggleModal = false;
           this.showNotification = true;
@@ -205,11 +217,12 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     this.showDeleteModal = true;
   }
 
-  // 🆕 Confirme la suppression
+  // ✅ CORRECTION: Confirme la suppression avec label formaté
   confirmDelete(): void {
     if (!this.plan) return;
 
-    this.planLabel = this.plan.label;
+    // ✅ Utiliser le label formaté
+    this.planLabel = this.getLabelDisplay(this.plan.label);
 
     this.planService.deletePlanAbonnement(this.plan.id)
       .pipe(takeUntil(this.destroy$))
@@ -247,6 +260,12 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.showNotification = false;
     }, 3000);
+  }
+
+  // ✅ NOUVEAU: Retourne le label formaté pour l'affichage
+  private getLabelDisplay(label: string): string {
+    const option = this.labelOptions.find(opt => opt.value === label);
+    return option ? option.label : label;
   }
 
   formatAmount(amount: number): string {

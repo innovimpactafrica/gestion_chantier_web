@@ -237,7 +237,7 @@
                       </button>
 
                       <!-- Modifier -->
-                      <button (click)="onAction('modifier', material, $event)"
+                      <!-- <button (click)="onAction('modifier', material, $event)"
                         class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
@@ -248,7 +248,7 @@
                             stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <span class="text-sm">Modifier</span>
-                      </button>
+                      </button> -->
 
                       <!-- Gérer les mouvements -->
                       <button (click)="openMovementModal(material); closeDropdown()"
@@ -269,7 +269,7 @@
                       </button>
 
                       <!-- Commander -->
-                      <button (click)="onAction('commander', material, $event)"
+                      <!-- <button (click)="onAction('commander', material, $event)"
                         class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
@@ -277,7 +277,7 @@
                             fill="#9CA3AF" />
                         </svg>
                         <span class="text-sm">Commander</span>
-                      </button>
+                      </button> -->
 
                       <!-- Historique -->
                       <button (click)="onAction('historique', material, $event)"
@@ -310,6 +310,51 @@
               </tbody>
 
             </table>
+            <!-- PAGINATION INVENTAIRES -->
+<div *ngIf="!loading && paginatedMaterials.length > 0" 
+  class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+
+<!-- Info pagination -->
+<div class="text-sm text-gray-600">
+ Affichage de {{ materialCurrentPage * materialPageSize + 1 }} à 
+ {{ Math.min((materialCurrentPage + 1) * materialPageSize, totalMaterialElements) }} 
+ sur {{ totalMaterialElements }} matériaux
+</div>
+
+<!-- Navigation -->
+<div class="flex items-center gap-2">
+ <!-- Précédent -->
+ <button 
+   (click)="previousMaterialPage()"
+   [disabled]="materialCurrentPage === 0"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+   </svg>
+ </button>
+
+ <!-- Numéros de page -->
+ <button 
+   *ngFor="let page of getMaterialPageNumbers()"
+   (click)="goToMaterialPage(page)"
+   [class.bg-orange-500]="page === materialCurrentPage"
+   [class.text-white]="page === materialCurrentPage"
+   [class.border-orange-500]="page === materialCurrentPage"
+   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+   {{ page + 1 }}
+ </button>
+
+ <!-- Suivant -->
+ <button 
+   (click)="nextMaterialPage()"
+   [disabled]="materialCurrentPage >= totalMaterialPages - 1"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+   </svg>
+ </button>
+</div>
+</div>
           </div>
         </div>
 
@@ -495,6 +540,51 @@
                 </tr>
               </tbody>
             </table>
+            <!-- PAGINATION COMMANDES -->
+<div *ngIf="!loading && paginatedOrders.length > 0" 
+  class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+
+<!-- Info pagination -->
+<div class="text-sm text-gray-600">
+ Affichage de {{ orderCurrentPage * orderPageSize + 1 }} à 
+ {{ Math.min((orderCurrentPage + 1) * orderPageSize, totalOrderElements) }} 
+ sur {{ totalOrderElements }} commandes
+</div>
+
+<!-- Navigation -->
+<div class="flex items-center gap-2">
+ <!-- Précédent -->
+ <button 
+   (click)="previousOrderPage()"
+   [disabled]="orderCurrentPage === 0"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+   </svg>
+ </button>
+
+ <!-- Numéros de page -->
+ <button 
+   *ngFor="let page of getOrderPageNumbers()"
+   (click)="goToOrderPage(page)"
+   [class.bg-orange-500]="page === orderCurrentPage"
+   [class.text-white]="page === orderCurrentPage"
+   [class.border-orange-500]="page === orderCurrentPage"
+   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+   {{ page + 1 }}
+ </button>
+
+ <!-- Suivant -->
+ <button 
+   (click)="nextOrderPage()"
+   [disabled]="orderCurrentPage >= totalOrderPages - 1"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+   </svg>
+ </button>
+</div>
+</div>
           </div>
 
         </div>
@@ -681,6 +771,51 @@
 
               </tbody>
             </table>
+            <!-- PAGINATION LIVRAISONS -->
+<div *ngIf="!loading && paginatedDeliveries.length > 0" 
+  class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+
+<!-- Info pagination -->
+<div class="text-sm text-gray-600">
+ Affichage de {{ deliveryCurrentPage * deliveryPageSize + 1 }} à 
+ {{ Math.min((deliveryCurrentPage + 1) * deliveryPageSize, totalDeliveryElements) }} 
+ sur {{ totalDeliveryElements }} livraisons
+</div>
+
+<!-- Navigation -->
+<div class="flex items-center gap-2">
+ <!-- Précédent -->
+ <button 
+   (click)="previousDeliveryPage()"
+   [disabled]="deliveryCurrentPage === 0"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+   </svg>
+ </button>
+
+ <!-- Numéros de page -->
+ <button 
+   *ngFor="let page of getDeliveryPageNumbers()"
+   (click)="goToDeliveryPage(page)"
+   [class.bg-orange-500]="page === deliveryCurrentPage"
+   [class.text-white]="page === deliveryCurrentPage"
+   [class.border-orange-500]="page === deliveryCurrentPage"
+   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+   {{ page + 1 }}
+ </button>
+
+ <!-- Suivant -->
+ <button 
+   (click)="nextDeliveryPage()"
+   [disabled]="deliveryCurrentPage >= totalDeliveryPages - 1"
+   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+   </svg>
+ </button>
+</div>
+</div>
           </div>
 
         </div>
@@ -1220,18 +1355,6 @@
           La référence est requise
         </div>
       </div>
-
-      <!-- Commentaire -->
-      <!-- <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Commentaire (optionnel)
-        </label>
-        <textarea formControlName="comment" rows="3"
-          placeholder="Ajouter un commentaire..."
-          class="w-full rounded-xlborder border-gray-300 px-4 py-2.5
-          focus:outline-none focus:ring-2 focus:ring-[#FF5C02]/40 resize-none">
-          </textarea>
-          </div> -->
       <!-- Actions -->
       <div class="flex gap-4 pt-2">
         <button type="submit" [disabled]="movementForm.invalid || loading" class="flex-1 bg-[#FF5C02] text-white py-3 rounded-xl font-semibold
@@ -1248,5 +1371,119 @@
       </div>
 
     </form>
+  </div>
+</div>
+
+
+<!-- MODAL CONFIRMATION SUPPRESSION MATÉRIEL -->
+<div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  (click)="cancelDeleteMaterial()">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 relative" (click)="$event.stopPropagation()">
+    
+    <div class="text-center">
+      <!-- Icône -->
+      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la suppression</h3>
+      <p class="text-gray-600 mb-2">
+        Êtes-vous sûr de vouloir supprimer <strong>{{ materialToDelete?.label }}</strong> ?
+      </p>
+      <p class="text-sm text-gray-500 mb-6">
+        Cette action est irréversible et supprimera également l'historique des mouvements associés.
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="cancelDeleteMaterial()" [disabled]="loading"
+          class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50">
+          Annuler
+        </button>
+        <button (click)="deleteMaterialConfirmed()" [disabled]="loading"
+          class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+          <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+          {{ loading ? 'Suppression...' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CONFIRMATION SUPPRESSION COMMANDE -->
+<div *ngIf="showDeleteOrderModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  (click)="cancelDeleteOrder()">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 relative" (click)="$event.stopPropagation()">
+    
+    <div class="text-center">
+      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la suppression</h3>
+      <p class="text-gray-600 mb-6">
+        Êtes-vous sûr de vouloir supprimer la commande 
+        <strong>CMD-{{ orderToDelete?.id!.toString().padStart(4, '0') }}</strong> ?
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="cancelDeleteOrder()" [disabled]="loading"
+          class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50">
+          Annuler
+        </button>
+        <button (click)="deleteOrderConfirmed()" [disabled]="loading"
+          class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+          <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+          {{ loading ? 'Suppression...' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL SUCCÈS -->
+<div *ngIf="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 animate-fade-in">
+    <div class="text-center">
+      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Succès !</h3>
+      <p class="text-gray-600 mb-4">{{ successMessage }}</p>
+      <button (click)="closeSuccessModal()"
+        class="px-6 py-2 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ERREUR -->
+<div *ngIf="showErrorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  (click)="closeErrorModal()">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6" (click)="$event.stopPropagation()">
+    <div class="text-center">
+      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Erreur</h3>
+      <p class="text-gray-600 mb-4">{{ errorMessage }}</p>
+      <button (click)="closeErrorModal()"
+        class="px-6 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition">
+        Fermer
+      </button>
+    </div>
   </div>
 </div>

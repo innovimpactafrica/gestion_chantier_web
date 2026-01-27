@@ -10,6 +10,8 @@ interface ExtendedOrder extends Order {
   isStatic?: boolean;
 }
 
+type ModalAction = 'validate' | 'reject' | 'delete';
+
 @Component({
   standalone: true,
   imports: [CommonModule, FormsModule],
@@ -26,11 +28,16 @@ export class CommandesComponent implements OnInit, OnDestroy {
   showModal: boolean = false;
   selectedCommande: ExtendedOrder | null = null;
   
+  // Modals de confirmation
+  showConfirmModal: boolean = false;
+  confirmModalAction: ModalAction | null = null;
+  
   // Données dynamiques
   commandes: ExtendedOrder[] = [];
   filteredCommandes: ExtendedOrder[] = [];
   loading: boolean = true;
   error: string | null = null;
+  isProcessing: boolean = false;
   
   // Pagination
   currentPage: number = 0;
@@ -265,14 +272,12 @@ export class CommandesComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'PENDING':
         return 'En attente';
-      case 'VALIDATED':
       case 'APPROVED':
         return 'Validée';
       case 'REJECTED':
         return 'Rejetée';
-      case 'IN_PROGRESS':
       case 'IN_DELIVERY':
-        return 'En cours';
+        return 'En livraison';
       case 'DELIVERED':
         return 'Livrée';
       default:
@@ -287,13 +292,13 @@ export class CommandesComponent implements OnInit, OnDestroy {
     const frenchStatus = this.mapStatusToFrench(status);
     switch (frenchStatus) {
       case 'En attente':
-        return 'bg-gray-100 text-black-800 border-amber-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Validée':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'Rejetée':
         return 'bg-red-100 text-red-800 border-red-200';
-      case 'En cours':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'En livraison':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Livrée':
         return 'bg-indigo-100 text-indigo-800 border-indigo-200';
       default:
@@ -310,18 +315,28 @@ export class CommandesComponent implements OnInit, OnDestroy {
       this.error = 'Commande non valide';
       return;
     }
-    this.selectedCommande = { 
-      ...commande, 
-      items: commande.items || [],
-      isStatic: commande.isStatic || false
-    };
-    this.showModal = true;
     
-    setTimeout(() => {
-      if (this.modalContent) {
-        this.modalContent.nativeElement.focus();
+    // Charger les détails complets de la commande
+    this.commandeService.getOrderById(commande.id).subscribe({
+      next: (fullOrder) => {
+        this.selectedCommande = { 
+          ...fullOrder, 
+          items: fullOrder.items || [],
+          isStatic: false
+        };
+        this.showModal = true;
+        
+        setTimeout(() => {
+          if (this.modalContent) {
+            this.modalContent.nativeElement.focus();
+          }
+        }, 0);
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des détails:', err);
+        this.error = 'Erreur lors du chargement des détails de la commande';
       }
-    }, 0);
+    });
   }
 
   /**
@@ -330,6 +345,133 @@ export class CommandesComponent implements OnInit, OnDestroy {
   closeModal() {
     this.showModal = false;
     this.selectedCommande = null;
+  }
+
+  /**
+   * Vérifie si la commande est en attente
+   */
+  isPendingOrder(): boolean {
+    return this.selectedCommande?.status === 'PENDING';
+  }
+
+  /**
+   * Ouvre le modal de confirmation pour valider
+   */
+  openValidateConfirm() {
+    this.confirmModalAction = 'validate';
+    this.showConfirmModal = true;
+  }
+
+  /**
+   * Ouvre le modal de confirmation pour rejeter
+   */
+  openRejectConfirm() {
+    this.confirmModalAction = 'reject';
+    this.showConfirmModal = true;
+  }
+
+  /**
+   * Ouvre le modal de confirmation pour supprimer
+   */
+  openDeleteConfirm(commande: ExtendedOrder) {
+    this.selectedCommande = commande;
+    this.confirmModalAction = 'delete';
+    this.showConfirmModal = true;
+  }
+
+  /**
+   * Annule l'action de confirmation
+   */
+  cancelConfirmAction() {
+    this.showConfirmModal = false;
+    this.confirmModalAction = null;
+  }
+
+  /**
+   * Confirme l'action sélectionnée
+   */
+  confirmAction() {
+    if (!this.selectedCommande || !this.confirmModalAction) return;
+
+    switch (this.confirmModalAction) {
+      case 'validate':
+        this.validateOrder();
+        break;
+      case 'reject':
+        this.rejectOrder();
+        break;
+      case 'delete':
+        this.deleteOrder();
+        break;
+    }
+  }
+
+  /**
+   * Valide une commande
+   */
+  private validateOrder() {
+    if (!this.selectedCommande) return;
+
+    this.isProcessing = true;
+    this.commandeService.updateStatusOrder(this.selectedCommande.id, 'DELIVERED').subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.showModal = false;
+        this.confirmModalAction = null;
+        this.isProcessing = false;
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Erreur lors de la validation:', err);
+        this.error = 'Erreur lors de la validation de la commande';
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  /**
+   * Rejette une commande
+   */
+  private rejectOrder() {
+    if (!this.selectedCommande) return;
+
+    this.isProcessing = true;
+    this.commandeService.updateStatusOrder(this.selectedCommande.id, 'REJECTED').subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.showModal = false;
+        this.confirmModalAction = null;
+        this.isProcessing = false;
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Erreur lors du rejet:', err);
+        this.error = 'Erreur lors du rejet de la commande';
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  /**
+   * Supprime une commande
+   */
+  private deleteOrder() {
+    if (!this.selectedCommande) return;
+
+    this.isProcessing = true;
+    this.commandeService.deleteCommande(this.selectedCommande.id).subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.confirmModalAction = null;
+        this.isProcessing = false;
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Erreur lors de la suppression:', err);
+        this.error = 'Erreur lors de la suppression de la commande';
+        this.isProcessing = false;
+      }
+    });
   }
 
   /**
@@ -374,19 +516,41 @@ export class CommandesComponent implements OnInit, OnDestroy {
     return this.authService.getUserDisplayName() || 'Utilisateur inconnu';
   }
 
-  /**
-   * Debug - Affiche les informations utilisateur
-   */
-  debugUserInfo(): void {
-    console.log('Current User:', this.authService.currentUser());
-    console.log('Supplier ID:', this.supplierId);
-    console.log('Is Supplier User:', this.isSupplierUser());
-  }
+  
 
   /**
    * Rafraîchit les données
    */
   refreshData() {
     this.loadCommandes(this.currentPage);
+  }
+
+  /**
+   * Obtient le texte du modal de confirmation
+   */
+  getConfirmModalText(): { title: string; message: string } {
+    if (!this.confirmModalAction || !this.selectedCommande) {
+      return { title: '', message: '' };
+    }
+
+    switch (this.confirmModalAction) {
+      case 'validate':
+        return {
+          title: 'Valider la commande ?',
+          message: `Cette commande passera au statut <strong>Validée</strong>.`
+        };
+      case 'reject':
+        return {
+          title: 'Rejeter la commande ?',
+          message: `Cette commande passera au statut <strong>Rejetée</strong>.`
+        };
+      case 'delete':
+        return {
+          title: 'Supprimer la commande ?',
+          message: `Êtes-vous sûr de vouloir supprimer la commande <strong>CMD-${this.selectedCommande.id}</strong> ? Cette action est irréversible.`
+        };
+      default:
+        return { title: '', message: '' };
+    }
   }
 }

@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
 import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
+import { CommandeService } from '../../../../../services/commande.service';
 
 
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
@@ -266,6 +267,19 @@ evolutionData: EvolutionData[] = [];
 consommationChart: Chart | null = null;
 evolutionChart: Chart | null = null;
 
+// Modals de confirmation
+showDeleteModal: boolean = false;
+showDeleteOrderModal: boolean = false;
+materialToDelete: Material | null = null;
+orderToDelete: Order | null = null;
+showSuccessModal: boolean = false;
+showErrorModal: boolean = false;
+successMessage: string = '';
+errorMessage: string = '';
+
+// Pour les livraisons
+deliveryPageSize: number = 10;
+orderPageSize: number = 10;
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
@@ -275,6 +289,7 @@ evolutionChart: Chart | null = null;
     private route: ActivatedRoute,
     private statistiqueService: StatistiqueService, 
     private userService: UserService,
+    private commandeService:CommandeService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -423,7 +438,8 @@ this.orderForm = this.fb.group({
       'DELIVERY': 'Livré',
       'DELIVERED': 'Livré',
       'CANCELLED': 'Annulé',
-      'PENDING': 'En attente'
+      'PENDING': 'En attente',
+      'APPROVED': 'Approuvée'
     };
     return texts[status as keyof typeof texts] || status;
   }
@@ -447,84 +463,116 @@ this.orderForm = this.fb.group({
     const maxPages = 5;
     let startPage = Math.max(0, this.deliveryCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalDeliveryPages - 1, startPage + maxPages - 1);
+    
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
+    
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
-
-  loadStock(): void {
-    this.loading = true;
-    if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
-      this.showErrorMessage('ID de propriété invalide');
-      this.loading = false;
-      return;
-    }
-
-    console.log(`Chargement du stock pour la propriété ${this.propertyId}`);
-    this.materialsService.getStock(this.propertyId, 0, 100) // Charger plus d'éléments pour le filtrage côté client
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: MaterialsResponse) => {
-          console.log('Réponse reçue:', response);
-          this.data = response;
-          this.materials = response.content || [];
-          this.totalElements = response.totalElements || 0;
-          this.totalPages = response.totalPages || 0;
-
-          // Initialiser les matériaux filtrés
-          this.filteredMaterials = [...this.materials];
-          this.updatePaginatedMaterials();
-          this.generateStockAlerts();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Erreur complète lors du chargement du stock:', error);
-          this.loading = false;
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions pour cette propriété');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            this.showErrorMessage('Propriété non trouvée');
-          } else {
-            this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
-          }
-        }
-      });
+// ===== MODIFIER loadStock() pour utiliser materialCurrentPage =====
+loadStock(): void {
+  this.loading = true;
+  if (!this.propertyId || this.propertyId <= 0) {
+    console.error('ID de propriété invalide:', this.propertyId);
+    this.showErrorMessage('ID de propriété invalide');
+    this.loading = false;
+    return;
   }
 
-  loadOrders(): void {
-    this.loading = true;
-    this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.itemsPerPage)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.orders = response.content || [];
-          this.totalOrderElements = response.totalElements || 0;
-          this.totalOrderPages = response.totalPages || 0;
-          this.paginatedOrders = this.orders;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des commandes:', error);
-          this.loading = false;
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            this.showErrorMessage('Aucune commande trouvée');
-          } else {
-            this.showErrorMessage('Erreur lors du chargement des commandes');
-          }
-        }
-      });
+  // ✅ UTILISER materialCurrentPage et materialPageSize
+  this.materialsService.getStock(this.propertyId, this.materialCurrentPage, this.materialPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: MaterialsResponse) => {
+        console.log('Réponse reçue:', response);
+        this.data = response;
+        this.materials = response.content || [];
+        this.totalMaterialElements = response.totalElements || 0;
+        this.totalMaterialPages = response.totalPages || 0;
+        
+        // Plus besoin de filtrage côté client pour la pagination
+        this.paginatedMaterials = [...this.materials];
+        this.generateStockAlerts();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du stock:', error);
+        this.loading = false;
+        this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
+      }
+    });
+}
+
+
+// ===== MODIFIER loadOrders() pour utiliser orderPageSize =====
+loadOrders(): void {
+  this.loading = true;
+  this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.orderPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response) => {
+        this.orders = response.content || [];
+        this.totalOrderElements = response.totalElements || 0;
+        this.totalOrderPages = response.totalPages || 0;
+        this.paginatedOrders = this.orders;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des commandes:', error);
+        this.loading = false;
+        this.showErrorMessage('Erreur lors du chargement des commandes');
+      }
+    });
+}
+
+// ===== MODIFIER loadDeliveries() pour utiliser deliveryPageSize =====
+loadDeliveries(): void {
+  this.loading = true;
+
+  if (!this.propertyId || this.propertyId <= 0) {
+    console.error('ID de propriété invalide:', this.propertyId);
+    this.showErrorMessage('ID de propriété invalide');
+    this.loading = false;
+    return;
   }
+
+  this.materialsService.getLivraison(this.propertyId, this.deliveryCurrentPage, this.deliveryPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: any) => {
+        console.log('Livraisons reçues:', response);
+
+        if (response && Array.isArray(response.content)) {
+          this.deliveries = response.content.map((delivery: any) => ({
+            ...delivery,
+            date: delivery.orderDate,
+            formattedDate: this.formatDeliveryDate(delivery.orderDate),
+          }));
+
+          this.totalDeliveryElements = response.totalElements || 0;
+          this.totalDeliveryPages = response.totalPages || 0;
+          this.paginatedDeliveries = [...this.deliveries];
+        } else {
+          console.warn('Structure de réponse inattendue:', response);
+          this.deliveries = [];
+          this.paginatedDeliveries = [];
+        }
+
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement des livraisons:', error);
+        this.loading = false;
+        this.deliveries = [];
+        this.paginatedDeliveries = [];
+        this.showErrorMessage('Erreur lors du chargement des livraisons');
+      }
+    });
+}
   formatRecentMovementDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return '';
     
@@ -1087,7 +1135,14 @@ closeOrderModal(): void {
   previousMaterialPage(): void {
     if (this.materialCurrentPage > 0) {
       this.materialCurrentPage--;
-      this.updatePaginatedMaterials();
+      this.loadStock();
+    }
+  }
+  
+  nextMaterialPage(): void {
+    if (this.materialCurrentPage < this.totalMaterialPages - 1) {
+      this.materialCurrentPage++;
+      this.loadStock();
     }
   }
   openMovementModal(material: Material): void {
@@ -1172,7 +1227,7 @@ closeOrderModal(): void {
     const [_, __, ___, hours, minutes] = dateArray;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
-// Confirmation de suppression de commande
+// ===== SUPPRESSION COMMANDE =====
 confirmDeleteOrder(order: Order): void {
   if (!order) return;
   
@@ -1181,30 +1236,40 @@ confirmDeleteOrder(order: Order): void {
     return;
   }
   
-  const confirmMessage = `Êtes-vous sûr de vouloir supprimer la commande CMD-${order.id.toString().padStart(4, '0')} ?`;
-  
-  // if (confirm(confirmMessage)) {
-  //   this.deleteOrderConfirmed(order);
-  // }
+  this.orderToDelete = order;
+  this.showDeleteOrderModal = true;
 }
-// deleteOrderConfirmed(order: Order): void {
-//   this.loading = true;
+
+cancelDeleteOrder(): void {
+  this.showDeleteOrderModal = false;
+  this.orderToDelete = null;
+}
+
+deleteOrderConfirmed(): void {
+  if (!this.orderToDelete) return;
   
-//   this.materialsService.deleteCommand(order.id)
-//     .pipe(takeUntil(this.destroy$))
-//     .subscribe({
-//       next: () => {
-//         this.loading = false;
-//         this.showSuccessMessage('Commande supprimée avec succès');
-//         this.loadOrders();
-//       },
-//       error: (error) => {
-//         this.loading = false;
-//         console.error('Erreur lors de la suppression:', error);
-//         this.showErrorMessage('Erreur lors de la suppression de la commande');
-//       }
-//     });
-// }
+  this.loading = true;
+  
+  this.commandeService.deleteCommande(this.orderToDelete.id)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.loading = false;
+        this.showDeleteOrderModal = false;
+        this.orderToDelete = null;
+        
+        this.showSuccessMessage('Commande supprimée avec succès');
+        this.loadOrders();
+      },
+      error: (error) => {
+        this.loading = false;
+        this.showDeleteOrderModal = false;
+        this.orderToDelete = null;
+        
+        this.showErrorMessage('Erreur lors de la suppression de la commande');
+      }
+    });
+}
 
   onCreateMovement(): void {
     if (this.movementForm.valid && this.selectedMaterial && !this.loading) {
@@ -1388,39 +1453,53 @@ confirmDeleteOrder(order: Order): void {
       console.log('Supprimer', material);
     }
   }
-  nextMaterialPage(): void {
-    if (this.materialCurrentPage < this.totalMaterialPages - 1) {
-      this.materialCurrentPage++;
-      this.updatePaginatedMaterials();
+ 
+  goToMaterialPage(page: number): void {
+    if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
+      this.materialCurrentPage = page;
+      this.loadStock();
     }
   }
+  
   getMaterialPageNumbers(): number[] {
     const pages: number[] = [];
-    const maxPages = 3; // Moins de pages visibles car plus petite pagination
+    const maxPages = 5;
     let startPage = Math.max(0, this.materialCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalMaterialPages - 1, startPage + maxPages - 1);
-
+    
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-
+    
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
-  goToMaterialPage(page: number): void {
-    if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
-      this.materialCurrentPage = page;
-      this.updatePaginatedMaterials();
-    }
-  }
-  showSuccessMessage(message: string): void {
-    console.log('✅', message);
-  }
 
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.showSuccessModal = true;
+    
+    // Auto-fermeture après 3 secondes
+    setTimeout(() => {
+      this.closeSuccessModal();
+    }, 3000);
+  }
+  
   showErrorMessage(message: string): void {
-    console.error('❌', message);
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+  
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
+    this.successMessage = '';
+  }
+  
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.errorMessage = '';
   }
 
   get displayCurrentPage(): number {
@@ -1483,6 +1562,7 @@ confirmDeleteOrder(order: Order): void {
       'DELIVERY': 'Livrée',
       'DELIVERED': 'Livrée',
       'CANCELLED': 'Annulée',
+      'APPROVED': 'Approuvée',
       'PARTIALLY_DELIVERED': 'Partiellement livrée'
     };
     return texts[status as keyof typeof texts] || status;
@@ -1710,86 +1790,32 @@ confirmDeleteOrder(order: Order): void {
     }
   }
 
-  // Modifier la méthode loadDeliveries existante pour intégrer le filtrage
-  loadDeliveries(): void {
-    this.loading = true;
 
-    if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
-      this.showErrorMessage('ID de propriété invalide');
-      this.loading = false;
-      return;
-    }
-
-    console.log(`Chargement des livraisons pour la propriété ${this.propertyId}, page ${this.deliveryCurrentPage}`);
-
-    this.materialsService.getLivraison(this.propertyId, 0, 10) // Charger toutes les livraisons pour le filtrage côté client
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          console.log('Livraisons reçues:', response);
-
-          if (response && Array.isArray(response.content)) {
-            this.deliveries = response.content.map((delivery: any) => ({
-              ...delivery,
-              date: delivery.orderDate, // Garder les données brutes
-              formattedDate: this.formatDeliveryDate(delivery.orderDate), // Ajouter une version formatée
-            }));
-
-            // Initialiser les livraisons filtrées
-            this.filteredDeliveries = [...this.deliveries];
-            this.updatePaginatedDeliveries();
-          } else {
-            console.warn('Structure de réponse inattendue:', response);
-            this.deliveries = [];
-            this.filteredDeliveries = [];
-            this.paginatedDeliveries = [];
-          }
-
-          this.loading = false;
-        },
-        error: (error: any) => {
-          console.error('Erreur lors du chargement des livraisons:', error);
-          this.loading = false;
-          this.deliveries = [];
-          this.filteredDeliveries = [];
-          this.paginatedDeliveries = [];
-
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            console.log('Aucune livraison trouvée pour cette propriété');
-            this.showErrorMessage('Aucune livraison trouvée');
-          } else {
-            this.showErrorMessage('Erreur lors du chargement des livraisons');
-          }
-        }
-      });
-  }
 
   // Modifier les méthodes de pagination existantes
-  previousDeliveryPage(): void {
-    if (this.deliveryCurrentPage > 0) {
-      this.deliveryCurrentPage--;
-      this.updatePaginatedDeliveries();
-    }
+ // ===== MÉTHODES DE NAVIGATION LIVRAISONS =====
+previousDeliveryPage(): void {
+  if (this.deliveryCurrentPage > 0) {
+    this.deliveryCurrentPage--;
+    this.loadDeliveries();
   }
+}
 
-  nextDeliveryPage(): void {
-    if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
-      this.deliveryCurrentPage++;
-      this.updatePaginatedDeliveries();
-    }
+nextDeliveryPage(): void {
+  if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
+    this.deliveryCurrentPage++;
+    this.loadDeliveries();
   }
+}
 
-  goToDeliveryPage(page: number): void {
-    if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
-      this.deliveryCurrentPage = page;
-      this.updatePaginatedDeliveries();
-    }
+goToDeliveryPage(page: number): void {
+  if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
+    this.deliveryCurrentPage = page;
+    this.loadDeliveries();
   }
+}
+
+
   private normalizeDeliveryStatus(displayStatus: string): string[] {
     const statusMapping: { [key: string]: string[] } = {
       'livré': ['DELIVERY', 'DELIVERED'],
@@ -1801,44 +1827,51 @@ confirmDeleteOrder(order: Order): void {
     return statusMapping[displayStatus.toLowerCase()] || [];
   }
 
-  confirmDeleteMaterial(material: Material): void {
-    if (!material) return;
-    
-    const confirmMessage = `Êtes-vous sûr de vouloir supprimer "${material.label}" ?
-    
-  Cette action est irréversible et supprimera également l'historique des mouvements associés.`;
-    
-    if (confirm(confirmMessage)) {
-      this.deleteMaterialConfirmed(material);
-    }
-  }
 
-  deleteMaterialConfirmed(material: Material): void {
-    this.loading = true;
-    
-    this.materialsService.deleteMaterial(material.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.loading = false;
-          this.showSuccessMessage(`${material.label} a été supprimé avec succès`);
-          this.loadStock(); // Recharger la liste
-          this.loadStockMovements(); // Recharger les mouvements
-        },
-        error: (error: { status: number; }) => {
-          this.loading = false;
-          console.error('Erreur lors de la suppression:', error);
-          
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
-          } else if (error.status === 409) {
-            this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes ou mouvements');
-          } else {
-            this.showErrorMessage('Erreur lors de la suppression du matériel');
-          }
+// ===== SUPPRESSION MATÉRIEL =====
+confirmDeleteMaterial(material: Material): void {
+  this.materialToDelete = material;
+  this.showDeleteModal = true;
+}
+
+cancelDeleteMaterial(): void {
+  this.showDeleteModal = false;
+  this.materialToDelete = null;
+}
+
+deleteMaterialConfirmed(): void {
+  if (!this.materialToDelete) return;
+  
+  this.loading = true;
+  
+  this.materialsService.deleteMaterial(this.materialToDelete.id)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.loading = false;
+        this.showDeleteModal = false;
+        const materialName = this.materialToDelete?.label || '';
+        this.materialToDelete = null;
+        
+        this.showSuccessMessage(`${materialName} a été supprimé avec succès`);
+        this.loadStock();
+        this.loadStockMovements();
+      },
+      error: (error: { status: number; }) => {
+        this.loading = false;
+        this.showDeleteModal = false;
+        this.materialToDelete = null;
+        
+        if (error.status === 403) {
+          this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
+        } else if (error.status === 409) {
+          this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes');
+        } else {
+          this.showErrorMessage('Erreur lors de la suppression du matériel');
         }
-      });
-  }
+      }
+    });
+}
 
 //ABOUBACAR SOW
 
@@ -2058,8 +2091,6 @@ initEvolutionChart() {
     }
   });
 }
-
-
 
 
 }

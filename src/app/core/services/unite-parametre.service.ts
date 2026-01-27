@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { catchError, tap, shareReplay, map } from 'rxjs/operators';
-import { UnitParameter,PaginatedResponse,PaginationParams } from '../../models/unit-parameter';
+import { UnitParameter, PaginatedResponse, PaginationParams } from '../../models/unit-parameter';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -29,7 +29,7 @@ export class UnitParameterService {
 
   // ========== MÉTHODES GÉNÉRIQUES ==========
   
-  getAll1(): Observable<UnitParameter[]> {
+  getAll(): Observable<UnitParameter[]> {
     const cacheKey = 'all-parameters';
     const cached = this.getCachedData(cacheKey);
     
@@ -42,21 +42,6 @@ export class UnitParameterService {
       catchError(this.handleError),
       shareReplay(1)
     );
-  }
-   // ⚠️ NOUVELLE MÉTHODE: Récupérer TOUTES les unités sans pagination
-   getAll(): Observable<UnitParameter[]> {
-    return this.http.get<UnitParameter[]>(
-      `${this.baseUrl}?page=0&size=1000` // Grande taille pour tout récupérer
-    ).pipe(
-      tap(response => console.log('Unités chargées:', response)),
-      catchError(error => {
-        console.error('Erreur lors du chargement des unités:', error);
-        throw error;
-      })
-    ).pipe(
-      // Extraire seulement le contenu
-      tap(response => response)
-    ) as Observable<UnitParameter[]>;
   }
 
   getByTypePaginated(
@@ -92,8 +77,9 @@ export class UnitParameterService {
     );
   }
 
-  update(id: string, parameter: Partial<UnitParameter>): Observable<UnitParameter> {
-    return this.http.put<UnitParameter>(`${this.baseUrl}/${id}`, parameter).pipe(
+  // ✅ CORRECTION: L'endpoint retourne void
+  update(id: string, parameter: Partial<UnitParameter>): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}`, parameter).pipe(
       tap(() => this.invalidateCache()),
       catchError(this.handleError)
     );
@@ -118,11 +104,12 @@ export class UnitParameterService {
   addUnit(unit: Omit<UnitParameter, 'id' | 'type'>): Observable<UnitParameter> {
     const unitToCreate: UnitParameter = { ...unit, type: 'UNIT' };
     return this.create(unitToCreate).pipe(
-      tap(newUnit => this.refreshUnitsAfterModification())
+      tap(() => this.refreshUnitsAfterModification())
     );
   }
 
-  updateUnit(id: string, unit: Partial<UnitParameter>): Observable<UnitParameter> {
+  // ✅ CORRECTION: Retourne void
+  updateUnit(id: string, unit: Partial<UnitParameter>): Observable<void> {
     return this.update(id, unit).pipe(
       tap(() => this.refreshUnitsAfterModification())
     );
@@ -157,7 +144,8 @@ export class UnitParameterService {
     );
   }
 
-  updateDocument(id: string, document: Partial<UnitParameter>): Observable<UnitParameter> {
+  // ✅ CORRECTION: Retourne void
+  updateDocument(id: string, document: Partial<UnitParameter>): Observable<void> {
     return this.update(id, document).pipe(
       tap(() => this.refreshDocumentsAfterModification())
     );
@@ -192,7 +180,8 @@ export class UnitParameterService {
     );
   }
 
-  updateMaterialCategory(id: string, category: Partial<UnitParameter>): Observable<UnitParameter> {
+  // ✅ CORRECTION: Retourne void
+  updateMaterialCategory(id: string, category: Partial<UnitParameter>): Observable<void> {
     return this.update(id, category).pipe(
       tap(() => this.refreshMaterialCategoriesAfterModification())
     );
@@ -213,7 +202,11 @@ export class UnitParameterService {
 
   // ========== MÉTHODES UTILITAIRES ==========
   
-  searchByType(type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY', searchTerm: string, params: PaginationParams = { page: 0, size: 10 }): Observable<PaginatedResponse<UnitParameter>> {
+  searchByType(
+    type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY', 
+    searchTerm: string, 
+    params: PaginationParams = { page: 0, size: 10 }
+  ): Observable<PaginatedResponse<UnitParameter>> {
     const httpParams = new HttpParams()
       .set('type', type)
       .set('search', searchTerm)
@@ -225,7 +218,6 @@ export class UnitParameterService {
     );
   }
 
-  // Méthode pour obtenir tous les éléments d'un type (sans pagination)
   getAllByType(type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY'): Observable<UnitParameter[]> {
     const cacheKey = `all-${type}`;
     const cached = this.getCachedData(cacheKey);
@@ -261,6 +253,8 @@ export class UnitParameterService {
     const current = this.unitsSubject.value;
     if (current) {
       this.getUnits({ page: current.number, size: current.size });
+    } else {
+      this.getUnits({ page: 0, size: 10 });
     }
   }
 
