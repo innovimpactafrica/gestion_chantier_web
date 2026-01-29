@@ -1,0 +1,31 @@
+/* Animation pour la notification */
+@keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  /* Animation de sortie (optionnelle) */
+  @keyframes slideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+  
+  .animate-slideOut {
+    animation: slideOut 0.3s ease-in forwards;
+  }

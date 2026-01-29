@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { Projet } from '../../../../models/projet';
 import { CommonModule } from '@angular/common';
 import { StatusReportComponent } from '../status-report/status-report.component';
@@ -8,7 +8,7 @@ import { RealEstateProject, RealestateService } from '../../../../core/services/
 import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
 import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service';
 import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-project-presentation',
@@ -18,6 +18,7 @@ import { of } from 'rxjs';
   styleUrl: './project-presentation.component.css'
 })
 export class ProjectPresentationComponent implements OnInit {
+  private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
   private realEstateService = inject(RealestateService);
   private dashboardService = inject(DashboardService);
@@ -57,7 +58,17 @@ private statutMapReverse: { [key: string]: string } = {
   'COMPLETED': 'Terminé',
   'PLANNED': 'Planifié'
 };
+// === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
+// ✅ SOLUTION
+@ViewChild(StatusReportComponent) statusReportComponent?: StatusReportComponent;
 
+triggerAddAlbum(): void {
+  if (this.statusReportComponent) {
+    this.statusReportComponent.onAddClick();
+  } else {
+    console.warn('StatusReportComponent pas encore initialisé');
+  }
+}
 /**
  * Change le statut du projet
  * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
@@ -145,6 +156,10 @@ isStatutSelected(statut: string): boolean {
       this.loadProgression();
       this.loadBudget(projectId);
     }
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private phaseDisplayNames: { [key: string]: string } = {

@@ -173,7 +173,7 @@
             [(ngModel)]="newEtude.betId"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="0">Sélectionner un BET</option>
-            <option *ngFor="let bet of availableBETs" [value]="bet.id">{{ bet.name }}</option>
+            <option *ngFor="let bet of availableBETs" [value]="bet.id">{{ bet.nom }}</option>
           </select>
         </div>
 
@@ -237,11 +237,16 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Sélection BET</label>
           <select 
-            [(ngModel)]="editEtude.betId"
+            [(ngModel)]="newEtude.betId"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="0">Sélectionner un BET</option>
-            <option *ngFor="let bet of availableBETs" [value]="bet.id">{{ bet.name }}</option>
+            <option *ngFor="let bet of availableBETs" [value]="bet.id">
+              {{ bet.prenom }} {{ bet.nom }} ({{ bet.email }})
+            </option>
           </select>
+          <div *ngIf="loadingBETs" class="text-sm text-gray-500 mt-1">
+            Chargement des BETs...
+          </div>
         </div>
 
         <div>
@@ -286,144 +291,175 @@
   </div>
 </div>
 
+
 <!-- Detail Modal -->
 <div *ngIf="showDetailModal && selectedEtude" class="fixed inset-0 z-50 overflow-y-auto">
   <div class="flex items-center justify-center min-h-screen px-4">
-    <div class="fixed inset-0 bg-black opacity-50" (click)="closeAllModals()"></div>
-    <div class="bg-white rounded-lg p-8 max-w-4xl w-full relative z-10 max-h-screen overflow-y-auto">
-      <!-- Header -->
-      <div class="flex justify-between items-start mb-6">
-        <div>
-          <h2 class="text-xl font-semibold mb-2">{{ selectedEtude.titre }}</h2>
-          <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(selectedEtude.statut)">
-            {{ selectedEtude.statut }}
-          </span>
-        </div>
-        <button (click)="closeAllModals()" class="text-gray-400 hover:text-gray-600">
+    <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeAllModals()"></div>
+    
+    <!-- Modal Container - 1100px width -->
+    <div class="bg-white rounded-2xl w-full relative z-10 max-h-[90vh] overflow-y-auto" style="max-width: 1100px;">
+      
+      <!-- Header - 74px height -->
+      <div class="flex justify-between items-center px-8 py-6 border-b" style="border-color: #F7FAFC; height: 74px;">
+        <h2 class="text-xl font-semibold text-gray-900">{{ selectedEtude.titre }}</h2>
+        <button (click)="closeAllModals()" class="text-gray-400 hover:text-gray-600 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
 
-      <!-- Progress Bar -->
-      <div class="mb-8">
+      <!-- Progress Bar Section - 98px height -->
+      <div class="px-8 py-5 border-b" style="border-color: #F7FAFC; height: 98px;">
         <div class="flex items-center justify-between relative">
-          <div 
-            *ngFor="let step of getProgressSteps(selectedEtude.statut); let i = index" 
-            class="flex items-center relative">
-            
+          <ng-container *ngFor="let step of getProgressSteps(selectedEtude.statut); let i = index; let last = last">
             <!-- Circle -->
             <div 
-              [class]="'w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold z-10 ' + 
-                      (step.isCompleted ? 'bg-green-500' : step.isCurrent ? 'text-white' : 'bg-gray-300')"
-              [style.background-color]="step.isCurrent ? '#FF5C01' : ''">
-              <svg *ngIf="step.isCompleted" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              [class]="'w-10 h-10 rounded-full flex items-center justify-center font-semibold z-10 transition-all duration-300 ' + 
+                      (step.showCheck ? 'text-white' : 
+                       step.isCurrent ? 'border-2 text-xs bg-white' : 
+                       'border-2 text-xs bg-white')"
+              [style.background-color]="step.showCheck ? '#FF5C02' : ''"
+              [style.border-color]="step.isCurrent ? '#FF5C02' : '#E2E8F0'"
+              [style.color]="step.isCurrent && !step.showCheck ? '#FF5C02' : (step.showCheck ? 'white' : '#CBD5E0')">
+              <svg *ngIf="step.showCheck" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9.07825 15.642L18.7202 6L20.0005 7.28025L9.07825 18.2025L4 13.1257L5.28025 11.8455L9.07825 15.642Z"/>
               </svg>
-              <span *ngIf="!step.isCompleted">{{ step.step }}</span>
+              <span *ngIf="!step.showCheck">{{ step.step }}</span>
             </div>
             
-            <!-- Line -->
-            <div *ngIf="i < getProgressSteps(selectedEtude.statut).length - 1" 
-                 [class]="'h-1 w-32 ml-2 ' + (step.isCompleted ? 'bg-green-500' : 'bg-gray-300')">
+            <!-- Line - 254.67px width -->
+            <div *ngIf="!last" 
+                 class="h-0.5 transition-all duration-300"
+                 [style.width.px]="254.67"
+                 [style.background-color]="step.isCompleted ? '#FF5C02' : '#E2E8F0'">
             </div>
-          </div>
+          </ng-container>
         </div>
         
-        <div class="flex justify-between text-xs text-gray-600 mt-2">
-          <span *ngFor="let step of getProgressSteps(selectedEtude.statut)" class="w-24 text-center">{{ step.label }}</span>
+        <!-- Labels -->
+        <div class="flex justify-between mt-3">
+          <div *ngFor="let step of getProgressSteps(selectedEtude.statut)" 
+               class="text-center"
+               style="width: 25%;">
+            <span 
+              class="text-xs font-semibold"
+              [style.color]="step.isCurrent ? '#FF5C02' : (step.isCompleted ? '#1A202C' : '#A0AEC0')">
+              {{ step.label }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Information -->
-        <div>
-          <h3 class="text-lg font-semibold mb-4">Informations</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Titre</span>
-              <span class="font-medium">{{ selectedEtude.titre }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">BET concerné</span>
-              <span class="font-medium">{{ selectedEtude.nomBET }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Date de création</span>
-              <span class="font-medium">{{ selectedEtude.dateCreation }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">État</span>
-              <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(selectedEtude.statut)">
-                {{ selectedEtude.statut }}
-              </span>
-            </div>
-          </div>
-
-          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p class="text-sm text-gray-700">{{ selectedEtude.description }}</p>
-          </div>
-
-          <!-- Reports -->
-          <div class="mt-8">
-            <h4 class="text-md font-semibold mb-4">Rapports associés</h4>
-            <div *ngIf="selectedEtude?.rapports && selectedEtude.rapports!.length > 0" class="space-y-3">
-              <div 
-                *ngFor="let rapport of selectedEtude?.rapports" 
-                class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-red-100 rounded flex items-center justify-center">
-                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-medium text-sm">{{ rapport.nom }}</p>
-                    <p class="text-xs text-gray-500">Soumis le {{ rapport.dateSubmission }} • {{ rapport.taille }}</p>
-                  </div>
+      <!-- Content Section -->
+      <div class="p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          
+          <!-- Left Column - Information & Reports -->
+          <div class="space-y-5">
+            
+            <!-- Card Informations - 278px height with border -->
+            <div class="border rounded-lg p-5" style="border-color: #EAEFF6;">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Titre</span>
+                  <span class="text-sm font-medium text-gray-900">{{ selectedEtude.titre }}</span>
                 </div>
-                <button 
-                  (click)="downloadReport(rapport)"
-                  class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                  Télécharger
-                </button>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">BET concerné</span>
+                  <span class="text-sm font-medium text-gray-900">{{ selectedEtude.nomBET }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Date de création</span>
+                  <span class="text-sm font-medium text-gray-900">{{ selectedEtude.dateCreation }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">État</span>
+                  <span [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(selectedEtude.statut)">
+                    {{ selectedEtude.statut }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-700 leading-relaxed">{{ selectedEtude.description }}</p>
               </div>
             </div>
-            <div *ngIf="!selectedEtude?.rapports || selectedEtude?.rapports!.length === 0" 
-                 class="text-center py-4 text-gray-500 italic text-sm">
-              Aucun rapport
-            </div>
-          </div>
-        </div>
 
-        <!-- Comments -->
-        <div>
-          <h3 class="text-lg font-semibold mb-4">Commentaires</h3>
-          
-          <!-- Liste des commentaires -->
-          <div *ngIf="comments.length > 0; else noComments" class="space-y-4 mb-4 max-h-96 overflow-y-auto">
-            <div *ngFor="let comment of comments" class="bg-gray-50 p-4 rounded-lg">
-              <div class="flex justify-between items-start mb-2">
-                <span class="font-semibold text-gray-800">{{ comment.authorName }}</span>
-                <span class="text-sm text-gray-500">{{ formatCommentDate(comment.createdAt) }}</span>
+            <!-- Card Rapports associés -->
+            <div class="border rounded-lg p-5" style="border-color: #EAEFF6;">
+              <h4 class="text-md font-semibold text-gray-900 mb-4">Rapports associés</h4>
+              <button 
+              *ngIf="selectedEtude.statut === 'En attente'"
+              (click)="openCreateReportModal()"
+              class="p-1.5 text-orange-500 hover:bg-orange-50 rounded-md transition-colors group"
+              title="Ajouter un rapport">
+              <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+            </button>
+              
+              <div *ngIf="selectedEtude.rapports && selectedEtude.rapports!.length > 0" class="space-y-3">
+                <div 
+                  *ngFor="let rapport of selectedEtude.rapports" 
+                  class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-sm text-gray-900">{{ rapport.nom }}</p>
+                      <p class="text-xs text-gray-500">Soumis le {{ rapport.dateSubmission }} • {{ rapport.taille }}</p>
+                    </div>
+                  </div>
+                  <button 
+                    (click)="downloadReport(rapport)"
+                    class="text-blue-600 hover:text-blue-800 transition-colors"
+                    title="Télécharger">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <p class="text-gray-700">{{ comment.content }}</p>
+              
+              <div *ngIf="!selectedEtude.rapports || selectedEtude.rapports!.length === 0" 
+                   class="text-center py-8 text-gray-500 italic text-sm">
+                Aucun rapport
+              </div>
             </div>
           </div>
 
-          <ng-template #noComments>
-            <div class="text-center py-8 text-gray-500 italic">
-              Aucun commentaire
+          <!-- Right Column - Comments -->
+          <div class="flex flex-col h-full">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Commentaires</h3>
+            
+            <!-- Liste des commentaires avec scroll -->
+            <div class="flex-1 mb-4 overflow-y-auto" style="max-height: 400px;">
+              <div *ngIf="comments.length > 0; else noComments" class="space-y-3">
+                <div *ngFor="let comment of comments" class="bg-gray-50 p-4 rounded-lg">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-sm text-gray-900">{{ comment.authorName }}</span>
+                    <span class="text-xs text-gray-500">{{ formatCommentDate(comment.createdAt) }}</span>
+                  </div>
+                  <p class="text-sm text-gray-700 leading-relaxed">{{ comment.content }}</p>
+                </div>
+              </div>
+
+              <ng-template #noComments>
+                <div class="text-center py-12 text-gray-500 italic text-sm">
+                  Aucun commentaire
+                </div>
+              </ng-template>
             </div>
-          </ng-template>
-          
-          <!-- Formulaire d'ajout de commentaire -->
-          <div class="mt-4">
-            <div class="flex gap-2 w-full">
+            
+            <!-- Formulaire d'ajout de commentaire - Fixed at bottom -->
+            <!-- <div class="mt-auto">
+              <div class="flex gap-2">
               <input 
                 #commentInput
                 type="text" 
@@ -437,26 +473,34 @@
                 [disabled]="!commentInput.value.trim()">
                 Envoyer
               </button>
-            </div>
+              </div>
+            </div> -->
           </div>
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex justify-between items-center mt-8 pt-6 border-t">
-        <button (click)="closeAllModals()" class="text-gray-600 hover:text-gray-800 font-medium">
+      <!-- Footer - Action Buttons -->
+      <div class="flex justify-between items-center px-8 py-5 border-t" style="border-color: #F7FAFC;">
+        <button 
+          (click)="closeAllModals()" 
+          class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
           Fermer
         </button>
         
         <div class="flex gap-3" *ngIf="canValidateOrReject(selectedEtude.statut)">
           <button 
             (click)="openValidateModal(selectedEtude)"
-            class="px-6 py-2 bg-blue-900 text-white rounded-lg font-medium hover:bg-blue-800">
+            class="px-8 rounded-lg font-medium transition-colors"
+            style="height: 47px; background-color: #1C3055; color: white;"
+            [style.hover]="'background-color: #152544'">
             Valider
           </button>
           <button 
             (click)="openRejectModal(selectedEtude)"
-            class="px-6 py-2 bg-white text-red-600 border border-red-600 rounded-lg font-medium hover:bg-red-50">
+            class="px-8 rounded-lg font-medium transition-colors"
+            style="height: 47px; border: 1px solid #F44336; color: #F44336; background-color: white;"
+            onmouseover="this.style.backgroundColor='#FFEBEE'"
+            onmouseout="this.style.backgroundColor='white'">
             Rejeter
           </button>
         </div>
@@ -536,3 +580,126 @@
     </div>
   </div>
 </div>  
+
+<!-- Modal de création de rapport -->
+<div *ngIf="showCreateReportModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeCreateReportModal()"></div>
+    
+    <div class="bg-white rounded-lg p-8 max-w-lg w-full relative z-10">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Nouveau rapport</h2>
+        <button 
+          (click)="closeCreateReportModal()"
+          [disabled]="isCreatingReport"
+          class="text-gray-400 hover:text-gray-600 transition-colors disabled:cursor-not-allowed">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="space-y-4">
+        <!-- Champ Titre -->
+        <div>
+          <label for="reportTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            Titre <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="reportTitle"
+            [(ngModel)]="newReport.title"
+            placeholder="Ex: Rapport technique"
+            [disabled]="isCreatingReport"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </div>
+
+        <!-- Champ Version -->
+        <div>
+          <label for="reportVersion" class="block text-sm font-medium text-gray-700 mb-2">
+            Version <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="reportVersion"
+            [(ngModel)]="newReport.version"
+            placeholder="Ex: 1"
+            [disabled]="isCreatingReport"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </div>
+
+        <!-- Champ Document -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Document <span class="text-red-500">*</span>
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"
+               [class.bg-gray-50]="isCreatingReport">
+            <input 
+              type="file" 
+              id="reportFileInput" 
+              (change)="onReportFileSelected($event)"
+              accept=".pdf,.doc,.docx,.xls,.xlsx"
+              [disabled]="isCreatingReport"
+              class="hidden">
+            
+            <label 
+              for="reportFileInput" 
+              [class.cursor-not-allowed]="isCreatingReport"
+              [class.opacity-50]="isCreatingReport"
+              class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-600 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              Choisir un fichier
+            </label>
+            
+            <div class="mt-2 text-sm" 
+                 [class.text-gray-500]="!hasReportFileSelected()"
+                 [class.text-gray-700]="hasReportFileSelected()">
+              {{ getReportFileName() }}
+            </div>
+            
+            <p class="mt-2 text-xs text-gray-500">
+              Formats acceptés : PDF, Word, Excel
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message d'erreur -->
+      <div *ngIf="createReportError" class="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start">
+        <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span>{{ createReportError }}</span>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="flex gap-3 mt-6">
+        <button 
+          (click)="createReport()"
+          [disabled]="isCreatingReport "
+          class="flex-1 px-4 py-2.5 text-white rounded-lg font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          style="background-color: #FF5C02;">
+          <span *ngIf="!isCreatingReport">Envoyer</span>
+          <span *ngIf="isCreatingReport" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Envoi en cours...
+          </span>
+        </button>
+        <button 
+          (click)="cancelCreateReport()"
+          [disabled]="isCreatingReport"
+          class="flex-1 px-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

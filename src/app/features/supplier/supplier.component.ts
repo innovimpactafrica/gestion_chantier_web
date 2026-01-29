@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UtilisateurService } from '../../../services/utilisateur.service';
-import { finalize } from 'rxjs';
+import { UserService, UserPageResponse, CreateUserRequest, User } from '../../../services/user.service';
 
 interface Worker {
   id: number;
@@ -12,6 +11,7 @@ interface Worker {
   position: string;
   status: string;
   selected: boolean;
+  originalUser?: User;
 }
 
 @Component({
@@ -31,7 +31,7 @@ export class SupplierComponent implements OnInit {
     date: '',
     lieunaissance: '',
     adress: '',
-    profil: 'WORKER' // Profil par défaut pour les workers
+    profil: 'SUPPLIER'
   };
 
   allWorkers: Worker[] = [];
@@ -48,97 +48,238 @@ export class SupplierComponent implements OnInit {
   showModal = false;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
-  constructor(private utilisateurService: UtilisateurService) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit() {
-    this.loadWorkers();
+    this.loadSuppliers();
   }
 
-  loadWorkers() {
+  /**
+   * Charge les fournisseurs depuis l'API
+   */
+  loadSuppliers() {
     this.isLoading = true;
-    this.utilisateurService.listUsers(this.currentPage - 1, this.itemsPerPage)
-      .pipe(
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          // Correction : utiliser directement la classe UtilisateurService
-          this.allWorkers = response.content.map(worker => 
-            UtilisateurService.workerToTeamMember(worker)
-          );
-          this.totalWorkers = response.totalElements;
-          this.totalPages = response.totalPages;
-          this.paginateData();
-        },
-        error: (err) => {
-          this.errorMessage = 'Erreur lors du chargement des workers';
-          console.error(err);
-        }
-      });
+    this.errorMessage = '';
+  
+    this.userService.getUserByProfil(
+      'SUPPLIER',
+      this.searchQuery || undefined,
+      this.currentPage - 1,
+      this.itemsPerPage
+    ).subscribe({
+      next: (response: UserPageResponse) => {
+        console.log('✅ Fournisseurs chargés:', response);
+  
+        this.allWorkers = response.content.map(user => this.userToWorker(user));
+        this.displayedWorkers = [...this.allWorkers];
+        this.totalWorkers = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.updatePaginationData();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+        this.errorMessage = error.userMessage || 'Erreur lors du chargement des fournisseurs';
+        this.isLoading = false;
+      }
+    });
   }
 
+  /**
+   * Convertit un User en Worker
+   */
+  private userToWorker(user: User): Worker {
+    return {
+      id: user.id,
+      name: `${user.prenom} ${user.nom}`,
+      phone: user.telephone,
+      email: user.email,
+      position: user.profil || 'SUPPLIER',
+      status: user.activated ? 'active' : 'inactive',
+      selected: false,
+      originalUser: user
+    };
+  }
+
+  /**
+   * Met à jour les données de pagination
+   */
+  updatePaginationData() {
+    this.startIndex = this.displayedWorkers.length > 0 ?
+      ((this.currentPage - 1) * this.itemsPerPage) + 1 : 0;
+    this.endIndex = Math.min(
+      this.startIndex + this.displayedWorkers.length - 1,
+      this.totalWorkers
+    );
+    this.updateSelectAllState();
+  }
+
+  /**
+   * Recherche les fournisseurs
+   */
+  searchWorkers() {
+    this.currentPage = 1;
+    this.loadSuppliers();
+  }
+
+  /**
+   * Crée un nouveau fournisseur
+   */
   createWorker() {
-    // Correction : utiliser directement la classe UtilisateurService
-    const validationErrors = UtilisateurService.validateWorkerData(this.nouveauWorker);
-    
-    if (validationErrors.length > 0) {
-      this.errorMessage = validationErrors.join(', ');
+    // Validation des champs obligatoires
+    if (!this.nouveauWorker.nom ||
+        !this.nouveauWorker.prenom ||
+        !this.nouveauWorker.telephone ||
+        !this.nouveauWorker.email ||
+        !this.nouveauWorker.password ||
+        !this.nouveauWorker.date ||
+        !this.nouveauWorker.lieunaissance ||
+        !this.nouveauWorker.adress) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
+      return;
+    }
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.nouveauWorker.email)) {
+      this.errorMessage = 'Veuillez saisir une adresse email valide';
+      return;
+    }
+
+    // Validation téléphone
+    const cleanPhone = this.nouveauWorker.telephone.replace(/\s/g, '');
+    if (cleanPhone.length < 8) {
+      this.errorMessage = 'Veuillez saisir un numéro de téléphone valide (min 8 chiffres)';
+      return;
+    }
+
+    // Validation mot de passe
+    if (this.nouveauWorker.password.length < 6) {
+      this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
       return;
     }
 
     this.isLoading = true;
-    this.utilisateurService.createUser(this.nouveauWorker)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
+    this.errorMessage = '';
+
+    // Création de l'objet CreateUserRequest
+    const createUserData: CreateUserRequest = {
+      nom: this.nouveauWorker.nom.trim(),
+      prenom: this.nouveauWorker.prenom.trim(),
+      email: this.nouveauWorker.email.trim().toLowerCase(),
+      password: this.nouveauWorker.password,
+      telephone: cleanPhone,
+      date: this.nouveauWorker.date,
+      lieunaissance: this.nouveauWorker.lieunaissance.trim(),
+      adress: this.nouveauWorker.adress.trim(),
+      profil: 'SUPPLIER'
+    };
+
+    console.log('📤 Création d\'un fournisseur:', createUserData);
+
+    this.userService.createUser(createUserData).subscribe({
+      next: (response) => {
+        console.log('✅ Fournisseur créé avec succès:', response);
+        this.successMessage = 'Fournisseur ajouté avec succès !';
+        this.isLoading = false;
+
+        // Recharger la liste
+        this.loadSuppliers();
+
+        // Fermer le modal après 1.5 secondes
+        setTimeout(() => {
           this.closeModal();
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.loadWorkers(); // Recharger la liste après création
-        },
-        error: (err) => {
-          this.errorMessage = 'Erreur lors de la création du worker';
-          console.error(err);
+          this.successMessage = '';
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la création du fournisseur:', error);
+        
+        let userMsg = 'Erreur lors de la création du fournisseur';
+        if (error.status === 400) {
+          userMsg = 'Données invalides. Vérifiez tous les champs.';
+        } else if (error.status === 409) {
+          userMsg = 'Un utilisateur avec cet email existe déjà.';
         }
-      });
+        
+        this.errorMessage = error.userMessage || userMsg;
+        this.isLoading = false;
+      }
+    });
   }
 
-  paginateData() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    
-    this.displayedWorkers = this.allWorkers.slice(start, end);
-    
-    this.startIndex = start + 1;
-    this.endIndex = Math.min(end, this.totalWorkers);
-    
-    this.updateSelectAllState();
+  /**
+   * Supprime les fournisseurs sélectionnés
+   */
+  deleteSelectedWorkers() {
+    const selectedWorkers = this.displayedWorkers.filter(worker => worker.selected);
+
+    if (selectedWorkers.length === 0) {
+      this.errorMessage = 'Veuillez sélectionner au moins un fournisseur à supprimer';
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
+    }
+
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedWorkers.length} fournisseur(s) ?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    let deletedCount = 0;
+    let errorCount = 0;
+
+    selectedWorkers.forEach((worker, index) => {
+      this.userService.deleteUser(worker.id).subscribe({
+        next: () => {
+          deletedCount++;
+          console.log(`✅ Fournisseur ${worker.name} supprimé`);
+
+          if (index === selectedWorkers.length - 1) {
+            this.finishDeletion(deletedCount, errorCount);
+          }
+        },
+        error: (error) => {
+          errorCount++;
+          console.error(`❌ Erreur suppression ${worker.name}:`, error);
+
+          if (index === selectedWorkers.length - 1) {
+            this.finishDeletion(deletedCount, errorCount);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Finalise la suppression
+   */
+  private finishDeletion(deletedCount: number, errorCount: number) {
+    this.isLoading = false;
+
+    if (deletedCount > 0) {
+      this.successMessage = `${deletedCount} fournisseur(s) supprimé(s) avec succès`;
+      this.loadSuppliers();
+    }
+
+    if (errorCount > 0) {
+      this.errorMessage = `${errorCount} erreur(s) lors de la suppression`;
+    }
+
+    setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }, 3000);
   }
 
   toggleSelectAll() {
     this.selectAll = !this.selectAll;
     this.displayedWorkers.forEach(worker => worker.selected = this.selectAll);
-    
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    for (let i = 0; i < this.displayedWorkers.length; i++) {
-      this.allWorkers[start + i].selected = this.selectAll;
-    }
   }
 
   toggleWorkerSelection(worker: Worker) {
-    const displayedIndex = this.displayedWorkers.findIndex(w => w.id === worker.id);
-    if (displayedIndex >= 0) {
-      this.displayedWorkers[displayedIndex].selected = !this.displayedWorkers[displayedIndex].selected;
-    }
-    
-    const mainIndex = this.allWorkers.findIndex(w => w.id === worker.id);
-    if (mainIndex >= 0) {
-      this.allWorkers[mainIndex].selected = !this.allWorkers[mainIndex].selected;
-    }
-    
+    worker.selected = !worker.selected;
     this.updateSelectAllState();
   }
 
@@ -149,12 +290,8 @@ export class SupplierComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch(status) {
-      case 'affecté':
+      case 'active':
         return 'text-green-500';
-      case 'en mission':
-        return 'text-blue-500';
-      case 'non-affecté':
-        return 'text-yellow-500';
       case 'inactive':
         return 'text-red-500';
       default:
@@ -164,12 +301,8 @@ export class SupplierComponent implements OnInit {
 
   getStatusDot(status: string): string {
     switch(status) {
-      case 'affecté':
+      case 'active':
         return 'bg-green-500';
-      case 'en mission':
-        return 'bg-blue-500';
-      case 'non-affecté':
-        return 'bg-yellow-500';
       case 'inactive':
         return 'bg-red-500';
       default:
@@ -178,9 +311,9 @@ export class SupplierComponent implements OnInit {
   }
 
   goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
-      this.loadWorkers();
+      this.loadSuppliers();
     }
   }
 
@@ -221,21 +354,10 @@ export class SupplierComponent implements OnInit {
     return pages;
   }
 
-  searchWorkers() {
-    // Implémentation basique - idéalement à faire côté serveur
-    if (this.searchQuery) {
-      this.displayedWorkers = this.allWorkers.filter(worker =>
-        worker.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        worker.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    } else {
-      this.paginateData();
-    }
-  }
-
   openModal() {
     this.showModal = true;
     this.errorMessage = '';
+    this.successMessage = '';
     this.nouveauWorker = {
       nom: '',
       prenom: '',
@@ -245,12 +367,14 @@ export class SupplierComponent implements OnInit {
       date: '',
       lieunaissance: '',
       adress: '',
-      profil: 'WORKER'
+      profil: 'SUPPLIER'
     };
   }
 
   closeModal() {
     this.showModal = false;
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   onSubmit() {

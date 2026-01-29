@@ -4,6 +4,14 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
+// Ajoutez cette interface avec les autres
+export interface ProgressIndicator {
+  id: number;
+  phaseName: 'GROS_OEUVRE' | 'SECOND_OEUVRE' | 'FINITION';
+  progressPercentage: number;
+  lastUpdated: string;
+}
+
 export interface BudgetResponse {
   id: number;
   plannedBudget: number;
@@ -301,12 +309,24 @@ export interface ExpensesResponse {
   empty: boolean;
 }
 
-// project-details.service.ts
+// Ajoutez cette interface dans votre service (expense.service.ts)
 export interface CreateExpenseRequest {
-  description: string;
+  description?: string;
+  date: string; // Format: MM-DD-YYYY
+  amount?: number;
+  budgetId?: number;
+  evidence?: File;
+}
+
+export interface ExpenseResponse {
+  id: number;
+  description?: string;
   date: string;
-  amount: number; // ← Changez 'amont' en 'amount'
-  budgetId: number;
+  amount?: number;
+  budgetId?: number;
+  evidencePath?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateAlbumRequest {
@@ -440,7 +460,7 @@ export interface CreateSignalementRequest {
   providedIn: 'root'
 })
 export class ProjectBudgetService {
-  private baseUrl = `${environment.apiUrl}/`;
+  private baseUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) { }
 
@@ -535,7 +555,7 @@ export class ProjectBudgetService {
 
     // ✅ CORRECTION: URL fixée - était `${this.baseUrl}/tasks` au lieu de `${this.baseUrl}tasks`
     return this.http.post<any>(
-      `${this.baseUrl}tasks`, // ← CORRECTION ICI
+      `${this.baseUrl}/tasks`, // ← CORRECTION ICI
       formData,
       { headers }
     ).pipe(
@@ -558,7 +578,7 @@ export class ProjectBudgetService {
     console.log('📤 Mise à jour statut:', { taskId: id, newStatus: status });
 
     return this.http.put<any>(
-      `${this.baseUrl}tasks/${id}/status`,
+      `${this.baseUrl}/tasks/${id}/status`,
       formData,
       { headers }
     ).pipe(
@@ -639,7 +659,7 @@ export class ProjectBudgetService {
     });
 
     return this.http.put<any>(
-      `${this.baseUrl}tasks/${id}`,
+      `${this.baseUrl}/tasks/${id}`,
       formData,
       { headers }
     ).pipe(
@@ -754,6 +774,45 @@ export class ProjectBudgetService {
     ).pipe(catchError(this.handleError));
   }
 
+
+// Ajoutez cette méthode dans la classe ProjectBudgetService
+/**
+ * Récupère les indicateurs de progression d'un projet
+ */
+getIndicatorsByProperty(propertyId: number): Observable<ProgressIndicator[]> {
+  console.log(`📊 Récupération des indicateurs du projet ${propertyId}`);
+
+  return this.http.get<ProgressIndicator[]>(
+    `${this.baseUrl}/indicators/property/${propertyId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+/**
+ * Formate le nom de phase pour l'affichage
+ */
+formatPhaseName(phaseName: string): string {
+  const phaseMap: Record<string, string> = {
+    'GROS_OEUVRE': 'Gros œuvre',
+    'SECOND_OEUVRE': 'Second œuvre',
+    'FINITION': 'Finition'
+  };
+  return phaseMap[phaseName] || phaseName;
+}
+
+/**
+ * Formate la date ISO en format dd/MM/yyyy
+ */
+formatIndicatorDate(dateString: string): string {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+}
   // === MÉTHODES EXISTANTES ===
 
   GetProjectBudget(propertyId: number): Observable<any> {
@@ -807,15 +866,39 @@ export class ProjectBudgetService {
       .pipe(catchError(this.handleError));
   }
 
-  createDepense(expense: any): Observable<any> {
-    const headers = this.getAuthHeaders();
+ 
+   /**
+   * Créer une nouvelle dépense avec upload de fichier
+   */
+  createDepense(expenseData: CreateExpenseRequest): Observable<ExpenseResponse> {
+    const formData = new FormData();
+    
+    // Ajouter les champs texte
+    formData.append('date', expenseData.date);
+    
+    if (expenseData.description) {
+      formData.append('description', expenseData.description);
+    }
+    
+    if (expenseData.amount !== undefined && expenseData.amount !== null) {
+      formData.append('amount', expenseData.amount.toString());
+    }
+    
+    if (expenseData.budgetId !== undefined && expenseData.budgetId !== null) {
+      formData.append('budgetId', expenseData.budgetId.toString());
+    }
+    
+    // Ajouter le fichier s'il existe
+    if (expenseData.evidence) {
+      formData.append('evidence', expenseData.evidence, expenseData.evidence.name);
+    }
 
-    return this.http.post<any>(
+    return this.http.post<ExpenseResponse>(
       `${this.baseUrl}/expenses`,
-      expense,
-      { headers }
-    ).pipe(catchError(this.handleError));
+      formData
+    );
   }
+   
 
   putDepense(id: number, expense: any): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -823,6 +906,7 @@ export class ProjectBudgetService {
       .pipe(catchError(this.handleError));
   }
 
+ 
   deleteDepense(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
     return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`, { headers })
@@ -835,7 +919,7 @@ export class ProjectBudgetService {
     console.log('🗑️ Suppression tâche:', id);
 
     return this.http.delete<void>(
-      `${this.baseUrl}tasks/${id}`,
+      `${this.baseUrl}/tasks/${id}`,
       { headers }
     ).pipe(
       catchError((error) => {
@@ -904,13 +988,18 @@ export class ProjectBudgetService {
     const token = headers.get('Authorization')?.replace('Bearer ', '');
     console.log('Token envoyé:', token ? token.substring(0, 20) + '...' : 'Aucun token');
 
-    return this.http.post<any>(`${this.baseUrl}documents/add`, formData, { headers })
+    return this.http.post<any>(`${this.baseUrl}/documents/add`, formData, { headers })
       .pipe(
         catchError((error) => {
           console.error('Erreur détaillée lors de la création du document:', error);
           return this.handleError(error);
         })
       );
+  }
+  deleteDocument(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.baseUrl}/documents/${id}`, { headers })
+      .pipe(catchError(this.handleError));
   }
 
 

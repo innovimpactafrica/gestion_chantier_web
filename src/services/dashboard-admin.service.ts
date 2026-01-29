@@ -94,13 +94,17 @@ export class DashboardAdminService {
   /**
    * Récupère les informations générales du dashboard
    */
-  getInfosDashboard(): Observable<DashboardInfos> {
+  getInfosDashboard(year?: number): Observable<DashboardInfos> {
     const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/dashbord`;
-    
-    console.log('📡 API Call: getInfosDashboard');
+    let url = `${this.baseUrl}/dashbord`;
+
+    if (year) {
+      url += `?year=${year}`;
+    }
+
+    console.log('📡 API Call: getInfosDashboard', year ? `for year ${year}` : '');
     console.log('🔗 URL:', url);
-    
+
     return this.http.get<DashboardInfos>(url, { headers })
       .pipe(
         tap(infos => {
@@ -120,17 +124,17 @@ export class DashboardAdminService {
   getEvolution(year?: number): Observable<EvolutionData[]> {
     const headers = this.getAuthHeaders();
     let params = new HttpParams();
-    
+
     if (year) {
       params = params.set('year', year.toString());
     }
 
     const url = `${this.baseUrl}/evolution`;
-    
+
     console.log('📡 API Call: getEvolution');
     console.log('🔗 URL:', url);
     console.log('📅 Year:', year || 'current');
-    
+
     return this.http.get<EvolutionData[]>(url, { headers, params })
       .pipe(
         tap(evolution => {
@@ -148,17 +152,17 @@ export class DashboardAdminService {
   getRevenuEvolution(year?: number): Observable<EvolutionData[]> {
     const headers = this.getAuthHeaders();
     let params = new HttpParams();
-    
+
     if (year) {
       params = params.set('year', year.toString());
     }
 
     const url = `${this.baseUrl}/revenues/evolution`;
-    
+
     console.log('📡 API Call: getRevenuEvolution');
     console.log('🔗 URL:', url);
     console.log('📅 Year:', year || 'current');
-    
+
     return this.http.get<EvolutionData[]>(url, { headers, params })
       .pipe(
         tap(evolution => {
@@ -176,10 +180,10 @@ export class DashboardAdminService {
   getDistributionsPlan(): Observable<PlanDistribution[]> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/plan-distribution`;
-    
+
     console.log('📡 API Call: getDistributionsPlan');
     console.log('🔗 URL:', url);
-    
+
     return this.http.get<PlanDistribution[]>(url, { headers })
       .pipe(
         tap(distribution => {
@@ -201,7 +205,7 @@ export class DashboardAdminService {
       .set('size', size.toString());
 
     const url = `${this.baseUrl}/invoices-lastest`;
-    
+
     console.log('📡 API Call: getLastInvoices');
     console.log('🔗 URL:', url);
     console.log('📄 Page:', page);
@@ -226,10 +230,10 @@ export class DashboardAdminService {
   getRepartitionProfil(): Observable<ProfilDistribution[]> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrlUser}/profil-distribution`;
-    
+
     console.log('📡 API Call: getRepartitionProfil');
     console.log('🔗 URL:', url);
-    
+
     return this.http.get<ProfilDistribution[]>(url, { headers })
       .pipe(
         tap(distribution => {
@@ -247,24 +251,24 @@ export class DashboardAdminService {
    */
   private getAuthHeaders(): HttpHeaders {
     console.log('🔑 Récupération des headers d\'authentification...');
-    
+
     if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
-      
+
       console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
-      
+
       if (!hasAuth) {
         console.warn('⚠️ Aucun header Authorization trouvé!');
       }
-      
+
       return headers;
     }
-    
+
     console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
-    
+
     const token = this.authService?.getToken() || localStorage.getItem('token');
-    
+
     if (token) {
       console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
@@ -272,9 +276,9 @@ export class DashboardAdminService {
         'Content-Type': 'application/json'
       });
     }
-    
+
     console.error('❌ Aucun token d\'authentification trouvé!');
-    
+
     return new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -289,14 +293,14 @@ export class DashboardAdminService {
     console.error('❌ Status Text:', error.statusText);
     console.error('❌ URL:', error.url);
     console.error('❌ Message:', error.message);
-    
+
     if (error.error) {
       console.error('❌ Error body:', error.error);
     }
-    
+
     let errorMessage = 'Une erreur est survenue';
     let userMessage = errorMessage;
-    
+
     switch (error.status) {
       case 0:
         errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
@@ -331,9 +335,9 @@ export class DashboardAdminService {
           userMessage = `Erreur ${error.status}`;
         }
     }
-    
+
     console.error('💬 Message utilisateur:', userMessage);
-    
+
     return throwError(() => ({
       message: errorMessage,
       userMessage: userMessage,

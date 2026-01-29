@@ -3,6 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EtudeBetService, Etude, EtudeResponse, CreateEtudeRequest, UpdateBetRequest } from '../../../../../services/etude-bet.service';
+import { UserService } from '../../../../../services/user.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { DemandeService } from '../../../../../services/demande.service';
 
 interface EtudeBET {
   id: number;
@@ -24,6 +27,22 @@ interface Comment {
   content: string;
   authorName: string;
   createdAt: number[];
+}
+
+// 1. Ajouter l'interface User et UserPageResponse
+interface User {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  profil: string;
+}
+
+interface UserPageResponse {
+  content: User[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
 }
 
 @Component({
@@ -92,26 +111,50 @@ export class EtudeBetComponent implements OnInit {
   
   rejectReason: string = '';
 
-  // Available BETs for autocomplete
-  availableBETs: { id: number, name: string }[] = [
-    { id: 1, name: 'Sonora BET' },
-    { id: 2, name: 'Alpha Dieye' },
-    { id: 3, name: 'BET Structura' },
-    { id: 4, name: 'ClimaTech' }
-  ];
+  showCreateReportModal = false;
+  isCreatingReport = false;
+  createReportError: string | null = null;
+  
+  newReport = {
+    title: '',
+    version: '',
+    file: null as File | null
+  };
+
+  availableBETs: User[] = [];
+loadingBETs: boolean = false;
   
   Math: any = Math;
 
   constructor(
     private etudeBetService: EtudeBetService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userService: UserService,
+    private authService: AuthService,
+    private demandeService: DemandeService
   ) {}
 
   ngOnInit() {
-    // Récupérer le propertyId depuis les paramètres de route
     this.getPropertyIdFromRoute();
+  this.loadBETUsers();
   }
-
+// 4. Ajouter la méthode pour charger les utilisateurs BET
+private loadBETUsers(): void {
+  this.loadingBETs = true;
+  
+  // Assurez-vous d'injecter UserService dans le constructor
+  this.userService.getUserByProfil('BET', '', 0, 100).subscribe({
+    next: (response: UserPageResponse) => {
+      this.availableBETs = response.content;
+      this.loadingBETs = false;
+      console.log('BETs chargés:', this.availableBETs);
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des BETs:', error);
+      this.loadingBETs = false;
+    }
+  });
+}
   private getPropertyIdFromRoute(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
@@ -267,38 +310,63 @@ export class EtudeBetComponent implements OnInit {
   }
 
   // Progress bar for detail view
-  getProgressSteps(statut: string): { step: number; isCompleted: boolean; isCurrent: boolean; label: string }[] {
-    const steps = [
-      { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false },
-      { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false },
-      { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false },
-      { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false }
-    ];
+// 5. Modifier la méthode getProgressSteps pour gérer les icônes
+getProgressSteps(statut: string): { 
+  step: number; 
+  isCompleted: boolean; 
+  isCurrent: boolean; 
+  label: string;
+  showCheck: boolean;
+}[] {
+  const steps = [
+    { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false, showCheck: false },
+    { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false, showCheck: false }
+  ];
 
-    switch (statut) {
-      case 'En attente':
-        steps[0].isCurrent = true;
-        break;
-      case 'En cours':
-        steps[0].isCompleted = true;
-        steps[1].isCurrent = true;
-        break;
-      case 'Livrée':
-        steps[0].isCompleted = true;
-        steps[1].isCompleted = true;
-        steps[2].isCurrent = true;
-        break;
-      case 'Validée':
-      case 'Rejetée':
-        steps[0].isCompleted = true;
-        steps[1].isCompleted = true;
-        steps[2].isCompleted = true;
-        steps[3].isCompleted = true;
-        break;
-    }
-
-    return steps;
+  switch (statut) {
+    case 'En attente':
+      steps[0].isCurrent = true;
+      break;
+    case 'En cours':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCurrent = true;
+      break;
+    case 'Livrée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCurrent = true;
+      break;
+    case 'Validée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCompleted = true;
+      steps[2].showCheck = true;
+      steps[3].isCompleted = true;
+      steps[3].showCheck = true;
+      break;
+    case 'Rejetée':
+      steps[0].isCompleted = true;
+      steps[0].showCheck = true;
+      steps[1].isCompleted = true;
+      steps[1].showCheck = true;
+      steps[2].isCompleted = true;
+      steps[2].showCheck = true;
+      steps[3].isCompleted = true;
+      steps[3].showCheck = true;
+      break;
   }
+
+  return steps;
+}
+
+
 
   // Modal actions
   openCreateModal() {
@@ -468,7 +536,7 @@ export class EtudeBetComponent implements OnInit {
       
       this.editReport.authorId = this.currentPropertyId;
       
-      this.etudeBetService.updateBet(this.selectedReport.id, this.editReport).subscribe({
+      this.etudeBetService.updateReport(this.selectedReport.id, this.editReport).subscribe({
         next: (response) => {
           console.log('Rapport mis à jour avec succès:', response);
           this.loadEtudes();
@@ -486,7 +554,7 @@ export class EtudeBetComponent implements OnInit {
   deleteReport(rapport: { id: number; nom: string }, etude: EtudeBET) {
     if (confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${rapport.nom}" ?`)) {
       this.isLoading = true;
-      this.etudeBetService.deleteBet(rapport.id).subscribe({
+      this.etudeBetService.deleteReport(rapport.id).subscribe({
         next: (response) => {
           console.log('Rapport supprimé avec succès');
           this.loadEtudes();
@@ -505,31 +573,31 @@ export class EtudeBetComponent implements OnInit {
       this.isLoading = true;
       this.etudeBetService.acceptEtude(this.selectedEtude.id).subscribe({
         next: (response) => {
-          console.log('Étude validée avec succès');
+          console.log('✅ Étude validée avec succès');
           this.loadEtudes();
           this.closeAllModals();
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors de la validation:', error);
+          console.error('❌ Erreur lors de la validation:', error);
           this.isLoading = false;
         }
       });
     }
   }
-
+  
   rejectEtude() {
-    if (this.selectedEtude && this.rejectReason.trim()) {
+    if (this.selectedEtude) {
       this.isLoading = true;
       this.etudeBetService.rejectEtude(this.selectedEtude.id).subscribe({
         next: (response) => {
-          console.log('Étude rejetée avec succès');
+          console.log('✅ Étude rejetée avec succès');
           this.loadEtudes();
           this.closeAllModals();
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du rejet:', error);
+          console.error('❌ Erreur lors du rejet:', error);
           this.isLoading = false;
         }
       });
@@ -550,6 +618,7 @@ export class EtudeBetComponent implements OnInit {
   canValidateOrReject(statut: string): boolean {
     return statut === 'Livrée';
   }
+  
 
   // Download report
   downloadReport(rapport: { id: number; nom: string; url: string }) {
@@ -560,74 +629,324 @@ export class EtudeBetComponent implements OnInit {
     }
   }
 
-  /**
-   * Ajoute un commentaire depuis le modal de détail
-   */
-  addCommentDetail(content: string) {
-    if (content.trim() && this.selectedEtude) {
-      this.isLoading = true;
-      
-      const commentData = {
-        content: content.trim()
-      };
-
-      // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
-      const userId = 1;
-
-      this.etudeBetService.createComment(
-        this.selectedEtude.id, 
-        userId, 
-        commentData
-      ).subscribe({
-        next: (response) => {
-          console.log('Commentaire ajouté avec succès:', response);
-          // Recharger les commentaires pour afficher le nouveau
-          this.loadCommentsForDetail(this.selectedEtude!);
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'ajout du commentaire:', error);
-          this.isLoading = false;
-        }
-      });
-    }
+/**
+ * Ajoute un commentaire depuis le modal de détail
+ */
+addCommentDetail(content: string) {
+  // Validation du contenu
+  if (!content?.trim()) {
+    console.warn('⚠️ Contenu du commentaire vide');
+    return;
   }
+  
+  // Validation de l'étude sélectionnée
+  if (!this.selectedEtude || !this.selectedEtude.id) {
+    console.error('❌ Aucune étude sélectionnée');
+    return;
+  }
+  
+  // Récupération de l'utilisateur connecté
+  const currentUser = this.authService.currentUser();
+  
+  // Validation de l'utilisateur
+  if (!currentUser) {
+    console.error('❌ Utilisateur non connecté');
+    alert('Vous devez être connecté pour ajouter un commentaire');
+    return;
+  }
+  
+  if (!currentUser.id) {
+    console.error('❌ ID utilisateur manquant');
+    alert('Erreur d\'authentification. Veuillez vous reconnecter.');
+    return;
+  }
+  
+  this.isLoading = true;
+  
+  const commentData = {
+    content: content.trim()
+  };
+
+  // ✅ CORRECTION : Utiliser demandeService avec la bonne structure d'URL
+  this.demandeService.createComment(
+    this.selectedEtude.id, 
+    currentUser.id, 
+    commentData
+  ).subscribe({
+    next: (response) => {
+      console.log('✅ Commentaire ajouté avec succès:', response);
+      
+      // Recharger les commentaires pour afficher le nouveau
+      if (this.selectedEtude) {
+        this.loadCommentsForDetail(this.selectedEtude);
+      }
+      
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
+      
+      // Message d'erreur plus précis selon le type d'erreur
+      if (error.status === 401) {
+        alert('Session expirée. Veuillez vous reconnecter.');
+      } else if (error.status === 403) {
+        alert('Vous n\'avez pas les permissions pour ajouter un commentaire.');
+      } else if (error.status === 404) {
+        alert('L\'étude n\'existe plus.');
+      } else {
+        alert('Erreur lors de l\'ajout du commentaire. Veuillez réessayer.');
+      }
+      
+      this.isLoading = false;
+    }
+  });
+}
 
   /**
    * Ajoute un nouveau commentaire dans le modal dédié
    */
-  addComment() {
-    if (this.newComment.trim() && this.selectedEtudeForComments) {
-      this.isLoading = true;
+  // addComment() {
+  //   if (this.newComment.trim() && this.selectedEtudeForComments) {
+  //     this.isLoading = true;
       
-      const commentData = {
-        content: this.newComment
-      };
+  //     const commentData = {
+  //       content: this.newComment
+  //     };
 
-      // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
-      const userId = 1;
+  //     // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
+  //     const userId = this.authService.getConnectedUserId();
 
-      this.etudeBetService.createComment(
-        this.selectedEtudeForComments.id, 
-        userId, 
-        commentData
-      ).subscribe({
-        next: (response) => {
-          console.log('Commentaire ajouté avec succès:', response);
-          // Recharger les commentaires pour afficher le nouveau
-          this.loadComments(this.selectedEtudeForComments!);
-          this.newComment = '';
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'ajout du commentaire:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
+  //     this.etudeBetService.createComment(
+  //       this.selectedEtudeForComments.id, 
+  //       userId, 
+  //       commentData
+  //     ).subscribe({
+  //       next: (response) => {
+  //         console.log('Commentaire ajouté avec succès:', response);
+  //         // Recharger les commentaires pour afficher le nouveau
+  //         this.loadComments(this.selectedEtudeForComments!);
+  //         this.newComment = '';
+  //       },
+  //       error: (error) => {
+  //         console.error('Erreur lors de l\'ajout du commentaire:', error);
+  //         this.isLoading = false;
+  //       }
+  //     });
+  //   }
+  // }
 
   // Utility method to get BET name by ID
   getBETNameById(betId: number): string {
     const bet = this.availableBETs.find(b => b.id === betId);
-    return bet ? bet.name : '';
+    return bet ? bet.nom : '';
   }
+  // 2. AJOUTER CES MÉTHODES
+
+/**
+ * Ouvre le modal de création de rapport
+ */
+openCreateReportModal(): void {
+  if (!this.selectedEtude) {
+    console.error('❌ Aucune étude sélectionnée');
+    return;
+  }
+  
+  this.newReport = {
+    title: '',
+    version: '',
+    file: null
+  };
+  this.createReportError = null;
+  this.showCreateReportModal = true;
+  
+  console.log('📄 Ouverture modal création rapport pour étude:', this.selectedEtude.titre);
+}
+
+/**
+ * Ferme le modal de création de rapport
+ */
+closeCreateReportModal(): void {
+  this.showCreateReportModal = false;
+  this.isCreatingReport = false;
+  this.createReportError = null;
+  this.newReport = {
+    title: '',
+    version: '1',
+    file: null
+  };
+}
+
+/**
+ * Gère la sélection du fichier
+ */
+onReportFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.newReport.file = input.files[0];
+    console.log('📎 Fichier sélectionné:', this.newReport.file.name);
+  }
+}
+
+/**
+ * Valide le formulaire de création de rapport
+ */
+private isCreateReportFormValid(): boolean {
+  return !!(
+    this.newReport.title?.trim() && 
+    this.newReport.version?.trim() && 
+    this.newReport.file
+  );
+}
+
+/**
+ * Récupère le nom du fichier sélectionné
+ */
+getReportFileName(): string {
+  return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
+}
+
+/**
+ * Vérifie si un fichier est sélectionné
+ */
+hasReportFileSelected(): boolean {
+  return !!this.newReport.file;
+}
+
+/**
+ * Crée un nouveau rapport
+ */
+createReport(): void {
+  // Validation du formulaire
+  if (!this.isCreateReportFormValid()) {
+    this.createReportError = 'Veuillez remplir tous les champs obligatoires';
+    return;
+  }
+
+  // Validation de l'étude sélectionnée
+  if (!this.selectedEtude) {
+    this.createReportError = 'Aucune étude sélectionnée';
+    return;
+  }
+
+  // Validation du fichier
+  if (!this.newReport.file) {
+    this.createReportError = 'Veuillez sélectionner un fichier';
+    return;
+  }
+
+  // Récupération de l'utilisateur connecté
+  const currentUser = this.authService?.currentUser();
+  
+  if (!currentUser || !currentUser.id) {
+    this.createReportError = 'Utilisateur non connecté. Veuillez vous reconnecter.';
+    return;
+  }
+
+  this.isCreatingReport = true;
+  this.createReportError = null;
+
+  // Préparation des données du rapport
+  const reportData = {
+    title: this.newReport.title.trim(),
+    versionNumber: parseInt(this.newReport.version),
+    studyRequestId: this.selectedEtude.id,
+    authorId: currentUser.id
+  };
+
+  console.log('📤 Création du rapport:', {
+    ...reportData,
+    fileName: this.newReport.file.name,
+    fileSize: this.newReport.file.size
+  });
+
+  // Appel du service pour créer le rapport
+  const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
+    next: (response) => {
+      console.log('✅ Rapport créé avec succès:', response);
+      
+      // Mise à jour de l'étude sélectionnée avec le nouveau rapport
+      if (this.selectedEtude) {
+        if (!this.selectedEtude.rapports) {
+          this.selectedEtude.rapports = [];
+        }
+        
+        // Ajouter le nouveau rapport à la liste
+        this.selectedEtude.rapports.push({
+          id: response.id,
+          nom: response.title || this.newReport.title,
+          taille: this.formatFileSize(this.newReport.file!.size),
+          dateSubmission: this.getCurrentDateFormatted(),
+          url: response.fileUrl || '',
+          versionNumber: response.versionNumber || parseInt(this.newReport.version)
+        });
+      }
+      
+      // Recharger les études pour avoir les données à jour
+      this.loadEtudes();
+      
+      // Fermer le modal
+      this.closeCreateReportModal();
+      
+      this.isCreatingReport = false;
+    },
+    error: (error) => {
+      console.error('❌ Erreur lors de la création du rapport:', error);
+      
+      // Gestion des erreurs spécifiques
+      if (error.status === 401) {
+        this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
+      } else if (error.status === 403) {
+        this.createReportError = 'Vous n\'avez pas les permissions pour créer un rapport.';
+      } else if (error.status === 413) {
+        this.createReportError = 'Le fichier est trop volumineux.';
+      } else {
+        this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
+      }
+      
+      this.isCreatingReport = false;
+    }
+  });
+}
+/**
+ * Retourne la date actuelle formatée en string (jj-mm-aaaa)
+ */
+private getCurrentDateFormatted(): string {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  
+  return `${day}-${month}-${year}`;  // ✅ Format jj-mm-aaaa avec tirets
+}
+
+/**
+ * Annule la création du rapport
+ */
+cancelCreateReport(): void {
+  this.closeCreateReportModal();
+}
+
+/**
+ * Formate la taille du fichier
+ */
+private formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
+ * Formate une date en string
+ */
+// private formatDate(date: Date): string {
+//   return date.toLocaleDateString('fr-FR', {
+//     day: '2-digit',
+//     month: '2-digit',
+//     year: 'numeric'
+//   });
+// }
 }

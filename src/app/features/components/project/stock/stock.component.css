@@ -156,3 +156,11 @@ material-list-container {
 .menu-item:hover {
   background-color: #f3f4f6;
 }
+
+.menu-item {
+  @apply w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors;
+}
+
+.menu-item svg {
+  @apply w-5 h-5;
+}

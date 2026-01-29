@@ -98,75 +98,98 @@
 
 
 
-<!-- Liste des documents -->
-<div class="bg-white rounded-lg shadow overflow-hidden">
-  <!-- En-tête du tableau -->
-  <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
-    <div class="col-span-1">
-      <input type="checkbox" class="rounded border-gray-300">
-    </div>
-    <div class="col-span-4">Nom</div>
-    <div class="col-span-2">Type</div>
-    <div class="col-span-2">Date</div>
-    <div class="col-span-3">Dernière modification</div>
-  </div>
-
-  <!-- État de chargement -->
-  <div *ngIf="isLoading" class="py-16 text-center">
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    <p class="mt-4 text-gray-500">Chargement des documents...</p>
-  </div>
-
-  <!-- Liste vide -->
-  <div *ngIf="!isLoading && documents.length === 0" class="py-16 text-center">
-    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-    <p class="mt-4 text-gray-500 font-medium">Aucun document pour le moment</p>
-  </div>
-
   <!-- Liste des documents -->
-  <div *ngFor="let doc of documents" class="grid grid-cols-12 gap-4 px-6 py-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors items-center group">
-    <!-- Checkbox -->
-    <div class="col-span-1 flex items-center">
-      <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <!-- En-tête du tableau -->
+    <div
+      class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
+      <div class="col-span-1">
+        <input type="checkbox" class="rounded border-gray-300">
+      </div>
+      <div class="col-span-3">Nom</div>
+      <div class="col-span-2">Type</div>
+      <div class="col-span-2">Date</div>
+      <div class="col-span-3">Dernière modification</div>
+      <div class="col-span-1">Action</div>
     </div>
-    
-    <!-- Nom et description -->
-    <div class="col-span-4 flex items-center gap-3">
-      <!-- <div class="flex-shrink-0">
-        <img [src]="getDocumentIcon(doc.file)" alt="icon" class="w-10 h-10 object-contain">
-      </div> -->
-      <div class="min-w-0 flex-1">
-        <a [href]="getFileUrl(doc.file)" target="_blank" 
-           class="text-gray-900 hover:text-blue-600 font-medium text-sm transition-colors block truncate">
-          {{ doc.title }}
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="py-16 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-500">Chargement des documents...</p>
+    </div>
+
+    <!-- Liste vide -->
+    <div *ngIf="!isLoading && documents.length === 0" class="py-16 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p class="mt-4 text-gray-500 font-medium">Aucun document pour le moment</p>
+    </div>
+
+    <!-- Liste des documents -->
+    <div *ngFor="let doc of documents"
+      class="grid grid-cols-12 gap-4 px-6 py-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors items-center group">
+      <!-- Checkbox -->
+      <div class="col-span-1 flex items-center">
+        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+      </div>
+
+      <!-- Nom et description -->
+      <div class="col-span-3 flex items-center gap-3">
+        <div class="min-w-0 flex-1">
+          <a [href]="getFileUrl(doc.file)" target="_blank"
+            class="text-gray-900 hover:text-blue-600 font-medium text-sm transition-colors block truncate">
+            {{ doc.title }}
+          </a>
+          <p class="text-xs text-gray-500 mt-0.5 truncate">{{ doc.description }}</p>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="col-span-2">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          {{ doc.type?.label || '—' }}
+        </span>
+      </div>
+
+      <!-- Date début -->
+      <div class="col-span-2 text-sm text-gray-600">
+        {{ doc.startDate ? formatDate(doc.startDate) : '—' }}
+      </div>
+
+      <!-- Dernière modification -->
+      <div class="col-span-3 text-sm text-gray-600">
+        {{ doc.endDate ? formatDate(doc.endDate) : '—' }}
+      </div>
+
+      <!-- Action -->
+      <div class="col-span-1 flex items-center gap-2">
+        <!-- Bouton télécharger -->
+        <a [href]="getFileUrl(doc.file)" download class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+          title="Télécharger">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
         </a>
-        <p class="text-xs text-gray-500 mt-0.5 truncate">{{ doc.description }}</p>
+
+        <!-- Bouton supprimer -->
+        <button (click)="openDeleteConfirmModal(doc.id)" class="p-2  hover:text-red-600 transition-colors"
+          title="Supprimer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
       </div>
     </div>
-    
-    <!-- Type -->
-    <div class="col-span-2">
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-        {{ doc.type?.label || '—' }}
-      </span>
-    </div>
-    
-    <!-- Date début -->
-    <div class="col-span-2 text-sm text-gray-600">
-      {{ doc.startDate ? formatDate(doc.startDate) : '—' }}
-    </div>
-    
-    <!-- Dernière modification -->
-    <div class="col-span-3 text-sm text-gray-600">
-      {{ doc.endDate ? formatDate(doc.endDate) : '—' }}
-    </div>
   </div>
-</div>
 
   <!-- Modal Ajout (conservé mais simplifié) -->
-  <div *ngIf="showAddDocumentModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div *ngIf="showAddDocumentModal"
+    class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
       <div class="p-6 border-b">
         <h3 class="text-xl font-semibold text-gray-900">Nouveau document</h3>
@@ -177,14 +200,14 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
           <input [(ngModel)]="newDocument.title" type="text" required
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
         </div>
 
         <!-- Type -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Type de document *</label>
           <select [(ngModel)]="newDocument.typeId" required
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
             <option value="0">Choisir un type</option>
             <option *ngFor="let t of documentTypes" [value]="t.id">{{ t.label }}</option>
           </select>
@@ -194,11 +217,13 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Fichier *</label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx">
-            
+            <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)"
+              accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx">
+
             <div *ngIf="!selectedFile" (click)="triggerFileInput()" class="cursor-pointer">
               <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p class="mt-2 text-sm font-medium text-gray-600">Cliquez pour sélectionner un fichier</p>
               <p class="text-xs text-gray-500 mt-1">PDF, Word, Excel, Images</p>
@@ -208,8 +233,10 @@
               <p class="font-medium text-green-600">{{ selectedFile.name }}</p>
               <p class="text-sm text-gray-500">{{ getFileSize(selectedFile) }}</p>
               <div class="mt-3 space-x-4">
-                <button type="button" (click)="triggerFileInput()" class="text-orange-600 hover:underline text-sm">Changer</button>
-                <button type="button" (click)="removeSelectedFile()" class="text-red-600 hover:underline text-sm">Supprimer</button>
+                <button type="button" (click)="triggerFileInput()"
+                  class="text-orange-600 hover:underline text-sm">Changer</button>
+                <button type="button" (click)="removeSelectedFile()"
+                  class="text-red-600 hover:underline text-sm">Supprimer</button>
               </div>
             </div>
           </div>
@@ -219,7 +246,7 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea [(ngModel)]="newDocument.description" rows="4"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
         </div>
 
         <!-- Dates -->
@@ -227,25 +254,88 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
             <input type="date" [(ngModel)]="newDocument.startDate" required
-                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
             <input type="date" [(ngModel)]="newDocument.endDate" required
-                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
           </div>
         </div>
       </div>
 
       <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
-        <button (click)="closeAddDocumentModal()" 
-                class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+        <button (click)="closeAddDocumentModal()"
+          class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
           Annuler
         </button>
         <button (click)="saveDocument()" [disabled]="isLoading || !isFormValid()"
-                class="px-6 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center gap-2">
-          <span *ngIf="isLoading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+          class="px-6 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center gap-2">
+          <span *ngIf="isLoading"
+            class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
           Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal de confirmation de suppression -->
+<div *ngIf="showDeleteConfirmModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+  role="dialog" aria-modal="true">
+  <!-- Overlay -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+  <!-- Modal content -->
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:w-full sm:max-w-lg">
+      <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <!-- Icône -->
+          <div
+            class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+
+          <!-- Texte -->
+          <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+            <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
+              Supprimer le document
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                Êtes-vous sûr de vouloir supprimer ce document ? Cette action est irréversible et le document sera
+                définitivement supprimé.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+        <button type="button" (click)="confirmDelete()" [disabled]="isLoading"
+          class="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto">
+          <span *ngIf="!isLoading">Confirmer</span>
+          <span *ngIf="isLoading" class="flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Suppression...
+          </span>
+        </button>
+
+        <button type="button" (click)="closeDeleteConfirmModal()" [disabled]="isLoading"
+          class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed sm:mt-0 sm:w-auto">
+          Annuler
         </button>
       </div>
     </div>

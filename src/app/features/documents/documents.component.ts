@@ -49,6 +49,10 @@ export class DocumentsComponent implements OnInit {
     endDate: ''
   };
 
+  documentToDelete: number | null = null;
+showDeleteConfirmModal = false;
+
+
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute
@@ -71,6 +75,15 @@ export class DocumentsComponent implements OnInit {
         console.error('Aucun ID de propriété dans l\'URL');
       }
     });
+  }
+  openDeleteConfirmModal(docId: number): void {
+    this.documentToDelete = docId;
+    this.showDeleteConfirmModal = true;
+  }
+  
+  closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+    this.documentToDelete = null;
   }
 
   // ────────────────────────────────────────────────
@@ -133,6 +146,25 @@ export class DocumentsComponent implements OnInit {
       description: doc.description,
       thumbnail: this.getFileUrl(doc.file)
     }));
+  }
+
+  confirmDelete(): void {
+    if (!this.documentToDelete) return;
+    
+    this.isLoading = true;
+    this.projectBudgetService.deleteDocument(this.documentToDelete).subscribe({
+      next: () => {
+        this.loadDocuments();
+        this.closeDeleteConfirmModal();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur suppression document', err);
+        alert('Erreur lors de la suppression');
+        this.isLoading = false;
+        this.closeDeleteConfirmModal();
+      }
+    });
   }
 
   // ────────────────────────────────────────────────

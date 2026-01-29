@@ -1,0 +1,223 @@
+<div class="min-h-screen bg-gray-50">
+    <!-- Header avec bouton retour -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-screen-2xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-6">
+            <div class="flex items-center justify-between">
+                <button (click)="goBack()"
+                    class="flex items-center gap-2 text-gray-600 hover:text-orange-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                    <span class="font-medium">{{ getBackButton() }}</span>
+                </button>
+
+                <img src="assets/images/logo.png" class="h-8" alt="BTP Connect">
+            </div>
+        </div>
+    </header>
+
+    <!-- Section principale -->
+    <section class="py-12 sm:py-16 lg:py-20 px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div class="max-w-screen-2xl mx-auto">
+            <!-- Titre et description -->
+            <div class="text-center mb-12 sm:mb-16" [@fadeIn]>
+                
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+                    {{ getPageTitle() }}
+                </h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-10">
+                    {{ getPageDescription() }}
+                </p>
+
+                <!-- Profile Filter Tabs -->
+                <div class="flex flex-wrap justify-center gap-3 mb-10">
+                    <button *ngFor="let profile of profiles" (click)="selectProfile(profile)"
+                        class="px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 border-2"
+                        [ngClass]="selectedProfile === profile ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-200 hover:text-orange-500'">
+                        {{ profile === 'ALL' ? (currentLang === 'FR' ? 'Tous' : 'All') : getProfileLabel(profile) }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de cards -->
+            <div *ngIf="!loading && !error && filteredVideos.length > 0"
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                <div *ngFor="let video of filteredVideos; let i = index" [@fadeIn]
+                    class="feature-card bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-orange-500 transition-all duration-300 cursor-pointer flex flex-col"
+                    (click)="openFeature(video)">
+
+                    <!-- Image/Thumbnail -->
+                    <div class="relative h-48 bg-gradient-to-br from-orange-100 to-orange-50 overflow-hidden">
+                        <div class="absolute inset-0">
+                            <img [src]="getThumbnail(video)" [alt]="getTitle(video)" (error)="handleImageError($event)"
+                                class="w-full h-full object-cover transition-transform duration-300 hover:scale-110">
+                        </div>
+
+                        <!-- Badge Profil (Texte uniquement) -->
+                        <div
+                            class="absolute top-3 left-3 bg-white bg-opacity-90 rounded-full px-3 py-1 shadow-md border border-gray-100 overflow-hidden">
+                            <span class="text-[10px] font-bold text-gray-800 uppercase tracking-wider">
+                                {{ getProfileLabel(video.profil) }}
+                            </span>
+                        </div>
+
+                        <!-- Badge vidéo -->
+                        <div class="absolute top-3 right-3 bg-white bg-opacity-90 rounded-full p-2 shadow-md">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Contenu -->
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                            {{ getTitle(video) }}
+                        </h3>
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                            {{ getDescription(video) }}
+                        </p>
+
+                        <!-- Call to action -->
+                        <div class="mt-auto flex items-center justify-between">
+                            <span class="text-orange-500 font-semibold text-sm flex items-center gap-2">
+                                {{ getWatchVideo() }}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex flex-col items-center justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
+                <p class="text-gray-500">{{ currentLang === 'FR' ? 'Chargement des vidéos...' : 'Loading videos...' }}
+                </p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+                <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-red-700 font-medium mb-4">{{ error }}</p>
+                <button (click)="loadVideos(page)"
+                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    {{ currentLang === 'FR' ? 'Réessayer' : 'Retry' }}
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && !error && filteredVideos.length === 0"
+                class="bg-gray-100 border border-gray-200 rounded-xl p-8 text-center py-20">
+                <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z">
+                    </path>
+                </svg>
+                <p class="text-gray-500 text-lg">
+                    {{ selectedProfile === 'ALL'
+                    ? (currentLang === 'FR' ? 'Aucune vidéo disponible pour le moment.' : 'No videos available at the
+                    moment.')
+                    : (currentLang === 'FR' ? 'Aucune vidéo pour le profil ' + selectedProfile : 'No videos for profile
+                    ' + selectedProfile)
+                    }}
+                </p>
+                <button *ngIf="selectedProfile !== 'ALL'" (click)="selectProfile('ALL')"
+                    class="mt-4 text-orange-500 font-bold hover:underline">
+                    {{ currentLang === 'FR' ? 'Voir toutes les vidéos' : 'View all videos' }}
+                </button>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="totalPages > 1" class="mt-12 flex items-center justify-center gap-4">
+                <button [disabled]="page === 0" (click)="loadVideos(page - 1)"
+                    class="p-2 rounded-lg border border-gray-300 hover:border-orange-500 hover:text-orange-500 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-300 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </button>
+                <span class="font-medium text-gray-700">Page {{ page + 1 }} / {{ totalPages }}</span>
+                <button [disabled]="page >= totalPages - 1" (click)="loadVideos(page + 1)"
+                    class="p-2 rounded-lg border border-gray-300 hover:border-orange-500 hover:text-orange-500 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-300 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal pour afficher les détails -->
+    <div *ngIf="showModal && selectedFeature" [@modalFade]
+        class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" (click)="closeModal()">
+
+        <div [@modalSlide] class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative"
+            (click)="$event.stopPropagation()">
+
+            <!-- Bouton fermeture -->
+            <button (click)="closeModal()"
+                class="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-800 bg-opacity-70 hover:bg-opacity-90 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+
+            <!-- Contenu du modal -->
+            <div class="p-8">
+                <!-- Vidéo YouTube si disponible -->
+                <div class="mb-6">
+                    <div class="relative w-full" style="padding-top: 56.25%;">
+                        <iframe [src]="getEmbedUrl(selectedFeature.link) | sanitize: 'resourceUrl'"
+                            class="absolute top-0 left-0 w-full h-full rounded-lg" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Titre et description -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        
+                        <span
+                            class="px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-xs font-extrabold uppercase tracking-wide">
+                            {{ getProfileLabel(selectedFeature.profil) }}
+                        </span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                        {{ getTitle(selectedFeature) }}
+                    </h2>
+                    <p class="text-gray-600 text-lg leading-relaxed">
+                        {{ getDescription(selectedFeature) }}
+                    </p>
+                </div>
+
+                <!-- Boutons -->
+                <div class="flex justify-end gap-4">
+                    <button (click)="openExternalLink(selectedFeature.link)"
+                        class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
+                        {{ currentLang === 'FR' ? 'Ouvrir sur YouTube' : 'Open on YouTube' }}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </button>
+
+                    <button (click)="closeModal()"
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-all font-medium">
+                        {{ getCloseButton() }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

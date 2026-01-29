@@ -11,6 +11,30 @@ export interface TasksKpi {
   completedTasks: number;
   overdueTasks: number;
 }
+export interface ProjectKpi {
+  total: number;
+  inProgress: number;
+  delayed: number;
+  pending: number;
+  pendingpending:number;
+}
+export interface StudyKpi {
+  total: number;
+  percentages: {
+    PENDING: number;
+    IN_PROGRESS: number;
+    DELIVERED: number;
+    VALIDATED: number;
+    REJECTED: number;
+  };
+  counts: {
+    PENDING: number;
+    IN_PROGRESS: number;
+    DELIVERED: number;
+    VALIDATED: number;
+    REJECTED: number;
+  };
+}
 
 export interface GlobalIndicator {
   averageProgressPercentage: number;
@@ -138,7 +162,26 @@ export class DashboardService {
       'Content-Type': 'application/json'
     });
   }
+/**
+ * Vue d'ensemble et répartition des études
+ * Endpoint: api/study-requests/kpi/moa/{moaId}
+ */
+getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
+  const userId = this.getCurrentUserId();
+  console.log('📊 getVueEnsembleAndRepartitionEtude - utilisateur:', userId);
+  
+  if (!userId) {
+    throw new Error('Utilisateur non connecté'); 
+  }
 
+  const url = `${this.baseUrl}/study-requests/kpi/moa/${userId}`;
+  
+  console.log('📡 Appel API:', url);
+  
+  return this.http.get<StudyKpi>(url, {
+    headers: this.getAuthHeaders()
+  });
+}
   /**
    * Récupère l'ID de l'utilisateur connecté
    */
@@ -180,6 +223,24 @@ export class DashboardService {
     console.log('📡 Appel API:', url);
     
     return this.http.get<TasksKpi>(url, {
+      headers: this.getAuthHeaders(),
+      params: params
+    });
+  }
+  vueEnsembleProject(): Observable<ProjectKpi> {
+    const userId = this.getCurrentUserId();
+    console.log('📊 vueEnsemble - utilisateur:', userId);
+    
+    if (!userId) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    const params = new HttpParams().set('promoterId', userId.toString());
+    const url = `${this.baseUrl}/realestate/kpi/status`;
+    
+    console.log('📡 Appel API:', url);
+    
+    return this.http.get<ProjectKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
     });

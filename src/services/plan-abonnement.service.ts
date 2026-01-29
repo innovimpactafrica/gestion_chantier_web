@@ -130,29 +130,27 @@ export class PlanAbonnementService {
       );
   }
 
-  /**
-   * Met à jour un plan d'abonnement
-   */
-  putPlanAbonnement(id: number, planData: Partial<SubscriptionPlan>): Observable<SubscriptionPlan> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/subscription-plans/${id}`;
-    
-    console.log('📡 API Call: putPlanAbonnement');
-    console.log('🔗 URL:', url);
-    console.log('🆔 Plan ID:', id);
-    console.log('📝 Données à mettre à jour:', planData);
-    
-    return this.http.put<SubscriptionPlan>(url, planData, { headers })
-      .pipe(
-        tap(updatedPlan => {
-          console.log('✅ Plan d\'abonnement mis à jour:');
-          console.log('  - ID:', updatedPlan.id);
-          console.log('  - Nom:', updatedPlan.name);
-          console.log('  - Label:', updatedPlan.label);
-        }),
-        catchError(error => this.handleError(error, 'putPlanAbonnement'))
-      );
-  }
+/**
+ * Met à jour un plan d'abonnement
+ * ✅ CORRECTION: L'endpoint retourne void (pas de corps de réponse)
+ */
+putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.baseUrl}/subscription-plans/${id}`;
+  
+  console.log('📡 API Call: putPlanAbonnement');
+  console.log('🔗 URL:', url);
+  console.log('🆔 Plan ID:', id);
+  console.log('📝 Données à mettre à jour:', planData);
+  
+  return this.http.put<void>(url, planData, { headers })
+    .pipe(
+      tap(() => {
+        console.log('✅ Plan d\'abonnement mis à jour avec succès (ID:', id, ')');
+      }),
+      catchError(error => this.handleError(error, 'putPlanAbonnement'))
+    );
+}
 
   /**
    * Supprime un plan d'abonnement

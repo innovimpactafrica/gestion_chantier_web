@@ -12,7 +12,9 @@ import { StatistiqueComponent } from '../../statistique/statistique.component';
 import { DashboardService, CriticalMaterial } from '../../../../../services/dashboard.service';
 import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
+import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
+import { CommandeService } from '../../../../../services/commande.service';
 
 
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
@@ -94,11 +96,17 @@ interface Movement {
 
 interface Delivery {
   orderDate: number[];
+  supplier: {
+    id: number;
+    prenom: string;
+    nom: string;
+    telephone: string;
+  };
   id: number;
   number: string;
   date: string; // Attendu au format dd-MM-yyyy
   command: string;
-  supplier: string;
+  
   status: 'Complète' | 'Partielle' | 'Annulée';
   proof: string;
 }
@@ -182,7 +190,7 @@ interface DeliveriesResponse {
   selector: 'app-stock',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, StatistiqueComponent],
-  templateUrl: './stock.component.html',
+  templateUrl:'./stock.component.html',
   styleUrls: ['./stock.component.css']
 })
 export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
@@ -253,8 +261,25 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   suppliers: User[] = []; // Liste des fournisseurs
   suppliersLoading: boolean = false;
   showMenu = false;
+  // Ajouter ces propriétés dans la classe StockComponent
+consommationData: ConsommationData[] = [];
+evolutionData: EvolutionData[] = [];
+consommationChart: Chart | null = null;
+evolutionChart: Chart | null = null;
 
+// Modals de confirmation
+showDeleteModal: boolean = false;
+showDeleteOrderModal: boolean = false;
+materialToDelete: Material | null = null;
+orderToDelete: Order | null = null;
+showSuccessModal: boolean = false;
+showErrorModal: boolean = false;
+successMessage: string = '';
+errorMessage: string = '';
 
+// Pour les livraisons
+deliveryPageSize: number = 10;
+orderPageSize: number = 10;
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
@@ -262,7 +287,9 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     private propertyService: PropertyTypeService,
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private userService: UserService, // ⚠️ AJOUTER cette injection
+    private statistiqueService: StatistiqueService, 
+    private userService: UserService,
+    private commandeService:CommandeService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -273,13 +300,11 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
       propertyId: [null, [Validators.required]]
     });
 
-    // ⚠️ NOUVEAU FormGroup pour les commandes
-    this.orderForm = this.fb.group({
-      supplierId: ['', Validators.required],
-      deliveryDate: ['', Validators.required],
-      specialInstructions: [''],
-      materials: this.fb.array([])
-    });
+ // ✅ REMPLACER l'orderForm actuel par :
+this.orderForm = this.fb.group({
+  supplierId: ['', Validators.required],
+  materials: this.fb.array([])
+});
 
     this.movementForm = this.fb.group({
       type: ['ENTRY', Validators.required],
@@ -288,7 +313,28 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
       comment: ['']
     });
   }
-
+  get materialsArray(): FormArray {
+    return this.orderForm.get('materials') as FormArray;
+  }
+  addMaterialLine(): void {
+    this.materialsArray.push(
+      this.fb.group({
+        materialId: ['', Validators.required],
+        quantity: [1, [Validators.required, Validators.min(1)]]
+      })
+    );
+  }
+  removeMaterialLine(index: number): void {
+    if (this.materialsArray.length > 1) {
+      this.materialsArray.removeAt(index);
+    }
+  }
+  getStockForMaterial(index: number): number {
+    const materialId = this.materialsArray.at(index).get('materialId')?.value;
+    if (!materialId) return 0;
+    const mat = this.materials.find(m => m.id === Number(materialId));
+    return mat ? mat.quantity : 0;
+  }
   // ✅ CORRIGER ngOnInit
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
@@ -306,12 +352,48 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
       this.loadUnits();
       this.loadProperties();
       this.loadCriticalMaterials();
-      this.loadSuppliers(); // ⚠️ AJOUTER cette ligne
+      this.loadStatistiques();
+      this.loadSuppliers();
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
-
+  printOrder(order: Order): void {
+    // console.log('Impression de la commande:', order);
+    // Logique d'impression à implémenter
+    this.showSuccessMessage('Fonctionnalité d\'impression en cours de développement');
+  }
+  loadStatistiques(): void {
+    // Charger données de consommation
+    this.statistiqueService.getConsommation(this.propertyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.consommationData = data;
+          if (this.activeTab === 'statistiques') {
+            setTimeout(() => this.initConsumptionChart(), 100);
+          }
+        },
+        error: (err) => {
+          console.error('Erreur chargement consommation:', err);
+        }
+      });
+  
+    // Charger données d'évolution
+    this.statistiqueService.getEvolution(this.propertyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.evolutionData = data;
+          if (this.activeTab === 'statistiques') {
+            setTimeout(() => this.initEvolutionChart(), 100);
+          }
+        },
+        error: (err) => {
+          console.error('Erreur chargement évolution:', err);
+        }
+      });
+  }
   getMaterialStockByIndex(index: number): string {
     const materials = this.orderForm.get('materials') as FormArray;
     const materialId = materials.at(index).get('materialId')?.value;
@@ -356,7 +438,8 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
       'DELIVERY': 'Livré',
       'DELIVERED': 'Livré',
       'CANCELLED': 'Annulé',
-      'PENDING': 'En attente'
+      'PENDING': 'En attente',
+      'APPROVED': 'Approuvée'
     };
     return texts[status as keyof typeof texts] || status;
   }
@@ -380,85 +463,162 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     const maxPages = 5;
     let startPage = Math.max(0, this.deliveryCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalDeliveryPages - 1, startPage + maxPages - 1);
+    
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
+    
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
+// ===== MODIFIER loadStock() pour utiliser materialCurrentPage =====
+loadStock(): void {
+  this.loading = true;
+  if (!this.propertyId || this.propertyId <= 0) {
+    console.error('ID de propriété invalide:', this.propertyId);
+    this.showErrorMessage('ID de propriété invalide');
+    this.loading = false;
+    return;
+  }
 
-  loadStock(): void {
-    this.loading = true;
-    if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
-      this.showErrorMessage('ID de propriété invalide');
-      this.loading = false;
-      return;
+  // ✅ UTILISER materialCurrentPage et materialPageSize
+  this.materialsService.getStock(this.propertyId, this.materialCurrentPage, this.materialPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: MaterialsResponse) => {
+        console.log('Réponse reçue:', response);
+        this.data = response;
+        this.materials = response.content || [];
+        this.totalMaterialElements = response.totalElements || 0;
+        this.totalMaterialPages = response.totalPages || 0;
+        
+        // Plus besoin de filtrage côté client pour la pagination
+        this.paginatedMaterials = [...this.materials];
+        this.generateStockAlerts();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du stock:', error);
+        this.loading = false;
+        this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
+      }
+    });
+}
+
+
+// ===== MODIFIER loadOrders() pour utiliser orderPageSize =====
+loadOrders(): void {
+  this.loading = true;
+  this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.orderPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response) => {
+        this.orders = response.content || [];
+        this.totalOrderElements = response.totalElements || 0;
+        this.totalOrderPages = response.totalPages || 0;
+        this.paginatedOrders = this.orders;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des commandes:', error);
+        this.loading = false;
+        this.showErrorMessage('Erreur lors du chargement des commandes');
+      }
+    });
+}
+
+// ===== MODIFIER loadDeliveries() pour utiliser deliveryPageSize =====
+loadDeliveries(): void {
+  this.loading = true;
+
+  if (!this.propertyId || this.propertyId <= 0) {
+    console.error('ID de propriété invalide:', this.propertyId);
+    this.showErrorMessage('ID de propriété invalide');
+    this.loading = false;
+    return;
+  }
+
+  this.materialsService.getLivraison(this.propertyId, this.deliveryCurrentPage, this.deliveryPageSize)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: any) => {
+        console.log('Livraisons reçues:', response);
+
+        if (response && Array.isArray(response.content)) {
+          this.deliveries = response.content.map((delivery: any) => ({
+            ...delivery,
+            date: delivery.orderDate,
+            formattedDate: this.formatDeliveryDate(delivery.orderDate),
+          }));
+
+          this.totalDeliveryElements = response.totalElements || 0;
+          this.totalDeliveryPages = response.totalPages || 0;
+          this.paginatedDeliveries = [...this.deliveries];
+        } else {
+          console.warn('Structure de réponse inattendue:', response);
+          this.deliveries = [];
+          this.paginatedDeliveries = [];
+        }
+
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement des livraisons:', error);
+        this.loading = false;
+        this.deliveries = [];
+        this.paginatedDeliveries = [];
+        this.showErrorMessage('Erreur lors du chargement des livraisons');
+      }
+    });
+}
+  formatRecentMovementDate(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) return '';
+    
+    const [year, month, day, hours = 0, minutes = 0] = dateArray;
+    const movementDate = new Date(year, month - 1, day, hours, minutes);
+    const now = new Date();
+    
+    const diffMs = now.getTime() - movementDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes < 1 ? "À l'instant" : `Il y a ${diffMinutes} min`;
+    } else if (diffHours < 24) {
+      return `Aujourd'hui, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    } else if (diffHours < 48) {
+      return `Hier, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
-
-    console.log(`Chargement du stock pour la propriété ${this.propertyId}`);
-    this.materialsService.getStock(this.propertyId, 0, 100) // Charger plus d'éléments pour le filtrage côté client
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: MaterialsResponse) => {
-          console.log('Réponse reçue:', response);
-          this.data = response;
-          this.materials = response.content || [];
-          this.totalElements = response.totalElements || 0;
-          this.totalPages = response.totalPages || 0;
-
-          // Initialiser les matériaux filtrés
-          this.filteredMaterials = [...this.materials];
-          this.updatePaginatedMaterials();
-          this.generateStockAlerts();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Erreur complète lors du chargement du stock:', error);
-          this.loading = false;
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions pour cette propriété');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            this.showErrorMessage('Propriété non trouvée');
-          } else {
-            this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
-          }
-        }
-      });
+    
+    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
   }
-
-  loadOrders(): void {
-    this.loading = true;
-    this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.itemsPerPage)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.orders = response.content || [];
-          this.totalOrderElements = response.totalElements || 0;
-          this.totalOrderPages = response.totalPages || 0;
-          this.paginatedOrders = this.orders;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des commandes:', error);
-          this.loading = false;
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            this.showErrorMessage('Aucune commande trouvée');
-          } else {
-            this.showErrorMessage('Erreur lors du chargement des commandes');
-          }
-        }
-      });
+  getMovementBadge(movement: StockMovement): string {
+    if (movement.type === 'ENTRY') {
+      return 'Livraison';
+    } else if (movement.type === 'EXIT') {
+      return movement.material?.property?.name || 'Chantier';
+    }
+    return 'Ajustement';
   }
-
+  getAlertPercentage(alert: StockAlert): number {
+    const material = this.materials.find(m => m.id === alert.materialId);
+    if (!material) return 0;
+    
+    if (!material.criticalThreshold || material.criticalThreshold === 0) {
+      return material.quantity > 0 ? 100 : 0;
+    }
+    
+    const percentage = (material.quantity / (material.criticalThreshold * 2)) * 100;
+    return Math.min(Math.max(percentage, 0), 100);
+  }
+  
+  getAlertStatus(alert: StockAlert): string {
+    const material = this.materials.find(m => m.id === alert.materialId);
+    if (!material) return 'NORMAL';
+    return this.getMaterialStatus(material);
+  }
   loadRecentMovements(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
@@ -511,7 +671,7 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   loadUnits(): void {
     console.log('🔄 Chargement des unités...');
 
-    this.unitParameterService.getByTypePaginated('MATERIAL_CATEGORY', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
+    this.unitParameterService.getByTypePaginated('UNIT', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: PaginatedResponse<UnitParameter>) => {
@@ -595,14 +755,14 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   }
 
 
-  calculateOrderTotal(order: Order): number {
-    if (!order.items || order.items.length === 0) {
-      return 0;
-    }
-    return order.items.reduce((total, item) => {
-      return total + (item.quantity * item.unitPrice);
-    }, 0);
-  }
+  // calculateOrderTotal(order: Order): number {
+  //   if (!order.items || order.items.length === 0) {
+  //     return 0;
+  //   }
+  //   return order.items.reduce((total, item) => {
+  //     return total + (item.quantity * item.unitPrice);
+  //   }, 0);
+  // }
 
 
 
@@ -637,14 +797,15 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   }
 
   // ===== MODIFIER addMaterialToOrder =====
-  addMaterialToOrder(): void {
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.push(this.fb.group({
-      materialId: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      unitPrice: [0, [Validators.required, Validators.min(0)]]
-    }));
-  }
+// ✅ REMPLACER par (ligne ~280 environ) :
+addMaterialToOrder(): void {
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.push(this.fb.group({
+    materialId: ['', Validators.required],
+    quantity: [1, [Validators.required, Validators.min(1)]]
+    // ❌ SUPPRIMER unitPrice
+  }));
+}
 
   // ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
   calculateLineTotal(index: number): void {
@@ -687,74 +848,43 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     }
   }
 
-  onSubmitOrder(): void {
-    // Marquer tous les champs comme touchés
-    Object.keys(this.orderForm.controls).forEach(key => {
-      this.orderForm.get(key)?.markAsTouched();
-    });
-
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.controls.forEach(control => {
-      Object.keys((control as FormGroup).controls).forEach(key => {
-        control.get(key)?.markAsTouched();
-      });
-    });
-
-    if (this.orderForm.valid && !this.loading) {
-      this.loading = true;
-
-      // ⚠️ STRUCTURE CORRECTE selon la capture
-      const orderData: CreateOrder = {
-        supplierId: Number(this.orderForm.value.supplierId), // ID du fournisseur sélectionné
-        deliveryDate: this.orderForm.value.deliveryDate, // Date de livraison
-        specialInstructions: this.orderForm.value.specialInstructions || '',
-        materials: this.orderForm.value.materials.map((m: any) => ({
-          materialId: Number(m.materialId),
-          quantity: Number(m.quantity),
-          unitPrice: Number(m.unitPrice)
-        }))
-      };
-
-      console.log('📦 Données de commande à envoyer:', orderData);
-      console.log('📦 Fournisseur ID:', orderData.supplierId);
-      console.log('📦 Date de livraison:', orderData.deliveryDate);
-      console.log('📦 Matériaux:', orderData.materials);
-      console.log('📦 Total:', this.getOrderTotal());
-
-      this.materialsService.createCommand(orderData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (createdOrder) => {
-            this.loading = false;
-            this.closeOrderModal();
-            this.loadOrders();
-            this.showSuccessMessage('Commande créée avec succès !');
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('❌ Erreur lors de la création de la commande:', error);
-
-            if (error.status === 400) {
-              this.showErrorMessage('Données invalides. Vérifiez tous les champs.');
-            } else if (error.status === 403) {
-              this.showErrorMessage('Accès refusé');
-            } else if (error.status === 401) {
-              this.showErrorMessage('Session expirée');
-            } else if (error.status === 404) {
-              this.showErrorMessage('Fournisseur ou matériau introuvable');
-            } else {
-              this.showErrorMessage(error.message || 'Erreur lors de la création');
-            }
-          }
-        });
-    } else {
-      console.log('❌ Formulaire invalide');
-      console.log('Erreurs formulaire:', this.orderForm.errors);
-      console.log('Valeurs materials:', materials.value);
-      console.log('Erreurs materials:', materials.controls.map(c => c.errors));
-      this.showErrorMessage('Veuillez remplir tous les champs requis');
-    }
+// ✅ REMPLACER onSubmitOrder() par :
+onSubmitOrder(): void {
+  if (!this.orderForm.valid || this.loading) {
+    this.showErrorMessage('Veuillez remplir tous les champs requis');
+    return;
   }
+
+  this.loading = true;
+
+  // ✅ Structure EXACTE du swagger
+  const orderData: CreateOrder = {
+    supplierId: Number(this.orderForm.value.supplierId),
+    materials: this.orderForm.value.materials.map((m: any) => ({
+      materialId: Number(m.materialId),
+      quantity: Number(m.quantity)
+    }))
+  };
+
+  console.log('📦 Données envoyées (format swagger):', orderData);
+
+  this.materialsService.createCommand(orderData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (created) => {
+        console.log('✅ Commande créée:', created);
+        this.loading = false;
+        this.closeOrderModal();
+        this.loadOrders();
+        this.showSuccessMessage('Commande créée avec succès !');
+      },
+      error: (error) => {
+        console.error('❌ Erreur:', error);
+        this.loading = false;
+        this.showErrorMessage(error.message || 'Erreur lors de la création');
+      }
+    });
+}
 
 
   // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
@@ -769,21 +899,13 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   }
 
   // ===== MODIFIER closeOrderModal =====
-  closeOrderModal(): void {
-    this.showOrderModal = false;
-
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.clear();
-
-    this.orderForm.reset({
-      supplierId: '',
-      deliveryDate: '',
-      specialInstructions: ''
-    });
-
-    // Ajouter une ligne vide
-    this.addMaterialToOrder();
-  }
+closeOrderModal(): void {
+  this.showOrderModal = false;
+  const materials = this.orderForm.get('materials') as FormArray;
+  materials.clear();
+  this.orderForm.reset({ supplierId: '' });
+  this.addMaterialToOrder(); // Ajouter une ligne vide
+}
   generateStockAlerts(): void {
     this.stockAlerts = [];
     this.materials.forEach(material => {
@@ -1013,7 +1135,14 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   previousMaterialPage(): void {
     if (this.materialCurrentPage > 0) {
       this.materialCurrentPage--;
-      this.updatePaginatedMaterials();
+      this.loadStock();
+    }
+  }
+  
+  nextMaterialPage(): void {
+    if (this.materialCurrentPage < this.totalMaterialPages - 1) {
+      this.materialCurrentPage++;
+      this.loadStock();
     }
   }
   openMovementModal(material: Material): void {
@@ -1098,6 +1227,49 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     const [_, __, ___, hours, minutes] = dateArray;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
+// ===== SUPPRESSION COMMANDE =====
+confirmDeleteOrder(order: Order): void {
+  if (!order) return;
+  
+  if (order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+    this.showErrorMessage('Impossible de supprimer une commande déjà livrée');
+    return;
+  }
+  
+  this.orderToDelete = order;
+  this.showDeleteOrderModal = true;
+}
+
+cancelDeleteOrder(): void {
+  this.showDeleteOrderModal = false;
+  this.orderToDelete = null;
+}
+
+deleteOrderConfirmed(): void {
+  if (!this.orderToDelete) return;
+  
+  this.loading = true;
+  
+  this.commandeService.deleteCommande(this.orderToDelete.id)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.loading = false;
+        this.showDeleteOrderModal = false;
+        this.orderToDelete = null;
+        
+        this.showSuccessMessage('Commande supprimée avec succès');
+        this.loadOrders();
+      },
+      error: (error) => {
+        this.loading = false;
+        this.showDeleteOrderModal = false;
+        this.orderToDelete = null;
+        
+        this.showErrorMessage('Erreur lors de la suppression de la commande');
+      }
+    });
+}
 
   onCreateMovement(): void {
     if (this.movementForm.valid && this.selectedMaterial && !this.loading) {
@@ -1281,39 +1453,53 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
       console.log('Supprimer', material);
     }
   }
-  nextMaterialPage(): void {
-    if (this.materialCurrentPage < this.totalMaterialPages - 1) {
-      this.materialCurrentPage++;
-      this.updatePaginatedMaterials();
+ 
+  goToMaterialPage(page: number): void {
+    if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
+      this.materialCurrentPage = page;
+      this.loadStock();
     }
   }
+  
   getMaterialPageNumbers(): number[] {
     const pages: number[] = [];
-    const maxPages = 3; // Moins de pages visibles car plus petite pagination
+    const maxPages = 5;
     let startPage = Math.max(0, this.materialCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalMaterialPages - 1, startPage + maxPages - 1);
-
+    
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-
+    
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
-  goToMaterialPage(page: number): void {
-    if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
-      this.materialCurrentPage = page;
-      this.updatePaginatedMaterials();
-    }
-  }
-  showSuccessMessage(message: string): void {
-    console.log('✅', message);
-  }
 
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.showSuccessModal = true;
+    
+    // Auto-fermeture après 3 secondes
+    setTimeout(() => {
+      this.closeSuccessModal();
+    }, 3000);
+  }
+  
   showErrorMessage(message: string): void {
-    console.error('❌', message);
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+  
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
+    this.successMessage = '';
+  }
+  
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.errorMessage = '';
   }
 
   get displayCurrentPage(): number {
@@ -1357,24 +1543,27 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
 
   getOrderStatusClass(status: string): string {
     const classes = {
-      'EN_ATTENTE': 'bg-yellow-100 text-yellow-800',
-      'CONFIRMEE': 'bg-blue-100 text-blue-800',
-      'EN_COURS': 'bg-purple-100 text-purple-800',
-      'LIVREE': 'bg-green-100 text-green-800',
-      'ANNULEE': 'bg-red-100 text-red-800',
-      'PARTIELLEMENT_LIVREE': 'bg-orange-100 text-orange-800'
+      'PENDING': 'bg-yellow-100 text-yellow-800',
+      'CONFIRMED': 'bg-blue-100 text-blue-800',
+      'IN_PROGRESS': 'bg-purple-100 text-purple-800',
+      'DELIVERY': 'bg-green-100 text-green-800',
+      'DELIVERED': 'bg-green-100 text-green-800',
+      'CANCELLED': 'bg-red-100 text-red-800',
+      'PARTIALLY_DELIVERED': 'bg-orange-100 text-orange-800'
     };
     return classes[status as keyof typeof classes] || 'bg-gray-100 text-gray-800';
   }
 
   getOrderStatusText(status: string): string {
     const texts = {
-      'EN_ATTENTE': 'En attente',
-      'CONFIRMEE': 'Confirmée',
-      'EN_COURS': 'En cours',
-      'LIVREE': 'Livrée',
-      'ANNULEE': 'Annulée',
-      'PARTIELLEMENT_LIVREE': 'Partiellement livrée'
+      'PENDING': 'En attente',
+      'CONFIRMED': 'Confirmée',
+      'IN_PROGRESS': 'En cours',
+      'DELIVERY': 'Livrée',
+      'DELIVERED': 'Livrée',
+      'CANCELLED': 'Annulée',
+      'APPROVED': 'Approuvée',
+      'PARTIALLY_DELIVERED': 'Partiellement livrée'
     };
     return texts[status as keyof typeof texts] || status;
   }
@@ -1481,7 +1670,7 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     this.filteredDeliveries = this.deliveries.filter(delivery => {
       const matchesSearch = !this.searchDeliveryTerm ||
         delivery.number.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
-        delivery.supplier.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
+        // delivery.supplier.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase()) ||
         delivery.command.toLowerCase().includes(this.searchDeliveryTerm.toLowerCase());
 
       let matchesStatus = true;
@@ -1601,86 +1790,32 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
     }
   }
 
-  // Modifier la méthode loadDeliveries existante pour intégrer le filtrage
-  loadDeliveries(): void {
-    this.loading = true;
 
-    if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
-      this.showErrorMessage('ID de propriété invalide');
-      this.loading = false;
-      return;
-    }
-
-    console.log(`Chargement des livraisons pour la propriété ${this.propertyId}, page ${this.deliveryCurrentPage}`);
-
-    this.materialsService.getLivraison(this.propertyId, 0, 10) // Charger toutes les livraisons pour le filtrage côté client
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          console.log('Livraisons reçues:', response);
-
-          if (response && Array.isArray(response.content)) {
-            this.deliveries = response.content.map((delivery: any) => ({
-              ...delivery,
-              date: delivery.orderDate, // Garder les données brutes
-              formattedDate: this.formatDeliveryDate(delivery.orderDate), // Ajouter une version formatée
-            }));
-
-            // Initialiser les livraisons filtrées
-            this.filteredDeliveries = [...this.deliveries];
-            this.updatePaginatedDeliveries();
-          } else {
-            console.warn('Structure de réponse inattendue:', response);
-            this.deliveries = [];
-            this.filteredDeliveries = [];
-            this.paginatedDeliveries = [];
-          }
-
-          this.loading = false;
-        },
-        error: (error: any) => {
-          console.error('Erreur lors du chargement des livraisons:', error);
-          this.loading = false;
-          this.deliveries = [];
-          this.filteredDeliveries = [];
-          this.paginatedDeliveries = [];
-
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-            console.log('Aucune livraison trouvée pour cette propriété');
-            this.showErrorMessage('Aucune livraison trouvée');
-          } else {
-            this.showErrorMessage('Erreur lors du chargement des livraisons');
-          }
-        }
-      });
-  }
 
   // Modifier les méthodes de pagination existantes
-  previousDeliveryPage(): void {
-    if (this.deliveryCurrentPage > 0) {
-      this.deliveryCurrentPage--;
-      this.updatePaginatedDeliveries();
-    }
+ // ===== MÉTHODES DE NAVIGATION LIVRAISONS =====
+previousDeliveryPage(): void {
+  if (this.deliveryCurrentPage > 0) {
+    this.deliveryCurrentPage--;
+    this.loadDeliveries();
   }
+}
 
-  nextDeliveryPage(): void {
-    if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
-      this.deliveryCurrentPage++;
-      this.updatePaginatedDeliveries();
-    }
+nextDeliveryPage(): void {
+  if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
+    this.deliveryCurrentPage++;
+    this.loadDeliveries();
   }
+}
 
-  goToDeliveryPage(page: number): void {
-    if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
-      this.deliveryCurrentPage = page;
-      this.updatePaginatedDeliveries();
-    }
+goToDeliveryPage(page: number): void {
+  if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
+    this.deliveryCurrentPage = page;
+    this.loadDeliveries();
   }
+}
+
+
   private normalizeDeliveryStatus(displayStatus: string): string[] {
     const statusMapping: { [key: string]: string[] } = {
       'livré': ['DELIVERY', 'DELIVERED'],
@@ -1693,22 +1828,50 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   }
 
 
+// ===== SUPPRESSION MATÉRIEL =====
+confirmDeleteMaterial(material: Material): void {
+  this.materialToDelete = material;
+  this.showDeleteModal = true;
+}
 
+cancelDeleteMaterial(): void {
+  this.showDeleteModal = false;
+  this.materialToDelete = null;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+deleteMaterialConfirmed(): void {
+  if (!this.materialToDelete) return;
+  
+  this.loading = true;
+  
+  this.materialsService.deleteMaterial(this.materialToDelete.id)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.loading = false;
+        this.showDeleteModal = false;
+        const materialName = this.materialToDelete?.label || '';
+        this.materialToDelete = null;
+        
+        this.showSuccessMessage(`${materialName} a été supprimé avec succès`);
+        this.loadStock();
+        this.loadStockMovements();
+      },
+      error: (error: { status: number; }) => {
+        this.loading = false;
+        this.showDeleteModal = false;
+        this.materialToDelete = null;
+        
+        if (error.status === 403) {
+          this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
+        } else if (error.status === 409) {
+          this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes');
+        } else {
+          this.showErrorMessage('Erreur lors de la suppression du matériel');
+        }
+      }
+    });
+}
 
 //ABOUBACAR SOW
 
@@ -1756,10 +1919,6 @@ closeDropdown(): void {
 }
 
 
-
-
-
-
 ngAfterViewInit(): void {
   if (this.activeTab === 'statistiques') {
     this.initConsumptionChart();
@@ -1773,62 +1932,83 @@ setActiveTab(tab: string): void {
 
   if (tab === 'statistiques') {
     setTimeout(() => {
-      this.initConsumptionChart();
-      this.initEvolutionChart();
-    }, 0);
+      if (this.consommationData.length > 0) {
+        this.initConsumptionChart();
+      }
+      if (this.evolutionData.length > 0) {
+        this.initEvolutionChart();
+      }
+    }, 100);
   }
 }
 
 
 
 
-// =========================
-  // BAR CHART
-  // =========================
- initConsumptionChart() {
-  new Chart('consumptionChart', {
+initConsumptionChart() {
+  const canvas = document.getElementById('consumptionChart') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  // Détruire l'ancien graphique s'il existe
+  if (this.consommationChart) {
+    this.consommationChart.destroy();
+  }
+
+  // Préparer les données
+  const labels = this.consommationData.map(item => item.materialLabel);
+  const data = this.consommationData.map(item => item.totalUsedQuantity);
+  
+  // Couleurs dynamiques
+  const colors = [
+    '#FDEDEC', '#BB8FCE', '#F1948A', '#F7DC6F', '#82E0AA',
+    '#85C1E9', '#F8B88B', '#D7BDE2', '#A9DFBF', '#FAD7A0'
+  ];
+
+  this.consommationChart = new Chart(canvas, {
     type: 'bar',
     data: {
-      labels: ['Ciment', 'Acier', 'Briques', 'Peinture', 'PVC'],
+      labels: labels,
       datasets: [{
-        data: [100, 160, 330, 80, 60],
-        backgroundColor: [
-          '#FDEDEC',
-          '#BB8FCE',
-          '#F1948A',
-          '#F7DC6F',
-          '#82E0AA'
-        ]
+        data: data,
+        backgroundColor: colors.slice(0, labels.length),
+        barPercentage: 0.3,      
+        categoryPercentage: 0.8   
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} unités`
+          }
+        }
       },
       scales: {
         x: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 12,
-              weight: 500
+            font: { 
+              family: 'Inter', 
+              size: 12, 
+              weight: 500  
             },
             color: '#34495E'
           },
           grid: { display: false }
         },
         y: {
+          beginAtZero: true, 
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 11
+            font: { 
+              family: 'Inter', 
+              size: 11 
             },
             color: '#7F8C8D'
           },
-          grid: {
-            color: '#ECF0F1'
+          grid: { 
+            color: '#ECF0F1' 
           }
         }
       }
@@ -1836,25 +2016,50 @@ setActiveTab(tab: string): void {
   });
 }
 
+// ⚠️  initEvolutionChart :
+initEvolutionChart() {
+  const canvas = document.getElementById('evolutionChart') as HTMLCanvasElement;
+  if (!canvas) return;
 
-  // =========================
-  // LINE CHART
-  // =========================
- initEvolutionChart() {
-  new Chart('evolutionChart', {
+  // Détruire l'ancien graphique s'il existe
+  if (this.evolutionChart) {
+    this.evolutionChart.destroy();
+  }
+
+  // Préparer les données
+  const labels = this.evolutionData.map(item => {
+    const date = new Date(item.date);
+    return date.toLocaleDateString('fr-FR', { month: 'short' });
+  });
+  const entriesData = this.evolutionData.map(item => item.totalEntries);
+  const exitsData = this.evolutionData.map(item => item.totalExits);
+
+  this.evolutionChart = new Chart(canvas, {
     type: 'line',
     data: {
-      labels: ['Jan', 'Fév', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil'],
-      datasets: [{
-        label: 'Unité utilisées',
-        data: [120, 128, 136, 142, 153, 159, 168],
-        borderColor: '#FF5C02',
-        backgroundColor: 'rgba(255, 92, 2, 0.15)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#FF5C02'
-      }]
+      labels: labels,
+      datasets: [
+        {
+          label: 'Entrées',
+          data: entriesData,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#10B981'
+        },
+        {
+          label: 'Sorties',
+          data: exitsData,
+          borderColor: '#FF5C02',
+          backgroundColor: 'rgba(255, 92, 2, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#FF5C02'
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -1862,11 +2067,7 @@ setActiveTab(tab: string): void {
       plugins: {
         legend: {
           labels: {
-            font: {
-              family: 'Inter',
-              size: 12,
-              weight: 500
-            },
+            font: { family: 'Inter', size: 12, weight: 500 },
             color: '#34495E'
           }
         }
@@ -1874,43 +2075,22 @@ setActiveTab(tab: string): void {
       scales: {
         x: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 12
-            },
+            font: { family: 'Inter', size: 12 },
             color: '#34495E'
           },
           grid: { display: false }
         },
         y: {
           ticks: {
-            font: {
-              family: 'Inter',
-              size: 11
-            },
+            font: { family: 'Inter', size: 11 },
             color: '#7F8C8D'
           },
-          grid: {
-            color: '#ECF0F1'
-          }
+          grid: { color: '#ECF0F1' }
         }
       }
     }
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

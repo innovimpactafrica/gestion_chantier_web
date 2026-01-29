@@ -122,11 +122,10 @@
                   </svg>
                 </button>
                 <!-- Activer/Désactiver -->
-                <button (click)="togglePlanStatus(plan)"
+                <!-- <button (click)="togglePlanStatus(plan)"
                   [class]="plan.active ? 'text-gray-600 hover:text-gray-900' : 'text-green-600 hover:text-green-700'"
                   class="transition-colors" [title]="plan.active ? 'Désactiver' : 'Activer'">
 
-                  <!-- 🔒 Icône Désactiver (si actif) -->
                   <svg *ngIf="plan.active" width="20" height="20" viewBox="0 0 20 20" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -134,7 +133,6 @@
                       fill="#FF5C02" />
                   </svg>
 
-                  <!-- 🔓 Icône Activer (si inactif) -->
                   <svg *ngIf="!plan.active" width="20" height="20" viewBox="0 0 20 20" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_4891_11525)">
@@ -149,7 +147,7 @@
                     </defs>
                   </svg>
 
-                </button>
+                </button> -->
 
 
 
@@ -315,3 +313,4 @@
         Annuler
       </button>
     </div>
+    

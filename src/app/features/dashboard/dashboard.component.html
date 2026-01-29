@@ -3,7 +3,7 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
     <div class="bg-white rounded-2xl px-12 py-10 flex flex-col items-center
-           shadow-md">
+            shadow-md">
 
       <!-- Spinner -->
       <div class="relative w-20 h-20 mb-6">
@@ -12,7 +12,7 @@
 
         <!-- Animated ring -->
         <div class="absolute inset-0 rounded-full border-4
-               border-[#FF5C02] border-t-transparent animate-spin"></div>
+                border-[#FF5C02] border-t-transparent animate-spin"></div>
 
         <!-- Center dot -->
         <div class="absolute inset-0 flex items-center justify-center">
@@ -22,12 +22,11 @@
 
       <!-- Text -->
       <p class="text-[20px] font-bold text-[#2C3E50]">
-        Chargement du tableau de bord
+        {{ t('dashboard.loading.title') }}
       </p>
 
       <span class="text-sm text-[#7F8C8D] mt-2 text-center">
-        Analyse des données en cours,<br />
-        veuillez patienter…
+        {{ t('dashboard.loading.subtitle') }}
       </span>
     </div>
   </div>
@@ -38,7 +37,7 @@
     <div class="bg-white rounded-2xl px-10 py-8 max-w-md w-full text-center shadow-md">
       <!-- Icon -->
       <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center
-             rounded-full bg-[#FFE5DA]">
+              rounded-full bg-[#FFE5DA]">
         <svg class="w-8 h-8 text-[#FF5C02]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -47,7 +46,7 @@
 
       <!-- Title -->
       <h3 class="text-[20px] font-bold text-[#2C3E50] mb-2">
-        Impossible de charger les données
+        {{ t('dashboard.error.title') }}
       </h3>
 
       <!-- Message -->
@@ -57,9 +56,9 @@
 
       <!-- Action -->
       <button (click)="refreshDashboard()" class="px-6 py-2 rounded-xl
-             bg-[#FF5C02] text-white font-semibold
-             hover:bg-[#e14f02] transition">
-        Réessayer
+              bg-[#FF5C02] text-white font-semibold
+              hover:bg-[#e14f02] transition">
+        {{ t('dashboard.retry') }}
       </button>
     </div>
   </div>
@@ -71,7 +70,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-10">
       <!-- Title -->
-      <h1 class="text-4xl font-bold text-[#2C3E50]">Tableau de bord</h1>
+      <h1 class="text-4xl font-bold text-[#2C3E50]">{{ t('dashboard.title') }}</h1>
 
       <!-- Right actions -->
 
@@ -85,7 +84,7 @@
                 fill="#777777" />
             </svg>
           </span>
-          <input type="text" placeholder="Rechercher par projet"
+          <input type="text" [placeholder]="t('dashboard.searchProject')"
             class="w-full h-[56px] pl-12 pr-4 text-[20px] text-[#777777] placeholder-[#777777] bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-0" />
         </div>
 
@@ -109,13 +108,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
       <!-- Vue d'ensemble des chantiers -->
       <div class="bg-white rounded-xl p-5">
-        <!-- Header -->
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[24px] font-bold text-[#2C3E50]">
-            Vue d'ensemble des chantiers
+            {{ t('dashboard.overview.sites') }}
           </h2>
           <span class="text-[#7F8C8D]">
-            <svg width="27" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path opacity="0.5"
                 d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z"
                 fill="#777777" />
@@ -130,41 +128,32 @@
           </span>
         </div>
 
-        <!-- Metrics -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              En cours
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.inProgress') }}</span>
             <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
-              {{ chantiers.enCours }}
+              {{ dashboardData.chantiers.inProgress }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              En retard
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.delayed') }}</span>
             <p class="text-[30px] font-bold text-[#E74C3C] leading-tight">
-              {{ chantiers.enRetard }}
+              {{ dashboardData.chantiers.delayed }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              En attente
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.pending') }}</span>
             <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
-              {{ chantiers.enAttente }}
+              {{ dashboardData.chantiers.pending }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              Terminées
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('common.total') }}</span>
             <p class="text-[30px] font-bold text-[#2ECC71] leading-tight">
-              {{ chantiers.termines }}
+              {{ dashboardData.chantiers.total }}
             </p>
           </div>
         </div>
@@ -172,13 +161,12 @@
 
       <!-- Vue d'ensemble des études -->
       <div class="bg-white rounded-xl p-5">
-        <!-- Header -->
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[24px] font-bold text-[#2C3E50]">
-            Vue d'ensemble des études
+            {{ t('dashboard.overview.studies') }}
           </h2>
           <span class="text-[#7F8C8D]">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path opacity="0.5"
                 d="M9 8.5C9 8.76522 8.89464 9.01957 8.70711 9.20711C8.51957 9.39464 8.26522 9.5 8 9.5C7.73478 9.5 7.48043 9.39464 7.29289 9.20711C7.10536 9.01957 7 8.76522 7 8.5C7 8.23478 7.10536 7.98043 7.29289 7.79289C7.48043 7.60536 7.73478 7.5 8 7.5C8.26522 7.5 8.51957 7.60536 8.70711 7.79289C8.89464 7.98043 9 8.23478 9 8.5ZM6 13C6.26522 13 6.51957 12.8946 6.70711 12.7071C6.89464 12.5196 7 12.2652 7 12C7 11.7348 6.89464 11.4804 6.70711 11.2929C6.51957 11.1054 6.26522 11 6 11C5.73478 11 5.48043 11.1054 5.29289 11.2929C5.10536 11.4804 5 11.7348 5 12C5 12.2652 5.10536 12.5196 5.29289 12.7071C5.48043 12.8946 5.73478 13 6 13ZM18 13C18.2652 13 18.5196 12.8946 18.7071 12.7071C18.8946 12.5196 19 12.2652 19 12C19 11.7348 18.8946 11.4804 18.7071 11.2929C18.5196 11.1054 18.2652 11 18 11C17.7348 11 17.4804 11.1054 17.2929 11.2929C17.1054 11.4804 17 11.7348 17 12C17 12.2652 17.1054 12.5196 17.2929 12.7071C17.4804 12.8946 17.7348 13 18 13ZM16 9.5C16.2652 9.5 16.5196 9.39464 16.7071 9.20711C16.8946 9.01957 17 8.76522 17 8.5C17 8.23478 16.8946 7.98043 16.7071 7.79289C16.5196 7.60536 16.2652 7.5 16 7.5C15.7348 7.5 15.4804 7.60536 15.2929 7.79289C15.1054 7.98043 15 8.23478 15 8.5C15 8.76522 15.1054 9.01957 15.2929 9.20711C15.4804 9.39464 15.7348 9.5 16 9.5Z"
                 fill="#777777" />
@@ -193,41 +181,32 @@
           </span>
         </div>
 
-        <!-- Metrics -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              En ensemble
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.notInitiated') }}</span>
             <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
-              {{ etudes.enEnsemble || 0 }}
+              {{ dashboardData.etudes.counts.PENDING }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              En cours
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.initiated') }}</span>
             <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
-              {{ etudes.enCours || 0 }}
+              {{ dashboardData.etudes.counts.IN_PROGRESS }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              Terminées
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.metrics.delivered') }}</span>
             <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
-              {{ etudes.terminees || 0 }}
+              {{ dashboardData.etudes.counts.DELIVERED }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">
-              Livrées
-            </span>
+            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.completed') }}</span>
             <p class="text-[30px] font-bold text-[#3498DB] leading-tight">
-              {{ etudes.livrees || 0 }}
+              {{ dashboardData.etudes.counts.VALIDATED }}
             </p>
           </div>
         </div>
@@ -235,13 +214,12 @@
 
       <!-- Répartition des études (%) -->
       <div class="bg-white rounded-xl p-5">
-        <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[24px] font-semibold text-[#2C3E50]">
-            Répartition des études (%)
+            {{ t('dashboard.studies.distribution') }}
           </h2>
           <span class="text-[#7F8C8D]">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M7.5 16.395H12V23.895H7.5V16.395ZM1.5 20.895H6V23.895H1.5V20.895ZM19.5 17.895H24V23.895H19.5V17.895ZM13.5 13.395H18V23.895H13.5V13.395ZM24 0L15.48 7.455L7.275 4.905L0 10.545V13.395L7.725 7.395L16.02 9.975L24 2.985V0Z"
                 fill="#777777" />
@@ -249,41 +227,51 @@
 
           </span>
         </div>
-        <!-- Content -->
+
         <div class="flex items-center gap-6">
-          <!-- Donut -->
           <div class="w-40 h-40 flex-shrink-0">
             <canvas #repartitionChart></canvas>
           </div>
-          <!-- Legend (RIGHT SIDE) -->
+
           <div class="flex-1 space-y-4 text-sm">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                <span class="text-[#7F8C8D]">Complétées</span>
+                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.completed') }}</span>
               </div>
-              <span class="font-semibold text-[#2C3E50]">{{ etudes.percentageCompletees || 0 }}%</span>
+              <span class="font-semibold text-[#2C3E50]">
+                {{ dashboardData.etudes.percentages.VALIDATED| number: '1.0-1' }}%
+              </span>
             </div>
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-orange-400"></span>
-                <span class="text-[#7F8C8D]">En cours</span>
+                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.initiated') }}</span>
               </div>
-              <span class="font-semibold text-[#2C3E50]">{{ etudes.percentageEnCours || 0 }}%</span>
+              <span class="font-semibold text-[#2C3E50]">
+                {{ dashboardData.etudes.percentages.IN_PROGRESS | number: '1.0-1' }}%
+              </span>
             </div>
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-                <span class="text-[#7F8C8D]">Initiées</span>
+                <span class="text-[#7F8C8D]">{{ t('dashboard.metrics.delivered') }}</span>
               </div>
-              <span class="font-semibold text-[#2C3E50]">{{ etudes.percentageInitiees || 0 }}%</span>
+              <span class="font-semibold text-[#2C3E50]">
+                {{ dashboardData.etudes.percentages.DELIVERED | number: '1.0-1' }}%
+              </span>
             </div>
+
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="text-[#7F8C8D]">Non initiées</span>
+                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.notInitiated') }}</span>
               </div>
-              <span class="font-semibold text-[#2C3E50]">{{ etudes.percentageNonInitiees || 0 }}%</span>
+              <span class="font-semibold text-[#2C3E50]">
+                {{ dashboardData.etudes.percentages.PENDING| number: '1.0-1' }}%
+              </span>
             </div>
           </div>
         </div>
@@ -309,7 +297,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[26px] font-bold text-[#2C3E50]">
-            Taux moyen d'avancement
+            {{ t('dashboard.indicators.progress') }}
           </h2>
           <span class="text-[#7F8C8D]">
 
@@ -347,7 +335,7 @@
                 {{ avancement.pourcentage }}%
               </span>
               <span class="text-[14px] font-medium text-[#7F8C8D]">
-                Taux moyen
+                {{ t('dashboard.rate.avg') }}
               </span>
             </div>
 
@@ -362,7 +350,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[26px] font-bold text-[#2C3E50]">
-            Budget global
+            {{ t('dashboard.indicators.budget') }}
           </h2>
           <span class="text-[#7F8C8D]">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -390,7 +378,7 @@
                 {{ budget.pourcentageConsomme }}%
               </span>
               <span class="text-[14px] font-medium text-[#7F8C8D]">
-                consommé
+                {{ t('dashboard.budget.consumed') }}
               </span>
             </div>
           </div>
@@ -401,7 +389,7 @@
             <div class="flex items-center gap-3">
               <span class="w-2.5 h-2.5 rounded-full bg-[#FF5C02]"></span>
               <span class="text-[#34495E] font-medium">
-                Consommé :
+                {{ t('dashboard.budget.consumed') }} :
               </span>
               <span class="font-bold text-[#2C3E50]">
                 {{ formatCurrency(budget.consomme) }}
@@ -411,7 +399,7 @@
             <div class="flex items-center gap-3">
               <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
               <span class="text-[#34495E] font-medium">
-                Restant :
+                {{ t('dashboard.budget.remaining') }} :
               </span>
               <span class="font-bold text-[#2C3E50]">
                 {{ formatCurrency(budget.restant) }}
@@ -432,7 +420,7 @@
             <span class="text-[#7F8C8D]">
             </span>
             <h2 class="text-[26px] font-bold text-[#2C3E50]">
-              Alertes stock matériaux
+              {{ t('dashboard.alerts.stock') }}
             </h2>
           </div>
 
@@ -450,7 +438,8 @@
         <!-- Alerts list -->
         <div class="flex-1 overflow-y-auto space-y-5">
 
-          <div *ngFor="let alerte of stockAlertes" class="flex flex-col gap-1">
+          <!-- ✅ Ajout du pipe slice pour afficher les 3 premières alertes -->
+          <div *ngFor="let alerte of stockAlertes | slice:0:3" class="flex flex-col gap-1">
             <p class="font-medium text-[#34495E]">
               {{ alerte.nom }}
             </p>
@@ -474,35 +463,12 @@
           </div>
 
           <div *ngIf="stockAlertes.length === 0" class="text-center text-[#7F8C8D] text-sm">
-            Aucune alerte
+            {{ t('dashboard.alerts.none') }}
           </div>
         </div>
       </div>
 
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -514,7 +480,7 @@
       <!-- État d'avancement -->
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <h2 class="text-[27px] font-bold text-gray-900">État d'avancement</h2>
+          <h2 class="text-[27px] font-bold text-gray-900">{{ t('dashboard.charts.progress') }}</h2>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="text-gray-400 flex-shrink-0">
             <g clip-path="url(#clip0_3205_3606)">
@@ -539,7 +505,7 @@
       <!-- Incidents signalés (7 jours) -->
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <h2 class="text-[27px] font-bold text-gray-900">Incidents signalés (7 jours)</h2>
+          <h2 class="text-[27px] font-bold text-gray-900">{{ t('dashboard.charts.incidents') }}</h2>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="text-gray-400 flex-shrink-0">
             <path
@@ -578,7 +544,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[25px] font-bold text-[#2C3E50]">
-            Tâches critiques à échéance
+            {{ t('dashboard.tasks.critical') }}
           </h2>
           <svg width="22" height="27" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -592,10 +558,10 @@
         <div class="flex-1 overflow-y-auto space-y-4 pr-1">
           <div *ngFor="let tache of tachesCritiques" class="flex items-center gap-3">
             <span class="w-2.5 h-2.5 rounded-full" [ngClass]="{
-            'bg-red-500': tache.status === 'En retard',
-            'bg-orange-400': tache.status === 'Urgent',
-            'bg-green-500': tache.status === 'À jour'
-          }"></span>
+             'bg-red-500': tache.status === 'En retard',
+             'bg-orange-400': tache.status === 'Urgent',
+             'bg-green-500': tache.status === 'À jour'
+           }"></span>
 
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold text-[#2C3E50] truncate">
@@ -607,10 +573,10 @@
             </div>
 
             <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap" [ngClass]="{
-            'bg-red-100 text-red-700': tache.status === 'En retard',
-            'bg-orange-100 text-orange-700': tache.status === 'Urgent',
-            'bg-green-100 text-green-700': tache.status === 'À jour'
-          }">
+             'bg-red-100 text-red-700': tache.status === 'En retard',
+             'bg-orange-100 text-orange-700': tache.status === 'Urgent',
+             'bg-green-100 text-green-700': tache.status === 'À jour'
+           }">
               {{ tache.status }}
             </span>
           </div>
@@ -622,7 +588,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[25px] font-bold text-[#2C3E50]">
-            Photos récentes
+            {{ t('dashboard.photos.recent') }}
           </h2>
           <svg width="26" height="24" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -635,20 +601,11 @@
         <!-- Grid photos -->
         <div class="flex-1 grid grid-cols-3 gap-3">
           <div *ngFor="let photo of photosRecentes | slice:0:6"
-            class="photo-container relative aspect-square rounded-lg overflow-hidden cursor-pointer"
-            (click)="openPhotoModal(photo)">
+            class="relative aspect-square rounded-lg overflow-hidden cursor-pointer" (click)="openPhotoModal(photo)">
             <img [src]="getBaseFile() + photo.src" class="w-full h-full object-cover" />
 
-            <!-- Zoom overlay -->
-            <div class="zoom-overlay">
-              <svg class="zoom-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-              </svg>
-            </div>
-
             <div class="absolute bottom-2 left-2 bg-black bg-opacity-70
-                 text-white text-xs px-2 py-1 rounded">
+                  text-white text-xs px-2 py-1 rounded">
               <div class="font-semibold truncate">
                 {{ photo.phase || photo.alt }}
               </div>
@@ -663,7 +620,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[25px] font-bold text-[#2C3E50]">
-            Résumé des performances
+            {{ t('dashboard.performance.summary') }}
           </h2>
           <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -685,7 +642,7 @@
           <!-- Taux moyen -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Taux moyen d'avancement
+              {{ t('dashboard.indicators.progress') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.tauxAvancement }}%
@@ -695,7 +652,7 @@
           <!-- Budget consommé -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Budget consommé
+              {{ t('dashboard.metrics.budgetConsumed') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.budgetConsomme }}%
@@ -705,7 +662,7 @@
           <!-- Incidents -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Incidents (7j)
+              {{ t('dashboard.metrics.incidents7d') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.incidents }}
@@ -715,7 +672,7 @@
           <!-- Présence moyenne -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Présence moyenne
+              {{ t('dashboard.performance.avgPresence') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.presenceMoyenne }}%
@@ -725,7 +682,7 @@
           <!-- Tâches en retard -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Tâches en retard
+              {{ t('dashboard.performance.lateTasks') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.tachesRetard }}
@@ -735,7 +692,7 @@
           <!-- Matériaux en alerte -->
           <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
-              Matériaux en alerte
+              {{ t('dashboard.performance.alertMaterials') }}
             </p>
             <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
               {{ performances.materiauxAlerte }}
@@ -769,4 +726,58 @@
 
 
 
+</div>
+
+<!-- Photo Modal -->
+<div *ngIf="selectedPhoto" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90"
+  (click)="closePhotoModal()">
+
+  <div class="relative max-w-7xl w-full h-full flex flex-col items-center justify-center"
+    (click)="$event.stopPropagation()">
+
+    <!-- Close Button -->
+    <button (click)="closePhotoModal()"
+      class="absolute top-4 right-4 text-white hover:text-gray-300 z-50 p-2 rounded-full hover:bg-white/10 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Main Image -->
+    <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
+      <img [src]="getBaseFile() + selectedPhoto.src"
+        class="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+        [alt]="selectedPhoto.phase || 'Photo chantier'">
+
+      <!-- Navigation Buttons -->
+      <button *ngIf="selectedPhoto.images?.length > 1" (click)="previousImage()"
+        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors backdrop-blur-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button *ngIf="selectedPhoto.images?.length > 1" (click)="nextImage()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors backdrop-blur-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Caption / Info -->
+    <div class="mt-4 text-white text-center">
+      <h3 class="text-xl font-bold">{{ selectedPhoto.phase }}</h3>
+      <p class="text-sm opacity-80">{{ selectedPhoto.date }}</p>
+      <div class="mt-2 flex gap-2 justify-center overflow-x-auto pb-2" *ngIf="selectedPhoto.images?.length > 1">
+        <!-- Thumbnails could go here -->
+        <div *ngFor="let img of selectedPhoto.images; let i = index" (click)="selectImageIndex(i)"
+          class="w-16 h-16 rounded overflow-hidden cursor-pointer border-2 transition-all"
+          [class.border-orange-500]="i === currentImageIndex" [class.border-transparent]="i !== currentImageIndex">
+          <img [src]="getBaseFile() + img" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>

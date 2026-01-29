@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { environment } from '../../../environments/environment';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-compte',
@@ -68,10 +69,15 @@ export class CompteComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private subscriptionService = inject(SubscriptionService);
+  public languageService = inject(LanguageService);
   // Dans compte.component.ts, ajouter cette logique dans ngOnInit() :
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
   ngOnInit(): void {
     this.initializeForm();
     this.loadUserData();

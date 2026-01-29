@@ -8,7 +8,7 @@
 //   titre: string;
 //   date: string;
 //   photo: string;
-  
+
 // }
 
 // @Component({
@@ -19,7 +19,7 @@
 //   styleUrl: './photo-project.component.css'
 // })
 // export class PhotoProjectComponent {
-  
+
 //   @Input() photos: ProjectPhoto[] = [];
 
 //   private dashboardService = inject(DahsboardService);
@@ -73,12 +73,17 @@ export interface ProjectPhoto {
 })
 export class PhotoProjectComponent implements OnInit {
   @Input() photos: ProjectPhoto[] = [];
-  
+
   private dashboardService = inject(DahsboardService);
   private authService = inject(AuthService);
-  
+
   isLoading = false;
   error: string | null = null;
+
+  // Modal state
+  showModal = false;
+  currentPhotoIndex = 0;
+  currentPhoto: ProjectPhoto | null = null;
 
   ngOnInit(): void {
     this.loadPhotos();
@@ -126,5 +131,76 @@ export class PhotoProjectComponent implements OnInit {
   retryLoad(): void {
     this.loadPhotos();
   }
-}
 
+  /**
+   * Open modal with selected photo
+   */
+  openModal(index: number): void {
+    if (this.photos && this.photos.length > 0) {
+      this.currentPhotoIndex = index;
+      this.currentPhoto = this.photos[index];
+      this.showModal = true;
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  /**
+   * Close modal
+   */
+  closeModal(): void {
+    this.showModal = false;
+    this.currentPhoto = null;
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }
+
+  /**
+   * Navigate to next photo
+   */
+  nextPhoto(): void {
+    if (this.photos && this.photos.length > 0) {
+      this.currentPhotoIndex = (this.currentPhotoIndex + 1) % this.photos.length;
+      this.currentPhoto = this.photos[this.currentPhotoIndex];
+    }
+  }
+
+  /**
+   * Navigate to previous photo
+   */
+  previousPhoto(): void {
+    if (this.photos && this.photos.length > 0) {
+      this.currentPhotoIndex = (this.currentPhotoIndex - 1 + this.photos.length) % this.photos.length;
+      this.currentPhoto = this.photos[this.currentPhotoIndex];
+    }
+  }
+
+  /**
+   * Handle backdrop click to close modal
+   */
+  handleBackdropClick(event: MouseEvent): void {
+    // Only close if clicking the backdrop itself, not the image
+    if (event.target === event.currentTarget) {
+      this.closeModal();
+    }
+  }
+
+  /**
+   * Handle keyboard navigation
+   */
+  handleKeydown(event: KeyboardEvent): void {
+    if (!this.showModal) return;
+
+    switch (event.key) {
+      case 'Escape':
+        this.closeModal();
+        break;
+      case 'ArrowLeft':
+        this.previousPhoto();
+        break;
+      case 'ArrowRight':
+        this.nextPhoto();
+        break;
+    }
+  }
+}

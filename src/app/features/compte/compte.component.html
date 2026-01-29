@@ -1,7 +1,7 @@
 <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
         <!-- Titre de la page  -->
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Mon compte</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ t('compte.title') }}</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Carte du profil utilisateur (gauche) -->
@@ -31,7 +31,7 @@
                             <!-- Bouton de modification de photo -->
                             <button type="button" (click)="triggerPhotoInput()" [disabled]="isUploadingPhoto()"
                                 class="absolute bottom-0 right-0 bg-gray-600 hover:bg-gray-700 text-white rounded-full p-2 shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Changer la photo">
+                                [title]="t('compte.photo.new')">
                                 @if (isUploadingPhoto()) {
                                 <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -96,7 +96,7 @@
             ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
-                                Informations personnelles
+                                {{ t('compte.tabs.info') }}
                             </button>
 
                             @if (!isAdmin()) {
@@ -104,13 +104,13 @@
             ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
-                                Abonnements
+                                {{ t('compte.tabs.subscriptions') }}
                             </button>
                             <button type="button" (click)="setActiveTab('factures')" [class]="activeTab() === 'factures' 
             ? 'border-[#ff5c01] text-[#ff5c01] font-medium' 
             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                 class="py-4 px-1 border-b-2 text-sm transition-colors">
-                                Factures
+                                {{ t('compte.tabs.invoices') }}
                             </button>
                             }
                         </nav>
@@ -125,7 +125,7 @@
                                 <!-- Prénom -->
                                 <div>
                                     <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Prénom <span class="text-red-500">*</span>
+                                        {{ t('compte.form.firstName') }} <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="prenom" formControlName="prenom"
                                         [class.border-red-500]="isFieldInvalid('prenom')"
@@ -147,7 +147,7 @@
                                 <!-- Nom -->
                                 <div>
                                     <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Nom <span class="text-red-500">*</span>
+                                        {{ t('compte.form.lastName') }} <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="nom" formControlName="nom"
                                         [class.border-red-500]="isFieldInvalid('nom')"
@@ -169,7 +169,7 @@
                                 <!-- Numéro de téléphone -->
                                 <div>
                                     <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Numéro de téléphone <span class="text-red-500">*</span>
+                                        {{ t('compte.form.phone') }} <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -199,7 +199,7 @@
                                 <!-- Email -->
                                 <div>
                                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Email <span class="text-red-500">*</span>
+                                        {{ t('compte.form.email') }} <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -229,7 +229,7 @@
                                 <!-- Adresse -->
                                 <div>
                                     <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Adresse
+                                        {{ t('compte.form.address') }}
                                     </label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -249,7 +249,7 @@
                                 <!-- Nom de l'entreprise -->
                                 <div>
                                     <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Nom de l'entreprise
+                                        {{ t('compte.form.company') }}
                                     </label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -267,7 +267,7 @@
                                 <!-- Profil (lecture seule) -->
                                 <div class="md:col-span-2">
                                     <label for="profil" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Profil
+                                        {{ t('compte.form.profile') }}
                                     </label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -286,7 +286,7 @@
                                             </svg>
                                         </span>
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">Le profil ne peut pas être modifié</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ t('compte.form.profileReadOnly') }}</p>
                                 </div>
                             </div>
 
@@ -303,11 +303,10 @@
                                     </svg>
                                     <div class="flex-1">
                                         <p class="text-sm font-medium text-blue-800">
-                                            📸 Nouvelle photo : {{ selectedPhotoFile()!.name }}
+                                            📸 {{ t('compte.photo.newDetails') }} : {{ selectedPhotoFile()!.name }}
                                         </p>
                                         <p class="text-xs text-blue-700 mt-1">
-                                            N'oubliez pas de cliquer sur "Mettre à jour" pour enregistrer votre nouvelle
-                                            photo.
+                                            {{ t('compte.photo.reminder') }}
                                         </p>
                                     </div>
                                 </div>
@@ -325,7 +324,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        Annuler
+                                        {{ t('common.cancel') }}
                                     </span>
                                 </button>
                                 <button type="submit"
@@ -339,13 +338,13 @@
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                         </path>
                                     </svg>
-                                    <span>Enregistrement...</span>
+                                    <span>{{ t('common.saving') }}...</span>
                                     } @else {
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <span>Mettre à jour</span>
+                                    <span>{{ t('common.update') }}</span>
                                     }
                                 </button>
                             </div>
@@ -385,20 +384,22 @@
                                             </div>
 
                                             <div>
-                                                <h3 class="text-xl font-bold  text-black/90 ">Mon abonnement</h3>
-                                                <p class="text-black/60 mt-1">Date d'expiration : {{ getExpirationDate()
+                                                <h3 class="text-xl font-bold  text-black/90 ">{{
+                                                    t('compte.subscription.title') }}</h3>
+                                                <p class="text-black/60 mt-1">{{ t('compte.subscription.expire') }} : {{
+                                                    getExpirationDate()
                                                     }}</p>
                                             </div>
                                         </div>
                                         <span
                                             class="bg-gray-200 text-green-500 px-4 py-2 rounded-full text-sm font-semibold">
-                                            Actif
+                                            {{ t('common.active') }}
                                         </span>
                                     </div>
                                 </div>
 
                                 <!-- Bouton pour voir tous les abonnements -->
-                                <div class="flex justify-end">
+                                <!-- <div class="flex justify-end">
                                     <button (click)="navigateToSubscriptions()"
                                             class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,43 +407,45 @@
                                         </svg>
                                         Voir mes offres
                                     </button>
-                                </div>
+                                </div> -->
 
                                 <!-- Détails de l'abonnement -->
                                 <div class="bg-white border-2 border-gray-100 rounded-xl p-8">
-                                    <h4 class="text-xl font-bold text-gray-900 mb-6">Détail de l'abonnement</h4>
+                                    <h4 class="text-xl font-bold text-gray-900 mb-6">{{ t('compte.subscription.details')
+                                        }}</h4>
 
                                     <div class="space-y-4">
                                         <!-- Nom du plan -->
                                         <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">Nom du plan</span>
+                                            <span class="text-gray-600">{{ t('compte.subscription.planName') }}</span>
                                             <span class="text-gray-900 font-semibold">{{ getCurrentPlanName() }}</span>
                                         </div>
 
                                         <!-- Sous-titre -->
                                         <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">Sous-titre</span>
+                                            <span class="text-gray-600">{{ t('compte.subscription.subtitle') }}</span>
                                             <span class="text-gray-900 font-bold">{{ getCurrentPlanLabel() }}</span>
                                         </div>
 
                                         <!-- Statut paiement -->
                                         <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">Statut paiement</span>
+                                            <span class="text-gray-600">{{ t('compte.subscription.paymentStatus')
+                                                }}</span>
                                             <span class="inline-flex items-center gap-2">
                                                 <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                                <span class="text-green-600 font-semibold">Payé</span>
+                                                <span class="text-green-600 font-semibold">{{ t('common.paid') }}</span>
                                             </span>
                                         </div>
 
                                         <!-- Période -->
                                         <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">Période</span>
+                                            <span class="text-gray-600">{{ t('compte.subscription.period') }}</span>
                                             <span class="text-gray-900 font-medium">{{ getSubscriptionPeriod() }}</span>
                                         </div>
 
                                         <!-- Montant payé -->
                                         <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">Montant payé</span>
+                                            <span class="text-gray-600">{{ t('compte.subscription.amountPaid') }}</span>
                                             <span class="text-gray-900 font-bold text-lg">{{ getCurrentPlanAmount()
                                                 }}</span>
                                         </div>

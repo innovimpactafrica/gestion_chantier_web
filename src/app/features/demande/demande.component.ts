@@ -141,17 +141,26 @@ export class DemandeComponent implements OnInit, OnDestroy {
       this.loading = false;
       return;
     }
-
+  
     if (!this.isBETUser()) {
       this.error = 'Accès réservé aux utilisateurs BET';
       this.loading = false;
       return;
     }
-
+  
     this.loading = true;
     this.error = null;
     
-    this.demandeService.getDemande(1, page, this.pageSize).subscribe({
+    const userId = this.authService.currentUser();
+    
+    if (!userId || !userId.id) {
+      console.error('❌ Utilisateur non connecté ou ID manquant');
+      this.error = 'Utilisateur non connecté';
+      this.loading = false;
+      return;
+    }
+    
+    this.demandeService.getDemande(userId.id, page, this.pageSize).subscribe({
       next: (response) => {
         this.demandes = response.content;
         this.totalElements = response.totalElements;
@@ -457,24 +466,32 @@ export class DemandeComponent implements OnInit, OnDestroy {
   }
 
   sendComment() {
-    if (!this.comment.trim() || !this.selectedDemande) return;
+    if (!this.comment.trim() || !this.selectedDemande || !this.betId) {
+      console.error('❌ Données manquantes pour l\'ajout de commentaire');
+      return;
+    }
 
     const user = this.authService.currentUser();
     const authorName = user ? this.authService.getUserDisplayName() : 'Utilisateur';
 
+    // ✅ CORRECTION : Utiliser seulement content dans le body
     const commentData = {
-      text: this.comment.trim(),
-      author: authorName,
-      studyRequestId: this.selectedDemande.id
+      content: this.comment.trim()
     };
 
-    const commentSubscription = this.demandeService.createComment(commentData).subscribe({
+    // ✅ Les IDs sont passés en query params via l'URL
+    const commentSubscription = this.demandeService.createComment(
+      this.selectedDemande.id,
+      this.betId,
+      commentData
+    ).subscribe({
       next: (newComment) => {
+        console.log('✅ Commentaire ajouté avec succès:', newComment);
         this.comments.push(newComment);
         this.comment = '';
       },
       error: (error) => {
-        console.error('Erreur lors de l\'ajout du commentaire:', error);
+        console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
       }
     });
 

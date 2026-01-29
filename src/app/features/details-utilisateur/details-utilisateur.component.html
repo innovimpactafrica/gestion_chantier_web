@@ -28,10 +28,10 @@
 
       <!-- Boutons d'action -->
       <div class="flex gap-3">
-        <button (click)="openEditModal()"
+        <!-- <button (click)="openEditModal()"
           class="bg-[#0d47a1] hover:bg-[#0c3d8a] text-white px-6 py-3 rounded-lg transition-colors font-medium">
           Modifier
-        </button>
+        </button> -->
         <button (click)="openSuspendModal()"
           class="border-2 border-[#FF5C01] text-[#FF5C01] hover:bg-[#FF5C01] hover:text-white px-6 py-3 rounded-lg transition-colors font-medium">
           {{ getUserStatus() === 'Actif' ? 'Suspendre' : 'Activer' }}
@@ -152,7 +152,7 @@
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID Facture</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Facture</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
@@ -162,7 +162,7 @@
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let paiement of paiements" class="hover:bg-gray-50 transition-colors">
                   <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ paiement.idFacture }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.date }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.createdAt  }}</td>
                   <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ paiement.montant }}</td>
                   <td class="px-6 py-4">
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">

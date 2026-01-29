@@ -2,8 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
-import { UserService, User, UserPageResponse } from '../../../services/user.service';
+import { Subject, takeUntil } from 'rxjs';
+import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../auth/services/auth.service';
+import { UtilisateurService } from '../../../services/utilisateur.service';
+import { LanguageService } from '../../core/services/language.service';
+import { ExportService } from '../../core/services/export.service';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -18,22 +23,25 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   pageSize: number = 10;
   totalPages: number = 0;
   totalResults: number = 0;
-  
-  Math = Math;
-  
+  selectedProfile: string = ''; // Filter by profile
 
+  Math = Math;
+  editPhotoFile: File | null = null;
+  editPhotoPreview: string | null = null;
 
   // Modals existants
   showCreateModal: boolean = false;
   showEditModal: boolean = false;
-  
+  createPhotoFile: File | null = null;
+  createPhotoPreview: string | null = null;
+
   // Nouveaux modals pour bloquer/débloquer
   showBlockModal: boolean = false;
   showNotification: boolean = false;
   modalAction: 'block' | 'activate' = 'block';
   notificationType: 'blocked' | 'activated' = 'blocked';
   selectedUserForAction: User | null = null;
-  
+
   isLoading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
@@ -50,15 +58,29 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     lieunaissance: ''
   };
 
-  editUserForm = {
-    id: 0,
-    prenom: '',
-    nom: '',
-    telephone: '',
-    email: '',
-    profil: '',
-    adress: '',
-  };
+  editUserForm: {
+    id: number;
+    prenom: string;
+    nom: string;
+    email: string;
+    telephone: string;
+    profil: string;
+    adress: string;
+    date: string;
+    lieunaissance: string;
+    photo?: string;
+  } = {
+      id: 0,
+      prenom: '',
+      nom: '',
+      email: '',
+      telephone: '',
+      profil: '',
+      adress: '',
+      date: '',
+      lieunaissance: '',
+      photo: ''
+    };
 
   utilisateurs: User[] = [];
   filteredUtilisateurs: User[] = [];
@@ -68,8 +90,16 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private authService: AuthService,
+    private utilisateurService: UtilisateurService,
+    public languageService: LanguageService,
+    private exportService: ExportService
+  ) { }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   ngOnInit(): void {
     console.log('🚀 Initialisation du composant Utilisateurs');
@@ -80,29 +110,31 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   loadAllUsers(): void {
     this.isLoading = true;
     this.errorMessage = '';
     console.log('📥 Chargement de tous les utilisateurs...');
-  
-    // Utilisation de getAllUsers avec pagination côté serveur
-    this.userService.getAllUsers(this.searchTerm, undefined, this.currentPage, this.pageSize)
+
+    // Use selectedProfile if set, otherwise undefined
+    const profileFilter = this.selectedProfile || undefined;
+
+    this.userService.getAllUsers(this.searchTerm, profileFilter, this.currentPage, this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: UserPageResponse) => {
           console.log('✅ Réponse reçue:', response);
-          
+
           this.utilisateurs = response.content;
           this.totalResults = response.totalElements;
           this.totalPages = response.totalPages;
-  
+
           console.log('📊 Total utilisateurs chargés:', this.totalResults);
           console.log('📊 Pages totales:', this.totalPages);
-          
-          // Plus besoin de filtrage local ni de pagination locale
+
           this.filteredUtilisateurs = [...this.utilisateurs];
           this.paginatedUtilisateurs = [...this.utilisateurs];
-          
+
           this.isLoading = false;
         },
         error: (error) => {
@@ -113,31 +145,25 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       });
   }
 
+  filterByProfile(): void {
+    console.log('🔍 Filtre par profil:', this.selectedProfile);
+    this.currentPage = 0;
+    this.loadAllUsers();
+  }
+
+  clearProfileFilter(): void {
+    this.selectedProfile = '';
+    this.currentPage = 0;
+    this.loadAllUsers();
+  }
+
   searchUtilisateurs(): void {
     console.log('🔍 Recherche:', this.searchTerm);
-    
-    if (this.searchTerm.trim() === '') {
-      this.filteredUtilisateurs = [...this.utilisateurs];
-    } else {
-      const term = this.searchTerm.toLowerCase();
-      this.filteredUtilisateurs = this.utilisateurs.filter(user =>
-        `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        user.profil.toLowerCase().includes(term) ||
-        user.telephone.toLowerCase().includes(term)
-      );
-    }
-    
     this.currentPage = 0;
-    this.totalResults = this.filteredUtilisateurs.length;
-    this.totalPages = Math.ceil(this.totalResults / this.pageSize);
-    this.applyPagination();
+    this.loadAllUsers();
   }
- 
+
   applyPagination(): void {
-    // const start = this.currentPage * this.pageSize;
-    // const end = start + this.pageSize;
-    // this.paginatedUtilisateurs = this.filteredUtilisateurs.slice(start, end);
     this.loadAllUsers();
   }
 
@@ -196,7 +222,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       telephone: user.telephone,
       email: user.email,
       profil: user.profil,
-      adress: user.adress,
+      adress: user.adress || '',
+      date: this.convertToInputDate(user.date),
+      lieunaissance: user.lieunaissance || '',
+      photo: user.photo || ''
     };
     this.showEditModal = true;
     this.errorMessage = '';
@@ -205,16 +234,76 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   closeCreateModal(): void {
     this.showCreateModal = false;
-    this.resetCreateForm();
+    this.createPhotoFile = null;
+    this.createPhotoPreview = null;
     this.errorMessage = '';
     this.successMessage = '';
+
+    this.createUserForm = {
+      prenom: '',
+      nom: '',
+      email: '',
+      password: '',
+      telephone: '',
+      date: '',
+      lieunaissance: '',
+      adress: '',
+      profil: ''
+    };
+  }
+
+  onCreatePhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.errorMessage = 'Format invalide. Utilisez JPG, PNG ou GIF.';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.errorMessage = 'La photo est trop volumineuse (max 5MB).';
+        return;
+      }
+
+      this.createPhotoFile = file;
+      this.errorMessage = '';
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.createPhotoPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   closeEditModal(): void {
     this.showEditModal = false;
-    this.resetEditForm();
+    this.editPhotoFile = null;
+    this.editPhotoPreview = null;
+
+    this.editUserForm = {
+      id: 0,
+      prenom: '',
+      nom: '',
+      email: '',
+      telephone: '',
+      profil: '',
+      adress: '',
+      date: '',
+      lieunaissance: '',
+      photo: ''
+    };
+
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  getFileBaseUrl() {
+    return `${environment.filebaseUrl}`;
   }
 
   resetCreateForm(): void {
@@ -240,6 +329,9 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       email: '',
       profil: '',
       adress: '',
+      date: '',
+      lieunaissance: '',
+      photo: ''
     };
   }
 
@@ -254,13 +346,19 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     return formattedDate;
   }
 
+  private convertToInputDate(dateString: string): string {
+    if (!dateString) return '';
+    const [day, month, year] = dateString.split('-');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+
   saveNewUser(): void {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.createUserForm.prenom || !this.createUserForm.nom || 
-        !this.createUserForm.email || !this.createUserForm.password || 
-        !this.createUserForm.telephone || !this.createUserForm.profil) {
+    if (!this.createUserForm.prenom || !this.createUserForm.nom ||
+      !this.createUserForm.email || !this.createUserForm.password ||
+      !this.createUserForm.telephone || !this.createUserForm.profil) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
       return;
     }
@@ -280,10 +378,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-    const formattedDate = this.createUserForm.date ? 
+    const formattedDate = this.createUserForm.date ?
       this.convertDateFormat(this.createUserForm.date) : '';
 
-    const createData = {
+    const createData: CreateUserRequest = {
       nom: this.createUserForm.nom.trim(),
       prenom: this.createUserForm.prenom.trim(),
       email: this.createUserForm.email.trim().toLowerCase(),
@@ -295,19 +393,28 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       profil: this.createUserForm.profil
     };
 
-    console.log('📤 Données envoyées (format exact):', {
+    if (this.createPhotoFile) {
+      createData.photo = this.createPhotoFile;
+      console.log('📸 Photo ajoutée à la création:', this.createPhotoFile.name);
+    }
+
+    console.log('📤 Données envoyées:', {
       ...createData,
-      password: '***'
+      password: '***',
+      hasPhoto: !!this.createPhotoFile
     });
 
     this.userService.createUser(createData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Utilisateur créé:', response);
+          console.log('✅ Utilisateur créé avec succès:', response);
           this.successMessage = 'Utilisateur créé avec succès';
           this.isLoading = false;
-          
+
+          this.createPhotoFile = null;
+          this.createPhotoPreview = null;
+
           setTimeout(() => {
             this.closeCreateModal();
             this.loadAllUsers();
@@ -315,14 +422,16 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Erreur création complète:', error);
-          
+
           let userMsg = 'Erreur lors de la création';
           if (error.status === 400) {
             userMsg = 'Données invalides. Vérifiez tous les champs.';
           } else if (error.status === 409) {
             userMsg = 'Un utilisateur avec cet email existe déjà.';
+          } else if (error.status === 413) {
+            userMsg = 'La photo est trop volumineuse.';
           }
-          
+
           this.errorMessage = error.userMessage || userMsg;
           this.isLoading = false;
         }
@@ -333,32 +442,62 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.editUserForm.prenom || !this.editUserForm.nom || 
-        !this.editUserForm.email || !this.editUserForm.telephone || 
-        !this.editUserForm.profil) {
+    if (!this.editUserForm.prenom || !this.editUserForm.nom ||
+      !this.editUserForm.email || !this.editUserForm.telephone ||
+      !this.editUserForm.profil) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.editUserForm.email)) {
+      this.errorMessage = 'Format d\'email invalide';
+      return;
+    }
+
+    const phoneRegex = /^\d{8,}$/;
+    const cleanPhone = this.editUserForm.telephone.replace(/\s/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      this.errorMessage = 'Le téléphone doit contenir au moins 8 chiffres';
       return;
     }
 
     this.isLoading = true;
 
-    const userData: Partial<User> = {
-      prenom: this.editUserForm.prenom,
-      nom: this.editUserForm.nom,
-      telephone: this.editUserForm.telephone.replace(/\s/g, ''),
-      email: this.editUserForm.email,
-      profil: this.editUserForm.profil,
-      adress: this.editUserForm.adress
-    };
+    const formData = new FormData();
 
-    this.userService.putUser(this.editUserForm.id, userData)
+    formData.append('nom', this.editUserForm.nom.trim());
+    formData.append('prenom', this.editUserForm.prenom.trim());
+    formData.append('email', this.editUserForm.email.trim().toLowerCase());
+    formData.append('telephone', cleanPhone);
+    formData.append('profil', this.editUserForm.profil);
+    formData.append('adress', this.editUserForm.adress.trim());
+    formData.append('lieunaissance', this.editUserForm.lieunaissance.trim());
+
+    if (this.editUserForm.date) {
+      const formattedDate = this.convertDateFormat(this.editUserForm.date);
+      formData.append('date', formattedDate);
+    }
+
+    if (this.editPhotoFile) {
+      formData.append('photo', this.editPhotoFile, this.editPhotoFile.name);
+      console.log('📸 Photo ajoutée à la modification:', this.editPhotoFile.name);
+    }
+
+    console.log('📤 FormData préparé pour modification de l\'utilisateur ID:', this.editUserForm.id);
+
+    // ✅ CORRECTION: Utiliser UserService au lieu de AuthService
+    this.authService.updateAnyUserWithFormData(this.editUserForm.id, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {
           console.log('✅ Utilisateur mis à jour:', updatedUser);
           this.successMessage = 'Utilisateur modifié avec succès';
           this.isLoading = false;
-          
+
+          this.editPhotoFile = null;
+          this.editPhotoPreview = null;
+
           setTimeout(() => {
             this.closeEditModal();
             this.loadAllUsers();
@@ -366,10 +505,46 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Erreur modification:', error);
-          this.errorMessage = error.userMessage || 'Erreur lors de la modification';
+          let userMsg = 'Erreur lors de la modification';
+          if (error.status === 400) {
+            userMsg = 'Données invalides. Vérifiez tous les champs.';
+          } else if (error.status === 409) {
+            userMsg = 'Un utilisateur avec cet email existe déjà.';
+          } else if (error.status === 413) {
+            userMsg = 'La photo est trop volumineuse.';
+          }
+          this.errorMessage = error.userMessage || userMsg;
           this.isLoading = false;
         }
       });
+  }
+
+  onEditPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.errorMessage = 'Format de fichier non valide. Utilisez JPG, PNG ou GIF.';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.errorMessage = 'La photo est trop volumineuse (max 5MB).';
+        return;
+      }
+
+      this.editPhotoFile = file;
+      console.log('📸 Photo sélectionnée pour modification:', file.name);
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.editPhotoPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   viewUser(user: User): void {
@@ -380,7 +555,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.openEditModal(user);
   }
 
-  // 🆕 NOUVELLES MÉTHODES POUR BLOQUER/DÉBLOQUER
   toggleUserStatus(user: User): void {
     console.log('🔄 Toggle statut utilisateur:', user);
     this.selectedUserForAction = user;
@@ -392,35 +566,25 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     if (!this.selectedUserForAction) return;
 
     this.isLoading = true;
-    
-    // TODO: Remplacez cette simulation par votre vraie méthode service
-    // Exemple: this.userService.toggleUserStatus(this.selectedUserForAction.id)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({
-    //     next: (response) => {
-    //       this.handleBlockSuccess();
-    //     },
-    //     error: (error) => {
-    //       this.handleBlockError(error);
-    //     }
-    //   });
-    
-    // Simulation pour l'instant
-    setTimeout(() => {
-      this.notificationType = this.modalAction === 'block' ? 'blocked' : 'activated';
-      this.showBlockModal = false;
-      this.showNotification = true;
-      this.isLoading = false;
 
-      // Recharger les utilisateurs
-      this.loadAllUsers();
+    // ✅ Déterminer l'état à envoyer (inverse du statut actuel)
+    const shouldActivate = this.modalAction === 'activate';
 
-      // Masquer la notification après 3 secondes
-      setTimeout(() => {
-        this.showNotification = false;
-        this.selectedUserForAction = null;
-      }, 3000);
-    }, 500);
+    console.log(`🔄 ${shouldActivate ? 'Activation' : 'Désactivation'} de l'utilisateur:`, this.selectedUserForAction);
+
+    // ✅ Appeler le service pour bloquer/débloquer
+    this.utilisateurService.blockUser(this.selectedUserForAction.id, shouldActivate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('✅ Statut modifié avec succès');
+          this.handleBlockSuccess();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du changement de statut:', error);
+          this.handleBlockError(error);
+        }
+      });
   }
 
   cancelBlockAction(): void {
@@ -428,15 +592,15 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.selectedUserForAction = null;
   }
 
-  // Méthodes utilitaires pour gérer le succès/erreur (à utiliser avec votre vrai service)
   private handleBlockSuccess(): void {
     this.notificationType = this.modalAction === 'block' ? 'blocked' : 'activated';
     this.showBlockModal = false;
     this.showNotification = true;
     this.isLoading = false;
-    
+
+    // ✅ Recharger la liste des utilisateurs
     this.loadAllUsers();
-    
+
     setTimeout(() => {
       this.showNotification = false;
       this.selectedUserForAction = null;
@@ -450,23 +614,36 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
-  // Méthodes de pagination
   goToPage(page: number): void {
     this.currentPage = page;
-    this.loadAllUsers(); // Recharge avec la nouvelle page
+    this.loadAllUsers();
   }
-  
+
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
       this.loadAllUsers();
     }
   }
-  
+
   previousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;
       this.loadAllUsers();
     }
+  }
+  exportUsers(): void {
+    const data = this.utilisateurs.map(user => ({
+      Prénom: user.prenom,
+      Nom: user.nom,
+      Email: user.email,
+      Téléphone: user.telephone,
+      Profil: user.profil,
+      Adresse: user.adress,
+      Date: this.formatDate(user.date as any),
+      Statut: this.getUserStatus(user)
+    }));
+
+    this.exportService.exportToExcel(data, 'utilisateurs', 'Utilisateurs');
   }
 }

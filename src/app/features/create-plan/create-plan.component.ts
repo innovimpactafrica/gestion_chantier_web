@@ -23,6 +23,26 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
 
+  // Notification
+  showNotification = false;
+  notificationType: 'created' | 'updated' = 'created';
+  planLabel = '';
+
+  // Options pour les selects
+  nameOptions = [
+    { value: 'PROMOTEUR', label: 'Promoteur' },
+    { value: 'SITE_MANAGER', label: 'Manager de site' },
+    { value: 'MOA', label: 'Maître d\'ouvrage' },
+    { value: 'BET', label: 'Bureau d\'études' },
+    { value: 'SUPPLIER', label: 'Fournisseur' },
+    { value: 'SUBCONTRACTOR', label: 'Sous-traitant' },
+  ];
+
+  labelOptions = [
+    { value: 'BASIC', label: 'Basic' },
+    { value: 'PREMIUM', label: 'Premium' }
+  ];
+
   // Formulaire
   formData = {
     name: '',
@@ -117,17 +137,17 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     this.errors = {};
 
     // Nom du plan (obligatoire)
-    if (!this.formData.name.trim()) {
-      this.errors['name'] = 'Le nom du plan est obligatoire';
+    if (!this.formData.name) {
+      this.errors['name'] = 'Le type de plan est obligatoire';
     }
 
     // Label (obligatoire)
-    if (!this.formData.label.trim()) {
-      this.errors['label'] = 'Le label est obligatoire';
+    if (!this.formData.label) {
+      this.errors['label'] = 'Le niveau est obligatoire';
     }
 
     // Description (obligatoire)
-    if (!this.formData.description.trim()) {
+    if (!this.formData.description || !this.formData.description.trim()) {
       this.errors['description'] = 'La description est obligatoire';
     }
 
@@ -142,8 +162,8 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     }
 
     // Limite de projets (si non illimité)
-    if (!this.formData.unlimitedProjects && this.formData.projectLimit <= 0) {
-      this.errors['projectLimit'] = 'La limite de projets doit être supérieure à 0';
+    if (!this.formData.unlimitedProjects && this.formData.projectLimit < 0) {
+      this.errors['projectLimit'] = 'La limite de projets ne peut pas être négative';
     }
 
     // Remise annuelle (entre 0 et 100)
@@ -162,6 +182,12 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
 
     if (!this.validateForm()) {
       console.error('❌ Formulaire invalide:', this.errors);
+      // Scroll vers le premier champ en erreur
+      const firstErrorKey = Object.keys(this.errors)[0];
+      const element = document.getElementById(firstErrorKey);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
@@ -179,9 +205,9 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
    */
   private createPlan(): void {
     const planData: CreatePlanRequest = {
-      id: 0, // Sera généré par le backend
-      name: this.formData.name.trim(),
-      label: this.formData.label.trim(),
+      id: 0,
+      name: this.formData.name,
+      label: this.formData.label,
       description: this.formData.description.trim(),
       totalCost: this.formData.totalCost!,
       installmentCount: this.formData.installmentCount,
@@ -191,7 +217,7 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       active: this.formData.active
     };
 
-    console.log('📝 Création du plan:', planData);
+    console.log('📝 Création du plan avec données:', planData);
 
     this.planService.createPlanAbonnement(planData)
       .pipe(takeUntil(this.destroy$))
@@ -199,53 +225,98 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
         next: (createdPlan) => {
           console.log('✅ Plan créé avec succès:', createdPlan);
           this.isSaving = false;
-          alert('Plan créé avec succès !');
-          this.goBack();
+          
+          // Afficher la notification
+          this.planLabel = createdPlan.label;
+          this.notificationType = 'created';
+          this.showNotification = true;
+
+          // Masquer la notification et rediriger après 2 secondes
+          setTimeout(() => {
+            this.showNotification = false;
+            this.goBack();
+          }, 2000);
         },
         error: (error) => {
           console.error('❌ Erreur lors de la création:', error);
           this.isSaving = false;
-          alert(error.userMessage || 'Erreur lors de la création du plan');
+          
+          let errorMsg = 'Erreur lors de la création du plan';
+          if (error.status === 400) {
+            errorMsg = 'Données invalides. Vérifiez tous les champs.';
+          } else if (error.status === 409) {
+            errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
+          }
+          
+          alert(error.userMessage || errorMsg);
         }
       });
   }
 
-  /**
-   * Met à jour un plan existant
-   */
-  private updatePlan(): void {
-    if (!this.planId) return;
+/**
+ * Met à jour un plan existant
+ */
+private updatePlan(): void {
+  if (!this.planId) return;
 
-    const planData: Partial<SubscriptionPlan> = {
-      name: this.formData.name.trim(),
-      label: this.formData.label.trim(),
-      description: this.formData.description.trim(),
-      totalCost: this.formData.totalCost!,
-      installmentCount: this.formData.installmentCount,
-      projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
-      unlimitedProjects: this.formData.unlimitedProjects,
-      yearlyDiscountRate: this.formData.yearlyDiscountRate,
-      active: this.formData.active
-    };
+  const planData: CreatePlanRequest = {
+    id: this.planId,
+    name: this.formData.name,
+    label: this.formData.label,
+    description: this.formData.description.trim(),
+    totalCost: this.formData.totalCost!,
+    installmentCount: this.formData.installmentCount,
+    projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
+    unlimitedProjects: this.formData.unlimitedProjects,
+    yearlyDiscountRate: this.formData.yearlyDiscountRate,
+    active: this.formData.active
+  };
 
-    console.log('📝 Mise à jour du plan:', planData);
+  console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
 
-    this.planService.putPlanAbonnement(this.planId, planData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (updatedPlan) => {
-          console.log('✅ Plan mis à jour avec succès:', updatedPlan);
-          this.isSaving = false;
-          alert('Plan mis à jour avec succès !');
+  this.planService.putPlanAbonnement(this.planId, planData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        console.log('✅ Plan mis à jour avec succès');
+        this.isSaving = false;
+        
+        // Afficher la notification avec le label du formulaire
+        this.planLabel = this.getLabelDisplay(this.formData.label);
+        this.notificationType = 'updated';
+        this.showNotification = true;
+
+        // Masquer la notification et rediriger après 2 secondes
+        setTimeout(() => {
+          this.showNotification = false;
           this.goBack();
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour:', error);
-          this.isSaving = false;
-          alert(error.userMessage || 'Erreur lors de la mise à jour du plan');
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour:', error);
+        this.isSaving = false;
+        
+        let errorMsg = 'Erreur lors de la mise à jour du plan';
+        if (error.status === 400) {
+          errorMsg = 'Données invalides. Vérifiez tous les champs.';
+        } else if (error.status === 404) {
+          errorMsg = 'Plan introuvable.';
+        } else if (error.status === 409) {
+          errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
         }
-      });
-  }
+        
+        alert(error.userMessage || errorMsg);
+      }
+    });
+}
+
+/**
+ * Retourne le label formaté pour l'affichage
+ */
+private getLabelDisplay(label: string): string {
+  const option = this.labelOptions.find(opt => opt.value === label);
+  return option ? option.label : label;
+}
 
   /**
    * Annule et retourne à la liste

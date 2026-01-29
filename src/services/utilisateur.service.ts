@@ -171,7 +171,25 @@ export class UtilisateurService {
       }
     );
   }
+/**
+ * Active ou désactive un utilisateur
+ * @param userId ID de l'utilisateur
+ * @param activated true pour activer, false pour désactiver
+ * @returns Observable<void>
+ */
+blockUser(userId: number, activated: boolean): Observable<void> {
+  const params = new HttpParams()
+    .set('activated', activated.toString());
 
+  return this.http.patch<void>(
+    `${environment.apiUrl}/v1/user/${userId}/activation`,
+    null, // Pas de body pour cette requête
+    { 
+      params,
+      headers: this.getAuthHeaders()
+    }
+  );
+}
   /**
    * Récupère la liste des fournisseurs avec pagination
    * @param page Numéro de la page (par défaut 0)
@@ -197,6 +215,8 @@ export class UtilisateurService {
       }
     );
   }
+
+
 
   /**
    * Récupère la liste des sous-traitants avec pagination

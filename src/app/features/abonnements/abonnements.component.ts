@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { PlanAbonnementService, SubscriptionPlan } from '../../../services/plan-abonnement.service';
+import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from '../../../services/plan-abonnement.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -15,28 +15,22 @@ import { Subject, takeUntil } from 'rxjs';
 export class AbonnementsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // État de chargement
   isLoading = true;
   isSearching = false;
   isDeleting = false;
 
-  // Données
   allPlans: SubscriptionPlan[] = [];
   filteredPlans: SubscriptionPlan[] = [];
   
-  // Recherche
   searchTerm: string = '';
   
-  // Pagination
   currentPage: number = 1;
   pageSize: number = 10;
   totalResults: number = 0;
 
-  // Modal de confirmation de suppression
   showDeleteModal = false;
   planToDelete: SubscriptionPlan | null = null;
 
-  // 🆕 Modal et notification pour activer/désactiver
   showToggleModal = false;
   showNotification = false;
   modalAction: 'activate' | 'deactivate' = 'deactivate';
@@ -61,46 +55,14 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // loadPlans(): void {
-  //   this.isLoading = true;
-    
-  //   this.planService.getAbonnements()
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe({
-  //       next: (subscriptions) => {
-  //         console.log('✅ Abonnements chargés:', subscriptions);
-          
-  //         const planMap = new Map<number, SubscriptionPlan>();
-  //         subscriptions.forEach(sub => {
-  //           if (sub.subscriptionPlan && !planMap.has(sub.subscriptionPlan.id)) {
-  //             planMap.set(sub.subscriptionPlan.id, sub.subscriptionPlan);
-  //           }
-  //         });
-          
-  //         this.allPlans = Array.from(planMap.values());
-  //         this.filteredPlans = [...this.allPlans];
-  //         this.totalResults = this.allPlans.length;
-  //         this.isLoading = false;
-
-  //         console.log('📊 Plans extraits:', this.allPlans.length);
-  //       },
-  //       error: (error) => {
-  //         console.error('❌ Erreur lors du chargement des plans:', error);
-  //         this.isLoading = false;
-  //         alert(error.userMessage || 'Erreur lors du chargement des plans');
-  //       }
-  //     });
-  // }
-
   loadPlans(): void {
     this.isLoading = true;
     
-    // Charger les plans d'un type spécifique (ex: 'PREMIUM')
     this.planService.getAllPlans()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plans) => {
-          console.log('✅ Plans par nom chargés:', plans);
+          console.log('✅ Plans chargés:', plans);
           
           this.allPlans = plans;
           this.filteredPlans = [...this.allPlans];
@@ -116,6 +78,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
         }
       });
   }
+
   searchPlans(): void {
     if (this.searchTerm.trim() === '') {
       this.filteredPlans = [...this.allPlans];
@@ -155,7 +118,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Ouvre le modal de confirmation
   togglePlanStatus(plan: SubscriptionPlan): void {
     console.log('🔄 Toggle statut plan:', plan);
     this.selectedPlanForAction = plan;
@@ -163,24 +125,44 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.showToggleModal = true;
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Confirme l'activation/désactivation
+  // ✅ CORRECTION: Gestion correcte du retour void de l'API
   confirmToggleAction(): void {
     if (!this.selectedPlanForAction) return;
 
     this.isLoading = true;
     const newStatus = !this.selectedPlanForAction.active;
 
-    this.planService.putPlanAbonnement(this.selectedPlanForAction.id, { active: newStatus })
+    // ✅ Construire l'objet complet avec TOUTES les propriétés requises
+    const planData: CreatePlanRequest = {
+      id: this.selectedPlanForAction.id,
+      name: this.selectedPlanForAction.name,
+      label: this.selectedPlanForAction.label,
+      description: this.selectedPlanForAction.description,
+      totalCost: this.selectedPlanForAction.totalCost,
+      installmentCount: this.selectedPlanForAction.installmentCount,
+      projectLimit: this.selectedPlanForAction.projectLimit,
+      unlimitedProjects: this.selectedPlanForAction.unlimitedProjects,
+      yearlyDiscountRate: this.selectedPlanForAction.yearlyDiscountRate,
+      active: newStatus  // ✅ Seul ce champ change
+    };
+
+    console.log('📝 Mise à jour du statut du plan:', planData);
+
+    this.planService.putPlanAbonnement(this.selectedPlanForAction.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedPlan) => {
-          console.log('✅ Statut du plan mis à jour:', updatedPlan);
+        next: () => {
+          console.log('✅ Statut du plan mis à jour avec succès');
           
-          // Mettre à jour le plan dans la liste
+          // ✅ Mettre à jour manuellement le plan dans la liste locale
           const index = this.allPlans.findIndex(p => p.id === this.selectedPlanForAction!.id);
           if (index !== -1) {
-            this.allPlans[index] = updatedPlan;
-            this.searchPlans();
+            // Créer une copie du plan avec le nouveau statut
+            this.allPlans[index] = {
+              ...this.allPlans[index],
+              active: newStatus
+            };
+            this.searchPlans(); // Rafraîchir la liste filtrée
           }
           
           // Afficher la notification
@@ -204,7 +186,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       });
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Annule l'action
   cancelToggleAction(): void {
     this.showToggleModal = false;
     this.selectedPlanForAction = null;

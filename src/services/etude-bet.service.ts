@@ -129,7 +129,7 @@ export class EtudeBetService {
    * @param updateData Données de mise à jour
    * @returns Observable<any>
    */
-  updateBet(reportId: number, updateData: UpdateBetRequest): Observable<any> {
+  updateReport(reportId: number, updateData: UpdateBetRequest): Observable<any> {
     return this.http.put(
       `${this.apiUrl}/study-requests/reports/${reportId}`,
       updateData
@@ -141,7 +141,7 @@ export class EtudeBetService {
    * @param reportId ID du rapport
    * @returns Observable<any>
    */
-  deleteBet(reportId: number): Observable<any> {
+  deleteReport(reportId: number): Observable<any> {
     return this.http.delete(
       `${this.apiUrl}/study-requests/reports/${reportId}`
     );

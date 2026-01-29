@@ -97,8 +97,8 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   animationKey: number = 0;
 
   showHelpModal = false;
-  emailAddress = 'contact@btpconnect.sn';
-  phoneNumber = '+221 77 123 45 67';
+  emailAddress = 'contact@btpconnect.app';
+  phoneNumber = '+ 221 33 971 41 12';
 
   // Traductions statiques
   private translations: Translations = {
@@ -512,7 +512,9 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
+  goToFeaturesList(): void {
+    this.router.navigate(['/fonctionnalites']);
+  }
   handleLogoError(event: any): void {
     event.target.src = 'assets/images/placeholder-logo.png';
   }

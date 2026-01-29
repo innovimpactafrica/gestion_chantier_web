@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { PlanAbonnementService, SubscriptionPlan }   from './../../../services/plan-abonnement.service'; // Assurez-vous que le chemin est correct
-import { Subject, takeUntil } from 'rxjs'; 
+import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from './../../../services/plan-abonnement.service';
+import { Subject, takeUntil } from 'rxjs';
 import Chart from 'chart.js/auto';
 
-// Interface pour les utilisateurs abonnés (mock)
 interface SubscribedUser {
   id: number;
   name: string;
@@ -31,13 +30,24 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   isLoading = true;
   chart: Chart | null = null;
 
-  // Données pour le graphique (basées sur la capture d'écran)
+  // 🆕 États pour les modals et notifications
+  showDeleteModal = false;
+  showToggleModal = false;
+  showNotification = false;
+  notificationType: 'deleted' | 'activated' | 'deactivated' = 'deleted';
+  planLabel = '';
+
+  // 🆕 Options pour formater le label
+  labelOptions = [
+    { value: 'BASIC', label: 'Basic' },
+    { value: 'PREMIUM', label: 'Premium' }
+  ];
+
   distributionData = {
     paid: 75,
     unpaid: 25
   };
 
-  // Données mockées pour les utilisateurs abonnés (basées sur la capture d'écran)
   subscribedUsers: SubscribedUser[] = [
     { id: 1, name: 'Alpha Dieye', email: 'ad1@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/avatars/alpha.png' },
     { id: 2, name: 'Aziz Diop', email: 'ad@gmail.com', role: 'Promoteur', status: 'Actif', avatarUrl: 'assets/avatars/aziz.png' },
@@ -52,7 +62,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.planId = +params['id']; // Récupère l'ID du plan depuis l'URL
+      this.planId = +params['id'];
       if (this.planId) {
         this.loadPlanDetails(this.planId);
       } else {
@@ -70,9 +80,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Charge les détails du plan d'abonnement
-   */
   loadPlanDetails(id: number): void {
     this.isLoading = true;
     this.planService.getPlanAbonnementById(id)
@@ -81,22 +88,16 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
         next: (plan) => {
           this.plan = plan;
           this.isLoading = false;
-          // Assurez-vous que le DOM est mis à jour avant de dessiner le graphique
           setTimeout(() => this.createChart(), 0);
         },
         error: (error) => {
           console.error('Erreur lors du chargement des détails du plan:', error);
           this.isLoading = false;
-          alert(error.userMessage || 'Erreur lors du chargement des détails du plan');
-          // Optionnel: Rediriger si le plan n'existe pas
-          // this.router.navigate(['/abonnements']);
+          this.showNotificationMessage('Erreur lors du chargement des détails du plan', 'deleted');
         }
       });
   }
 
-  /**
-   * Crée le graphique de répartition des abonnements (Donut Chart)
-   */
   createChart(): void {
     if (!this.chartCanvas) {
       console.warn('Canvas du graphique non trouvé.');
@@ -105,7 +106,7 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (this.chart) {
-      this.chart.destroy(); // Détruit l'ancienne instance si elle existe
+      this.chart.destroy();
     }
 
     this.chart = new Chart(ctx, {
@@ -114,24 +115,18 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
         labels: ['Payé', 'Impayé'],
         datasets: [{
           data: [this.distributionData.paid, this.distributionData.unpaid],
-          backgroundColor: [
-            '#22c55f', // Vert pour Payé
-            '#f87171'  // Rouge pour Impayé
-          ],
-          hoverBackgroundColor: [
-            '#059669',
-            '#DC2626'
-          ],
+          backgroundColor: ['#22c55f', '#f87171'],
+          hoverBackgroundColor: ['#059669', '#DC2626'],
           borderWidth: 0,
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '60%', // Taille du trou pour le donut
+        cutout: '60%',
         plugins: {
           legend: {
-            display: false // La légende est affichée manuellement dans le HTML
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -147,102 +142,149 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Navigue vers la page de modification du plan
-   */
   editPlan(): void {
     if (this.plan) {
-      // Redirection vers la route /create-plan/:id pour la modification
       this.router.navigate(['/create-plan', this.plan.id], {
         queryParams: { mode: 'edit' }
       });
     }
   }
 
-  /**
-   * Désactive le plan d'abonnement
-   */
-  deactivatePlan(): void {
-    if (!this.plan || !this.plan.active) return;
+  // 🆕 Ouvre le modal de confirmation pour activer/désactiver
+  openToggleModal(): void {
+    if (!this.plan) return;
+    this.showToggleModal = true;
+  }
 
-    if (!confirm(`Voulez-vous vraiment désactiver le plan "${this.plan.label}" ?`)) {
-      return;
-    }
+  // ✅ CORRECTION: Confirme l'activation/désactivation sans attendre de retour
+  confirmToggleAction(): void {
+    if (!this.plan) return;
 
-    // Appel au service pour désactiver le plan
-    this.planService.putPlanAbonnement(this.plan.id, { active: false })
+    const newStatus = !this.plan.active;
+
+    // ✅ Construire l'objet complet CreatePlanRequest
+    const planData: CreatePlanRequest = {
+      id: this.plan.id,
+      name: this.plan.name,
+      label: this.plan.label,
+      description: this.plan.description,
+      totalCost: this.plan.totalCost,
+      installmentCount: this.plan.installmentCount,
+      projectLimit: this.plan.projectLimit,
+      unlimitedProjects: this.plan.unlimitedProjects,
+      yearlyDiscountRate: this.plan.yearlyDiscountRate,
+      active: newStatus
+    };
+
+    console.log('📝 Mise à jour du statut du plan:', planData);
+
+    this.planService.putPlanAbonnement(this.plan.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedPlan) => {
-          this.plan = updatedPlan; // Met à jour l'état local
-          alert(`Plan "${this.plan?.label}" désactivé avec succès`);
+        next: () => {
+          console.log('✅ Statut du plan mis à jour avec succès');
+          
+          // ✅ Mettre à jour manuellement le statut du plan local
+          if (this.plan) {
+            this.plan.active = newStatus;
+          }
+          
+          // ✅ Utiliser le label formaté
+          this.planLabel = this.getLabelDisplay(this.plan!.label);
+          this.notificationType = newStatus ? 'activated' : 'deactivated';
+          this.showToggleModal = false;
+          this.showNotification = true;
+
+          setTimeout(() => {
+            this.showNotification = false;
+          }, 3000);
         },
         error: (error) => {
-          console.error('Erreur lors de la désactivation du plan:', error);
-          alert(error.userMessage || 'Erreur lors de la désactivation du plan');
+          console.error('❌ Erreur lors de la mise à jour du statut:', error);
+          this.showToggleModal = false;
+          this.showNotificationMessage('Erreur lors de la modification du statut', 'deleted');
         }
       });
   }
 
-  /**
-   * Supprime le plan d'abonnement
-   */
-  deletePlan(): void {
+  // 🆕 Annule l'action d'activation/désactivation
+  cancelToggleAction(): void {
+    this.showToggleModal = false;
+  }
+
+  // 🆕 Ouvre le modal de confirmation de suppression
+  openDeleteModal(): void {
+    this.showDeleteModal = true;
+  }
+
+  // ✅ CORRECTION: Confirme la suppression avec label formaté
+  confirmDelete(): void {
     if (!this.plan) return;
 
-    if (!confirm(`Voulez-vous vraiment supprimer le plan "${this.plan.label}" ? Cette action est irréversible.`)) {
-      return;
-    }
+    // ✅ Utiliser le label formaté
+    this.planLabel = this.getLabelDisplay(this.plan.label);
 
-    // Appel au service pour supprimer le plan
     this.planService.deletePlanAbonnement(this.plan.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          alert(`Plan "${this.plan?.label}" supprimé avec succès`);
-          this.router.navigate(['/abonnements']); // Redirige vers la liste
+          console.log('✅ Plan supprimé avec succès');
+          this.showDeleteModal = false;
+          this.notificationType = 'deleted';
+          this.showNotification = true;
+
+          // Rediriger après 2 secondes
+          setTimeout(() => {
+            this.showNotification = false;
+            this.router.navigate(['/abonnements']);
+          }, 2000);
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression du plan:', error);
-          alert(error.userMessage || 'Erreur lors de la suppression du plan');
+          console.error('❌ Erreur lors de la suppression du plan:', error);
+          this.showDeleteModal = false;
+          this.showNotificationMessage('Erreur lors de la suppression du plan', 'deleted');
         }
       });
   }
 
-  /**
-   * Formate le montant
-   */
+  // 🆕 Annule la suppression
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+  }
+
+  // 🆕 Affiche une notification d'erreur ou de succès
+  private showNotificationMessage(message: string, type: 'deleted' | 'activated' | 'deactivated'): void {
+    this.planLabel = message;
+    this.notificationType = type;
+    this.showNotification = true;
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 3000);
+  }
+
+  // ✅ NOUVEAU: Retourne le label formaté pour l'affichage
+  private getLabelDisplay(label: string): string {
+    const option = this.labelOptions.find(opt => opt.value === label);
+    return option ? option.label : label;
+  }
+
   formatAmount(amount: number): string {
     return `${amount.toLocaleString('fr-FR')} F`;
   }
 
-  /**
-   * Retourne la classe CSS pour le statut
-   */
   getStatutClass(active: boolean): string {
     return active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
   }
 
-  /**
-   * Retourne le texte du statut
-   */
   getStatutText(active: boolean): string {
     return active ? 'Actif' : 'Inactif';
   }
 
-  /**
-   * Retourne la limite de projets formatée
-   */
   getProjectLimit(plan: SubscriptionPlan): string {
     return plan.unlimitedProjects ? 'Illimité' : plan.projectLimit.toString();
   }
 
-  /**
-   * Simule la navigation vers les détails d'un utilisateur
-   */
   viewUser(user: SubscribedUser): void {
     console.log(`Navigation vers les détails de l'utilisateur: ${user.name}`);
-    // Implémenter la navigation réelle ici, par exemple:
-    // this.router.navigate(['/users', user.id]);
   }
 }

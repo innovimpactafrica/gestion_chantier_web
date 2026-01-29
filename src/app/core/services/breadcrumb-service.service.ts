@@ -11,10 +11,10 @@ export interface BreadcrumbItem {
 })
 export class BreadcrumbService {
   private breadcrumbsSubject = new BehaviorSubject<BreadcrumbItem[]>([
-    { label: 'Accueil', path: '/dashboardf' },
-    { label: 'Tableau de Bord', path: '/dashboardf' }
+    { label: 'breadcrumb.home', path: '/dashboard' },
+    { label: 'breadcrumb.dashboard', path: '/dashboard' }
   ]);
-  
+
   breadcrumbs$ = this.breadcrumbsSubject.asObservable();
 
   constructor() { }
@@ -23,7 +23,7 @@ export class BreadcrumbService {
   setBreadcrumbs(items: BreadcrumbItem[]): void {
     // Toujours commencer par Accueil
     const breadcrumbs = [
-      { label: 'Accueil', path: '/#' }, 
+      { label: 'breadcrumb.home', path: '/#' },
       ...items
     ];
     this.breadcrumbsSubject.next(breadcrumbs);
@@ -41,16 +41,16 @@ export class BreadcrumbService {
   // Réinitialise le fil d'Ariane à son état initial (Accueil/Tableau de Bord)
   reset(): void {
     this.breadcrumbsSubject.next([
-      { label: 'Accueil', path: '/#' },
-      { label: 'Tableau de Bord', path: '/dashboard' }
+      { label: 'breadcrumb.home', path: '/#' },
+      { label: 'breadcrumb.dashboard', path: '/dashboard' }
     ]);
   }
 
   // Nouvelle méthode pour définir le breadcrumb du dashboard
   setDashboardBreadcrumb(): void {
     this.breadcrumbsSubject.next([
-      { label: 'Accueil', path: '/' },
-      { label: 'Tableau de Bord', path: '/dashboard' }
+      { label: 'breadcrumb.home', path: '/' },
+      { label: 'breadcrumb.dashboard', path: '/dashboard' }
     ]);
   }
 }

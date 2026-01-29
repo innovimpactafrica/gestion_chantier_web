@@ -29,7 +29,9 @@ export class ProfileOffersComponent implements OnInit {
   isLoadingPlans = true;
   animationKey = 0;
   currentUser: User | null = null;
-
+// Ajoutez ces propriétés à la classe
+hasError = false;
+errorMessage = '';
   // Plans filtrés selon le profil
   currentPremiumPlan: SubscriptionPlan | null = null;
   currentBasicPlan: SubscriptionPlan | null = null;
@@ -45,55 +47,65 @@ export class ProfileOffersComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId = params['id'] ? +params['id'] : null;
-      // On garde le profil de l'URL comme fallback ou valeur initiale
       const urlProfile = params['profil'] || null;
-
-      if (this.userId) {
+  
+      if (this.userId && urlProfile) {
+        // On passe urlProfile pour la vérification
         this.fetchUserProfile(this.userId, urlProfile);
-      } else if (urlProfile) {
-        this.userProfile = urlProfile;
-        this.loadPlansForProfile();
-      } else {
-        console.warn('⚠️ Aucun ID ni profil fourni');
+      } else if (!this.userId) {
+        console.error('❌ ID utilisateur manquant');
+        this.hasError = true;
+        this.errorMessage = 'Identifiant utilisateur manquant dans l\'URL.';
+        this.isLoadingPlans = false;
+      } else if (!urlProfile) {
+        console.error('❌ Profil manquant');
+        this.hasError = true;
+        this.errorMessage = 'Profil utilisateur manquant dans l\'URL.';
         this.isLoadingPlans = false;
       }
     });
   }
 
-  fetchUserProfile(id: number, fallbackProfile: string | null): void {
-    this.isLoadingPlans = true;
-    console.log(`🔍 Récupération du profil pour l'utilisateur ID: ${id}`);
+// Modifiez fetchUserProfile pour vérifier la correspondance
+fetchUserProfile(id: number, urlProfile: string | null): void {
+  this.isLoadingPlans = true;
+  console.log(`🔍 Récupération du profil pour l'utilisateur ID: ${id}`);
 
-    this.userService.getUserById(id).subscribe({
-      next: (user: User) => {
-        console.log('✅ Utilisateur trouvé:', user);
-        this.currentUser = user;
-        if (user.profil) {
-          this.userProfile = user.profil;
-          console.log(`👤 Profil récupéré de l'API: ${this.userProfile}`);
-          this.loadPlansForProfile();
-        } else {
-          console.warn('⚠️ L\'utilisateur n\'a pas de profil défini');
-          this.handleProfileFallback(fallbackProfile);
+  this.userService.getUserById(id).subscribe({
+    next: (user: User) => {
+      console.log('✅ Utilisateur trouvé:', user);
+      this.currentUser = user;
+      
+      if (user.profil) {
+        this.userProfile = user.profil;
+        console.log(`👤 Profil récupéré de l'API: ${this.userProfile}`);
+        
+        // VÉRIFICATION CRITIQUE : Le profil URL doit correspondre au profil utilisateur
+        if (urlProfile && urlProfile.toUpperCase() !== user.profil.toUpperCase()) {
+          console.error('❌ ERREUR: Le profil URL ne correspond pas au profil de l\'utilisateur');
+          this.hasError = true;
+          this.errorMessage = 'Accès non autorisé : le profil spécifié ne correspond pas à votre compte.';
+          this.isLoadingPlans = false;
+          return;
         }
-      },
-      error: (err) => {
-        console.error('❌ Erreur lors de la récupération de l\'utilisateur:', err);
-        this.handleProfileFallback(fallbackProfile);
+        
+        this.loadPlansForProfile();
+      } else {
+        console.warn('⚠️ L\'utilisateur n\'a pas de profil défini');
+        this.hasError = true;
+        this.errorMessage = 'Cet utilisateur n\'a pas de profil défini.';
+        this.isLoadingPlans = false;
       }
-    });
-  }
-
-  handleProfileFallback(fallbackProfile: string | null): void {
-    if (fallbackProfile) {
-      console.log(`⚠️ Utilisation du profil URL comme fallback: ${fallbackProfile}`);
-      this.userProfile = fallbackProfile;
-      this.loadPlansForProfile();
-    } else {
-      console.error('❌ Impossible de déterminer le profil (ni API ni URL)');
+    },
+    error: (err) => {
+      console.error('❌ Erreur lors de la récupération de l\'utilisateur:', err);
+      this.hasError = true;
+      this.errorMessage = 'Utilisateur introuvable ou erreur de connexion.';
       this.isLoadingPlans = false;
     }
-  }
+  });
+}
+
 
   loadPlansForProfile(): void {
     if (!this.userProfile) {
@@ -101,19 +113,17 @@ export class ProfileOffersComponent implements OnInit {
       this.isLoadingPlans = false;
       return;
     }
-
+    // let userProfile=''
     console.log('🔍 Chargement de TOUS les plans (via PlanService like Portal)');
     console.log('👤 Profil cible:', this.userProfile);
 
     // Utiliser PlanAbonnementService.getAllPlans() COMME LE PORTAIL
     // Cela évite l'erreur 400 sur /active et correspond au comportement du portail
-    this.planService.getAllPlans().subscribe({
+    this.subscriptionService.getPlanSubscription(this.userProfile).subscribe({
       next: (allPlans: SubscriptionPlan[]) => {
-        console.log('📦 Tous les plans reçus:', allPlans);
 
         // Normalisation du profil (retirer espaces, tout en majuscules)
         const profileToCheck = this.userProfile!.trim().toUpperCase();
-        console.log(`🔎 Filtrage avec profil normalisé: "${profileToCheck}"`);
 
         this.availablePlans = allPlans.filter(plan => {
           // Vérification nom du plan
@@ -209,16 +219,17 @@ export class ProfileOffersComponent implements OnInit {
   truncateDescription(description: string): string {
     return description.length > 100 ? description.substring(0, 100) + '...' : description;
   }
+// appelle de la methode getPlanSubscription() 
 
   async goToSubscription(planType: string): Promise<void> {
     // Rediriger vers la page d'abonnement avec le plan sélectionné
     const plan = planType === 'premium' ? this.currentPremiumPlan :
       planType === 'basic' ? this.currentBasicPlan : null;
 
-    if (plan && this.currentUser) {
+    if (plan && this.currentUser?.id) {
       try {
         const isYearly = plan.installmentCount === 12;
-        await this.subscriptionService.initiateSubscriptionPayment(this.currentUser, plan, isYearly);
+        await this.subscriptionService.initiateSubscriptionPaymentbis(this.currentUser.id, plan, isYearly);
       } catch (error) {
         console.error('Erreur lors de l\'initiation du paiement:', error);
       }
