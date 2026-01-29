@@ -667,8 +667,8 @@ addCommentDetail(content: string) {
     content: content.trim()
   };
 
-
-  this.etudeBetService.createComment(
+  // ✅ CORRECTION : Utiliser demandeService avec la bonne structure d'URL
+  this.demandeService.createComment(
     this.selectedEtude.id, 
     currentUser.id, 
     commentData
@@ -680,6 +680,8 @@ addCommentDetail(content: string) {
       if (this.selectedEtude) {
         this.loadCommentsForDetail(this.selectedEtude);
       }
+      
+      this.isLoading = false;
     },
     error: (error) => {
       console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
@@ -751,7 +753,7 @@ openCreateReportModal(): void {
   
   this.newReport = {
     title: '',
-    version: '1',
+    version: '',
     file: null
   };
   this.createReportError = null;

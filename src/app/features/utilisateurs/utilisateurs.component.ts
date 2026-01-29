@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/services/auth.service';
+import { UtilisateurService } from '../../../services/utilisateur.service';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -88,6 +89,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserService,
     private authService: AuthService,
+    private utilisateurService :UtilisateurService
     
   ) { }
 
@@ -539,22 +541,27 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   confirmBlockAction(): void {
     if (!this.selectedUserForAction) return;
-
+  
     this.isLoading = true;
-
-    setTimeout(() => {
-      this.notificationType = this.modalAction === 'block' ? 'blocked' : 'activated';
-      this.showBlockModal = false;
-      this.showNotification = true;
-      this.isLoading = false;
-
-      this.loadAllUsers();
-
-      setTimeout(() => {
-        this.showNotification = false;
-        this.selectedUserForAction = null;
-      }, 3000);
-    }, 500);
+    
+    // ✅ Déterminer l'état à envoyer (inverse du statut actuel)
+    const shouldActivate = this.modalAction === 'activate';
+  
+    console.log(`🔄 ${shouldActivate ? 'Activation' : 'Désactivation'} de l'utilisateur:`, this.selectedUserForAction);
+  
+    // ✅ Appeler le service pour bloquer/débloquer
+    this.utilisateurService.blockUser(this.selectedUserForAction.id, shouldActivate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('✅ Statut modifié avec succès');
+          this.handleBlockSuccess();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du changement de statut:', error);
+          this.handleBlockError(error);
+        }
+      });
   }
 
   cancelBlockAction(): void {
@@ -567,9 +574,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.showBlockModal = false;
     this.showNotification = true;
     this.isLoading = false;
-
+  
+    // ✅ Recharger la liste des utilisateurs
     this.loadAllUsers();
-
+  
     setTimeout(() => {
       this.showNotification = false;
       this.selectedUserForAction = null;

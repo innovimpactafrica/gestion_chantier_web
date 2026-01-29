@@ -129,7 +129,6 @@
       <!-- Settings with Dropdown (Standard uniquement) -->
       <li *ngIf="isADMINProfile()">
         <div>
-          <!-- Menu principal Paramètres -->
           <a (click)="toggleParametres()"
             [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">

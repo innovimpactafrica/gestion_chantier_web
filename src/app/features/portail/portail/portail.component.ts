@@ -512,7 +512,9 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
+  goToFeaturesList(): void {
+    this.router.navigate(['/fonctionnalites']);
+  }
   handleLogoError(event: any): void {
     event.target.src = 'assets/images/placeholder-logo.png';
   }

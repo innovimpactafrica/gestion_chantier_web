@@ -26,6 +26,7 @@ export const environment = {
     materials: 'https://btpconnect.app/btpconnect/api/materials',
     incidents: 'https://btpconnect.app/btpconnect/api/incidents',
     progressAlbum: 'https://btpconnect.app/btpconnect/api/progress-album',
-    workers: 'https://btpconnect.app/btpconnect/api/workers'
+    workers: 'https://btpconnect.app/btpconnect/api/workers',
+    videoPromo: 'https://btpconnect.app/btpconnect/api/video-promo'
   }
 };

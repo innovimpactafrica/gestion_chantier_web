@@ -443,12 +443,12 @@ export class SubscriptionService {
           this.oneTouchConfig.domainName,
           successUrl,
           failedUrl,
-          amount,
+          1,
           'Dakar',
           email,
           clientFirstName,
           clientLastName,
-          clientPhone
+          ''
         );
 
         resolve();

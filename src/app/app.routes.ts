@@ -33,6 +33,7 @@ import { ResetpasswordComponent } from './features/auth/resetpassword/resetpassw
 import { TaskBoardComponent } from './features/task-board/task-board.component';
 import { UserSubscriptionsComponent } from './features/user-subscriptions/user-subscriptions.component';
 import { ProfileOffersComponent } from './features/profile-offers/profile-offers.component';
+import { FeaturesListComponent } from './features/features-list/features-list.component';
 
 export const routes: Routes = [
   // Redirection par défaut vers la page de connexion
@@ -60,7 +61,11 @@ export const routes: Routes = [
     component: PortailComponent,
     data: { authRequired: false }
   },
-
+  {
+    path: 'fonctionnalites',
+    component: FeaturesListComponent,
+    data: { authRequired: false, breadcrumb: 'Fonctionnalités' }
+  },
   // Route des offres - SANS authentification et SANS layout
   {
     path: 'sub/:id/:profil',
@@ -236,6 +241,7 @@ export const routes: Routes = [
           breadcrumb: 'details-abonnement',
         },
       },
+   
 
       {
         path: 'details-reclamation/:id',

@@ -379,7 +379,7 @@
   </div>
 </div>
 <!-- Modal des détails -->
-<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
     <div class="p-6 border-b border-gray-200">
@@ -510,7 +510,7 @@
                   <span class="text-sm font-medium text-gray-900">{{ c.author }}</span>
                   <span class="text-xs text-gray-500">{{ formatDate(c.createdAt) }}</span>
                 </div>
-                <p class="text-sm text-gray-700">{{ c.text }}</p>
+                <p class="text-sm text-gray-700">{{ c.content }}</p>
               </div>
             </div>
           </div>

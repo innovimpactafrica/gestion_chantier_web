@@ -63,17 +63,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     etudes: {
       total: 0,
-      pending: 0,
-      inProgress: 0,
-      delivered: 0,
-      validated: 0,
-      rejected: 0,
+      counts: {
+        PENDING: 0,
+        IN_PROGRESS: 0,
+        DELIVERED: 0,
+        VALIDATED: 0,
+        REJECTED: 0
+      },
       percentages: {
-        pending: 0,
-        inProgress: 0,
-        delivered: 0,
-        validated: 0,
-        rejected: 0
+        PENDING: 0,
+        IN_PROGRESS: 0,
+        DELIVERED: 0,
+        VALIDATED: 0,
+        REJECTED: 0
       }
     },
     avancement: {
@@ -486,34 +488,38 @@ selectImageIndex(index: number): void {
     if (!studyKpi) {
       return {
         total: 0,
-        pending: 0,
-        inProgress: 0,
-        delivered: 0,
-        validated: 0,
-        rejected: 0,
+        counts: {
+          PENDING: 0,
+          IN_PROGRESS: 0,
+          DELIVERED: 0,
+          VALIDATED: 0,
+          REJECTED: 0
+        },
         percentages: {
-          pending: 0,
-          inProgress: 0,
-          delivered: 0,
-          validated: 0,
-          rejected: 0
+          PENDING: 0,
+          IN_PROGRESS: 0,
+          DELIVERED: 0,
+          VALIDATED: 0,
+          REJECTED: 0
         }
       };
     }
   
     return {
       total: studyKpi.total || 0,
-      pending: studyKpi.counts.PENDING || 0,
-      inProgress: studyKpi.counts.IN_PROGRESS || 0,
-      delivered: studyKpi.counts.DELIVERED || 0,
-      validated: studyKpi.counts.VALIDATED || 0,
-      rejected: studyKpi.counts.REJECTED || 0,
+      counts: {
+        PENDING: studyKpi.counts?.PENDING || 0,
+        IN_PROGRESS: studyKpi.counts?.IN_PROGRESS || 0,
+        DELIVERED: studyKpi.counts?.DELIVERED || 0,
+        VALIDATED: studyKpi.counts?.VALIDATED || 0,
+        REJECTED: studyKpi.counts?.REJECTED || 0
+      },
       percentages: {
-        pending: studyKpi.percentages.PENDING || 0,
-        inProgress: studyKpi.percentages.IN_PROGRESS || 0,
-        delivered: studyKpi.percentages.DELIVERED || 0,
-        validated: studyKpi.percentages.VALIDATED || 0,
-        rejected: studyKpi.percentages.REJECTED || 0
+        PENDING: studyKpi.percentages?.PENDING || 0,
+        IN_PROGRESS: studyKpi.percentages?.IN_PROGRESS || 0,
+        DELIVERED: studyKpi.percentages?.DELIVERED || 0,
+        VALIDATED: studyKpi.percentages?.VALIDATED || 0,
+        REJECTED: studyKpi.percentages?.REJECTED || 0
       }
     };
   }
@@ -529,10 +535,10 @@ selectImageIndex(index: number): void {
   
     // Données dynamiques basées sur les valeurs réelles de l'API
     const data = [
-      percentages.validated,   
-      percentages.inProgress,  // En cours (orange)
-      percentages.delivered,   // Livrées (bleu)
-      percentages.pending      // En attente (rouge)
+      percentages.VALIDATED,   
+      percentages.IN_PROGRESS,  // En cours (orange)
+      percentages.DELIVERED,   // Livrées (bleu)
+      percentages.PENDING      // En attente (rouge)
     ];
     // Données mockées pour la répartition des études
     // const data = [40, 35, 15, 10]; 

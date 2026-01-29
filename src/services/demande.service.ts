@@ -38,16 +38,13 @@ export interface CreateReportRequest {
 
 export interface Comment {
   id: number;
-  text: string;
+  content: string;
   author: string;
   createdAt: number[];
   studyRequestId: number;
 }
-
 export interface CreateCommentRequest {
-  text: string;
-  author: string;
-  studyRequestId: number;
+  content: string;
 }
 
 export interface Demande {
@@ -287,11 +284,22 @@ export class DemandeService {
     return this.http.get<Comment[]>(`${this.commentsUrl}/${studyRequestId}`);
   }
 
-  createComment(commentData: CreateCommentRequest): Observable<Comment> {
+  // createComment1(commentData: CreateCommentRequest): Observable<Comment> {
+  //   const headers = this.getAuthHeaders();
+  //   return this.http.post<Comment>(this.commentsUrl, commentData, { headers });
+  // }
+  createComment(
+    studyRequestId: number, 
+    userId: number, 
+    commentData: CreateCommentRequest
+  ): Observable<Comment> {
     const headers = this.getAuthHeaders();
-    return this.http.post<Comment>(this.commentsUrl, commentData, { headers });
+    
+    // ✅ Les IDs sont passés en path params dans l'URL
+    const url = `${environment.apiUrl}/study-requests/comment/study/${studyRequestId}/users/${userId}`;
+    
+    return this.http.post<Comment>(url, commentData, { headers });
   }
-
   deleteComment(commentId: number): Observable<void> {
     const headers = this.getAuthHeaders();
     return this.http.delete<void>(`${this.commentsUrl}/${commentId}`, { headers });

@@ -470,3 +470,8 @@ adapte le si c'est ca le probleme 
     </div>
   </div>
 </div>
+
+
+
+adapte moi ma carde de photo recent pour que si on clique sur un carde de ces photo on affiche un modal qui affiche les photos de l'album
+
