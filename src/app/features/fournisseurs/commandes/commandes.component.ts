@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CommandeService, Order, OrderItem } from './../../../../services/commande.service';
+import { CommandeService, Order, OrderItem, CreateQuoteRequest, CreateQuoteItemRequest } from './../../../../services/commande.service';
 import { AuthService } from './../../../features/auth/services/auth.service';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -31,6 +31,12 @@ export class CommandesComponent implements OnInit, OnDestroy {
   // Modals de confirmation
   showConfirmModal: boolean = false;
   confirmModalAction: ModalAction | null = null;
+  
+  // Gestion des citations (quotes)
+  isCreatingQuote: boolean = false;
+  quoteItems: Map<number, number> = new Map(); // Map<materialId, price>
+  quoteSuccess: boolean = false;
+  quoteError: string | null = null;
   
   // Données dynamiques
   commandes: ExtendedOrder[] = [];
@@ -316,6 +322,11 @@ export class CommandesComponent implements OnInit, OnDestroy {
       return;
     }
     
+    // Réinitialiser les états de citation
+    this.quoteItems.clear();
+    this.quoteSuccess = false;
+    this.quoteError = null;
+    
     // Charger les détails complets de la commande
     this.commandeService.getOrderById(commande.id).subscribe({
       next: (fullOrder) => {
@@ -345,6 +356,9 @@ export class CommandesComponent implements OnInit, OnDestroy {
   closeModal() {
     this.showModal = false;
     this.selectedCommande = null;
+    this.quoteItems.clear();
+    this.quoteSuccess = false;
+    this.quoteError = null;
   }
 
   /**
@@ -352,6 +366,114 @@ export class CommandesComponent implements OnInit, OnDestroy {
    */
   isPendingOrder(): boolean {
     return this.selectedCommande?.status === 'PENDING';
+  }
+
+  /**
+   * Met à jour le prix d'un matériau pour la citation
+   */
+  updateQuoteItemPrice(materialId: number, priceValue: string): void {
+    const price = parseFloat(priceValue);
+    if (!isNaN(price) && price > 0) {
+      this.quoteItems.set(materialId, price);
+    } else {
+      this.quoteItems.delete(materialId);
+    }
+  }
+
+  /**
+   * Récupère le prix saisi pour un matériau
+   */
+  getQuoteItemPrice(materialId: number): number | undefined {
+    return this.quoteItems.get(materialId);
+  }
+
+  /**
+   * Calcule le total d'un item avec le prix de la citation
+   */
+  calculateQuoteItemTotal(item: OrderItem): number {
+    const price = this.quoteItems.get(item.materialId);
+    if (price !== undefined) {
+      return item.quantity * price;
+    }
+    return 0;
+  }
+
+  /**
+   * Calcule le total général de la citation
+   */
+  calculateQuoteTotal(): number {
+    if (!this.selectedCommande || !this.selectedCommande.items) {
+      return 0;
+    }
+    
+    return this.selectedCommande.items.reduce((sum, item) => {
+      return sum + this.calculateQuoteItemTotal(item);
+    }, 0);
+  }
+
+  /**
+   * Vérifie si tous les prix sont renseignés
+   */
+  isQuoteComplete(): boolean {
+    if (!this.selectedCommande || !this.selectedCommande.items) {
+      return false;
+    }
+    
+    return this.selectedCommande.items.every(item => {
+      const price = this.quoteItems.get(item.materialId);
+      return price !== undefined && price > 0;
+    });
+  }
+
+  /**
+   * Crée la citation (quote)
+   */
+  createQuote(): void {
+    if (!this.selectedCommande || !this.supplierId) {
+      this.quoteError = 'Informations manquantes pour créer la citation';
+      return;
+    }
+
+    if (!this.isQuoteComplete()) {
+      this.quoteError = 'Veuillez renseigner tous les prix unitaires';
+      return;
+    }
+
+    this.isCreatingQuote = true;
+    this.quoteError = null;
+
+    // Construire le tableau d'items pour la citation
+    const items: CreateQuoteItemRequest[] = this.selectedCommande.items.map(item => ({
+      itemId: item.id,
+      price: this.quoteItems.get(item.materialId) || 0
+    }));
+
+    // Construire la requête
+    const quoteRequest: CreateQuoteRequest = {
+      orderId: this.selectedCommande.id,
+      items: items,
+      generedById: this.supplierId
+    };
+
+    // Appeler le service
+    this.commandeService.createQuote(this.selectedCommande.id, quoteRequest).subscribe({
+      next: (response) => {
+        console.log('Citation créée avec succès:', response);
+        this.quoteSuccess = true;
+        this.isCreatingQuote = false;
+        
+        // Fermer le modal après 2 secondes
+        setTimeout(() => {
+          this.closeModal();
+          this.refreshData();
+        }, 2000);
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Erreur lors de la création de la citation:', err);
+        this.quoteError = 'Erreur lors de la création de la citation. Veuillez réessayer.';
+        this.isCreatingQuote = false;
+      }
+    });
   }
 
   /**
@@ -515,8 +637,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
   getUserDisplayName(): string {
     return this.authService.getUserDisplayName() || 'Utilisateur inconnu';
   }
-
-  
 
   /**
    * Rafraîchit les données

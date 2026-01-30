@@ -475,3 +475,147 @@ adapte le si c'est ca le probleme 
 
 adapte moi ma carde de photo recent pour que si on clique sur un carde de ces photo on affiche un modal qui affiche les photos de l'album
 
+Bonjour je veux que tu m'adapte mon composant ts et html de commandes voici son service a l'aide de l'appelle de la methode createQuote() qui est dans  le service dans le ts de commande sur le modal qui affiche les details d'une commande adapte bien la partie materiaux commandés et sur l'affichage (la capture que je t'es envoyer) ajoute une petit icone  vert en V en bas de cette tableau (soit en svg pour valider la citation (le quote) ) maintenant on appelle la methode le fournisseur a la possibilité de saisir que le prix unitaire  du materiel (ou des materiaux en fonction de la demande ) donc seule le champ prix unitaire sera un input qui permettra au fournisseur de saisir le prix unitaire d'un materiel et (le montant sera afficher total ) si il clique sur l'icone pour valider maintenant on appelle la methode createquote() et la citation est creer 
+
+pour chaque  citation 
+
+le orderId: prend l'id de la commande choisi;   
+
+items: CreateQuoteItemRequest[];    et pour l'objet items on a 
+
+ itemId: qui est l'id du materiel;   price: le prix saisi par le fournisseur ;
+
+
+
+generedById:  prend l'id du currentUser (qui est le fournisseur );
+
+ et ainsi la citation est creer par le fournisseur dapte moi cette logique bien 
+
+vocii le html et le ts de commande adapte le et si la citation est creer le statu de la commande change pour passer a l'etape 2 en cours 
+
+
+
+creer moi le service  notification (on concate avec la environment.apiUrl les endpoints 
+avec les methode suivantes 
+getNotifications() endpoint /admin-notifications voici le type de retour et les query de cette methode 
+NameDescription
+userId.  (optionnel peut prendre userId  ou pas )
+integer($int64)
+(query)
+page
+integer($int32)
+(query)
+size
+integer($int32)
+(query)
+
+```json
+{
+  "content": [
+    {
+      "id": 2,
+      "libelle": "test 2",
+      "description": "vous avez recu un sms",
+      "date": [
+        2026,
+        1,
+        29,
+        10,
+        27,
+        55,
+        524773000
+      ],
+      "read": true
+    },
+    {
+      "id": 1,
+      "libelle": "TEST",
+      "description": "TEST",
+      "date": [
+        2026,
+        1,
+        28,
+        20,
+        8,
+        45,
+        403972000
+      ],
+      "read": true
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "unsorted": true,
+      "sorted": false,
+      "empty": true
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalElements": 2,
+  "totalPages": 1,
+  "last": true,
+  "numberOfElements": 2,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": true,
+    "sorted": false,
+    "empty": true
+  },
+  "first": true,
+  "empty": false
+}
+```
+
+SendNotification() voici l'endpoint /admin-notifications voici le corps de la requete
+{
+  
+  "libelle": "test 2",
+  "description": "vous avez recu un sms",
+  "date": "2026-01-29T10:27:06.293Z", (et le format de la date est ainsi etabli on prend la date a l'instant de l'envoie )
+  "read": false
+}
+ReadAllNotification() avec ( Methode PUT )  /admin-notifications/read-all et le type de retour 
+Server response
+CodeDetails204
+Undocumented
+Response headers
+getNombreDeNotificationNonLu() voici son endpoint
+/admin-notifications/unread/count voici sont type de retour 
+2  (exemple )
+  il retour un entier 
+la methode getNotificationById() /admin-notifications/{id} et de type de retour 
+Response body
+Download
+
+```json
+{
+  "id": 1,
+  "libelle": "TEST",
+  "description": "TEST",
+  "date": [
+    2026,
+    1,
+    28,
+    20,
+    8,
+    45,
+    403972000
+  ],
+  "read": true
+}
+
+```
+
+la methode deleteNotifcation() /admin-notifications/{id} 
+et ensuite apres la creation de se service appelle ses  methodes du service de notification  dans ts 
+et adapte le html en ajoutant une icone svg de notification avant  Aide & Support  (un genre de cloche) d'abord  a l'aide de la methode getNombreDeNotificationNonLu() qui affiche le nombre de de nouvelles notification si le nombre retourner par cette methode est different de 0 , ce nombre sera afficher sur une petite cercle   rouge ovale sur le plan horizontale en indice sous la cloche en bas a droite de la cloche ( comme naturellement la ou il se place ) et si on clique sur cette icone on aura l'ouverture d'un dropdown qui affiche a la liste des 10 derniers notification lapar la methode getNotifications() et maintenant si clique sur l'icone si on ouvre le dropdown on appellle la methode  ReadAllNotification  on peut cliquer sur une notification un modal (on appelle la methode getNotidictionById)  s'affiche pour afficher le label la description la date et l'heure mais sur le dropdown l'heure est placer sous la descpition separer les notifications par des interlignes minces  (sur le dropdown on pourra scroller pour voir les notifications) 
+voici mon tts de breadcrumb adapte le et son html 
+import { CommonModule } from '@angular/common'; import { Component, OnInit } from '@angular/core'; import { Router, NavigationEnd, ActivatedRoute } from '@angular/router'; import { filter } from 'rxjs/operators'; import { BreadcrumbItem, BreadcrumbService } from '../../../core/services/breadcrumb-service.service'; import { RouterModule } from '@angular/router';  @Component({   selector: 'app-breadcrumb',   templateUrl: './breadcrumb.component.html',   styleUrls: ['./breadcrumb.component.scss'],   standalone: true,   imports: [CommonModule, RouterModule], }) export class BreadcrumbComponent implements OnInit {   breadcrumbs: BreadcrumbItem[] = [];   showHelpModal = false;   emailAddress = 'contact@btpconnect.app';   phoneNumber = '+ 221 33 971 41 12';    constructor(     private router: Router,     private activatedRoute: ActivatedRoute,     private breadcrumbService: BreadcrumbService   ) {}    ngOnInit(): void {     // Cas 1 : on recharge manuellement les breadcrumbs à l'initialisation     const initialBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);     this.breadcrumbService.setBreadcrumbs(initialBreadcrumbs);        // Cas 2 : on écoute aussi les changements de navigation (navigations ultérieures)     this.router.events       .pipe(filter(event => event instanceof NavigationEnd))       .subscribe(() => {         const routeBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);         this.breadcrumbService.setBreadcrumbs(routeBreadcrumbs);       });        // S'abonne pour affichage     this.breadcrumbService.breadcrumbs$.subscribe(breadcrumbs => {       this.breadcrumbs = breadcrumbs;     });   }      // Génère le fil d’Ariane à partir des données des routes   private createBreadcrumbs(     route: ActivatedRoute,     url: string = '',     breadcrumbs: BreadcrumbItem[] = []   ): BreadcrumbItem[] {     const children: ActivatedRoute[] = route.children;      if (children.length === 0) {       return breadcrumbs;     }      for (const child of children) {       const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');       if (routeURL !== '') {         url += `/${routeURL}`;       }        const label = child.snapshot.data['breadcrumb'];       if (label) {         breadcrumbs.push({ label, path: url });       }        return this.createBreadcrumbs(child, url, breadcrumbs);     }      return breadcrumbs;   }    /**    * Ouvre la modal Aide & Support    */   openHelpModal(): void {     this.showHelpModal = true;   }    /**    * Ferme la modal Aide & Support    */   closeHelpModal(): void {     this.showHelpModal = false;   }    /**    * Copie le texte dans le presse-papiers    */   copyToClipboard(text: string): void {     if (navigator.clipboard) {       navigator.clipboard.writeText(text).then(() => {         console.log('Copié dans le presse-papiers:', text);       }).catch(err => {         console.error('Erreur lors de la copie:', err);       });     } else {       // Fallback pour les anciens navigateurs       const textarea = document.createElement('textarea');       textarea.value = text;       document.body.appendChild(textarea);       textarea.select();       try {         document.execCommand('copy');         console.log('Copié dans le presse-papiers:', text);       } catch (err) {         console.error('Erreur lors de la copie:', err);       }       document.body.removeChild(textarea);     }   } } 
+ 
+donne le service notification avec ses methodes et interfaces dedans 
+adapte moi bien le ts et ce html  donne les bien fait en respectant les instructions et en respectant les code couleurs de l'application pas beaucoup de couleur plus simple et facile a utiliser

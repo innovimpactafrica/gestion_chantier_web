@@ -61,6 +61,49 @@ export interface OrderResponse {
   first: boolean;
   empty: boolean;
 }
+export interface CreateQuoteItemRequest {
+  itemId: number;
+  price: number;
+}
+
+export interface CreateQuoteRequest {
+  orderId: number;
+  items: CreateQuoteItemRequest[];
+  generedById: number;
+}
+
+
+export interface Quote {
+  id: number;
+  uploadedAt: number[];
+  totalAmount: number;
+  generedBy: QuoteUser;
+}
+export interface QuoteUser {
+  id: number;
+  nom: string;
+  prenom: string;
+  email?: string;
+  telephone?: string;
+  profil?: string;
+  photo?: string;
+  company?: string;
+}
+
+export interface QuoteResponse {
+  content: Quote[];
+  pageable: Pageable;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: Sort;
+  first: boolean;
+  empty: boolean;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +112,42 @@ export class CommandeService {
   private baseUrl = `${environment.apiBaseUrl}/api`;
 
   constructor(private http: HttpClient) { }
+
+
+  /**
+ * Créer une citation (quote) pour une commande
+ */
+  createQuote(orderId: number, payload: CreateQuoteRequest): Observable<Quote> {
+    return this.http.post<Quote>(
+      `${this.baseUrl}/orders/${orderId}/quote`,
+      payload
+    );
+  }
+/**
+ * Récupère les citations d'une commande 
+ */
+getQuotes(
+  orderId: number,
+  page?: number,
+  size?: number
+): Observable<QuoteResponse> {
+
+  let params = new HttpParams();
+
+  if (page !== undefined) {
+    params = params.set('page', page.toString());
+  }
+
+  if (size !== undefined) {
+    params = params.set('size', size.toString());
+  }
+
+  return this.http.get<QuoteResponse>(
+    `${this.baseUrl}/orders/${orderId}/quotes`,
+    { params }
+  );
+}
+
 
   /**
    * Récupère les commandes d'un fournisseur avec pagination

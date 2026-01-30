@@ -14,7 +14,8 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
 import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
-import { CommandeService } from '../../../../../services/commande.service';
+import { CommandeService,Quote, QuoteResponse } from '../../../../../services/commande.service';
+
 
 
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
@@ -276,7 +277,14 @@ showSuccessModal: boolean = false;
 showErrorModal: boolean = false;
 successMessage: string = '';
 errorMessage: string = '';
-
+// ===== AJOUTS DANS LES PROPRIÉTÉS DE LA CLASSE =====
+// Modal de détails de commande avec citations
+showOrderDetailsModal: boolean = false;
+selectedOrderDetails: Order | null = null;
+orderQuotes: Quote[] = [];
+loadingQuotes: boolean = false;
+quotesError: string | null = null;
+selectedQuote: Quote | null = null;
 // Pour les livraisons
 deliveryPageSize: number = 10;
 orderPageSize: number = 10;
@@ -290,6 +298,7 @@ orderPageSize: number = 10;
     private statistiqueService: StatistiqueService, 
     private userService: UserService,
     private commandeService:CommandeService,
+    
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -1587,9 +1596,7 @@ deleteOrderConfirmed(): void {
     }
   }
 
-  viewOrderDetails(order: Order): void {
-    console.log('Voir détails de la commande:', order);
-  }
+
 
   editOrder(order: Order): void {
     if (order.status === 'LIVREE' || order.status === 'ANNULEE') {
@@ -2091,6 +2098,103 @@ initEvolutionChart() {
     }
   });
 }
+// ===== NOUVELLES MÉTHODES À AJOUTER =====
 
+/**
+ * Ouvre le modal de détails de commande et charge les citations
+ */
+viewOrderDetails(order: Order): void {
+  if (!order || !order.id) {
+    this.showErrorMessage('Commande invalide');
+    return;
+  }
+
+  this.selectedOrderDetails = order;
+  this.showOrderDetailsModal = true;
+  this.loadOrderQuotes(order.id);
+}
+
+/**
+ * Charge les citations d'une commande
+ */
+loadOrderQuotes(orderId: number): void {
+  console.log('🔄 Chargement des citations pour commande:', orderId);
+  
+  this.loadingQuotes = true;
+  this.quotesError = null;
+  this.orderQuotes = [];
+
+  this.commandeService.getQuotes(orderId, 0, 10)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: QuoteResponse) => {
+        console.log('✅ Citations reçues:', response);
+        console.log('📊 Content:', response.content);
+        console.log('📈 Total elements:', response.totalElements);
+        
+        this.orderQuotes = response.content || [];
+        this.loadingQuotes = false;
+
+        console.log('💾 orderQuotes après assignation:', this.orderQuotes);
+        console.log('🔢 Nombre de citations:', this.orderQuotes.length);
+
+        // Sélectionner automatiquement la première citation si disponible
+        if (this.orderQuotes.length > 0) {
+          this.selectedQuote = this.orderQuotes[0];
+          console.log('✓ Citation sélectionnée:', this.selectedQuote);
+        } else {
+          console.warn('⚠️ Aucune citation dans le tableau');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des citations:', error);
+        this.loadingQuotes = false;
+        this.quotesError = 'Aucune citation disponible pour cette commande';
+      }
+    });
+}
+
+/**
+ * Sélectionne une citation spécifique
+ */
+selectQuote(quote: Quote): void {
+  this.selectedQuote = quote;
+}
+
+/**
+ * Ferme le modal de détails de commande
+ */
+closeOrderDetailsModal(): void {
+  this.showOrderDetailsModal = false;
+  this.selectedOrderDetails = null;
+  this.orderQuotes = [];
+  this.selectedQuote = null;
+  this.quotesError = null;
+}
+
+/**
+ * Formate la date d'upload de la citation
+ */
+formatQuoteDate(dateArray: number[]): string {
+  if (!dateArray || dateArray.length < 3) return 'N/A';
+  
+  const [year, month, day, hours = 0, minutes = 0] = dateArray;
+  const date = new Date(year, month - 1, day, hours, minutes);
+  
+  return date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+/**
+ * Formate le montant
+ */
+formatAmount(amount: number): string {
+  return amount.toLocaleString('fr-FR');
+}
 
 }

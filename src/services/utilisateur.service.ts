@@ -183,7 +183,7 @@ blockUser(userId: number, activated: boolean): Observable<void> {
 
   return this.http.patch<void>(
     `${environment.apiUrl}/v1/user/${userId}/activation`,
-    null, // Pas de body pour cette requête
+    null, 
     { 
       params,
       headers: this.getAuthHeaders()

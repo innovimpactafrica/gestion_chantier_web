@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserService, CreateUserRequest } from '../../../../services/user.service';
+import { NotificationService } from '../../../../services/notification.service';
+import { forkJoin } from 'rxjs';
 
 // Mapping des profils
 interface ProfileMapping {
@@ -26,6 +28,7 @@ export class RegisterComponent implements OnInit {
   isLoading = false;
   selectedPhoto: File | null = null; // Pour stocker le fichier sélectionné
   photoPreview: string | null = null; // Pour l'aperçu de l'image
+  
   // Profils disponibles (seulement PROMOTEUR et MOA)
   availableProfiles: ProfileMapping[] = [
     { value: 'PROMOTEUR', displayName: 'Promoteur' },
@@ -34,13 +37,13 @@ export class RegisterComponent implements OnInit {
     { value: 'MOA', displayName: 'Maître d\'Ouvrage (MOA)' },
     { value: 'SUPPLIER', displayName: 'Fournisseur' },
     { value: 'SUBCONTRACTOR', displayName: 'Sous Traitant' },
-
   ];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private notificationService: NotificationService
   ) {
     this.initializeForm();
   }
@@ -88,6 +91,7 @@ export class RegisterComponent implements OnInit {
     const selectedValue = selectElement.value;
     console.log('👤 Profil sélectionné:', selectedValue);
   }
+
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -128,6 +132,14 @@ export class RegisterComponent implements OnInit {
       fileInput.value = '';
     }
     console.log('🗑️ Photo supprimée');
+  }
+
+  /**
+   * Récupère le nom d'affichage du profil
+   */
+  private getProfileDisplayName(profileValue: string): string {
+    const profile = this.availableProfiles.find(p => p.value === profileValue);
+    return profile ? profile.displayName : profileValue;
   }
 
   onSubmit(): void {
@@ -185,7 +197,9 @@ export class RegisterComponent implements OnInit {
     // Appel du service UserService pour créer l'utilisateur
     this.userService.createUser(userData).subscribe({
       next: (response) => {
-        this.handleRegistrationSuccess(response);
+        console.log('✅ Utilisateur créé avec succès:', response);
+        // Envoyer la notification après la création réussie
+        this.sendAccountCreationNotification(userData);
       },
       error: (error) => {
         this.handleRegistrationError(error);
@@ -193,8 +207,42 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  private handleRegistrationSuccess(response: any): void {
-    console.log('✅ Inscription réussie:', response);
+  /**
+   * Envoie une notification de création de compte
+   */
+  private sendAccountCreationNotification(userData: CreateUserRequest): void {
+    console.log('📧 Préparation de la notification...');
+    
+    // Obtenir le nom d'affichage du profil
+    const profileDisplayName = this.getProfileDisplayName(userData.profil);
+    
+    // Créer la notification avec la méthode helper du service
+    const notification = this.notificationService.createNotificationRequest(
+      'Création de compte',
+      `${userData.prenom} ${userData.nom}, a créé un compte de ${profileDisplayName}`,
+      false // read = false par défaut
+    );
+
+    console.log('📤 Envoi de la notification:', notification);
+
+    // Envoyer la notification
+    this.notificationService.sendNotification(notification).subscribe({
+      next: (notificationResponse) => {
+        console.log('✅ Notification envoyée avec succès:', notificationResponse);
+        // Continuer avec le succès de l'inscription
+        this.handleRegistrationSuccess(userData);
+      },
+      error: (notificationError) => {
+        // En cas d'erreur de notification, on continue quand même avec le succès
+        // Car l'utilisateur est déjà créé
+        console.warn('⚠️ Erreur lors de l\'envoi de la notification (non bloquant):', notificationError);
+        this.handleRegistrationSuccess(userData);
+      }
+    });
+  }
+
+  private handleRegistrationSuccess(userData: CreateUserRequest): void {
+    console.log('✅ Inscription réussie pour:', `${userData.prenom} ${userData.nom}`);
     this.successMessage = "Compte créé avec succès ! Redirection vers la connexion...";
     this.isLoading = false;
     
