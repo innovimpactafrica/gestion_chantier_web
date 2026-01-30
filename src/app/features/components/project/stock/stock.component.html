@@ -311,50 +311,43 @@
 
             </table>
             <!-- PAGINATION INVENTAIRES -->
-<div *ngIf="!loading && paginatedMaterials.length > 0" 
-  class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div *ngIf="!loading && paginatedMaterials.length > 0"
+              class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
 
-<!-- Info pagination -->
-<div class="text-sm text-gray-600">
- Affichage de {{ materialCurrentPage * materialPageSize + 1 }} à 
- {{ Math.min((materialCurrentPage + 1) * materialPageSize, totalMaterialElements) }} 
- sur {{ totalMaterialElements }} matériaux
-</div>
+              <!-- Info pagination -->
+              <div class="text-sm text-gray-600">
+                Affichage de {{ materialCurrentPage * materialPageSize + 1 }} à
+                {{ Math.min((materialCurrentPage + 1) * materialPageSize, totalMaterialElements) }}
+                sur {{ totalMaterialElements }} matériaux
+              </div>
 
-<!-- Navigation -->
-<div class="flex items-center gap-2">
- <!-- Précédent -->
- <button 
-   (click)="previousMaterialPage()"
-   [disabled]="materialCurrentPage === 0"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-   </svg>
- </button>
+              <!-- Navigation -->
+              <div class="flex items-center gap-2">
+                <!-- Précédent -->
+                <button (click)="previousMaterialPage()" [disabled]="materialCurrentPage === 0"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
- <!-- Numéros de page -->
- <button 
-   *ngFor="let page of getMaterialPageNumbers()"
-   (click)="goToMaterialPage(page)"
-   [class.bg-orange-500]="page === materialCurrentPage"
-   [class.text-white]="page === materialCurrentPage"
-   [class.border-orange-500]="page === materialCurrentPage"
-   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
-   {{ page + 1 }}
- </button>
+                <!-- Numéros de page -->
+                <button *ngFor="let page of getMaterialPageNumbers()" (click)="goToMaterialPage(page)"
+                  [class.bg-orange-500]="page === materialCurrentPage" [class.text-white]="page === materialCurrentPage"
+                  [class.border-orange-500]="page === materialCurrentPage"
+                  class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                  {{ page + 1 }}
+                </button>
 
- <!-- Suivant -->
- <button 
-   (click)="nextMaterialPage()"
-   [disabled]="materialCurrentPage >= totalMaterialPages - 1"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-   </svg>
- </button>
-</div>
-</div>
+                <!-- Suivant -->
+                <button (click)="nextMaterialPage()" [disabled]="materialCurrentPage >= totalMaterialPages - 1"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -541,50 +534,43 @@
               </tbody>
             </table>
             <!-- PAGINATION COMMANDES -->
-<div *ngIf="!loading && paginatedOrders.length > 0" 
-  class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+            <div *ngIf="!loading && paginatedOrders.length > 0"
+              class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
 
-<!-- Info pagination -->
-<div class="text-sm text-gray-600">
- Affichage de {{ orderCurrentPage * orderPageSize + 1 }} à 
- {{ Math.min((orderCurrentPage + 1) * orderPageSize, totalOrderElements) }} 
- sur {{ totalOrderElements }} commandes
-</div>
+              <!-- Info pagination -->
+              <div class="text-sm text-gray-600">
+                Affichage de {{ orderCurrentPage * orderPageSize + 1 }} à
+                {{ Math.min((orderCurrentPage + 1) * orderPageSize, totalOrderElements) }}
+                sur {{ totalOrderElements }} commandes
+              </div>
 
-<!-- Navigation -->
-<div class="flex items-center gap-2">
- <!-- Précédent -->
- <button 
-   (click)="previousOrderPage()"
-   [disabled]="orderCurrentPage === 0"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-   </svg>
- </button>
+              <!-- Navigation -->
+              <div class="flex items-center gap-2">
+                <!-- Précédent -->
+                <button (click)="previousOrderPage()" [disabled]="orderCurrentPage === 0"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
- <!-- Numéros de page -->
- <button 
-   *ngFor="let page of getOrderPageNumbers()"
-   (click)="goToOrderPage(page)"
-   [class.bg-orange-500]="page === orderCurrentPage"
-   [class.text-white]="page === orderCurrentPage"
-   [class.border-orange-500]="page === orderCurrentPage"
-   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
-   {{ page + 1 }}
- </button>
+                <!-- Numéros de page -->
+                <button *ngFor="let page of getOrderPageNumbers()" (click)="goToOrderPage(page)"
+                  [class.bg-orange-500]="page === orderCurrentPage" [class.text-white]="page === orderCurrentPage"
+                  [class.border-orange-500]="page === orderCurrentPage"
+                  class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                  {{ page + 1 }}
+                </button>
 
- <!-- Suivant -->
- <button 
-   (click)="nextOrderPage()"
-   [disabled]="orderCurrentPage >= totalOrderPages - 1"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-   </svg>
- </button>
-</div>
-</div>
+                <!-- Suivant -->
+                <button (click)="nextOrderPage()" [disabled]="orderCurrentPage >= totalOrderPages - 1"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -772,50 +758,43 @@
               </tbody>
             </table>
             <!-- PAGINATION LIVRAISONS -->
-<div *ngIf="!loading && paginatedDeliveries.length > 0" 
-  class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+            <div *ngIf="!loading && paginatedDeliveries.length > 0"
+              class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
 
-<!-- Info pagination -->
-<div class="text-sm text-gray-600">
- Affichage de {{ deliveryCurrentPage * deliveryPageSize + 1 }} à 
- {{ Math.min((deliveryCurrentPage + 1) * deliveryPageSize, totalDeliveryElements) }} 
- sur {{ totalDeliveryElements }} livraisons
-</div>
+              <!-- Info pagination -->
+              <div class="text-sm text-gray-600">
+                Affichage de {{ deliveryCurrentPage * deliveryPageSize + 1 }} à
+                {{ Math.min((deliveryCurrentPage + 1) * deliveryPageSize, totalDeliveryElements) }}
+                sur {{ totalDeliveryElements }} livraisons
+              </div>
 
-<!-- Navigation -->
-<div class="flex items-center gap-2">
- <!-- Précédent -->
- <button 
-   (click)="previousDeliveryPage()"
-   [disabled]="deliveryCurrentPage === 0"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-   </svg>
- </button>
+              <!-- Navigation -->
+              <div class="flex items-center gap-2">
+                <!-- Précédent -->
+                <button (click)="previousDeliveryPage()" [disabled]="deliveryCurrentPage === 0"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
- <!-- Numéros de page -->
- <button 
-   *ngFor="let page of getDeliveryPageNumbers()"
-   (click)="goToDeliveryPage(page)"
-   [class.bg-orange-500]="page === deliveryCurrentPage"
-   [class.text-white]="page === deliveryCurrentPage"
-   [class.border-orange-500]="page === deliveryCurrentPage"
-   class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
-   {{ page + 1 }}
- </button>
+                <!-- Numéros de page -->
+                <button *ngFor="let page of getDeliveryPageNumbers()" (click)="goToDeliveryPage(page)"
+                  [class.bg-orange-500]="page === deliveryCurrentPage" [class.text-white]="page === deliveryCurrentPage"
+                  [class.border-orange-500]="page === deliveryCurrentPage"
+                  class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                  {{ page + 1 }}
+                </button>
 
- <!-- Suivant -->
- <button 
-   (click)="nextDeliveryPage()"
-   [disabled]="deliveryCurrentPage >= totalDeliveryPages - 1"
-   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-   </svg>
- </button>
-</div>
-</div>
+                <!-- Suivant -->
+                <button (click)="nextDeliveryPage()" [disabled]="deliveryCurrentPage >= totalDeliveryPages - 1"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -1379,12 +1358,12 @@
 <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
   (click)="cancelDeleteMaterial()">
   <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 relative" (click)="$event.stopPropagation()">
-    
+
     <div class="text-center">
       <!-- Icône -->
       <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
         <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
@@ -1417,18 +1396,18 @@
 <div *ngIf="showDeleteOrderModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
   (click)="cancelDeleteOrder()">
   <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 relative" (click)="$event.stopPropagation()">
-    
+
     <div class="text-center">
       <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
         <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
 
       <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la suppression</h3>
       <p class="text-gray-600 mb-6">
-        Êtes-vous sûr de vouloir supprimer la commande 
+        Êtes-vous sûr de vouloir supprimer la commande
         <strong>CMD-{{ orderToDelete?.id!.toString().padStart(4, '0') }}</strong> ?
       </p>
 
@@ -1474,8 +1453,7 @@
     <div class="text-center">
       <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
         <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-            d="M6 18L18 6M6 6l12 12" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
       <h3 class="text-xl font-bold text-gray-900 mb-2">Erreur</h3>

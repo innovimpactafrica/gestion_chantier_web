@@ -36,8 +36,13 @@ import { ProfileOffersComponent } from './features/profile-offers/profile-offers
 import { FeaturesListComponent } from './features/features-list/features-list.component';
 
 export const routes: Routes = [
-  // Redirection par défaut vers la page de connexion
-  { path: '', redirectTo: '/portail', pathMatch: 'full' },
+  // Route par défaut - affiche le portail à l'URL racine
+  {
+    path: '',
+    component: PortailComponent,
+    pathMatch: 'full',
+    data: { authRequired: false }
+  },
 
   // Routes d'authentification (sans layout)
   {
@@ -56,10 +61,11 @@ export const routes: Routes = [
     data: { authRequired: false }
   },
 
+  // Garde la route /portail comme alias pour compatibilité
   {
     path: 'portail',
-    component: PortailComponent,
-    data: { authRequired: false }
+    redirectTo: '',
+    pathMatch: 'full'
   },
   {
     path: 'fonctionnalites',
@@ -241,7 +247,7 @@ export const routes: Routes = [
           breadcrumb: 'details-abonnement',
         },
       },
-   
+
 
       {
         path: 'details-reclamation/:id',

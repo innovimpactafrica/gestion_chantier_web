@@ -1,9 +1,9 @@
 import { expand, takeWhile, reduce, takeUntil } from 'rxjs/operators';
-import { 
-  Component, 
-  OnInit, 
-  OnDestroy, 
-  ChangeDetectionStrategy, 
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
   inject,
   signal,
   computed,
@@ -14,22 +14,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { 
-  Subject, 
-  Observable, 
-  combineLatest, 
+import {
+  Subject,
+  Observable,
+  combineLatest,
   merge,
   EMPTY,
   timer,
   of
 } from 'rxjs';
-import { 
-  debounceTime, 
-  distinctUntilChanged, 
-  startWith, 
-  switchMap, 
-  catchError, 
-  finalize, 
+import {
+  debounceTime,
+  distinctUntilChanged,
+  startWith,
+  switchMap,
+  catchError,
+  finalize,
   map,
   tap,
   retry,
@@ -37,16 +37,18 @@ import {
   shareReplay
 } from 'rxjs/operators';
 
-import { 
-  RealestateService, 
-  ProjectFilters, 
-  PaginatedResponse 
+import {
+  RealestateService,
+  ProjectFilters,
+  PaginatedResponse
 } from '../../core/services/realestate.service';
 import { environment } from '../../../environments/environment.prod';
 import { FormatDatePipe } from '../../pipes/format-date.pipe';
 import { AuthService } from '../auth/services/auth.service';
 import { log } from 'console';
 import { SubscriptionService } from '../../../services/subscription.service';
+import { LanguageService } from '../../core/services/language.service';
+import { ExportService } from '../../core/services/export.service';
 
 // Types et interfaces
 interface ProjectListState {
@@ -92,10 +94,10 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   allProjects: any[] = [];
   isLoading: boolean = false;
   errorMessage: string = '';
-  
+
   // Ajoutez Math pour le template
   readonly Math = Math;
-  
+
   // Signal pour gérer l'affichage du popup de blocage
   private readonly showBlockedPopup = signal<boolean>(false);
   private readonly blockedProjectTitle = signal<string>('');
@@ -103,7 +105,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   // Computed signals pour le template
   readonly isBlockedPopupVisible = computed(() => this.showBlockedPopup());
   readonly blockedProjectName = computed(() => this.blockedProjectTitle());
-  
+
   // Injection de dépendances 
   private readonly router = inject(Router);
   public readonly realestateService = inject(RealestateService);
@@ -111,6 +113,13 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private apiImagesService = inject(RealestateService);
   private readonly authservice = inject(AuthService);
+  private languageService = inject(LanguageService);
+  private exportService = inject(ExportService);
+
+  // Translation helper
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   private readonly canCreateProjectSignal = signal<boolean>(false);
   private readonly isCheckingPermission = signal<boolean>(true);
@@ -194,18 +203,18 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getPromoteurConnecter();
   }
-  
+
   getPromoteurConnecter(): void {
     this.updateState({ loading: true, error: null });
-    
+
     this.authservice.getCurrentUser().pipe(
       timeout(this.REQUEST_TIMEOUT),
       retry(1),
       catchError(error => {
         console.error("Erreur lors de la récupération de l'utilisateur connecté:", error);
-        this.updateState({ 
-          loading: false, 
-          error: "Impossible de récupérer les informations utilisateur" 
+        this.updateState({
+          loading: false,
+          error: "Impossible de récupérer les informations utilisateur"
         });
         return EMPTY;
       }),
@@ -216,24 +225,24 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         if (response && response.id) {
           this.promoterId = response.id;
           console.log("ID utilisateur connecté:", this.promoterId);
-          
+
           // Vérifier les permissions de création de projet
           this.checkCanCreateProject();
-          
+
           // Déclencher le chargement initial des projets
           this.searchSubject.next(this.mapFormToFilters(this.searchForm.value));
         } else {
-          this.updateState({ 
-            loading: false, 
-            error: "ID utilisateur non trouvé" 
+          this.updateState({
+            loading: false,
+            error: "ID utilisateur non trouvé"
           });
         }
       },
       error: (error) => {
         console.error("Erreur finale:", error);
-        this.updateState({ 
-          loading: false, 
-          error: "Erreur lors de la connexion utilisateur" 
+        this.updateState({
+          loading: false,
+          error: "Erreur lors de la connexion utilisateur"
         });
       }
     });
@@ -251,7 +260,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     }
 
     console.log("🔍 Vérification des permissions de création de projet pour userId:", this.promoterId);
-    
+
     this.isCheckingPermission.set(true);
 
     this.subscriptionService.canCreateProject(this.promoterId).pipe(
@@ -303,7 +312,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         startWith(this.mapFormToFilters(this.searchForm.value)),
         map(filters => ({ filters, page: 0, isRefresh: true, isLoadMore: false }))
       ),
-      
+
       this.refreshSubject.pipe(
         map(() => ({
           filters: this.mapFormToFilters(this.searchForm.value),
@@ -338,7 +347,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
             this.updateState({ loading: true });
           }
         }),
-        switchMap(({ filters, page, isRefresh, isLoadMore }) => 
+        switchMap(({ filters, page, isRefresh, isLoadMore }) =>
           this.loadProjectsWithRetry(filters, page, isRefresh, isLoadMore)
         ),
         catchError(error => {
@@ -353,16 +362,16 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   // ============ CHARGEMENT DES DONNÉES AVEC PAGINATION DYNAMIQUE ============
 
   private loadProjectsWithRetry(
-    filters: ProjectFilters, 
-    page: number, 
+    filters: ProjectFilters,
+    page: number,
     isRefresh: boolean = false,
     isLoadMore: boolean = false
   ): Observable<void> {
     if (!this.promoterId || this.promoterId <= 0) {
       console.warn("Tentative de chargement avec ID promoteur invalide:", this.promoterId);
-      this.updateState({ 
-        loading: false, 
-        error: "ID promoteur invalide" 
+      this.updateState({
+        loading: false,
+        error: "ID promoteur invalide"
       });
       return EMPTY;
     }
@@ -397,12 +406,12 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     // Filtrer les projets localement si nécessaire
     const newProjects = response.content || [];
     const filteredProjects = this.filterProjectsLocally(newProjects, filters);
-    
+
     const currentState = this.stateSignal();
-    
+
     let updatedProjects: any[];
     let newCurrentPage = page;
-    
+
     if (isRefresh || page === 0) {
       // Nouveau chargement ou rafraîchissement
       updatedProjects = filteredProjects;
@@ -419,12 +428,12 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     const totalElements = response.totalElements ?? 0;
     const totalPages = response.totalPages ?? 0;
     const loadedCount = updatedProjects.length;
-    
+
     // Vérifier s'il y a encore des données à charger
-    const allProjectsLoaded = newProjects.length < this.stateSignal().pageSize || 
-                              loadedCount >= totalElements ||
-                              (response.last !== undefined && response.last);
-    
+    const allProjectsLoaded = newProjects.length < this.stateSignal().pageSize ||
+      loadedCount >= totalElements ||
+      (response.last !== undefined && response.last);
+
     const canLoadMore = !allProjectsLoaded && totalElements > 0;
     const hasMore = !allProjectsLoaded;
 
@@ -467,7 +476,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
    */
   changePageSize(newSize: number): void {
     if (newSize > 0 && newSize !== this.stateSignal().pageSize) {
-      this.updateState({ 
+      this.updateState({
         pageSize: newSize,
         currentPage: 0,
         projects: [],
@@ -475,7 +484,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         canLoadMore: true,
         hasMore: true
       });
-      
+
       // Recharger avec la nouvelle taille
       this.searchSubject.next(this.mapFormToFilters(this.searchForm.value));
     }
@@ -491,7 +500,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
   private handleLoadError(error: any): Observable<void> {
     let errorMessage = 'Une erreur inattendue s\'est produite.';
-    
+
     if (error.error && typeof error.error === 'string' && error.error.includes('<!DOCTYPE')) {
       errorMessage = 'Le serveur retourne du HTML au lieu de JSON. Vérifiez la configuration de votre API.';
     } else if (error.name === 'TimeoutError') {
@@ -507,7 +516,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     }
 
     console.error('Erreur détaillée:', error);
-    
+
     this.updateState({
       loading: false,
       error: errorMessage,
@@ -643,7 +652,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     if (!project || !project.id) {
       return;
     }
-  
+
     // Vérifier si le projet est bloqué
     if (project.blocked === true) {
       console.warn('⚠️ Projet bloqué:', project.title);
@@ -651,11 +660,11 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       this.showBlockedPopup.set(true);
       return;
     }
-  
+
     // Si le projet n'est pas bloqué, naviguer normalement
     this.router.navigate(['/detailprojet', project.id]);
   }
-  
+
   /**
    * Ferme le popup de projet bloqué
    */
@@ -663,7 +672,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.showBlockedPopup.set(false);
     this.blockedProjectTitle.set('');
   }
-  
+
   /**
    * Redirige vers la page d'abonnement depuis le popup
    */
@@ -671,27 +680,27 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.closeBlockedPopup();
     this.router.navigate(['/mon-compte']);
   }
-  
+
   /**
    * Vérifie si un projet est bloqué
    */
   isProjectBlocked(project: any): boolean {
     return project?.blocked === true;
   }
-  
+
   /**
    * Obtient la classe CSS pour un projet bloqué
    */
   getProjectCardClass(project: any): string {
     const baseClass = 'bg-white rounded-[10px] overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 w-full max-w-[410px] mx-auto h-full';
-    
+
     if (this.isProjectBlocked(project)) {
       return `${baseClass} opacity-60 cursor-not-allowed hover:shadow-md`;
     }
-    
+
     return baseClass;
   }
-  
+
   onImageLoad(event: Event): void {
     console.log('Image chargée avec succès:', (event.target as HTMLImageElement).src);
   }
@@ -710,12 +719,12 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     if (project.progress > 0) return 'status-in-progress';
     return 'status-pending';
   }
-  
+
   // Dans votre composant
   getLoadingPercentage(): number {
     const totalElements = this.pagination().totalElements;
     const loadedCount = this.pagination().loadedCount;
-    
+
     if (totalElements === 0) return 0;
     return Math.round((loadedCount / totalElements) * 100);
   }
@@ -749,13 +758,13 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     console.log(`Chargement de la page ${page + 1}...`);
 
     // Mettre à jour l'état pour indiquer le chargement
-    this.updateState({ 
-      loading: true, 
-      error: null 
+    this.updateState({
+      loading: true,
+      error: null
     });
 
     const filters = this.mapFormToFilters(this.searchForm.value);
-    
+
     this.realestateService
       .getAllProjectsPaginated(this.promoterId, page, this.stateSignal().pageSize)
       .pipe(
@@ -792,14 +801,14 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     page: number
   ): void {
     const newProjects = this.filterProjectsLocally(response.content || [], filters);
-    
+
     // Pour la navigation par pages, on remplace complètement les projets
     const updatedProjects = newProjects;
 
     // Calcul des états de pagination
     const totalElements = response.totalElements ?? 0;
     const totalPages = response.totalPages ?? 0;
-    
+
     // Mise à jour de l'état avec la nouvelle page
     this.updateState({
       projects: updatedProjects,
@@ -850,4 +859,35 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   getGradientBackground = (progress: number): string => 'linear-gradient(90deg, #F39C12 0%, #FF5C02 100%)';
   safeGetValue = (value: any): any => value ?? null;
   isDefined = <T>(value: T | undefined | null): value is T => value !== undefined && value !== null;
+
+  /**
+   * Export projects to Excel
+   */
+  exportToExcel(): void {
+    const projectsToExport = this.projects();
+
+    if (!projectsToExport || projectsToExport.length === 0) {
+      console.warn('No projects to export');
+      return;
+    }
+
+    // Format data for export
+    const formattedData = projectsToExport.map(project => ({
+      'Titre': project.title || '',
+      'Localisation': project.location || '',
+      'Adresse': project.address || '',
+      'Date de début': project.startDate ? `${project.startDate[2]}/${project.startDate[1]}/${project.startDate[0]}` : '',
+      'Date de fin': project.endDate ? `${project.endDate[2]}/${project.endDate[1]}/${project.endDate[0]}` : '',
+      'Progression (%)': project.progress || 0,
+      'Statut': project.available ? 'Actif' : 'Inactif',
+      'Budget': project.budget || 0
+    }));
+
+    // Export to Excel
+    this.exportService.exportToExcel(
+      formattedData,
+      'projets',
+      'Liste des Projets'
+    );
+  }
 }

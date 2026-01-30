@@ -11,7 +11,7 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher ici..." class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg
+          <input type="text" [(ngModel)]="searchQuery" [placeholder]="t('team.searchPlaceholder')" class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-orange-500
                outline-none transition text-sm bg-white">
         </div>
@@ -47,7 +47,7 @@
               fill="white" />
           </svg>
 
-          <span class="hidden sm:inline">Nouveau membre</span>
+          <span class="hidden sm:inline">{{ t('team.newMember') }}</span>
         </button>
       </div>
 
@@ -61,7 +61,7 @@
   <p>{{ error }}</p>
   <button (click)="refresh()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg
            hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
-    Réessayer
+    {{ t('team.retry') }}
   </button>
 </div>
 
@@ -73,17 +73,17 @@
     <div class="overflow-x-auto">
       <!-- En-tête du tableau -->
       <div class="grid grid-cols-5 gap-4 px-6 py-4 border-b bg-gray-50 min-w-[700px]">
-        <div class="font-semibold text-gray-700">Nom</div>
-        <div class="font-semibold text-gray-700">Rôle</div>
-        <div class="font-semibold text-gray-700">Téléphone</div>
-        <div class="font-semibold text-gray-700">Présent</div>
-        <div class="font-semibold text-gray-700 text-center">Action</div>
+        <div class="font-semibold text-gray-700">{{ t('team.name') }}</div>
+        <div class="font-semibold text-gray-700">{{ t('team.role') }}</div>
+        <div class="font-semibold text-gray-700">{{ t('team.phone') }}</div>
+        <div class="font-semibold text-gray-700">{{ t('team.present') }}</div>
+        <div class="font-semibold text-gray-700 text-center">{{ t('team.action') }}</div>
       </div>
 
       <!-- Loading indicator -->
       <div *ngIf="isLoading" class="px-6 py-8 text-center">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-        <p class="mt-2 text-gray-600">Chargement en cours...</p>
+        <p class="mt-2 text-gray-600">{{ t('team.loading') }}</p>
       </div>
 
       <!-- Lignes du tableau -->
@@ -142,8 +142,8 @@
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
             </path>
           </svg>
-          <p class="text-lg font-medium">Aucun membre d'équipe trouvé</p>
-          <p class="mt-1 text-sm">Commencez par ajouter des membres à votre équipe</p>
+          <p class="text-lg font-medium">{{ t('team.noMembers') }}</p>
+          <p class="mt-1 text-sm">{{ t('team.startAddingMembers') }}</p>
         </div>
       </div>
     </div> <!-- Fin overflow-x-auto -->
@@ -158,7 +158,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
           </svg>
-          Précédent
+          {{ t('team.previous') }}
         </button>
 
         <!-- Numéros de page -->
@@ -172,7 +172,7 @@
         <!-- Bouton suivant -->
         <button *ngIf="hasNextPage()" (click)="nextPage()"
           class="px-4 py-2 rounded-lg hover:bg-gray-100 text-orange-500 font-medium flex items-center gap-2 transition-colors">
-          Suivant
+          {{ t('team.next') }}
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
@@ -189,7 +189,7 @@
   <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-800">Ajouter un nouveau membre</h2>
+      <h2 class="text-xl font-semibold text-gray-800">{{ t('team.addNewMember') }}</h2>
       <button (click)="closeAddMemberModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -213,13 +213,13 @@
         <!-- Nom et Prénom -->
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+            <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.lastName') }} *</label>
             <input type="text" id="nom" [(ngModel)]="newMember.nom" name="nom" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Nom">
           </div>
           <div>
-            <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">Prénom *</label>
+            <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.firstName') }} *</label>
             <input type="text" id="prenom" [(ngModel)]="newMember.prenom" name="prenom" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Prénom">
@@ -229,13 +229,13 @@
         <!-- Email et Téléphone -->
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.email') }} *</label>
             <input type="email" id="email" [(ngModel)]="newMember.email" name="email" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="email@exemple.com">
           </div>
           <div>
-            <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">Téléphone *</label>
+            <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.phone') }} *</label>
             <input type="tel" id="telephone" [(ngModel)]="newMember.telephone" name="telephone" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="77 123 45 67">
@@ -245,12 +245,12 @@
         <!-- Date de naissance et Lieu de naissance -->
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Date de naissance *</label>
+            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.birthDate') }} *</label>
             <input type="date" id="date" [(ngModel)]="newMember.date" name="date" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
           </div>
           <div>
-            <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-2">Lieu de naissance
+            <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.birthPlace') }}
               *</label>
             <input type="text" id="lieunaissance" [(ngModel)]="newMember.lieunaissance" name="lieunaissance" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -260,14 +260,14 @@
 
         <!-- Adresse -->
         <div class="mb-4">
-          <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">Adresse *</label>
+          <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.address') }} *</label>
           <input type="text" id="adress" [(ngModel)]="newMember.adress" name="adress" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             placeholder="Adresse complète">
         </div>
         <!-- Photo (optionnelle) -->
         <div class="mb-4">
-          <label for="photo" class="block text-sm font-medium text-gray-700 mb-2">Photo de profil</label>
+          <label for="photo" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.profilePhoto') }}</label>
 
           <!-- Zone d'upload -->
           <div class="flex items-start gap-4">
@@ -289,24 +289,24 @@
             <div class="flex-1">
               <input type="file" id="photo" name="photo" accept="image/*" (change)="onPhotoSelected($event)"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-              <p class="mt-1 text-xs text-gray-500">Formats acceptés : JPG, PNG, GIF (Max 5MB)</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('team.acceptedFormats') }}</p>
             </div>
           </div>
         </div>
 
         <!-- Mot de passe -->
         <div class="mb-6">
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Mot de passe *</label>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">{{ t('team.password') }} *</label>
           <input type="password" id="password" [(ngModel)]="newMember.password" name="password" required minlength="6"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Mot de passe (minimum 6 caractères)">
+            [placeholder]="t('team.passwordMinLength')">
         </div>
 
         <!-- Actions du formulaire -->
         <div class="flex justify-end gap-3 pt-4 border-t">
           <button type="button" (click)="closeAddMemberModal()"
             class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-            Annuler
+            {{ t('team.cancel') }}
           </button>
           <button type="submit" [disabled]="isSubmitting"
             class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -317,9 +317,9 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                 </path>
               </svg>
-              Ajout...
+              {{ t('team.adding') }}
             </span>
-            <span *ngIf="!isSubmitting">Ajouter</span>
+            <span *ngIf="!isSubmitting">{{ t('team.add') }}</span>
           </button>
         </div>
       </form>
@@ -334,7 +334,7 @@
   <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-800">Détails</h2>
+      <h2 class="text-xl font-semibold text-gray-800">{{ t('team.details') }}</h2>
       <button (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -351,7 +351,7 @@
       <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <!-- Modal Header -->
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
-          <h2 class="text-xl font-semibold text-gray-900">Détails</h2>
+          <h2 class="text-xl font-semibold text-gray-900">{{ t('team.details') }}</h2>
           <button (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -397,7 +397,7 @@
               <div class="grid grid-cols-2 gap-4">
                 <!-- Jours présents -->
                 <div class="p-4 rounded-lg border border-gray-200 bg-white">
-                  <p class="text-xs text-gray-600 mb-1">Jours présents</p>
+                  <p class="text-xs text-gray-600 mb-1">{{ t('team.daysPresent') }}</p>
                   <div class="flex items-end justify-between">
                     <p class="text-3xl font-bold text-gray-900">{{ selectedMember.daysPresent }}</p>
                     <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
@@ -418,7 +418,7 @@
 
                 <!-- Heures travaillées -->
                 <div class="p-4 rounded-lg border border-gray-200 bg-white">
-                  <p class="text-xs text-gray-600 mb-1">Heures travaillées</p>
+                  <p class="text-xs text-gray-600 mb-1">{{ t('team.hoursWorked') }}</p>
                   <div class="flex items-end justify-between">
                     <p class="text-3xl font-bold text-gray-900">{{ selectedMember.hoursWorked }}</p>
                     <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -436,7 +436,7 @@
 
                 <!-- Tâches terminées -->
                 <div class="p-4 rounded-lg border border-gray-200 bg-white">
-                  <p class="text-xs text-gray-600 mb-1">Tâches terminées</p>
+                  <p class="text-xs text-gray-600 mb-1">{{ t('team.tasksCompleted') }}</p>
                   <div class="flex items-end justify-between">
                     <p class="text-3xl font-bold text-gray-900">{{ selectedMember.tasksCompleted }}</p>
                     <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
@@ -466,7 +466,7 @@
 
               <!-- Répartition des tâches -->
               <div class="border border-gray-200 rounded-lg p-4 bg-white">
-                <h4 class="text-sm font-semibold text-gray-900 mb-4">Répartition des tâches (%)</h4>
+                <h4 class="text-sm font-semibold text-gray-900 mb-4">{{ t('team.taskDistribution') }} (%)</h4>
                 <div class="flex items-center gap-8">
                   <!-- Donut Chart -->
                   <div class="relative w-32 h-32 flex-shrink-0">
@@ -507,7 +507,7 @@
                     <div class="flex items-center justify-between text-sm">
                       <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-gray-300"></div>
-                        <span class="text-gray-700">À Faire</span>
+                        <span class="text-gray-700">{{ t('team.tasksTodo') }}</span>
                       </div>
                       <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['À Faire'] || 0
                         }}%</span>
@@ -515,7 +515,7 @@
                     <div class="flex items-center justify-between text-sm">
                       <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-orange-500"></div>
-                        <span class="text-gray-700">En cours</span>
+                        <span class="text-gray-700">{{ t('team.tasksInProgress') }}</span>
                       </div>
                       <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['En Cours'] || 0
                         }}%</span>
@@ -523,7 +523,7 @@
                     <div class="flex items-center justify-between text-sm">
                       <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                        <span class="text-gray-700">Terminés</span>
+                        <span class="text-gray-700">{{ t('team.tasksDone') }}</span>
                       </div>
                       <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['Terminées'] || 0
                         }}%</span>
@@ -531,7 +531,7 @@
                     <div class="flex items-center justify-between text-sm">
                       <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span class="text-gray-700">En retard</span>
+                        <span class="text-gray-700">{{ t('team.tasksLate') }}</span>
                       </div>
                       <span class="font-semibold text-gray-900">{{ selectedMember.taskDistribution?.['En Retard'] || 0
                         }}%</span>
@@ -544,7 +544,7 @@
             <!-- Colonne droite - Historique des présences -->
             <div class="space-y-4">
               <div class="flex items-center justify-between mb-2">
-                <h4 class="text-sm font-semibold text-gray-900">Historique des présences</h4>
+                <h4 class="text-sm font-semibold text-gray-900">{{ t('team.presenceHistory') }}</h4>
                 <div class="relative">
                   <button (click)="toggleDatePicker()"
                     class="text-sm text-gray-700 hover:text-gray-900 flex items-center gap-1.5 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors">
@@ -553,7 +553,7 @@
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                       </path>
                     </svg>
-                    Filtrer par date
+                    {{ t('team.filterByDate') }}
                   </button>
 
                   <!-- Date Picker Popup -->
@@ -608,12 +608,12 @@
                           stroke="#1EA438" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       <div class="flex-1">
-                        <span class="text-sm text-gray-600">Entrée:</span>
+                        <span class="text-sm text-gray-600">{{ t('team.entry') }}:</span>
                         <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.entry }}</span>
 
                       </div>
-                      <span
-                        class="text-xs px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Présent</span>
+                      <span class="text-xs px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">{{
+                        t('team.presentLabel') }}</span>
                     </div>
                     <div class="flex items-center gap-3">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -624,7 +624,7 @@
                           stroke="#FF5C02" stroke-width="1.125" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       <div class="flex-1">
-                        <span class="text-sm text-gray-600">Sortie:</span>
+                        <span class="text-sm text-gray-600">{{ t('team.exit') }}:</span>
                         <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.exit }}</span>
                       </div>
                     </div>
@@ -639,13 +639,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                <p class="text-sm">Aucun historique de présence disponible</p>
+                <p class="text-sm">{{ t('team.noPresenceHistory') }}</p>
               </div>
 
               <!-- Total heures travaillées -->
               <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm font-semibold text-gray-900">Total Heures travaillées</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ t('team.totalHoursWorked') }}</span>
                   <span class="text-xl font-bold text-gray-900">{{ getTotalWorkedTime() }}</span>
                 </div>
               </div>
@@ -656,7 +656,7 @@
           <div class="flex justify-start pt-6 border-t mt-6">
             <button type="button" (click)="closeViewModal()"
               class="px-6 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-              Fermer
+              {{ t('team.close') }}
             </button>
           </div>
         </div>

@@ -50,13 +50,13 @@ export class DocumentsComponent implements OnInit {
   };
 
   documentToDelete: number | null = null;
-showDeleteConfirmModal = false;
+  showDeleteConfirmModal = false;
 
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -80,7 +80,7 @@ showDeleteConfirmModal = false;
     this.documentToDelete = docId;
     this.showDeleteConfirmModal = true;
   }
-  
+
   closeDeleteConfirmModal(): void {
     this.showDeleteConfirmModal = false;
     this.documentToDelete = null;
@@ -150,7 +150,7 @@ showDeleteConfirmModal = false;
 
   confirmDelete(): void {
     if (!this.documentToDelete) return;
-    
+
     this.isLoading = true;
     this.projectBudgetService.deleteDocument(this.documentToDelete).subscribe({
       next: () => {
@@ -291,16 +291,16 @@ showDeleteConfirmModal = false;
     this.resetForm();
     this.showAddDocumentModal = true;
   }
-// Dans DocumentsComponent.ts
+  // Dans DocumentsComponent.ts
 
-getAvatarUrl(avatar: string | undefined): string {
-  // Si avatar existe et n'est pas vide → on l'utilise
-  if (avatar && avatar.trim() !== '') {
-    return avatar;
+  getAvatarUrl(avatar: string | undefined): string {
+    // Si avatar existe et n'est pas vide → on l'utilise
+    if (avatar && avatar.trim() !== '') {
+      return avatar;
+    }
+    // Sinon → image par défaut
+    return 'assets/images/profil.png';
   }
-  // Sinon → image par défaut
-  return 'assets/images/profil.png';
-}
   closeAddDocumentModal(): void {
     this.showAddDocumentModal = false;
     this.resetForm();

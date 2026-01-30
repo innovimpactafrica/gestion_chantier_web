@@ -12,180 +12,166 @@
 
   <!-- Main Content -->
   <div *ngIf="projet && !loading" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
- <!-- Colonne de gauche - Plan 3D et informations -->
-<div class="md:col-span-1">
-  <!-- Plan 3D -->
-  <div class="bg-white rounded-[8px] shadow mb-6 overflow-hidden">
-    <img [src]="'https://wakana.online/repertoire_chantier/'+ projet.plan" [alt]="'Plan 3D de ' + projet.name"
-      class="w-full h-auto rounded-t">
+    <!-- Colonne de gauche - Plan 3D et informations -->
+    <div class="md:col-span-1">
+      <!-- Plan 3D -->
+      <div class="bg-white rounded-[8px] shadow mb-6 overflow-hidden">
+        <img [src]="'https://wakana.online/repertoire_chantier/'+ projet.plan" [alt]="'Plan 3D de ' + projet.name"
+          class="w-full h-auto rounded-t">
 
-    <div class="p-4">
-      <h2 class="text-xl font-bold text-[#1A365D] mb-2">{{ projet.name }}</h2>
-      <div class="flex items-center text-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-orange-500" viewBox="0 0 20 20"
-          fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-            clip-rule="evenodd" />
-        </svg>
-        <span class="text-[#64748B]">{{ projet.address }}</span>
-      </div>
-    </div>
-
-    <!-- Progression -->
-    <div class="bg-[#E8F0FE] rounded-lg shadow p-[15px] mb-6 mx-4">
-      <div class="flex items-center mb-2">
-        <i class="fa-solid fa-chart-line mr-2"></i>
-        <h3 class="text-gray-700 text-xs">Progression</h3>
-      </div>
-
-      <ng-container *ngIf="!isLoadingProgress; else loadingProgress">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-xl font-bold mr-2 ml-2">{{ averageProgress }}%</span>
-          <div>
-            <i class="fa-solid fa-spinner text-xs text-[#4A6FA5]"></i>
-            <span class="px-2 py-1 text-[#4A6FA5] text-xs">{{ statutFrancais }}</span>
+        <div class="p-4">
+          <h2 class="text-xl font-bold text-[#1A365D] mb-2">{{ projet.name }}</h2>
+          <div class="flex items-center text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-orange-500" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span class="text-[#64748B]">{{ projet.address }}</span>
           </div>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-          <div [style.width.%]="averageProgress" [style.background]="getGradientBackgroundDetail(averageProgress!)"
-            class="h-full rounded-full transition-all duration-300">
+
+        <!-- Progression -->
+        <div class="bg-[#E8F0FE] rounded-lg shadow p-[15px] mb-6 mx-4">
+          <div class="flex items-center mb-2">
+            <i class="fa-solid fa-chart-line mr-2"></i>
+            <h3 class="text-gray-700 text-xs">{{ t('projectPresentation.progression') }}</h3>
+          </div>
+
+          <ng-container *ngIf="!isLoadingProgress; else loadingProgress">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xl font-bold mr-2 ml-2">{{ averageProgress }}%</span>
+              <div>
+                <i class="fa-solid fa-spinner text-xs text-[#4A6FA5]"></i>
+                <span class="px-2 py-1 text-[#4A6FA5] text-xs">{{ statutFrancais }}</span>
+              </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div [style.width.%]="averageProgress" [style.background]="getGradientBackgroundDetail(averageProgress!)"
+                class="h-full rounded-full transition-all duration-300">
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #loadingProgress>
+            <p class="text-xs text-gray-500">{{ t('projectPresentation.loadingProgress') }}</p>
+          </ng-template>
+        </div>
+
+        <!-- Informations surface et lots -->
+        <div class="grid grid-cols-2 gap-4 mb-6 px-4">
+          <div class="bg-gray-50 p-3 rounded shadow-md">
+            <div class="flex items-center mb-2">
+              <i class="fa-solid fa-ruler-combined fa-rotate-90 mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
+              <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.surface') }}</h3>
+            </div>
+            <p class="text-sm font-semibold ml-2">{{ projet.area }}m²</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded shadow-md">
+            <div class="flex items-center mb-2">
+              <i class="fa-solid fa-layer-group mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
+              <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.lots') }}</h3>
+            </div>
+            <p class="font-semibold text-sm">{{ projet.numberOfLots }}</p>
           </div>
         </div>
-      </ng-container>
 
-      <ng-template #loadingProgress>
-        <p class="text-xs text-gray-500">Chargement de la progression...</p>
-      </ng-template>
-    </div>
-
-    <!-- Informations surface et lots -->
-    <div class="grid grid-cols-2 gap-4 mb-6 px-4">
-      <div class="bg-gray-50 p-3 rounded shadow-md">
-        <div class="flex items-center mb-2">
-          <i class="fa-solid fa-ruler-combined fa-rotate-90 mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
-          <h3 class="text-[#64748B] text-xs">Surface</h3>
+        <!-- Dates -->
+        <div class="grid grid-cols-2 gap-4 mb-6 px-4">
+          <div class="bg-gray-50 p-3 rounded shadow-md">
+            <div class="flex items-center mb-2">
+              <i class="fa-solid fa-calendar-days mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
+              <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.startDate') }}</h3>
+            </div>
+            <p class="text-sm font-semibold ml-2">{{ dateDebut }}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded shadow-md">
+            <div class="flex items-center mb-2">
+              <i class="fa-regular fa-calendar-check mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
+              <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.endDate') }}</h3>
+            </div>
+            <p class="text-sm font-semibold ml-2">{{ dateFinPrevue }}</p>
+          </div>
         </div>
-        <p class="text-sm font-semibold ml-2">{{ projet.area }}m²</p>
-      </div>
-      <div class="bg-gray-50 p-3 rounded shadow-md">
-        <div class="flex items-center mb-2">
-          <i class="fa-solid fa-layer-group mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
-          <h3 class="text-[#64748B] text-xs">Lots</h3>
+
+        <!-- Budget -->
+        <div class="px-4 pb-4 mb-6">
+          <div class="flex items-center mb-2">
+            <i class="fa-solid fa-wallet mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
+            <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.budget') }}</h3>
+            <span class="ml-auto text-xs font-medium text-[#64748B]">
+              {{ t('projectPresentation.used') }}:<span class="text-[#FF5C02] font-bold"> {{ progressionBudgetaire
+                }}%</span>
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-2 overflow-hidden">
+            <div [style.width.%]="progressionBudgetaire"
+              [style.background]="getGradientBackgroundDetail(progressionBudgetaire)"
+              class="h-full rounded-full transition-all duration-300">
+            </div>
+          </div>
+          <div class="flex justify-between text-sm text-gray-600">
+            <span class="text-sm font-semibold">{{ budgetUtilise | number }} F</span>
+            <span class="text-sm font-semibold">{{ budgetTotal | number }} F</span>
+          </div>
         </div>
-        <p class="font-semibold text-sm">{{ projet.numberOfLots }}</p>
-      </div>
-    </div>
 
-    <!-- Dates -->
-    <div class="grid grid-cols-2 gap-4 mb-6 px-4">
-      <div class="bg-gray-50 p-3 rounded shadow-md">
-        <div class="flex items-center mb-2">
-          <i class="fa-solid fa-calendar-days mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
-          <h3 class="text-[#64748B] text-xs">Début</h3>
+        <!-- Statut avec mise à jour dynamique -->
+        <div class="rounded shadow p-4 mx-4 mb-4 bg-white">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-[#64748B] text-xs">{{ t('projectPresentation.status') }}</h3>
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isUpdatingStatus" class="flex items-center gap-2">
+              <div class="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent"></div>
+              <span class="text-xs text-gray-500">{{ t('projectPresentation.updating') }}</span>
+            </div>
+          </div>
+
+          <!-- Message d'erreur si échec -->
+          <div *ngIf="statusUpdateError" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+            {{ statusUpdateError }}
+          </div>
+
+          <div class="flex space-x-4">
+            <!-- En cours -->
+            <label class="flex items-center cursor-pointer" [class.opacity-50]="isUpdatingStatus">
+              <input type="radio" name="statut" class="custom-radio cursor-pointer"
+                [checked]="isStatutSelected('En cours')" [disabled]="isUpdatingStatus"
+                (change)="changeStatut('En cours')">
+              <span class="ml-2 text-gray-700 font-bold text-sm">{{ t('projectPresentation.inProgress') }}</span>
+            </label>
+
+            <!-- En pause -->
+            <label class="flex items-center cursor-pointer" [class.opacity-50]="isUpdatingStatus">
+              <input type="radio" name="statut" class="custom-radio cursor-pointer"
+                [checked]="isStatutSelected('En pause')" [disabled]="isUpdatingStatus"
+                (change)="changeStatut('En pause')">
+              <span class="ml-2 text-gray-700 font-bold text-sm">{{ t('projectPresentation.paused') }}</span>
+            </label>
+
+            <!-- Terminé -->
+            <label class="flex items-center cursor-pointer" [class.opacity-50]="isUpdatingStatus">
+              <input type="radio" name="statut" class="custom-radio cursor-pointer"
+                [checked]="isStatutSelected('Terminé')" [disabled]="isUpdatingStatus"
+                (change)="changeStatut('Terminé')">
+              <span class="ml-2 text-gray-700 font-bold text-sm">{{ t('projectPresentation.completed') }}</span>
+            </label>
+          </div>
+
+          <!-- Message de confirmation visuel (optionnel) -->
+          <div *ngIf="!isUpdatingStatus && projet" class="mt-3 text-xs text-gray-500">
+            {{ t('projectPresentation.currentStatus') }} : <span class="font-semibold">{{ statutFrancais }}</span>
+          </div>
         </div>
-        <p class="text-sm font-semibold ml-2">{{ dateDebut }}</p>
-      </div>
-      <div class="bg-gray-50 p-3 rounded shadow-md">
-        <div class="flex items-center mb-2">
-          <i class="fa-regular fa-calendar-check mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
-          <h3 class="text-[#64748B] text-xs">Fin prévue</h3>
-        </div>
-        <p class="text-sm font-semibold ml-2">{{ dateFinPrevue }}</p>
-      </div>
-    </div>
-
-    <!-- Budget -->
-    <div class="px-4 pb-4 mb-6">
-      <div class="flex items-center mb-2">
-        <i class="fa-solid fa-wallet mr-2 w-[12px] h-[12px] text-[#64748B]"></i>
-        <h3 class="text-[#64748B] text-xs">Budget</h3>
-        <span class="ml-auto text-xs font-medium text-[#64748B]">
-          Utilisé:<span class="text-[#FF5C02] font-bold"> {{ progressionBudgetaire }}%</span>
-        </span>
-      </div>
-      <div class="w-full bg-gray-200 rounded-full h-2 mb-2 overflow-hidden">
-        <div [style.width.%]="progressionBudgetaire"
-          [style.background]="getGradientBackgroundDetail(progressionBudgetaire)" 
-          class="h-full rounded-full transition-all duration-300">
-        </div>
-      </div>
-      <div class="flex justify-between text-sm text-gray-600">
-        <span class="text-sm font-semibold">{{ budgetUtilise | number }} F</span>
-        <span class="text-sm font-semibold">{{ budgetTotal | number }} F</span>
-      </div>
-    </div>
-
-    <!-- Statut avec mise à jour dynamique -->
-    <div class="rounded shadow p-4 mx-4 mb-4 bg-white">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-[#64748B] text-xs">Statut</h3>
-        <!-- Indicateur de chargement -->
-        <div *ngIf="isUpdatingStatus" class="flex items-center gap-2">
-          <div class="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent"></div>
-          <span class="text-xs text-gray-500">Mise à jour...</span>
-        </div>
-      </div>
-
-      <!-- Message d'erreur si échec -->
-      <div *ngIf="statusUpdateError" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-        {{ statusUpdateError }}
-      </div>
-
-      <div class="flex space-x-4">
-        <!-- En cours -->
-        <label class="flex items-center cursor-pointer" 
-               [class.opacity-50]="isUpdatingStatus">
-          <input 
-            type="radio" 
-            name="statut" 
-            class="custom-radio cursor-pointer" 
-            [checked]="isStatutSelected('En cours')"
-            [disabled]="isUpdatingStatus"
-            (change)="changeStatut('En cours')">
-          <span class="ml-2 text-gray-700 font-bold text-sm">En cours</span>
-        </label>
-
-        <!-- En pause -->
-        <label class="flex items-center cursor-pointer"
-               [class.opacity-50]="isUpdatingStatus">
-          <input 
-            type="radio" 
-            name="statut" 
-            class="custom-radio cursor-pointer" 
-            [checked]="isStatutSelected('En pause')"
-            [disabled]="isUpdatingStatus"
-            (change)="changeStatut('En pause')">
-          <span class="ml-2 text-gray-700 font-bold text-sm">En pause</span>
-        </label>
-
-        <!-- Terminé -->
-        <label class="flex items-center cursor-pointer"
-               [class.opacity-50]="isUpdatingStatus">
-          <input 
-            type="radio" 
-            name="statut" 
-            class="custom-radio cursor-pointer" 
-            [checked]="isStatutSelected('Terminé')"
-            [disabled]="isUpdatingStatus"
-            (change)="changeStatut('Terminé')">
-          <span class="ml-2 text-gray-700 font-bold text-sm">Terminé</span>
-        </label>
-      </div>
-
-      <!-- Message de confirmation visuel (optionnel) -->
-      <div *ngIf="!isUpdatingStatus && projet" class="mt-3 text-xs text-gray-500">
-        Statut actuel : <span class="font-semibold">{{ statutFrancais }}</span>
       </div>
     </div>
-  </div>
-</div>
 
     <div class="md:col-span-2">
       <div class="bg-white rounded shadow h-fit">
         <!-- En-tête avec titre et bouton -->
         <div class="flex justify-between items-center mb-6 p-4 border-b border-gray-200">
-          <h1 class="text-2xl font-bold text-gray-800">Informations générales</h1>
+          <h1 class="text-2xl font-bold text-gray-800">{{ t('projectPresentation.generalInfo') }}</h1>
           <!-- <button (click)="onModifier()"
             class="px-4 py-2 bg-orange-500 text-white rounded-md flex items-center hover:bg-orange-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -196,53 +182,55 @@
           </button> -->
         </div>
 
-      <!-- Navigation par onglets -->
-<div class="border-b border-gray-200">
-  <div class="flex justify-between items-center">
-    <nav class="flex">
-      <a (click)="setActiveTab('general')"
-        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-        [class]="isActiveTab('general') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-        </svg>
-        Informations générales
-      </a>
-      <a (click)="setActiveTab('avancement')"
-        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-        [class]="isActiveTab('avancement') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-            clip-rule="evenodd" />
-        </svg>
-        État d'avancement
-      </a>
-      <a (click)="setActiveTab('budget')"
-        class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
-        [class]="isActiveTab('budget') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-            clip-rule="evenodd" />
-        </svg>
-        Budget
-      </a>
-    </nav>
-    
-    <!-- Bouton Ajouter (visible seulement sur État d'avancement) -->
-    <div *ngIf="isActiveTab('avancement')" class="pr-6">
-      <button (click)="triggerAddAlbum()"
-        class="px-6 py-2.5 bg-orange-500 text-white rounded-lg flex items-center hover:bg-orange-600 transition-colors shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-        </svg>
-        Ajouter
-      </button>
-    </div>
-  </div>
-</div>
+        <!-- Navigation par onglets -->
+        <div class="border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <nav class="flex">
+              <a (click)="setActiveTab('general')"
+                class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+                [class]="isActiveTab('general') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                {{ t('projectPresentation.generalInfo') }}
+              </a>
+              <a (click)="setActiveTab('avancement')"
+                class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+                [class]="isActiveTab('avancement') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd" />
+                </svg>
+                {{ t('projectPresentation.progressState') }}
+              </a>
+              <a (click)="setActiveTab('budget')"
+                class="flex items-center px-6 py-4 border-b-2 cursor-pointer transition-colors"
+                [class]="isActiveTab('budget') ? 'border-orange-500 text-orange-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+                {{ t('projectPresentation.budgetTab') }}
+              </a>
+            </nav>
+
+            <!-- Bouton Ajouter (visible seulement sur État d'avancement) -->
+            <div *ngIf="isActiveTab('avancement')" class="pr-6">
+              <button (click)="triggerAddAlbum()"
+                class="px-6 py-2.5 bg-orange-500 text-white rounded-lg flex items-center hover:bg-orange-600 transition-colors shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clip-rule="evenodd" />
+                </svg>
+                {{ t('projectPresentation.add') }}
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Contenu des onglets -->
         <div class="p-6">
@@ -263,23 +251,23 @@
             <!-- Tableau d'informations -->
             <div class="grid grid-cols-1 md:grid-cols-2 mb-8 gap-5">
               <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">Surface</span>
+                <span class="text-gray-600">{{ t('projectPresentation.surface') }}</span>
                 <span class="font-medium">{{ projet.area }} m²</span>
               </div>
               <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">Emplacement</span>
+                <span class="text-gray-600">{{ t('projectPresentation.location') }}</span>
                 <span class="font-medium">{{ projet.address }}</span>
               </div>
               <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">Nombre de lots</span>
+                <span class="text-gray-600">{{ t('projectPresentation.numberOfLots') }}</span>
                 <span class="font-medium">{{ projet.numberOfLots }}</span>
               </div>
               <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">Date d'échéance</span>
+                <span class="text-gray-600">{{ t('projectPresentation.dueDate') }}</span>
                 <span class="font-medium">{{ dateFinPrevue }}</span>
               </div>
               <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">Nombre de pièces</span>
+                <span class="text-gray-600">{{ t('projectPresentation.numberOfRooms') }}</span>
                 <span class="font-medium">{{ projet.numberOfRooms }}</span>
               </div>
               <div class="justify-between border-b pb-2 hidden">
@@ -290,7 +278,7 @@
 
             <!-- Équipements communs -->
             <div class="mt-10">
-              <h3 class="text-xl font-bold text-gray-800 mb-6">Équipements communs</h3>
+              <h3 class="text-xl font-bold text-gray-800 mb-6">{{ t('projectPresentation.commonEquipment') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div *ngFor="let equipement of equipementsCommuns" class="flex">
                   <div class="mr-4">
@@ -313,7 +301,7 @@
           <!-- Onglet Budget -->
           <div *ngIf="isActiveTab('budget')">
             <div class="space-y-6">
-              <h3 class="text-lg font-semibold text-gray-700">Informations budgétaires</h3>
+              <h3 class="text-lg font-semibold text-gray-700">{{ t('projectPresentation.budgetInfo') }}</h3>
               <app-project-budget></app-project-budget>
 
             </div>

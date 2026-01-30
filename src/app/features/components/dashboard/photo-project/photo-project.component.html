@@ -7,7 +7,7 @@
   <!-- Affichage conditionnel : photos dynamiques ou message vide -->
   <div *ngIf="photos && photos.length > 0; else noPhotos" class="grid grid-cols-3 gap-2">
     <div *ngFor="let photo of photos; let i = index"
-      class="relative w-[100px] h-24 shadow-lg rounded-[10px] cursor-pointer group overflow-hidden"
+      class="relative w-[100px] h-24 shadow-lg rounded-[10px] cursor-pointer group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
       (click)="openModal(i)">
       <img [src]="photo.photo || photo.url"
         class="rounded-[10px] w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"

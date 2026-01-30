@@ -23,6 +23,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   baseUrl = environment.filebaseUrl;
   profileImageLoading = true;
   showWindowsScroll = false;
+  showLogoutConfirm = signal<boolean>(false);
 
   public languageService = inject(LanguageService);
 
@@ -258,9 +259,23 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.activeMenu === menuId;
   }
 
-  logout(): void {
+  showLogoutDialog(): void {
+    this.showLogoutConfirm.set(true);
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm.set(false);
+  }
+
+  confirmLogout(): void {
+    this.showLogoutConfirm.set(false);
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Keep old method name for compatibility
+  logout(): void {
+    this.showLogoutDialog();
   }
 
   getProfileImageUrl(): string {

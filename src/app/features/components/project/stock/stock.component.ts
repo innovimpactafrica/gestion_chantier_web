@@ -106,7 +106,7 @@ interface Delivery {
   number: string;
   date: string; // Attendu au format dd-MM-yyyy
   command: string;
-  
+
   status: 'Complète' | 'Partielle' | 'Annulée';
   proof: string;
 }
@@ -190,10 +190,10 @@ interface DeliveriesResponse {
   selector: 'app-stock',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, StatistiqueComponent],
-  templateUrl:'./stock.component.html',
+  templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.css']
 })
-export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
+export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   stockAlertes: StockAlerte[] = [];
   orders: Order[] = [];
@@ -262,24 +262,24 @@ export class StockComponent implements OnInit, OnDestroy , AfterViewInit {
   suppliersLoading: boolean = false;
   showMenu = false;
   // Ajouter ces propriétés dans la classe StockComponent
-consommationData: ConsommationData[] = [];
-evolutionData: EvolutionData[] = [];
-consommationChart: Chart | null = null;
-evolutionChart: Chart | null = null;
+  consommationData: ConsommationData[] = [];
+  evolutionData: EvolutionData[] = [];
+  consommationChart: Chart | null = null;
+  evolutionChart: Chart | null = null;
 
-// Modals de confirmation
-showDeleteModal: boolean = false;
-showDeleteOrderModal: boolean = false;
-materialToDelete: Material | null = null;
-orderToDelete: Order | null = null;
-showSuccessModal: boolean = false;
-showErrorModal: boolean = false;
-successMessage: string = '';
-errorMessage: string = '';
+  // Modals de confirmation
+  showDeleteModal: boolean = false;
+  showDeleteOrderModal: boolean = false;
+  materialToDelete: Material | null = null;
+  orderToDelete: Order | null = null;
+  showSuccessModal: boolean = false;
+  showErrorModal: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
 
-// Pour les livraisons
-deliveryPageSize: number = 10;
-orderPageSize: number = 10;
+  // Pour les livraisons
+  deliveryPageSize: number = 10;
+  orderPageSize: number = 10;
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
@@ -287,9 +287,9 @@ orderPageSize: number = 10;
     private propertyService: PropertyTypeService,
     private dashboardService: DashboardService,
     private route: ActivatedRoute,
-    private statistiqueService: StatistiqueService, 
+    private statistiqueService: StatistiqueService,
     private userService: UserService,
-    private commandeService:CommandeService,
+    private commandeService: CommandeService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -300,11 +300,11 @@ orderPageSize: number = 10;
       propertyId: [null, [Validators.required]]
     });
 
- // ✅ REMPLACER l'orderForm actuel par :
-this.orderForm = this.fb.group({
-  supplierId: ['', Validators.required],
-  materials: this.fb.array([])
-});
+    // ✅ REMPLACER l'orderForm actuel par :
+    this.orderForm = this.fb.group({
+      supplierId: ['', Validators.required],
+      materials: this.fb.array([])
+    });
 
     this.movementForm = this.fb.group({
       type: ['ENTRY', Validators.required],
@@ -378,7 +378,7 @@ this.orderForm = this.fb.group({
           console.error('Erreur chargement consommation:', err);
         }
       });
-  
+
     // Charger données d'évolution
     this.statistiqueService.getEvolution(this.propertyId)
       .pipe(takeUntil(this.destroy$))
@@ -463,126 +463,126 @@ this.orderForm = this.fb.group({
     const maxPages = 5;
     let startPage = Math.max(0, this.deliveryCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalDeliveryPages - 1, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
-// ===== MODIFIER loadStock() pour utiliser materialCurrentPage =====
-loadStock(): void {
-  this.loading = true;
-  if (!this.propertyId || this.propertyId <= 0) {
-    console.error('ID de propriété invalide:', this.propertyId);
-    this.showErrorMessage('ID de propriété invalide');
-    this.loading = false;
-    return;
+  // ===== MODIFIER loadStock() pour utiliser materialCurrentPage =====
+  loadStock(): void {
+    this.loading = true;
+    if (!this.propertyId || this.propertyId <= 0) {
+      console.error('ID de propriété invalide:', this.propertyId);
+      this.showErrorMessage('ID de propriété invalide');
+      this.loading = false;
+      return;
+    }
+
+    // ✅ UTILISER materialCurrentPage et materialPageSize
+    this.materialsService.getStock(this.propertyId, this.materialCurrentPage, this.materialPageSize)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: MaterialsResponse) => {
+          console.log('Réponse reçue:', response);
+          this.data = response;
+          this.materials = response.content || [];
+          this.totalMaterialElements = response.totalElements || 0;
+          this.totalMaterialPages = response.totalPages || 0;
+
+          // Plus besoin de filtrage côté client pour la pagination
+          this.paginatedMaterials = [...this.materials];
+          this.generateStockAlerts();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement du stock:', error);
+          this.loading = false;
+          this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
+        }
+      });
   }
 
-  // ✅ UTILISER materialCurrentPage et materialPageSize
-  this.materialsService.getStock(this.propertyId, this.materialCurrentPage, this.materialPageSize)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: MaterialsResponse) => {
-        console.log('Réponse reçue:', response);
-        this.data = response;
-        this.materials = response.content || [];
-        this.totalMaterialElements = response.totalElements || 0;
-        this.totalMaterialPages = response.totalPages || 0;
-        
-        // Plus besoin de filtrage côté client pour la pagination
-        this.paginatedMaterials = [...this.materials];
-        this.generateStockAlerts();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement du stock:', error);
-        this.loading = false;
-        this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
-      }
-    });
-}
 
-
-// ===== MODIFIER loadOrders() pour utiliser orderPageSize =====
-loadOrders(): void {
-  this.loading = true;
-  this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.orderPageSize)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response) => {
-        this.orders = response.content || [];
-        this.totalOrderElements = response.totalElements || 0;
-        this.totalOrderPages = response.totalPages || 0;
-        this.paginatedOrders = this.orders;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des commandes:', error);
-        this.loading = false;
-        this.showErrorMessage('Erreur lors du chargement des commandes');
-      }
-    });
-}
-
-// ===== MODIFIER loadDeliveries() pour utiliser deliveryPageSize =====
-loadDeliveries(): void {
-  this.loading = true;
-
-  if (!this.propertyId || this.propertyId <= 0) {
-    console.error('ID de propriété invalide:', this.propertyId);
-    this.showErrorMessage('ID de propriété invalide');
-    this.loading = false;
-    return;
+  // ===== MODIFIER loadOrders() pour utiliser orderPageSize =====
+  loadOrders(): void {
+    this.loading = true;
+    this.materialsService.getCommand(this.propertyId, this.orderCurrentPage, this.orderPageSize)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.orders = response.content || [];
+          this.totalOrderElements = response.totalElements || 0;
+          this.totalOrderPages = response.totalPages || 0;
+          this.paginatedOrders = this.orders;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des commandes:', error);
+          this.loading = false;
+          this.showErrorMessage('Erreur lors du chargement des commandes');
+        }
+      });
   }
 
-  this.materialsService.getLivraison(this.propertyId, this.deliveryCurrentPage, this.deliveryPageSize)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: any) => {
-        console.log('Livraisons reçues:', response);
+  // ===== MODIFIER loadDeliveries() pour utiliser deliveryPageSize =====
+  loadDeliveries(): void {
+    this.loading = true;
 
-        if (response && Array.isArray(response.content)) {
-          this.deliveries = response.content.map((delivery: any) => ({
-            ...delivery,
-            date: delivery.orderDate,
-            formattedDate: this.formatDeliveryDate(delivery.orderDate),
-          }));
+    if (!this.propertyId || this.propertyId <= 0) {
+      console.error('ID de propriété invalide:', this.propertyId);
+      this.showErrorMessage('ID de propriété invalide');
+      this.loading = false;
+      return;
+    }
 
-          this.totalDeliveryElements = response.totalElements || 0;
-          this.totalDeliveryPages = response.totalPages || 0;
-          this.paginatedDeliveries = [...this.deliveries];
-        } else {
-          console.warn('Structure de réponse inattendue:', response);
+    this.materialsService.getLivraison(this.propertyId, this.deliveryCurrentPage, this.deliveryPageSize)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          console.log('Livraisons reçues:', response);
+
+          if (response && Array.isArray(response.content)) {
+            this.deliveries = response.content.map((delivery: any) => ({
+              ...delivery,
+              date: delivery.orderDate,
+              formattedDate: this.formatDeliveryDate(delivery.orderDate),
+            }));
+
+            this.totalDeliveryElements = response.totalElements || 0;
+            this.totalDeliveryPages = response.totalPages || 0;
+            this.paginatedDeliveries = [...this.deliveries];
+          } else {
+            console.warn('Structure de réponse inattendue:', response);
+            this.deliveries = [];
+            this.paginatedDeliveries = [];
+          }
+
+          this.loading = false;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors du chargement des livraisons:', error);
+          this.loading = false;
           this.deliveries = [];
           this.paginatedDeliveries = [];
+          this.showErrorMessage('Erreur lors du chargement des livraisons');
         }
-
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Erreur lors du chargement des livraisons:', error);
-        this.loading = false;
-        this.deliveries = [];
-        this.paginatedDeliveries = [];
-        this.showErrorMessage('Erreur lors du chargement des livraisons');
-      }
-    });
-}
+      });
+  }
   formatRecentMovementDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return '';
-    
+
     const [year, month, day, hours = 0, minutes = 0] = dateArray;
     const movementDate = new Date(year, month - 1, day, hours, minutes);
     const now = new Date();
-    
+
     const diffMs = now.getTime() - movementDate.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
+
     if (diffHours < 1) {
       const diffMinutes = Math.floor(diffMs / (1000 * 60));
       return diffMinutes < 1 ? "À l'instant" : `Il y a ${diffMinutes} min`;
@@ -591,7 +591,7 @@ loadDeliveries(): void {
     } else if (diffHours < 48) {
       return `Hier, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
-    
+
     return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
   }
   getMovementBadge(movement: StockMovement): string {
@@ -605,15 +605,15 @@ loadDeliveries(): void {
   getAlertPercentage(alert: StockAlert): number {
     const material = this.materials.find(m => m.id === alert.materialId);
     if (!material) return 0;
-    
+
     if (!material.criticalThreshold || material.criticalThreshold === 0) {
       return material.quantity > 0 ? 100 : 0;
     }
-    
+
     const percentage = (material.quantity / (material.criticalThreshold * 2)) * 100;
     return Math.min(Math.max(percentage, 0), 100);
   }
-  
+
   getAlertStatus(alert: StockAlert): string {
     const material = this.materials.find(m => m.id === alert.materialId);
     if (!material) return 'NORMAL';
@@ -797,15 +797,15 @@ loadDeliveries(): void {
   }
 
   // ===== MODIFIER addMaterialToOrder =====
-// ✅ REMPLACER par (ligne ~280 environ) :
-addMaterialToOrder(): void {
-  const materials = this.orderForm.get('materials') as FormArray;
-  materials.push(this.fb.group({
-    materialId: ['', Validators.required],
-    quantity: [1, [Validators.required, Validators.min(1)]]
-    // ❌ SUPPRIMER unitPrice
-  }));
-}
+  // ✅ REMPLACER par (ligne ~280 environ) :
+  addMaterialToOrder(): void {
+    const materials = this.orderForm.get('materials') as FormArray;
+    materials.push(this.fb.group({
+      materialId: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]]
+      // ❌ SUPPRIMER unitPrice
+    }));
+  }
 
   // ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
   calculateLineTotal(index: number): void {
@@ -848,43 +848,43 @@ addMaterialToOrder(): void {
     }
   }
 
-// ✅ REMPLACER onSubmitOrder() par :
-onSubmitOrder(): void {
-  if (!this.orderForm.valid || this.loading) {
-    this.showErrorMessage('Veuillez remplir tous les champs requis');
-    return;
+  // ✅ REMPLACER onSubmitOrder() par :
+  onSubmitOrder(): void {
+    if (!this.orderForm.valid || this.loading) {
+      this.showErrorMessage('Veuillez remplir tous les champs requis');
+      return;
+    }
+
+    this.loading = true;
+
+    // ✅ Structure EXACTE du swagger
+    const orderData: CreateOrder = {
+      supplierId: Number(this.orderForm.value.supplierId),
+      materials: this.orderForm.value.materials.map((m: any) => ({
+        materialId: Number(m.materialId),
+        quantity: Number(m.quantity)
+      }))
+    };
+
+    console.log('📦 Données envoyées (format swagger):', orderData);
+
+    this.materialsService.createCommand(orderData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (created) => {
+          console.log('✅ Commande créée:', created);
+          this.loading = false;
+          this.closeOrderModal();
+          this.loadOrders();
+          this.showSuccessMessage('Commande créée avec succès !');
+        },
+        error: (error) => {
+          console.error('❌ Erreur:', error);
+          this.loading = false;
+          this.showErrorMessage(error.message || 'Erreur lors de la création');
+        }
+      });
   }
-
-  this.loading = true;
-
-  // ✅ Structure EXACTE du swagger
-  const orderData: CreateOrder = {
-    supplierId: Number(this.orderForm.value.supplierId),
-    materials: this.orderForm.value.materials.map((m: any) => ({
-      materialId: Number(m.materialId),
-      quantity: Number(m.quantity)
-    }))
-  };
-
-  console.log('📦 Données envoyées (format swagger):', orderData);
-
-  this.materialsService.createCommand(orderData)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (created) => {
-        console.log('✅ Commande créée:', created);
-        this.loading = false;
-        this.closeOrderModal();
-        this.loadOrders();
-        this.showSuccessMessage('Commande créée avec succès !');
-      },
-      error: (error) => {
-        console.error('❌ Erreur:', error);
-        this.loading = false;
-        this.showErrorMessage(error.message || 'Erreur lors de la création');
-      }
-    });
-}
 
 
   // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
@@ -899,13 +899,13 @@ onSubmitOrder(): void {
   }
 
   // ===== MODIFIER closeOrderModal =====
-closeOrderModal(): void {
-  this.showOrderModal = false;
-  const materials = this.orderForm.get('materials') as FormArray;
-  materials.clear();
-  this.orderForm.reset({ supplierId: '' });
-  this.addMaterialToOrder(); // Ajouter une ligne vide
-}
+  closeOrderModal(): void {
+    this.showOrderModal = false;
+    const materials = this.orderForm.get('materials') as FormArray;
+    materials.clear();
+    this.orderForm.reset({ supplierId: '' });
+    this.addMaterialToOrder(); // Ajouter une ligne vide
+  }
   generateStockAlerts(): void {
     this.stockAlerts = [];
     this.materials.forEach(material => {
@@ -1138,7 +1138,7 @@ closeOrderModal(): void {
       this.loadStock();
     }
   }
-  
+
   nextMaterialPage(): void {
     if (this.materialCurrentPage < this.totalMaterialPages - 1) {
       this.materialCurrentPage++;
@@ -1227,49 +1227,49 @@ closeOrderModal(): void {
     const [_, __, ___, hours, minutes] = dateArray;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
-// ===== SUPPRESSION COMMANDE =====
-confirmDeleteOrder(order: Order): void {
-  if (!order) return;
-  
-  if (order.status === 'DELIVERED' || order.status === 'DELIVERY') {
-    this.showErrorMessage('Impossible de supprimer une commande déjà livrée');
-    return;
+  // ===== SUPPRESSION COMMANDE =====
+  confirmDeleteOrder(order: Order): void {
+    if (!order) return;
+
+    if (order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+      this.showErrorMessage('Impossible de supprimer une commande déjà livrée');
+      return;
+    }
+
+    this.orderToDelete = order;
+    this.showDeleteOrderModal = true;
   }
-  
-  this.orderToDelete = order;
-  this.showDeleteOrderModal = true;
-}
 
-cancelDeleteOrder(): void {
-  this.showDeleteOrderModal = false;
-  this.orderToDelete = null;
-}
+  cancelDeleteOrder(): void {
+    this.showDeleteOrderModal = false;
+    this.orderToDelete = null;
+  }
 
-deleteOrderConfirmed(): void {
-  if (!this.orderToDelete) return;
-  
-  this.loading = true;
-  
-  this.commandeService.deleteCommande(this.orderToDelete.id)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.loading = false;
-        this.showDeleteOrderModal = false;
-        this.orderToDelete = null;
-        
-        this.showSuccessMessage('Commande supprimée avec succès');
-        this.loadOrders();
-      },
-      error: (error) => {
-        this.loading = false;
-        this.showDeleteOrderModal = false;
-        this.orderToDelete = null;
-        
-        this.showErrorMessage('Erreur lors de la suppression de la commande');
-      }
-    });
-}
+  deleteOrderConfirmed(): void {
+    if (!this.orderToDelete) return;
+
+    this.loading = true;
+
+    this.commandeService.deleteCommande(this.orderToDelete.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.showDeleteOrderModal = false;
+          this.orderToDelete = null;
+
+          this.showSuccessMessage('Commande supprimée avec succès');
+          this.loadOrders();
+        },
+        error: (error) => {
+          this.loading = false;
+          this.showDeleteOrderModal = false;
+          this.orderToDelete = null;
+
+          this.showErrorMessage('Erreur lors de la suppression de la commande');
+        }
+      });
+  }
 
   onCreateMovement(): void {
     if (this.movementForm.valid && this.selectedMaterial && !this.loading) {
@@ -1453,24 +1453,24 @@ deleteOrderConfirmed(): void {
       console.log('Supprimer', material);
     }
   }
- 
+
   goToMaterialPage(page: number): void {
     if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
       this.materialCurrentPage = page;
       this.loadStock();
     }
   }
-  
+
   getMaterialPageNumbers(): number[] {
     const pages: number[] = [];
     const maxPages = 5;
     let startPage = Math.max(0, this.materialCurrentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalMaterialPages - 1, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
@@ -1480,23 +1480,23 @@ deleteOrderConfirmed(): void {
   showSuccessMessage(message: string): void {
     this.successMessage = message;
     this.showSuccessModal = true;
-    
+
     // Auto-fermeture après 3 secondes
     setTimeout(() => {
       this.closeSuccessModal();
     }, 3000);
   }
-  
+
   showErrorMessage(message: string): void {
     this.errorMessage = message;
     this.showErrorModal = true;
   }
-  
+
   closeSuccessModal(): void {
     this.showSuccessModal = false;
     this.successMessage = '';
   }
-  
+
   closeErrorModal(): void {
     this.showErrorModal = false;
     this.errorMessage = '';
@@ -1793,27 +1793,27 @@ deleteOrderConfirmed(): void {
 
 
   // Modifier les méthodes de pagination existantes
- // ===== MÉTHODES DE NAVIGATION LIVRAISONS =====
-previousDeliveryPage(): void {
-  if (this.deliveryCurrentPage > 0) {
-    this.deliveryCurrentPage--;
-    this.loadDeliveries();
+  // ===== MÉTHODES DE NAVIGATION LIVRAISONS =====
+  previousDeliveryPage(): void {
+    if (this.deliveryCurrentPage > 0) {
+      this.deliveryCurrentPage--;
+      this.loadDeliveries();
+    }
   }
-}
 
-nextDeliveryPage(): void {
-  if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
-    this.deliveryCurrentPage++;
-    this.loadDeliveries();
+  nextDeliveryPage(): void {
+    if (this.deliveryCurrentPage < this.totalDeliveryPages - 1) {
+      this.deliveryCurrentPage++;
+      this.loadDeliveries();
+    }
   }
-}
 
-goToDeliveryPage(page: number): void {
-  if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
-    this.deliveryCurrentPage = page;
-    this.loadDeliveries();
+  goToDeliveryPage(page: number): void {
+    if (page >= 0 && page < this.totalDeliveryPages && page !== this.deliveryCurrentPage) {
+      this.deliveryCurrentPage = page;
+      this.loadDeliveries();
+    }
   }
-}
 
 
   private normalizeDeliveryStatus(displayStatus: string): string[] {
@@ -1828,269 +1828,269 @@ goToDeliveryPage(page: number): void {
   }
 
 
-// ===== SUPPRESSION MATÉRIEL =====
-confirmDeleteMaterial(material: Material): void {
-  this.materialToDelete = material;
-  this.showDeleteModal = true;
-}
+  // ===== SUPPRESSION MATÉRIEL =====
+  confirmDeleteMaterial(material: Material): void {
+    this.materialToDelete = material;
+    this.showDeleteModal = true;
+  }
 
-cancelDeleteMaterial(): void {
-  this.showDeleteModal = false;
-  this.materialToDelete = null;
-}
+  cancelDeleteMaterial(): void {
+    this.showDeleteModal = false;
+    this.materialToDelete = null;
+  }
 
-deleteMaterialConfirmed(): void {
-  if (!this.materialToDelete) return;
-  
-  this.loading = true;
-  
-  this.materialsService.deleteMaterial(this.materialToDelete.id)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.loading = false;
-        this.showDeleteModal = false;
-        const materialName = this.materialToDelete?.label || '';
-        this.materialToDelete = null;
-        
-        this.showSuccessMessage(`${materialName} a été supprimé avec succès`);
-        this.loadStock();
-        this.loadStockMovements();
+  deleteMaterialConfirmed(): void {
+    if (!this.materialToDelete) return;
+
+    this.loading = true;
+
+    this.materialsService.deleteMaterial(this.materialToDelete.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.showDeleteModal = false;
+          const materialName = this.materialToDelete?.label || '';
+          this.materialToDelete = null;
+
+          this.showSuccessMessage(`${materialName} a été supprimé avec succès`);
+          this.loadStock();
+          this.loadStockMovements();
+        },
+        error: (error: { status: number; }) => {
+          this.loading = false;
+          this.showDeleteModal = false;
+          this.materialToDelete = null;
+
+          if (error.status === 403) {
+            this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
+          } else if (error.status === 409) {
+            this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes');
+          } else {
+            this.showErrorMessage('Erreur lors de la suppression du matériel');
+          }
+        }
+      });
+  }
+
+  //ABOUBACAR SOW
+
+
+  showMouvementModal: boolean = false;
+  stockAlertsCount = 3;
+  openInventoryDropdownIndex: number | null = null;
+
+  toggleInventoryDropdown(index: number, event: MouseEvent) {
+    event.stopPropagation(); // IMPORTANT
+    this.openInventoryDropdownIndex =
+      this.openInventoryDropdownIndex === index ? null : index;
+  }
+
+  openOrderDropdownIndex: number | null = null;
+
+  toggleOrderDropdown(index: number, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openOrderDropdownIndex =
+      this.openOrderDropdownIndex === index ? null : index;
+  }
+
+
+  openDeliveryDropdownIndex: number | null = null;
+
+  toggleDeliveryDropdown(index: number, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openDeliveryDropdownIndex =
+      this.openDeliveryDropdownIndex === index ? null : index;
+  }
+
+
+  showExportDropdown: boolean = false;
+
+  toggleExportDropdown(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showExportDropdown = !this.showExportDropdown;
+  }
+
+  closeDropdown(): void {
+    this.openDropdownIndex = null;
+    this.openInventoryDropdownIndex = null;
+    this.openOrderDropdownIndex = null;
+    this.openDeliveryDropdownIndex = null;
+  }
+
+
+  ngAfterViewInit(): void {
+    if (this.activeTab === 'statistiques') {
+      this.initConsumptionChart();
+      this.initEvolutionChart();
+    }
+  }
+
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+
+    if (tab === 'statistiques') {
+      setTimeout(() => {
+        if (this.consommationData.length > 0) {
+          this.initConsumptionChart();
+        }
+        if (this.evolutionData.length > 0) {
+          this.initEvolutionChart();
+        }
+      }, 100);
+    }
+  }
+
+
+
+
+  initConsumptionChart() {
+    const canvas = document.getElementById('consumptionChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Détruire l'ancien graphique s'il existe
+    if (this.consommationChart) {
+      this.consommationChart.destroy();
+    }
+
+    // Préparer les données
+    const labels = this.consommationData.map(item => item.materialLabel);
+    const data = this.consommationData.map(item => item.totalUsedQuantity);
+
+    // Couleurs dynamiques
+    const colors = [
+      '#FDEDEC', '#BB8FCE', '#F1948A', '#F7DC6F', '#82E0AA',
+      '#85C1E9', '#F8B88B', '#D7BDE2', '#A9DFBF', '#FAD7A0'
+    ];
+
+    this.consommationChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors.slice(0, labels.length),
+          barPercentage: 0.3,
+          categoryPercentage: 0.8
+        }]
       },
-      error: (error: { status: number; }) => {
-        this.loading = false;
-        this.showDeleteModal = false;
-        this.materialToDelete = null;
-        
-        if (error.status === 403) {
-          this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
-        } else if (error.status === 409) {
-          this.showErrorMessage('Impossible de supprimer ce matériel car il est lié à des commandes');
-        } else {
-          this.showErrorMessage('Erreur lors de la suppression du matériel');
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.parsed.y} unités`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              font: {
+                family: 'Inter',
+                size: 12,
+                weight: 500
+              },
+              color: '#34495E'
+            },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: {
+                family: 'Inter',
+                size: 11
+              },
+              color: '#7F8C8D'
+            },
+            grid: {
+              color: '#ECF0F1'
+            }
+          }
         }
       }
     });
-}
-
-//ABOUBACAR SOW
-
-
-showMouvementModal: boolean = false;
-stockAlertsCount = 3;
-openInventoryDropdownIndex: number | null = null;
-
-toggleInventoryDropdown(index: number, event: MouseEvent) {
-  event.stopPropagation(); // IMPORTANT
-  this.openInventoryDropdownIndex =
-    this.openInventoryDropdownIndex === index ? null : index;
-}
-
-openOrderDropdownIndex: number | null = null;
-
-toggleOrderDropdown(index: number, event: MouseEvent): void {
-  event.stopPropagation();
-  this.openOrderDropdownIndex =
-    this.openOrderDropdownIndex === index ? null : index;
-}
-
-
-openDeliveryDropdownIndex: number | null = null;
-
-toggleDeliveryDropdown(index: number, event: MouseEvent): void {
-  event.stopPropagation();
-  this.openDeliveryDropdownIndex =
-    this.openDeliveryDropdownIndex === index ? null : index;
-}
-
-
-showExportDropdown: boolean = false;
-
-toggleExportDropdown(event: MouseEvent): void {
-  event.stopPropagation();
-  this.showExportDropdown = !this.showExportDropdown;
-}
-
-closeDropdown(): void {
-  this.openDropdownIndex = null;
-  this.openInventoryDropdownIndex = null;
-  this.openOrderDropdownIndex = null;
-  this.openDeliveryDropdownIndex = null;
-}
-
-
-ngAfterViewInit(): void {
-  if (this.activeTab === 'statistiques') {
-    this.initConsumptionChart();
-    this.initEvolutionChart();
-  }
-}
-
-
-setActiveTab(tab: string): void {
-  this.activeTab = tab;
-
-  if (tab === 'statistiques') {
-    setTimeout(() => {
-      if (this.consommationData.length > 0) {
-        this.initConsumptionChart();
-      }
-      if (this.evolutionData.length > 0) {
-        this.initEvolutionChart();
-      }
-    }, 100);
-  }
-}
-
-
-
-
-initConsumptionChart() {
-  const canvas = document.getElementById('consumptionChart') as HTMLCanvasElement;
-  if (!canvas) return;
-
-  // Détruire l'ancien graphique s'il existe
-  if (this.consommationChart) {
-    this.consommationChart.destroy();
   }
 
-  // Préparer les données
-  const labels = this.consommationData.map(item => item.materialLabel);
-  const data = this.consommationData.map(item => item.totalUsedQuantity);
-  
-  // Couleurs dynamiques
-  const colors = [
-    '#FDEDEC', '#BB8FCE', '#F1948A', '#F7DC6F', '#82E0AA',
-    '#85C1E9', '#F8B88B', '#D7BDE2', '#A9DFBF', '#FAD7A0'
-  ];
+  // ⚠️  initEvolutionChart :
+  initEvolutionChart() {
+    const canvas = document.getElementById('evolutionChart') as HTMLCanvasElement;
+    if (!canvas) return;
 
-  this.consommationChart = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors.slice(0, labels.length),
-        barPercentage: 0.3,      
-        categoryPercentage: 0.8   
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.parsed.y} unités`
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: {
-            font: { 
-              family: 'Inter', 
-              size: 12, 
-              weight: 500  
-            },
-            color: '#34495E'
-          },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: true, 
-          ticks: {
-            font: { 
-              family: 'Inter', 
-              size: 11 
-            },
-            color: '#7F8C8D'
-          },
-          grid: { 
-            color: '#ECF0F1' 
-          }
-        }
-      }
+    // Détruire l'ancien graphique s'il existe
+    if (this.evolutionChart) {
+      this.evolutionChart.destroy();
     }
-  });
-}
 
-// ⚠️  initEvolutionChart :
-initEvolutionChart() {
-  const canvas = document.getElementById('evolutionChart') as HTMLCanvasElement;
-  if (!canvas) return;
+    // Préparer les données
+    const labels = this.evolutionData.map(item => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('fr-FR', { month: 'short' });
+    });
+    const entriesData = this.evolutionData.map(item => item.totalEntries);
+    const exitsData = this.evolutionData.map(item => item.totalExits);
 
-  // Détruire l'ancien graphique s'il existe
-  if (this.evolutionChart) {
-    this.evolutionChart.destroy();
-  }
-
-  // Préparer les données
-  const labels = this.evolutionData.map(item => {
-    const date = new Date(item.date);
-    return date.toLocaleDateString('fr-FR', { month: 'short' });
-  });
-  const entriesData = this.evolutionData.map(item => item.totalEntries);
-  const exitsData = this.evolutionData.map(item => item.totalExits);
-
-  this.evolutionChart = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Entrées',
-          data: entriesData,
-          borderColor: '#10B981',
-          backgroundColor: 'rgba(16, 185, 129, 0.15)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#10B981'
+    this.evolutionChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Entrées',
+            data: entriesData,
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: '#10B981'
+          },
+          {
+            label: 'Sorties',
+            data: exitsData,
+            borderColor: '#FF5C02',
+            backgroundColor: 'rgba(255, 92, 2, 0.15)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: '#FF5C02'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              font: { family: 'Inter', size: 12, weight: 500 },
+              color: '#34495E'
+            }
+          }
         },
-        {
-          label: 'Sorties',
-          data: exitsData,
-          borderColor: '#FF5C02',
-          backgroundColor: 'rgba(255, 92, 2, 0.15)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#FF5C02'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: {
-            font: { family: 'Inter', size: 12, weight: 500 },
-            color: '#34495E'
+        scales: {
+          x: {
+            ticks: {
+              font: { family: 'Inter', size: 12 },
+              color: '#34495E'
+            },
+            grid: { display: false }
+          },
+          y: {
+            ticks: {
+              font: { family: 'Inter', size: 11 },
+              color: '#7F8C8D'
+            },
+            grid: { color: '#ECF0F1' }
           }
         }
-      },
-      scales: {
-        x: {
-          ticks: {
-            font: { family: 'Inter', size: 12 },
-            color: '#34495E'
-          },
-          grid: { display: false }
-        },
-        y: {
-          ticks: {
-            font: { family: 'Inter', size: 11 },
-            color: '#7F8C8D'
-          },
-          grid: { color: '#ECF0F1' }
-        }
       }
-    }
-  });
-}
+    });
+  }
 
 
 }

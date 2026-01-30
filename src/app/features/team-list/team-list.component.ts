@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
 import { AuthService } from './../../features/auth/services/auth.service';
 import { DetailsWorkerService, PerformanceAndTask, PresenceHistory, InfoDashboard, StatusDistribution } from '../../../services/details-worker.service';
+import { LanguageService } from '../../core/services/language.service';
 import { forkJoin, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { catchError } from 'rxjs/operators';
@@ -94,9 +95,14 @@ export class TeamListComponent implements OnInit {
     private utilisateurService: UtilisateurService,
     private authService: AuthService,
     private detailsWorkerService: DetailsWorkerService,
+    private languageService: LanguageService,
     private route: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   get filteredTeamMembers(): TeamMember[] {
     let filtered = this.teamMembers;

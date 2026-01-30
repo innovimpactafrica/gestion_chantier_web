@@ -1,275 +1,294 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA] min-h-screen">
-    <!-- En-tête avec filtre année -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-[#1E293B]">Tableau de bord</h1>
-      
-      <!-- Sélecteur d'année -->
-      <div class="relative">
-        <select 
-          [(ngModel)]="selectedYear" 
-          (change)="onYearChange()"
-          class="appearance-none bg-white border border-gray-300 rounded-lg px-6 py-3 pr-10 text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent cursor-pointer shadow-sm hover:border-gray-400 transition-colors">
-          <option *ngFor="let year of availableYears" [value]="year">
-            {{ year }}
-          </option>
-        </select>
-        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+  <!-- En-tête avec filtre année -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-[#1E293B]">{{ t('dashboardAdmin.title') }}</h1>
+
+    <!-- Sélecteur d'année -->
+    <div class="relative">
+      <select [(ngModel)]="selectedYear" (change)="onYearChange()"
+        class="appearance-none bg-white border border-gray-300 rounded-lg px-6 py-3 pr-10 text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent cursor-pointer shadow-sm hover:border-gray-400 transition-colors">
+        <option *ngFor="let year of availableYears" [value]="year">
+          {{ year }}
+        </option>
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartes statistiques principales -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Abonnements -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.total') }}</p>
+          <p class="text-3xl font-bold ">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.totalSubscriptions }}</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
+        </div>
+        <div class="bg-gray-100 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              d="M4.32031 11.2996H4.52441C5.33908 11.6728 6.23726 11.9001 7.2002 11.9001C8.16265 11.9001 9.06443 11.6733 9.87695 11.2996H10.0801C12.1889 11.2996 13.9003 13.0111 13.9004 15.1199V16.2C13.9004 16.9176 13.3172 17.4998 12.5996 17.4998H1.7998C1.08229 17.4997 0.500001 16.9175 0.5 16.2V15.1199C0.500042 13.0111 2.21148 11.2996 4.32031 11.2996ZM16.2002 11.2996H16.2676C16.8023 11.4766 17.3797 11.6003 18 11.6003C18.6203 11.6003 19.1977 11.4766 19.7324 11.2996H19.7998C21.8448 11.2996 23.4999 12.9547 23.5 14.9998C23.5 15.7173 22.9177 16.2995 22.2002 16.2996H16.0996V15.1199C16.0996 13.7772 15.6469 12.5471 14.9033 11.5505C15.3097 11.3913 15.744 11.2996 16.2002 11.2996ZM7.2002 1.69995C9.24521 1.70006 10.9004 3.3551 10.9004 5.40015C10.9003 7.4451 9.24515 9.10024 7.2002 9.10034C5.15515 9.10034 3.50011 7.44516 3.5 5.40015C3.5 3.35504 5.15509 1.69995 7.2002 1.69995ZM18 2.90015C19.7113 2.90015 21.0995 4.28849 21.0996 5.99976C21.0996 7.71111 19.7114 9.10034 18 9.10034C16.2886 9.10034 14.9004 7.71111 14.9004 5.99976C14.9005 4.28849 16.2887 2.90015 18 2.90015Z"
+              stroke="#2C3E50" />
           </svg>
+
         </div>
       </div>
     </div>
-  
-    <!-- Cartes statistiques principales -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Total Abonnements -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <p class="text-gray-600 text-sm mb-1">Total Abonnements</p>
-            <p class="text-3xl font-bold ">
-              <span *ngIf="!isLoadingDashboard && dashboardInfos">{{  dashboardInfos.totalSubscriptions }}</span>
-              <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-            </p>
-          </div>
-          <div class="bg-gray-100 rounded-lg p-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M4.32031 11.2996H4.52441C5.33908 11.6728 6.23726 11.9001 7.2002 11.9001C8.16265 11.9001 9.06443 11.6733 9.87695 11.2996H10.0801C12.1889 11.2996 13.9003 13.0111 13.9004 15.1199V16.2C13.9004 16.9176 13.3172 17.4998 12.5996 17.4998H1.7998C1.08229 17.4997 0.500001 16.9175 0.5 16.2V15.1199C0.500042 13.0111 2.21148 11.2996 4.32031 11.2996ZM16.2002 11.2996H16.2676C16.8023 11.4766 17.3797 11.6003 18 11.6003C18.6203 11.6003 19.1977 11.4766 19.7324 11.2996H19.7998C21.8448 11.2996 23.4999 12.9547 23.5 14.9998C23.5 15.7173 22.9177 16.2995 22.2002 16.2996H16.0996V15.1199C16.0996 13.7772 15.6469 12.5471 14.9033 11.5505C15.3097 11.3913 15.744 11.2996 16.2002 11.2996ZM7.2002 1.69995C9.24521 1.70006 10.9004 3.3551 10.9004 5.40015C10.9003 7.4451 9.24515 9.10024 7.2002 9.10034C5.15515 9.10034 3.50011 7.44516 3.5 5.40015C3.5 3.35504 5.15509 1.69995 7.2002 1.69995ZM18 2.90015C19.7113 2.90015 21.0995 4.28849 21.0996 5.99976C21.0996 7.71111 19.7114 9.10034 18 9.10034C16.2886 9.10034 14.9004 7.71111 14.9004 5.99976C14.9005 4.28849 16.2887 2.90015 18 2.90015Z" stroke="#2C3E50"/>
-                </svg>
-                
-          </div>
+
+    <!-- Abonnements Actifs -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.active') }}</p>
+          <p class="text-3xl font-bold ">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.activeSubscriptions }}</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
         </div>
-      </div>
-  
-      <!-- Abonnements Actifs -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <p class="text-gray-600 text-sm mb-1">Abonnements Actifs</p>
-            <p class="text-3xl font-bold ">
-              <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.activeSubscriptions }}</span>
-              <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-            </p>
-          </div>
-          <div class="bg-green-100 rounded-lg p-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M16.5 8.25C16.5 8.05109 16.579 7.86032 16.7197 7.71967C16.8603 7.57902 17.0511 7.5 17.25 7.5H20.25C20.4489 7.5 20.6397 7.57902 20.7803 7.71967C20.921 7.86032 21 8.05109 21 8.25V9.75C21 9.94891 20.921 10.1397 20.7803 10.2803C20.6397 10.421 20.4489 10.5 20.25 10.5H17.25C17.0511 10.5 16.8603 10.421 16.7197 10.2803C16.579 10.1397 16.5 9.94891 16.5 9.75V8.25Z" fill="#22C55F"/>
-                <path d="M3 3C2.20435 3 1.44129 3.31607 0.87868 3.87868C0.316071 4.44129 0 5.20435 0 6L0 18C0 18.7956 0.316071 19.5587 0.87868 20.1213C1.44129 20.6839 2.20435 21 3 21H21C21.7956 21 22.5587 20.6839 23.1213 20.1213C23.6839 19.5587 24 18.7956 24 18V6C24 5.20435 23.6839 4.44129 23.1213 3.87868C22.5587 3.31607 21.7956 3 21 3H3ZM22.5 6V13.5H1.5V6C1.5 5.60218 1.65804 5.22064 1.93934 4.93934C2.22064 4.65804 2.60218 4.5 3 4.5H21C21.3978 4.5 21.7794 4.65804 22.0607 4.93934C22.342 5.22064 22.5 5.60218 22.5 6ZM21 19.5H3C2.60218 19.5 2.22064 19.342 1.93934 19.0607C1.65804 18.7794 1.5 18.3978 1.5 18V16.5H22.5V18C22.5 18.3978 22.342 18.7794 22.0607 19.0607C21.7794 19.342 21.3978 19.5 21 19.5Z" fill="#22C55F"/>
-                </svg>
-                
-          </div>
-        </div>
-      </div>
-  
-      <!-- Abonnements Expirés -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <p class="text-gray-600 text-sm mb-1">Abonnements Expirés</p>
-            <p class="text-3xl font-bold">
-              <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.expiredSubscriptions }}</span>
-              <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-            </p>
-          </div>
-          <div class="bg-red-100 rounded-lg p-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M16 2V6M8 2V6M21 12C21 8.229 21 6.343 19.828 5.172C18.656 4.001 16.771 4 13 4H11C7.229 4 5.343 4 4.172 5.172C3.001 6.344 3 8.229 3 12V14C3 17.771 3 19.657 4.172 20.828C5.344 21.999 7.229 22 11 22M3 10H21" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18.267 18.701L17 18V16.267M21 18C21 19.0609 20.5786 20.0783 19.8284 20.8284C19.0783 21.5786 18.0609 22 17 22C15.9391 22 14.9217 21.5786 14.1716 20.8284C13.4214 20.0783 13 19.0609 13 18C13 16.9391 13.4214 15.9217 14.1716 15.1716C14.9217 14.4214 15.9391 14 17 14C18.0609 14 19.0783 14.4214 19.8284 15.1716C20.5786 15.9217 21 16.9391 21 18Z" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                
-          </div>
-        </div>
-      </div>
-  
-      <!-- Revenus Cumulés -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <p class="text-gray-600 text-sm mb-1">Revenus Cumulés</p>
-            <p class="text-2xl font-bold ">
-              <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ formatAmount(dashboardInfos.totalRevenue) }}</span>
-              <span *ngIf="isLoadingDashboard" class="inline-block w-32 h-8 bg-gray-200 animate-pulse rounded"></span>
-            </p>
-          </div>
-          <div class="bg-blue-100 rounded-lg p-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M21 11.0031H20.824L19.001 5.6701L3.354 11.0031L3 11.0001M2.5 11.0041H3L14.146 2.1001L16.963 6.0501" stroke="#0D47A1" stroke-width="2" stroke-linecap="square"/>
-                <path d="M14.5 16C14.5 16.663 14.2366 17.2989 13.7678 17.7678C13.2989 18.2366 12.663 18.5 12 18.5C11.337 18.5 10.7011 18.2366 10.2322 17.7678C9.76339 17.2989 9.5 16.663 9.5 16C9.5 15.337 9.76339 14.7011 10.2322 14.2322C10.7011 13.7634 11.337 13.5 12 13.5C12.663 13.5 13.2989 13.7634 13.7678 14.2322C14.2366 14.7011 14.5 15.337 14.5 16Z" stroke="#0D47A1" stroke-width="2" stroke-linecap="square"/>
-                <path d="M21.5 11V21H2.5V11H21.5Z" stroke="#0D47A1" stroke-width="2" stroke-linecap="square"/>
-                <path d="M2.5 11H4.5C4.5 11.5304 4.28929 12.0391 3.91421 12.4142C3.53914 12.7893 3.03043 13 2.5 13V11ZM21.5 11H19.5C19.5 11.5304 19.7107 12.0391 20.0858 12.4142C20.4609 12.7893 20.9696 13 21.5 13V11ZM2.5 21H4.502C4.50226 20.737 4.45066 20.4766 4.35014 20.2336C4.24963 19.9905 4.10217 19.7697 3.91621 19.5838C3.73026 19.3978 3.50946 19.2504 3.26644 19.1499C3.02343 19.0493 2.76298 18.9977 2.5 18.998V21ZM21.5 21H19.5C19.5 20.4696 19.7107 19.9609 20.0858 19.5858C20.4609 19.2107 20.9696 19 21.5 19V21Z" stroke="#0D47A1" stroke-width="2" stroke-linecap="square"/>
-                </svg>
-                
-          </div>
+        <div class="bg-green-100 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              d="M16.5 8.25C16.5 8.05109 16.579 7.86032 16.7197 7.71967C16.8603 7.57902 17.0511 7.5 17.25 7.5H20.25C20.4489 7.5 20.6397 7.57902 20.7803 7.71967C20.921 7.86032 21 8.05109 21 8.25V9.75C21 9.94891 20.921 10.1397 20.7803 10.2803C20.6397 10.421 20.4489 10.5 20.25 10.5H17.25C17.0511 10.5 16.8603 10.421 16.7197 10.2803C16.579 10.1397 16.5 9.94891 16.5 9.75V8.25Z"
+              fill="#22C55F" />
+            <path
+              d="M3 3C2.20435 3 1.44129 3.31607 0.87868 3.87868C0.316071 4.44129 0 5.20435 0 6L0 18C0 18.7956 0.316071 19.5587 0.87868 20.1213C1.44129 20.6839 2.20435 21 3 21H21C21.7956 21 22.5587 20.6839 23.1213 20.1213C23.6839 19.5587 24 18.7956 24 18V6C24 5.20435 23.6839 4.44129 23.1213 3.87868C22.5587 3.31607 21.7956 3 21 3H3ZM22.5 6V13.5H1.5V6C1.5 5.60218 1.65804 5.22064 1.93934 4.93934C2.22064 4.65804 2.60218 4.5 3 4.5H21C21.3978 4.5 21.7794 4.65804 22.0607 4.93934C22.342 5.22064 22.5 5.60218 22.5 6ZM21 19.5H3C2.60218 19.5 2.22064 19.342 1.93934 19.0607C1.65804 18.7794 1.5 18.3978 1.5 18V16.5H22.5V18C22.5 18.3978 22.342 18.7794 22.0607 19.0607C21.7794 19.342 21.3978 19.5 21 19.5Z"
+              fill="#22C55F" />
+          </svg>
+
         </div>
       </div>
     </div>
-  
-    <!-- Graphiques principaux -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Évolution des Abonnements -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <h2 class="text-xl font-bold text-[#1E293B] mb-4">Évolution des Abonnements</h2>
-        <div class="h-[300px] relative">
-          <div *ngIf="isLoadingEvolution" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
-          </div>
-          <canvas #abonnementsChart></canvas>
+
+    <!-- Abonnements Expirés -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.expired') }}</p>
+          <p class="text-3xl font-bold">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.expiredSubscriptions }}</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
         </div>
-        <div class="flex items-center justify-center mt-4">
-          <div class="flex items-center">
-            <div class="w-3 h-3 bg-[#FF5C01] rounded-sm mr-2"></div>
-            <span class="text-sm text-gray-600">Abonnements</span>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Revenus Mensuels -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <h2 class="text-xl font-bold text-[#1E293B] mb-4">Revenus Mensuels</h2>
-        <div class="h-[300px] relative">
-          <div *ngIf="isLoadingRevenu" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D47A1]"></div>
-          </div>
-          <canvas #revenusChart></canvas>
-        </div>
-        <div class="flex items-center justify-center mt-4">
-          <div class="flex items-center">
-            <div class="w-3 h-3 bg-[#0D47A1] rounded-sm mr-2"></div>
-            <span class="text-sm text-gray-600">Revenus (F CFA)</span>
-          </div>
+        <div class="bg-red-100 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              d="M16 2V6M8 2V6M21 12C21 8.229 21 6.343 19.828 5.172C18.656 4.001 16.771 4 13 4H11C7.229 4 5.343 4 4.172 5.172C3.001 6.344 3 8.229 3 12V14C3 17.771 3 19.657 4.172 20.828C5.344 21.999 7.229 22 11 22M3 10H21"
+              stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M18.267 18.701L17 18V16.267M21 18C21 19.0609 20.5786 20.0783 19.8284 20.8284C19.0783 21.5786 18.0609 22 17 22C15.9391 22 14.9217 21.5786 14.1716 20.8284C13.4214 20.0783 13 19.0609 13 18C13 16.9391 13.4214 15.9217 14.1716 15.1716C14.9217 14.4214 15.9391 14 17 14C18.0609 14 19.0783 14.4214 19.8284 15.1716C20.5786 15.9217 21 16.9391 21 18Z"
+              stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+
         </div>
       </div>
     </div>
-  
-    <!-- Graphiques de distribution -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Répartition des Profils (barres horizontales) -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <h2 class="text-xl font-bold text-[#1E293B] mb-6">Répartition des profils</h2>
-        <div class="h-[300px] relative">
-          <div *ngIf="isLoadingProfils" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
-          </div>
-          <canvas #profilsChart></canvas>
+
+    <!-- Revenus Cumulés -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.revenue.total') }}</p>
+          <p class="text-2xl font-bold ">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ formatAmount(dashboardInfos.totalRevenue) }}</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-32 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
+        </div>
+        <div class="bg-blue-100 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path d="M21 11.0031H20.824L19.001 5.6701L3.354 11.0031L3 11.0001M2.5 11.0041H3L14.146 2.1001L16.963 6.0501"
+              stroke="#0D47A1" stroke-width="2" stroke-linecap="square" />
+            <path
+              d="M14.5 16C14.5 16.663 14.2366 17.2989 13.7678 17.7678C13.2989 18.2366 12.663 18.5 12 18.5C11.337 18.5 10.7011 18.2366 10.2322 17.7678C9.76339 17.2989 9.5 16.663 9.5 16C9.5 15.337 9.76339 14.7011 10.2322 14.2322C10.7011 13.7634 11.337 13.5 12 13.5C12.663 13.5 13.2989 13.7634 13.7678 14.2322C14.2366 14.7011 14.5 15.337 14.5 16Z"
+              stroke="#0D47A1" stroke-width="2" stroke-linecap="square" />
+            <path d="M21.5 11V21H2.5V11H21.5Z" stroke="#0D47A1" stroke-width="2" stroke-linecap="square" />
+            <path
+              d="M2.5 11H4.5C4.5 11.5304 4.28929 12.0391 3.91421 12.4142C3.53914 12.7893 3.03043 13 2.5 13V11ZM21.5 11H19.5C19.5 11.5304 19.7107 12.0391 20.0858 12.4142C20.4609 12.7893 20.9696 13 21.5 13V11ZM2.5 21H4.502C4.50226 20.737 4.45066 20.4766 4.35014 20.2336C4.24963 19.9905 4.10217 19.7697 3.91621 19.5838C3.73026 19.3978 3.50946 19.2504 3.26644 19.1499C3.02343 19.0493 2.76298 18.9977 2.5 18.998V21ZM21.5 21H19.5C19.5 20.4696 19.7107 19.9609 20.0858 19.5858C20.4609 19.2107 20.9696 19 21.5 19V21Z"
+              stroke="#0D47A1" stroke-width="2" stroke-linecap="square" />
+          </svg>
+
         </div>
       </div>
-  
-      <!-- Distribution des Plans -->
-      <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <h2 class="text-xl font-bold text-[#1E293B] mb-6">Distribution des Plans</h2>
+    </div>
+  </div>
+
+  <!-- Graphiques principaux -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Évolution des Abonnements -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h2 class="text-xl font-bold text-[#1E293B] mb-4">{{ t('dashboardAdmin.charts.subscriptions') }}</h2>
+      <div class="h-[300px] relative">
+        <div *ngIf="isLoadingEvolution"
+          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
+        </div>
+        <canvas #abonnementsChart></canvas>
+      </div>
+      <div class="flex items-center justify-center mt-4">
         <div class="flex items-center">
-          <div class="w-1/2 h-[250px] relative">
-            <div *ngIf="isLoadingPlans" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3B82F6]"></div>
-            </div>
-            <canvas #plansChart></canvas>
-          </div>
-          <div class="w-1/2 pl-6">
-            <div *ngFor="let plan of planDistribution; let i = index" class="mb-3">
-              <div class="flex items-center">
-                <div class="w-3 h-3 rounded-full mr-3" [style.background-color]="getPlanColor(i)"></div>
-                <span class="text-gray-700 font-medium text-sm">{{ plan.planName }} • {{ plan.percentage }}%</span>
-              </div>
-            </div>
-            <div *ngIf="planDistribution.length === 0 && !isLoadingPlans" class="text-gray-500 text-sm">
-              Aucune donnée disponible
-            </div>
-          </div>
+          <div class="w-3 h-3 bg-[#FF5C01] rounded-sm mr-2"></div>
+          <span class="text-sm text-gray-600">Abonnements</span>
         </div>
       </div>
     </div>
-  
-    <!-- Dernières Factures Payées -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-      <div class="p-6 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-[#1E293B]">Dernières Factures Payées</h2>
+
+    <!-- Revenus Mensuels -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h2 class="text-xl font-bold text-[#1E293B] mb-4">{{ t('dashboardAdmin.charts.revenue') }}</h2>
+      <div class="h-[300px] relative">
+        <div *ngIf="isLoadingRevenu" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D47A1]"></div>
+        </div>
+        <canvas #revenusChart></canvas>
       </div>
-      
-      <!-- Loader pour la table -->
-      <div *ngIf="isLoadingInvoices" class="flex items-center justify-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
+      <div class="flex items-center justify-center mt-4">
+        <div class="flex items-center">
+          <div class="w-3 h-3 bg-[#0D47A1] rounded-sm mr-2"></div>
+          <span class="text-sm text-gray-600">Revenus (F CFA)</span>
+        </div>
       </div>
-  
-      <!-- Table des factures -->
-      <div *ngIf="!isLoadingInvoices" class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Facture</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utilisateur</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-              <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr *ngFor="let facture of dernieresFactures" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ facture.invoiceNumber }}</td>
-              <td class="px-6 py-4 text-sm text-gray-700">{{ facture.userName }}</td>
-              <td class="px-6 py-4 text-sm text-gray-700">{{ facture.planLabel }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ formatAmount(facture.amount) }}</td>
-              <td class="px-6 py-4 text-sm text-gray-700">{{ formatDate(facture.createdAt) }}</td>
-              <td class="px-6 py-4 text-sm">
-                <span *ngIf="facture.paid" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Payé
-                </span>
-                <span *ngIf="!facture.paid" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  Impayé
-                </span>
-              </td>
-            </tr>
-            <tr *ngIf="dernieresFactures.length === 0">
-              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                Aucune facture disponible
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    </div>
+  </div>
+
+  <!-- Graphiques de distribution -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Répartition des Profils (barres horizontales) -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h2 class="text-xl font-bold text-[#1E293B] mb-6">{{ t('dashboardAdmin.charts.profiles') }}</h2>
+      <div class="h-[300px] relative">
+        <div *ngIf="isLoadingProfils" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
+        </div>
+        <canvas #profilsChart></canvas>
       </div>
-  
-      <!-- Pagination -->
-      <div *ngIf="!isLoadingInvoices && totalPages > 1" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700">
-            Affichage de <span class="font-medium">{{ currentPage * pageSize + 1 }}</span> à 
-            <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span> sur 
-            <span class="font-medium">{{ totalElements }}</span> résultats
+    </div>
+
+    <!-- Distribution des Plans -->
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h2 class="text-xl font-bold text-[#1E293B] mb-6">{{ t('dashboardAdmin.charts.plans') }}</h2>
+      <div class="flex items-center">
+        <div class="w-1/2 h-[250px] relative">
+          <div *ngIf="isLoadingPlans" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3B82F6]"></div>
           </div>
-          <div class="flex items-center space-x-2">
-            <button 
-              (click)="previousPage()" 
-              [disabled]="currentPage === 0"
-              [class.opacity-50]="currentPage === 0"
-              [class.cursor-not-allowed]="currentPage === 0"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] disabled:hover:bg-white transition-colors">
-              Précédent
-            </button>
-            
-            <div class="flex items-center space-x-1">
-              <button 
-                *ngFor="let page of [].constructor(totalPages); let i = index"
-                (click)="goToPage(i)"
-                [class.bg-[#FF5C01]]="currentPage === i"
-                [class.text-white]="currentPage === i"
-                [class.bg-white]="currentPage !== i"
-                [class.text-gray-700]="currentPage !== i"
-                class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] transition-colors">
-                {{ i + 1 }}
-              </button>
+          <canvas #plansChart></canvas>
+        </div>
+        <div class="w-1/2 pl-6">
+          <div *ngFor="let plan of planDistribution; let i = index" class="mb-3">
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full mr-3" [style.background-color]="getPlanColor(i)"></div>
+              <span class="text-gray-700 font-medium text-sm">{{ plan.planName }} • {{ plan.percentage }}%</span>
             </div>
-            
-            <button 
-              (click)="nextPage()" 
-              [disabled]="currentPage === totalPages - 1"
-              [class.opacity-50]="currentPage === totalPages - 1"
-              [class.cursor-not-allowed]="currentPage === totalPages - 1"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] disabled:hover:bg-white transition-colors">
-              Suivant
-            </button>
+          </div>
+          <div *ngIf="planDistribution.length === 0 && !isLoadingPlans" class="text-gray-500 text-sm">
+            Aucune donnée disponible
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Dernières Factures Payées -->
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-[#1E293B]">{{ t('dashboardAdmin.invoices.title') }}</h2>
+    </div>
+
+    <!-- Loader pour la table -->
+    <div *ngIf="isLoadingInvoices" class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
+    </div>
+
+    <!-- Table des factures -->
+    <div *ngIf="!isLoadingInvoices" class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.invoice')
+              }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.user') }}
+            </th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.plan') }}
+            </th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.amount')
+              }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.date') }}
+            </th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('dashboardAdmin.invoices.status')
+              }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr *ngFor="let facture of dernieresFactures" class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ facture.invoiceNumber }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ facture.userName }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ facture.planLabel }}</td>
+            <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ formatAmount(facture.amount) }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ formatDate(facture.createdAt) }}</td>
+            <td class="px-6 py-4 text-sm">
+              <span *ngIf="facture.paid"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                {{ t('dashboardAdmin.invoices.paid') }}
+              </span>
+              <span *ngIf="!facture.paid"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                {{ t('dashboardAdmin.invoices.unpaid') }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="dernieresFactures.length === 0">
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              {{ t('dashboardAdmin.invoices.noData') }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoadingInvoices && totalPages > 1" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          {{ t('dashboardAdmin.pagination.showing') }} <span class="font-medium">{{ currentPage * pageSize + 1 }}</span>
+          {{ t('dashboardAdmin.pagination.to') }}
+          <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span> {{
+          t('dashboardAdmin.pagination.of') }}
+          <span class="font-medium">{{ totalElements }}</span> {{ t('dashboardAdmin.pagination.results') }}
+        </div>
+        <div class="flex items-center space-x-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 0" [class.opacity-50]="currentPage === 0"
+            [class.cursor-not-allowed]="currentPage === 0"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] disabled:hover:bg-white transition-colors">
+            {{ t('dashboardAdmin.pagination.previous') }}
+          </button>
+
+          <div class="flex items-center space-x-1">
+            <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)"
+              [class.bg-[#FF5C01]]="currentPage === i" [class.text-white]="currentPage === i"
+              [class.bg-white]="currentPage !== i" [class.text-gray-700]="currentPage !== i"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] transition-colors">
+              {{ i + 1 }}
+            </button>
+          </div>
+
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
+            [class.opacity-50]="currentPage === totalPages - 1"
+            [class.cursor-not-allowed]="currentPage === totalPages - 1"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] disabled:hover:bg-white transition-colors">
+            {{ t('dashboardAdmin.pagination.next') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

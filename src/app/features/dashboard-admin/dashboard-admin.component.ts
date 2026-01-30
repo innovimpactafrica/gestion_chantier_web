@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { DashboardAdminService, DashboardInfos, EvolutionData, PlanDistribution, ProfilDistribution, Invoice, InvoiceResponse } from './../../../services/dashboard-admin.service';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { LanguageService } from '../../core/services/language.service';
 
 Chart.register(...registerables);
 
@@ -54,12 +55,19 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   dernieresFactures: Invoice[] = [];
   Math: any;
 
-  constructor(private dashboardService: DashboardAdminService) {
+  constructor(
+    private dashboardService: DashboardAdminService,
+    public languageService: LanguageService
+  ) {
     // Générer les 10 dernières années
     const currentYear = new Date().getFullYear();
     for (let i = 0; i < 10; i++) {
       this.availableYears.push(currentYear - i);
     }
+  }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
   }
 
   ngOnInit(): void {

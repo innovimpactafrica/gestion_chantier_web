@@ -601,11 +601,25 @@
         <!-- Grid photos -->
         <div class="flex-1 grid grid-cols-3 gap-3">
           <div *ngFor="let photo of photosRecentes | slice:0:6"
-            class="relative aspect-square rounded-lg overflow-hidden cursor-pointer" (click)="openPhotoModal(photo)">
-            <img [src]="getBaseFile() + photo.src" class="w-full h-full object-cover" />
+            class="group relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+            (click)="openPhotoModal(photo)">
+            <img [src]="getBaseFile() + photo.src"
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+
+            <!-- Hover Overlay -->
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <!-- Magnify Icon -->
+              <svg
+                class="w-10 h-10 text-white transform scale-75 group-hover:scale-100 transition-transform duration-300"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
+              </svg>
+            </div>
 
             <div class="absolute bottom-2 left-2 bg-black bg-opacity-70
-                  text-white text-xs px-2 py-1 rounded">
+                  text-white text-xs px-2 py-1 rounded z-10">
               <div class="font-semibold truncate">
                 {{ photo.phase || photo.alt }}
               </div>
