@@ -5,6 +5,7 @@ import { filter, Subject, takeUntil, interval } from 'rxjs';
 import { BreadcrumbItem, BreadcrumbService } from '../../../core/services/breadcrumb-service.service';
 import { RouterModule } from '@angular/router';
 import { NotificationService, Notification } from '../../../../services/notification.service';
+import { Language, LanguageService } from '../../../../services/language.service';
 
 @Component({
   selector: 'app-breadcrumb',
@@ -35,7 +36,8 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private languageService:LanguageService
   ) {}
 
   ngOnInit(): void {
@@ -70,11 +72,25 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
       });
   }
 
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  get currentLang() {
+    return this.languageService.currentLang;
+  }
+ 
+  onLanguageChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const lang = select.value as Language;
+    this.languageService.changeLanguage(lang);
+ 
+    // Force breadcrumb refresh to update translations
+    const currentBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
+    this.breadcrumbService.setBreadcrumbs(currentBreadcrumbs);
+  }
   // ===========================
   // BREADCRUMBS
   // ===========================

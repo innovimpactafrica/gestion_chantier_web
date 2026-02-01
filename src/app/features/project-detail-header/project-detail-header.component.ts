@@ -15,6 +15,8 @@ import { RealestateService } from '../../core/services/realestate.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as QRCode from 'qrcode';
 import { PointingAddressComponent } from "../components/project/pointing-adress/pointing-adress.component";
+import { LanguageService } from '../../../services/language.service';
+
 
 @Component({
   selector: 'app-project-detail-header',
@@ -55,9 +57,15 @@ export class ProjectDetailHeaderComponent implements OnInit {
     private breadcrumbService: BreadcrumbService,
     private realestateService: RealestateService,
     private sanitizer: DomSanitizer,
+    private languageService: LanguageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+  // Translation helper
+  t(key: string): string {
+    return this.languageService.translate(key);
   }
 
   ngOnInit(): void {

@@ -1,46 +1,40 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
-import { UnitParameter,PaginatedResponse } from '../../../../models/unit-parameter';
-import { UnitParameterService } from '../../../../core/services/unite-parametre.service';
+import { Subscription } from 'rxjs';
+import { UnitParameterService, UpdateUnitParameterRequest } from '../../../../core/services/unite-parametre.service';
+import { UnitParameter, PaginatedResponse } from '../../../../models/unit-parameter';
 
 @Component({
   selector: 'app-material-category',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './material-category.component.html',
-  styleUrls: ['./material-category.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./material-category.component.css']
 })
 export class MaterialCategoryComponent implements OnInit, OnDestroy {
   // Data properties
   categories: UnitParameter[] = [];
-  paginationInfo: PaginatedResponse<UnitParameter> | null = null;
+  paginatedCategories: PaginatedResponse<UnitParameter> | null = null;
+  private subscription: Subscription = new Subscription();
   
-  // Loading states
+  // Loading and UI states
   isLoading = false;
-  isLoadingMore = false;
   isSubmitting = false;
+  isLoadingMore = false;
   
-  // Search
+  // Search functionality
   searchTerm = '';
-  private searchSubject = new Subject<string>();
-  
-  // Error handling
-  error: string | null = null;
-  
+  isSearching = false;
+
   // Form properties
-  nouvelleCategorie = {
+  categoryForm = {
     label: '',
     code: '',
     hasStartDate: false,
     hasEndDate: false
   };
-  
-  // Validation
-  formErrors: { [key: string]: string } = {};
-  
+
   // Edit mode
   editingCategory: UnitParameter | null = null;
   editForm = {
@@ -49,172 +43,91 @@ export class MaterialCategoryComponent implements OnInit, OnDestroy {
     hasStartDate: false,
     hasEndDate: false
   };
-  
-  // Destroy subject for cleanup
-  private destroy$ = new Subject<void>();
-  
-  constructor(
-    private unitParameterService: UnitParameterService,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.setupSearch();
-  }
-  
+
+  // Pagination
+  currentPage = 0;
+  pageSize = 10;
+  pageSizeOptions = [5, 10, 20, 50];
+
+  // Messages
+  successMessage = '';
+  error = '';
+
+  constructor(private unitParameterService: UnitParameterService) {}
+
   ngOnInit(): void {
     this.loadCategories();
-    this.setupSubscriptions();
+    this.subscribeToCategories();
   }
-  
+
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.subscription.unsubscribe();
   }
+
+  // ========== DATA LOADING ==========
   
-  // ========== SETUP METHODS ==========
-  
-  private setupSubscriptions(): void {
-    // Subscribe to material categories changes
-    this.unitParameterService.materialCategories$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+  private loadCategories(): void {
+    this.isLoading = true;
+    this.unitParameterService.getMaterialCategories({ 
+      page: this.currentPage, 
+      size: this.pageSize 
+    });
+  }
+
+  private subscribeToCategories(): void {
+    this.subscription.add(
+      this.unitParameterService.materialCategories$.subscribe({
         next: (paginatedData) => {
           if (paginatedData) {
-            this.paginationInfo = paginatedData;
+            this.paginatedCategories = paginatedData;
             this.categories = paginatedData.content;
-            this.error = null;
           }
           this.isLoading = false;
           this.isLoadingMore = false;
-          this.cdr.markForCheck();
         },
         error: (error) => {
-          this.handleError('Erreur lors du chargement des catégories', error);
+          console.error('Erreur lors du chargement des catégories:', error);
+          this.showErrorMessage('Erreur lors du chargement des catégories');
           this.isLoading = false;
           this.isLoadingMore = false;
-          this.cdr.markForCheck();
         }
-      });
+      })
+    );
   }
-  
-  private setupSearch(): void {
-    this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(searchTerm => {
-        if (searchTerm.trim()) {
-          this.performSearch(searchTerm);
-        } else {
-          this.loadCategories();
-        }
-      });
-  }
-  
-  // ========== DATA LOADING METHODS ==========
-  
-  loadCategories(page: number = 0, size: number = 10): void {
-    this.isLoading = page === 0;
-    this.error = null;
-    this.unitParameterService.getMaterialCategories({ page, size });
-  }
-  
-  loadMoreCategories(): void {
-    if (this.paginationInfo && !this.paginationInfo.last && !this.isLoadingMore) {
-      this.isLoadingMore = true;
-      this.unitParameterService.loadMoreMaterialCategories();
-    }
-  }
-  
-  refreshCategories(): void {
-    this.loadCategories();
-  }
-  
-  // ========== SEARCH METHODS ==========
-  
-  onSearchChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = target.value;
-    this.searchSubject.next(this.searchTerm);
-  }
-  
-  private performSearch(searchTerm: string): void {
-    this.isLoading = true;
-    this.unitParameterService.searchByType('MATERIAL_CATEGORY', searchTerm)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (paginatedData) => {
-          this.paginationInfo = paginatedData;
-          this.categories = paginatedData.content;
-          this.isLoading = false;
-          this.error = null;
-          this.cdr.markForCheck();
-        },
-        error: (error) => {
-          this.handleError('Erreur lors de la recherche', error);
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        }
-      });
-  }
-  
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.searchSubject.next('');
-  }
-  
-  // ========== CRUD METHODS ==========
-  
+
+  // ========== CRUD OPERATIONS ==========
+
   ajouterCategorie(): void {
-    if (!this.validateForm(this.nouvelleCategorie)) {
+    if (!this.isFormValid() || this.isSubmitting) {
       return;
     }
-    
+
     this.isSubmitting = true;
-    this.error = null;
     
-    const categoryData = {
-      label: this.nouvelleCategorie.label.trim(),
-      code: this.nouvelleCategorie.code.trim().toUpperCase(),
-      hasStartDate: this.nouvelleCategorie.hasStartDate,
-      hasEndDate: this.nouvelleCategorie.hasEndDate
+    const newCategory = {
+      label: this.categoryForm.label.trim(),
+      code: this.categoryForm.code.trim().toUpperCase(),
+      hasStartDate: this.categoryForm.hasStartDate,
+      hasEndDate: this.categoryForm.hasEndDate
     };
-    
-    this.unitParameterService.addMaterialCategory(categoryData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (newCategory) => {
-          this.resetForm();
-          this.isSubmitting = false;
-          this.showSuccess('Catégorie ajoutée avec succès');
-          this.cdr.markForCheck();
-        },
-        error: (error) => {
-          this.handleError('Erreur lors de l\'ajout de la catégorie', error);
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-        }
-      });
-  }
-  
-  supprimerCategorie(id: string): void {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-      return;
-    }
-    
-    this.unitParameterService.deleteMaterialCategory(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+
+    this.subscription.add(
+      this.unitParameterService.addMaterialCategory(newCategory).subscribe({
         next: () => {
-          this.showSuccess('Catégorie supprimée avec succès');
+          this.resetForm();
+          this.showSuccessMessage('Catégorie ajoutée avec succès');
+          this.isSubmitting = false;
+          this.refreshCategories();
         },
         error: (error) => {
-          this.handleError('Erreur lors de la suppression', error);
+          console.error('Erreur lors de l\'ajout de la catégorie:', error);
+          this.showErrorMessage('Erreur lors de l\'ajout de la catégorie');
+          this.isSubmitting = false;
         }
-      });
+      })
+    );
   }
-  
+
   modifierCategorie(category: UnitParameter): void {
     this.editingCategory = category;
     this.editForm = {
@@ -223,34 +136,147 @@ export class MaterialCategoryComponent implements OnInit, OnDestroy {
       hasStartDate: category.hasStartDate,
       hasEndDate: category.hasEndDate
     };
-    this.formErrors = {};
   }
-  
+
   sauvegarderModification(): void {
-    if (!this.editingCategory || !this.validateForm(this.editForm)) {
+    if (!this.editingCategory || !this.isEditFormValid()) {
       return;
     }
-    
-    const updateData = {
+
+    const updatedCategory: UpdateUnitParameterRequest = {
       label: this.editForm.label.trim(),
       code: this.editForm.code.trim().toUpperCase(),
       hasStartDate: this.editForm.hasStartDate,
-      hasEndDate: this.editForm.hasEndDate
+      hasEndDate: this.editForm.hasEndDate,
+      type: 'MATERIAL_CATEGORY'
     };
-    
-    this.unitParameterService.updateMaterialCategory(this.editingCategory.id!, updateData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+
+    this.subscription.add(
+      this.unitParameterService.modifierParametre(this.editingCategory.id!, updatedCategory).subscribe({
         next: () => {
+          this.showSuccessMessage('Catégorie modifiée avec succès');
           this.annulerModification();
-          this.showSuccess('Catégorie mise à jour avec succès');
         },
         error: (error) => {
-          this.handleError('Erreur lors de la mise à jour', error);
+          console.error('Erreur lors de la modification:', error);
+          this.showErrorMessage('Erreur lors de la modification de la catégorie');
         }
-      });
+      })
+    );
   }
-  
+
+  supprimerCategorie(category: UnitParameter): void {
+    if (!category.id || !confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+      return;
+    }
+
+    this.subscription.add(
+      this.unitParameterService.supprimerParametre(category.id, 'MATERIAL_CATEGORY').subscribe({
+        next: () => {
+          this.showSuccessMessage('Catégorie supprimée avec succès');
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          this.showErrorMessage('Erreur lors de la suppression de la catégorie');
+        }
+      })
+    );
+  }
+
+  // ========== SEARCH FUNCTIONALITY ==========
+
+  onSearch(): void {
+    if (this.searchTerm.trim().length < 2) {
+      this.refreshCategories();
+      return;
+    }
+
+    this.isSearching = true;
+    this.subscription.add(
+      this.unitParameterService.searchByType('MATERIAL_CATEGORY', this.searchTerm, { 
+        page: 0, 
+        size: this.pageSize 
+      }).subscribe({
+        next: (searchResults) => {
+          this.categories = searchResults.content;
+          this.paginatedCategories = searchResults;
+          this.currentPage = 0;
+          this.isSearching = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la recherche:', error);
+          this.showErrorMessage('Erreur lors de la recherche');
+          this.isSearching = false;
+        }
+      })
+    );
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.refreshCategories();
+  }
+
+  // ========== PAGINATION ==========
+
+  changerPage(page: number): void {
+    if (page < 0 || page >= this.totalPages || this.isLoading) {
+      return;
+    }
+    this.currentPage = page;
+    this.loadCategories();
+  }
+
+  pagePrecedente(): void {
+    if (this.currentPage > 0) {
+      this.changerPage(this.currentPage - 1);
+    }
+  }
+
+  pageSuivante(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.changerPage(this.currentPage + 1);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(target.value, 10);
+    this.currentPage = 0;
+    this.loadCategories();
+  }
+
+  refreshCategories(): void {
+    this.currentPage = 0;
+    this.loadCategories();
+  }
+
+  rafraichir(): void {
+    this.searchTerm = '';
+    this.refreshCategories();
+  }
+
+  // ========== FORM HELPERS ==========
+
+  public isFormValid(): boolean {
+    return this.categoryForm.label.trim().length > 0 && 
+           this.categoryForm.code.trim().length > 0;
+  }
+
+  public isEditFormValid(): boolean {
+    return this.editForm.label.trim().length > 0 && 
+           this.editForm.code.trim().length > 0;
+  }
+
+  private resetForm(): void {
+    this.categoryForm = {
+      label: '',
+      code: '',
+      hasStartDate: false,
+      hasEndDate: false
+    };
+  }
+
   annulerModification(): void {
     this.editingCategory = null;
     this.editForm = {
@@ -259,133 +285,97 @@ export class MaterialCategoryComponent implements OnInit, OnDestroy {
       hasStartDate: false,
       hasEndDate: false
     };
-    this.formErrors = {};
   }
-  
-  // ========== UTILITY METHODS ==========
-  
+
+  // ========== UI HELPERS ==========
+
   isEditing(category: UnitParameter): boolean {
     return this.editingCategory?.id === category.id;
   }
-  
-  canLoadMore(): boolean {
-    return this.paginationInfo ? !this.paginationInfo.last : false;
-  }
-  
-  getTotalElements(): number {
-    return this.paginationInfo?.totalElements || 0;
-  }
-  
-  getCurrentPage(): number {
-    return this.paginationInfo ? this.paginationInfo.number + 1 : 1;
-  }
-  
-  getTotalPages(): number {
-    return this.paginationInfo?.totalPages || 1;
-  }
-  
-  // ========== VALIDATION ==========
-  
-  private validateForm(formData: any): boolean {
-    this.formErrors = {};
-    let isValid = true;
-    
-    // Validation du label
-    if (!formData.label?.trim()) {
-      this.formErrors['label'] = 'Le libellé est requis';
-      isValid = false;
-    } else if (formData.label.trim().length < 2) {
-      this.formErrors['label'] = 'Le libellé doit contenir au moins 2 caractères';
-      isValid = false;
-    }
-    
-    // Validation du code
-    if (!formData.code?.trim()) {
-      this.formErrors['code'] = 'Le code est requis';
-      isValid = false;
-    } else if (formData.code.trim().length < 2) {
-      this.formErrors['code'] = 'Le code doit contenir au moins 2 caractères';
-      isValid = false;
-    } else if (!/^[A-Z0-9_]+$/.test(formData.code.trim().toUpperCase())) {
-      this.formErrors['code'] = 'Le code ne peut contenir que des lettres, chiffres et underscores';
-      isValid = false;
-    }
-    
-    // Vérifier l'unicité du code (si pas en mode édition ou si le code a changé)
-    if (formData.code?.trim()) {
-      const codeExists = this.categories.some(cat => 
-        cat.code.toUpperCase() === formData.code.trim().toUpperCase() &&
-        (!this.editingCategory || cat.id !== this.editingCategory.id)
-      );
-      
-      if (codeExists) {
-        this.formErrors['code'] = 'Ce code existe déjà';
-        isValid = false;
-      }
-    }
-    
-    this.cdr.markForCheck();
-    return isValid;
-  }
-  
-  hasError(field: string): boolean {
-    return !!this.formErrors[field];
-  }
-  
-  getError(field: string): string {
-    return this.formErrors[field] || '';
-  }
-  
-  // ========== FORM MANAGEMENT ==========
-  
-  private resetForm(): void {
-    this.nouvelleCategorie = {
-      label: '',
-      code: '',
-      hasStartDate: false,
-      hasEndDate: false
-    };
-    this.formErrors = {};
-  }
-  
-  onFormInput(field: string): void {
-    // Clear error when user starts typing
-    if (this.formErrors[field]) {
-      delete this.formErrors[field];
-      this.cdr.markForCheck();
-    }
-  }
-  
-  // ========== ERROR HANDLING ==========
-  
-  private handleError(message: string, error: any): void {
-    console.error(message, error);
-    this.error = error?.message || message;
-  }
-  
-  private showSuccess(message: string): void {
-    // Vous pouvez implémenter un système de notifications ici
-    console.log(message);
-  }
-  
-  clearError(): void {
-    this.error = null;
-    this.cdr.markForCheck();
-  }
-  
-  // ========== KEYBOARD EVENTS ==========
-  
-  onKeyDown(event: KeyboardEvent, action: 'save' | 'cancel' | 'add'): void {
-    if (event.key === 'Enter' && action === 'save') {
-      this.sauvegarderModification();
-    } else if (event.key === 'Escape' && action === 'cancel') {
-      this.annulerModification();
-    } else if (event.key === 'Enter' && action === 'add') {
-      this.ajouterCategorie();
-    }
+
+  trackByFn(index: number, item: UnitParameter): string {
+    return item.id || index.toString();
   }
 
-  trackByCategory(index: number, category: UnitParameter): string {
-    return category.id || index.toString();
+  // ========== MESSAGES ==========
+
+  private showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.error = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+  }
+
+  private showErrorMessage(message: string): void {
+    this.error = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.error = '';
+    }, 5000);
+  }
+
+  clearError(): void {
+    this.error = '';
+  }
+
+  // ========== GETTERS FOR TEMPLATE ==========
+
+  get canLoadMore(): boolean {
+    return this.paginatedCategories ? !this.paginatedCategories.last : false;
+  }
+
+  get totalCategories(): number {
+    return this.paginatedCategories?.totalElements || 0;
+  }
+
+  get totalElements(): number {
+    return this.paginatedCategories?.totalElements || 0;
+  }
+
+  get totalPages(): number {
+    return this.paginatedCategories?.totalPages || 0;
+  }
+
+  get hasCategories(): boolean {
+    return this.categories.length > 0;
+  }
+
+  get isFirstPage(): boolean {
+    return this.currentPage === 0;
+  }
+
+  get isLastPage(): boolean {
+    return this.paginatedCategories ? this.paginatedCategories.last : true;
+  }
+
+  get paginationInfo(): string {
+    if (!this.paginatedCategories) {
+      return 'Aucune catégorie';
+    }
+    const start = this.currentPage * this.pageSize + 1;
+    const end = Math.min(start + this.pageSize - 1, this.totalElements);
+    return `${start} - ${end} sur ${this.totalElements} catégorie(s)`;
+  }
+
+  get pagesDisponibles(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    const totalPages = this.totalPages;
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(0, this.currentPage - 2);
+      const endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
   }
 }

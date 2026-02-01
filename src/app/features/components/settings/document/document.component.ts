@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { UnitParameterService } from '../../../../core/services/unite-parametre.service';
-import { UnitParameter,PaginatedResponse } from '../../../../models/unit-parameter';
-
+import { UnitParameterService, UpdateUnitParameterRequest } from '../../../../core/services/unite-parametre.service';
+import { UnitParameter, PaginatedResponse } from '../../../../models/unit-parameter';
 
 @Component({
   selector: 'app-document',
@@ -48,6 +47,11 @@ export class DocumentComponent implements OnInit, OnDestroy {
   // Pagination
   currentPage = 0;
   pageSize = 10;
+  pageSizeOptions = [5, 10, 20, 50];
+
+  // Messages
+  successMessage = '';
+  error = '';
 
   constructor(private unitParameterService: UnitParameterService) {}
 
@@ -76,19 +80,14 @@ export class DocumentComponent implements OnInit, OnDestroy {
         next: (paginatedData) => {
           if (paginatedData) {
             this.paginatedDocuments = paginatedData;
-            
-            // Pour la pagination, on accumule les résultats
-            if (this.currentPage === 0) {
-              this.documents = paginatedData.content;
-            } else {
-              this.documents = [...this.documents, ...paginatedData.content];
-            }
+            this.documents = paginatedData.content;
           }
           this.isLoading = false;
           this.isLoadingMore = false;
         },
         error: (error) => {
           console.error('Erreur lors du chargement des documents:', error);
+          this.showErrorMessage('Erreur lors du chargement des documents');
           this.isLoading = false;
           this.isLoadingMore = false;
         }
@@ -114,11 +113,10 @@ export class DocumentComponent implements OnInit, OnDestroy {
 
     this.subscription.add(
       this.unitParameterService.addDocument(newDocument).subscribe({
-        next: (document) => {
+        next: () => {
           this.resetForm();
           this.showSuccessMessage('Document ajouté avec succès');
           this.isSubmitting = false;
-          // Recharger la première page pour voir le nouveau document
           this.refreshDocuments();
         },
         error: (error) => {
@@ -145,15 +143,16 @@ export class DocumentComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const updatedDocument = {
+    const updatedDocument: UpdateUnitParameterRequest = {
       label: this.editForm.label.trim(),
       code: this.editForm.code.trim(),
       hasStartDate: this.editForm.hasStartDate,
-      hasEndDate: this.editForm.hasEndDate
+      hasEndDate: this.editForm.hasEndDate,
+      type: 'DOCUMENT'
     };
 
     this.subscription.add(
-      this.unitParameterService.updateDocument(this.editingDocument.id!, updatedDocument).subscribe({
+      this.unitParameterService.modifierParametre(this.editingDocument.id!, updatedDocument).subscribe({
         next: () => {
           this.showSuccessMessage('Document modifié avec succès');
           this.annulerModification();
@@ -172,7 +171,7 @@ export class DocumentComponent implements OnInit, OnDestroy {
     }
 
     this.subscription.add(
-      this.unitParameterService.deleteDocument(document.id).subscribe({
+      this.unitParameterService.supprimerParametre(document.id, 'DOCUMENT').subscribe({
         next: () => {
           this.showSuccessMessage('Document supprimé avec succès');
         },
@@ -206,6 +205,7 @@ export class DocumentComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Erreur lors de la recherche:', error);
+          this.showErrorMessage('Erreur lors de la recherche');
           this.isSearching = false;
         }
       })
@@ -219,33 +219,51 @@ export class DocumentComponent implements OnInit, OnDestroy {
 
   // ========== PAGINATION ==========
 
-  loadMore(): void {
-    if (!this.paginatedDocuments || this.paginatedDocuments.last || this.isLoadingMore) {
+  changerPage(page: number): void {
+    if (page < 0 || page >= this.totalPages || this.isLoading) {
       return;
     }
+    this.currentPage = page;
+    this.loadDocuments();
+  }
 
-    this.isLoadingMore = true;
-    this.currentPage++;
-    this.unitParameterService.getDocuments({ 
-      page: this.currentPage, 
-      size: this.pageSize 
-    });
+  pagePrecedente(): void {
+    if (this.currentPage > 0) {
+      this.changerPage(this.currentPage - 1);
+    }
+  }
+
+  pageSuivante(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.changerPage(this.currentPage + 1);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(target.value, 10);
+    this.currentPage = 0;
+    this.loadDocuments();
   }
 
   refreshDocuments(): void {
     this.currentPage = 0;
-    this.documents = [];
     this.loadDocuments();
+  }
+
+  rafraichir(): void {
+    this.searchTerm = '';
+    this.refreshDocuments();
   }
 
   // ========== FORM HELPERS ==========
 
-  private isFormValid(): boolean {
+  public isFormValid(): boolean {
     return this.documentForm.label.trim().length > 0 && 
            this.documentForm.code.trim().length > 0;
   }
 
-  private isEditFormValid(): boolean {
+  public isEditFormValid(): boolean {
     return this.editForm.label.trim().length > 0 && 
            this.editForm.code.trim().length > 0;
   }
@@ -282,26 +300,26 @@ export class DocumentComponent implements OnInit, OnDestroy {
     return hasDate ? 'check' : null;
   }
 
-  getStatusColor(hasDate: boolean, isRequired: boolean): string {
-    if (isRequired) {
-      return hasDate ? 'text-green-500' : 'text-red-500';
-    }
-    return hasDate ? 'text-green-500' : 'text-gray-400';
+  trackByFn(index: number, item: UnitParameter): string {
+    return item.id || index.toString();
   }
 
   // ========== MESSAGES ==========
 
   private showSuccessMessage(message: string): void {
-    // Ici vous pouvez implémenter votre système de notification
-    // Par exemple avec un service de toast ou une notification
-    console.log('✅', message);
-    // Exemple: this.notificationService.showSuccess(message);
+    this.successMessage = message;
+    this.error = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
   }
 
   private showErrorMessage(message: string): void {
-    // Ici vous pouvez implémenter votre système de notification d'erreur
-    console.error('❌', message);
-    // Exemple: this.notificationService.showError(message);
+    this.error = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.error = '';
+    }, 5000);
   }
 
   // ========== GETTERS FOR TEMPLATE ==========
@@ -311,10 +329,56 @@ export class DocumentComponent implements OnInit, OnDestroy {
   }
 
   get totalDocuments(): number {
-    return this.paginatedDocuments ? this.paginatedDocuments.totalElements : 0;
+    return this.paginatedDocuments?.totalElements || 0;
+  }
+
+  get totalElements(): number {
+    return this.paginatedDocuments?.totalElements || 0;
+  }
+
+  get totalPages(): number {
+    return this.paginatedDocuments?.totalPages || 0;
   }
 
   get hasDocuments(): boolean {
     return this.documents.length > 0;
+  }
+
+  get isFirstPage(): boolean {
+    return this.currentPage === 0;
+  }
+
+  get isLastPage(): boolean {
+    return this.paginatedDocuments ? this.paginatedDocuments.last : true;
+  }
+
+  get paginationInfo(): string {
+    if (!this.paginatedDocuments) {
+      return 'Aucun document';
+    }
+    const start = this.currentPage * this.pageSize + 1;
+    const end = Math.min(start + this.pageSize - 1, this.totalElements);
+    return `${start} - ${end} sur ${this.totalElements} document(s)`;
+  }
+
+  get pagesDisponibles(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    const totalPages = this.totalPages;
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(0, this.currentPage - 2);
+      const endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
   }
 }

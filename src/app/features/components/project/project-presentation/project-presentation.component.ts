@@ -9,6 +9,7 @@ import { DashboardService, PhaseIndicator } from '../../../../../services/dashbo
 import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service';
 import { catchError } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
+import { LanguageService } from '../../../../../services/language.service';
 
 @Component({
   selector: 'app-project-presentation',
@@ -23,6 +24,10 @@ export class ProjectPresentationComponent implements OnInit {
   private realEstateService = inject(RealestateService);
   private dashboardService = inject(DashboardService);
   private projectBudgetService = inject(ProjectBudgetService);
+  private languageService = inject(LanguageService);
+
+  // Translation helper
+  t = (key: string) => this.languageService.translate(key);
 
   projet: RealEstateProject | null = null;
   loading = true;
@@ -32,7 +37,7 @@ export class ProjectPresentationComponent implements OnInit {
   averageProgress: number | null = null;
   isLoadingProgress = true;
   progressError: string | null = null;
-  
+
   budgetUtilise: number = 0;
   budgetTotal: number = 0;
   progressionBudgetaire: number = 0;
@@ -40,35 +45,35 @@ export class ProjectPresentationComponent implements OnInit {
   isLoadingBudget = true;
   budgetError: string | null = null;
   // Ajouter ces propriétés dans la classe
-isUpdatingStatus = false;
-statusUpdateError: string | null = null;
+  isUpdatingStatus = false;
+  statusUpdateError: string | null = null;
 
-// Mapping statut français -> anglais
-private statutMap: { [key: string]: string } = {
-  'En cours': 'IN_PROGRESS',
-  'En pause': 'PAUSED',
-  'Terminé': 'COMPLETED',
-  'Planifié': 'PLANNED'
-};
+  // Mapping statut français -> anglais
+  private statutMap: { [key: string]: string } = {
+    'En cours': 'IN_PROGRESS',
+    'En pause': 'PENDING',
+    'Terminé': 'COMPLETED',
+    'Planifié': 'PLANNED'
+  };
 
-// Mapping statut anglais -> français
-private statutMapReverse: { [key: string]: string } = {
-  'IN_PROGRESS': 'En cours',
-  'PAUSED': 'En pause',
-  'COMPLETED': 'Terminé',
-  'PLANNED': 'Planifié'
-};
-// === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
-// ✅ SOLUTION
-@ViewChild(StatusReportComponent) statusReportComponent?: StatusReportComponent;
+  // Mapping statut anglais -> français
+  private statutMapReverse: { [key: string]: string } = {
+    'IN_PROGRESS': 'En cours',
+    'PENDING': 'En pause',
+    'COMPLETED': 'Terminé',
+    'PLANNED': 'Planifié'
+  };
+  // === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
+  // ✅ SOLUTION
+  @ViewChild(StatusReportComponent) statusReportComponent?: StatusReportComponent;
 
-triggerAddAlbum(): void {
-  if (this.statusReportComponent) {
-    this.statusReportComponent.onAddClick();
-  } else {
-    console.warn('StatusReportComponent pas encore initialisé');
+  triggerAddAlbum(): void {
+    if (this.statusReportComponent) {
+      this.statusReportComponent.onAddClick();
+    } else {
+      console.warn('StatusReportComponent pas encore initialisé');
+    }
   }
-}
 /**
  * Change le statut du projet
  * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
@@ -86,6 +91,7 @@ changeStatut(nouveauStatutFr: string): void {
 
   // Vérifier si le statut a réellement changé
   if (this.statutFrancais === nouveauStatutFr) {
+    
     return;
   }
 
@@ -99,20 +105,14 @@ changeStatut(nouveauStatutFr: string): void {
   this.isUpdatingStatus = true;
   this.statusUpdateError = null;
 
-  // Créer une copie du projet avec le nouveau statut
-  const projetMisAJour: RealEstateProject = {
-    ...this.projet,
-    constructionStatus: nouveauStatutEn
-  };
-
   console.log('🔄 Mise à jour du statut:', {
     ancien: this.projet.constructionStatus,
     nouveau: nouveauStatutEn,
     projetId: this.projet.id
   });
 
-  // Appel de la méthode updateProject
-  this.realEstateService.updateProject(this.projet.id, projetMisAJour).subscribe({
+  // Appel de la méthode changeProjectStatus au lieu de updateProject
+  this.realEstateService.changeProjectStatus(this.projet.id, nouveauStatutEn).subscribe({
     next: (response) => {
       console.log('✅ Statut mis à jour avec succès:', response);
       
@@ -139,14 +139,15 @@ changeStatut(nouveauStatutFr: string): void {
   });
 }
 
-/**
+    /**
  * Vérifie si un statut est sélectionné
  * @param statut Statut à vérifier
  * @returns true si le statut correspond au statut actuel
  */
-isStatutSelected(statut: string): boolean {
-  return this.statutFrancais === statut;
-}
+    isStatutSelected(statut: string): boolean {
+      return this.statutFrancais === statut;
+    }
+    
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -171,7 +172,7 @@ isStatutSelected(statut: string): boolean {
   private loadProjectDetails(id: number): void {
     this.loading = true;
     this.error = null;
-  
+
     this.realEstateService.getRealEstateDetails(id).subscribe({
       next: (response) => {
         if (response && response.realEstateProperty) {
@@ -203,7 +204,7 @@ isStatutSelected(statut: string): boolean {
       const relevantPhases = phases.filter(p =>
         ['GROS_OEUVRE', 'SECOND_OEUVRE', 'FINITION'].includes(p.phaseName)
       );
-      
+
       const total = relevantPhases.reduce((sum, p) => sum + p.averageProgressPercentage, 0);
       const count = relevantPhases.length;
 
@@ -228,7 +229,7 @@ isStatutSelected(statut: string): boolean {
         this.budgetData = budgetResponse;
         this.budgetTotal = budgetResponse.plannedBudget;
         this.budgetUtilise = budgetResponse.consumedBudget;
-        
+
         if (this.budgetTotal > 0) {
           this.progressionBudgetaire = Math.round((this.budgetUtilise / this.budgetTotal) * 100);
         } else {
@@ -239,7 +240,7 @@ isStatutSelected(statut: string): boolean {
         this.budgetUtilise = 0;
         this.progressionBudgetaire = 0;
       }
-      
+
       this.isLoadingBudget = false;
     });
   }
@@ -254,13 +255,13 @@ isStatutSelected(statut: string): boolean {
 
   get statutFrancais(): string {
     if (!this.projet) return '';
-    
+
     switch (this.projet.constructionStatus) {
       case 'IN_PROGRESS':
         return 'En cours';
       case 'COMPLETED':
         return 'Terminé';
-      case 'PAUSED':
+      case 'PENDING':
         return 'En pause';
       case 'PLANNED':
         return 'Planifié';

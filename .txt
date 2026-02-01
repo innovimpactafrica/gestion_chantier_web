@@ -1,621 +1,304 @@
-voici le html et ts de mon composant etude-bet
+    <div class="relative">
+      <!-- Icône de notification -->
+      <button 
+        (click)="toggleNotificationDropdown()" 
+        class="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <!-- SVG Cloche -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C11.4696 2 10.9609 2.21071 10.5858 2.58579C10.2107 2.96086 10 3.46957 10 4V4.539C8.67071 4.94719 7.50369 5.78456 6.67597 6.92545C5.84825 8.06635 5.40527 9.44864 5.414 10.868V15.138L4.707 15.846C4.61475 15.9383 4.54175 16.0478 4.49205 16.1681C4.44236 16.2884 4.41695 16.4171 4.41724 16.5471C4.41752 16.677 4.44351 16.8056 4.49374 16.9257C4.54396 17.0458 4.61746 17.1549 4.71 17.247C4.80255 17.339 4.91231 17.4121 5.03258 17.462C5.15285 17.5118 5.28138 17.5375 5.41134 17.5373C5.5413 17.5372 5.66977 17.5113 5.78991 17.4613C5.91005 17.4113 6.01962 17.338 6.112 17.246L7.414 15.943C7.5059 15.8507 7.61503 15.7778 7.73503 15.7283C7.85504 15.6789 7.98347 15.6539 8.113 15.654H15.887C16.0165 15.6539 16.145 15.6789 16.265 15.7283C16.385 15.7778 16.4941 15.8507 16.586 15.943L17.888 17.246C17.9804 17.338 18.09 17.4113 18.2101 17.4613C18.3302 17.5113 18.4587 17.5372 18.5887 17.5373C18.7186 17.5375 18.8472 17.5118 18.9674 17.462C19.0877 17.4121 19.1975 17.339 19.29 17.247C19.3825 17.1549 19.456 17.0458 19.5063 16.9257C19.5565 16.8056 19.5825 16.677 19.5828 16.5471C19.583 16.4171 19.5576 16.2884 19.5079 16.1681C19.4583 16.0478 19.3852 15.9383 19.293 15.846L18.586 15.138V10.868C18.5947 9.44864 18.1518 8.06635 17.324 6.92545C16.4963 5.78456 15.3293 4.94719 14 4.539V4C14 3.46957 13.7893 2.96086 13.4142 2.58579C13.0391 2.21071 12.5304 2 12 2ZM10 19C10 19.5304 10.2107 20.0391 10.5858 20.4142C10.9609 20.7893 11.4696 21 12 21C12.5304 21 13.0391 20.7893 13.4142 20.4142C13.7893 20.0391 14 19.5304 14 19H10Z" fill="#FF5C02"/>
+        </svg>
+        
+        <!-- Badge de compteur (si notifications non lues) -->
+        <span 
+          *ngIf="unreadCount > 0" 
+          class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg">
+          {{ unreadCount > 99 ? '99+' : unreadCount }}
+        </span>
+      </button>
 
-bon pour le clientId pour la creation de bet tu fixe toujours 1 mais pour le betId on liste les users de profil BET avec l'appelle de la methode getUserByProfil() dans le ts de etude-bet et le passe BET pour le profil et ensuite le mettre la liste de des user de profil bet dans un select (un champs a ajouter sur le formulaire de creation d'un etute ) 
+      <!-- Dropdown des notifications -->
+      <div 
+        *ngIf="showNotificationDropdown"
+        class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[500px] flex flex-col">
+        
+        <!-- Header du dropdown -->
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50 rounded-t-lg">
+          <h3 class="font-semibold text-gray-900 text-sm flex items-center">
+            <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            Notifications
+          </h3>
+          <button 
+            (click)="closeNotificationDropdown()" 
+            class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Liste des notifications (scrollable) -->
+        <div class="overflow-y-auto flex-1" style="max-height: 400px;">
+          <!-- Loading state -->
+          <div *ngIf="loadingNotifications" class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          </div>
+
+          <!-- Liste des notifications -->
+          <div *ngIf="!loadingNotifications && notifications.length > 0" class="divide-y divide-gray-100">
+            <div 
+              *ngFor="let notification of notifications" 
+              (click)="openNotificationDetail(notification)"
+              class="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+              
+              <div class="flex items-start space-x-3">
+                <!-- Indicateur non lu -->
+                <div class="flex-shrink-0 mt-1">
+                  <div 
+                    [class.bg-orange-500]="!notification.read"
+                    [class.bg-gray-300]="notification.read"
+                    class="w-2 h-2 rounded-full"></div>
+                </div>
+
+                <!-- Contenu de la notification -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ notification.libelle }}
+                  </p>
+                  <p class="text-xs text-gray-600 line-clamp-2 mt-1">
+                    {{ notification.description }}
+                  </p>
+                  <p class="text-xs text-gray-400 mt-1">
+                    {{ formatTime(notification.date) }}
+                  </p>
+                </div>
+
+                <!-- Temps relatif -->
+                <div class="flex-shrink-0 text-xs text-gray-400">
+                  {{ formatRelativeTime(notification.date) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- État vide -->
+          <div *ngIf="!loadingNotifications && notifications.length === 0" 
+            class="flex flex-col items-center justify-center py-12 text-gray-500">
+            <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <p class="text-sm font-medium">Aucune notification</p>
+            <p class="text-xs mt-1">Vous êtes à jour !</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  <!-- ============================= -->
+  <!-- MODAL DÉTAILS NOTIFICATION -->
+  <!-- ============================= -->
+  <div 
+    *ngIf="showNotificationModal && selectedNotification" 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    (click)="closeNotificationModal()">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 flex items-center justify-between rounded-t-lg">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+          </svg>
+          Notification
+        </h2>
+        <button (click)="closeNotificationModal()" class="text-white hover:text-gray-200 transition-colors">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 space-y-4">
+        <!-- Titre -->
+        <div>
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Titre</label>
+          <p class="mt-1 text-base font-semibold text-gray-900">{{ selectedNotification.libelle }}</p>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Description</label>
+          <p class="mt-1 text-sm text-gray-700 leading-relaxed">{{ selectedNotification.description }}</p>
+        </div>
+
+        <!-- Date et heure -->
+        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+          <div class="flex items-center text-sm text-gray-600">
+            <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>{{ formatNotificationDate(selectedNotification.date) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-lg">
+        <button 
+          (click)="closeNotificationModal()"
+          class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+   <!-- Statut avec mise à jour dynamique -->
+    <div class="rounded shadow p-4 mx-4 mb-4 bg-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-[#64748B] text-xs">Statut</h3>
+        <!-- Indicateur de chargement -->
+        <div *ngIf="isUpdatingStatus" class="flex items-center gap-2">
+          <div class="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent"></div>
+          <span class="text-xs text-gray-500">Mise à jour...</span>
+        </div>
+      </div>
+
+      <!-- Message d'erreur si échec -->
+      <div *ngIf="statusUpdateError" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+        {{ statusUpdateError }}
+      </div>
+
+      <div class="flex space-x-4">
+        <!-- En cours -->
+        <label class="flex items-center cursor-pointer" 
+               [class.opacity-50]="isUpdatingStatus">
+          <input 
+            type="radio" 
+            name="statut" 
+            class="custom-radio cursor-pointer" 
+            [checked]="isStatutSelected('En cours')"
+            [disabled]="isUpdatingStatus"
+            (change)="changeStatut('En cours')">
+          <span class="ml-2 text-gray-700 font-bold text-sm">En cours</span>
+        </label>
+
+        <!-- En pause -->
+        <label class="flex items-center cursor-pointer"
+               [class.opacity-50]="isUpdatingStatus">
+          <input 
+            type="radio" 
+            name="statut" 
+            class="custom-radio cursor-pointer" 
+            [checked]="isStatutSelected('En pause')"
+            [disabled]="isUpdatingStatus"
+            (change)="changeStatut('En pause')">
+          <span class="ml-2 text-gray-700 font-bold text-sm">En pause</span>
+        </label>
+
+        <!-- Terminé -->
+        <label class="flex items-center cursor-pointer"
+               [class.opacity-50]="isUpdatingStatus">
+          <input 
+            type="radio" 
+            name="statut" 
+            class="custom-radio cursor-pointer" 
+            [checked]="isStatutSelected('Terminé')"
+            [disabled]="isUpdatingStatus"
+            (change)="changeStatut('Terminé')">
+          <span class="ml-2 text-gray-700 font-bold text-sm">Terminé</span>
+        </label>
+      </div>
+
+      <!-- Message de confirmation visuel (optionnel) -->
+      <!-- <div *ngIf="!isUpdatingStatus && projet" class="mt-3 text-xs text-gray-500">
+        Statut actuel : <span class="font-semibold">{{ statutFrancais }}</span>
+      </div> -->
+    </div>
+
+
+    pour le ts 
+
+    /**
+ * Vérifie si un statut est sélectionné
+ * @param statut Statut à vérifier
+ * @returns true si le statut correspond au statut actuel
+ */
+isStatutSelected(statut: string): boolean {
+  return this.statutFrancais === statut;
+}
+
 
 /**
- * Récupère les utilisateurs par profil avec possibilité de recherche
+ * Change le statut du projet
+ * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
  */
-getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number = 10): Observable<UserPageResponse> {
-  const headers = this.getAuthHeaders();
-  // Construction des paramètres de requête
-  let params = new HttpParams()
-    .set('profil', profil)
-    .set('page', page.toString())
-    .set('size', size.toString());
-  
-  // Ajout du keyword s'il est fourni
-  if (keyword && keyword.trim() !== '') {
-    params = params.set('keyword', keyword.trim());
+changeStatut(nouveauStatutFr: string): void {
+  if (!this.projet || !this.projet.id) {
+    console.error('Projet non chargé');
+    return;
   }
 
-  const url = `${this.baseUrl}/user/by-profil`;
-  
-
-  
-  return this.http.get<UserPageResponse>(url, { headers, params })
-    .pipe(
-      tap(response => {
-        console.log('✅ Utilisateurs par profil récupérés:');
-        console.log('  - Total éléments:', response.totalElements);
-        console.log('  - Pages totales:', response.totalPages);
-        console.log('  - Page actuelle:', response.number);
-        console.log('  - Utilisateurs:', response.content.length);
-        console.log('  - Utilisateurs avec abonnement:', response.content.filter(u => u.subscription).length);
-      }),
-      catchError(error => this.handleError(error, 'getUserByProfil'))
-    );
-}
-
-maintenant dans le ts on appeller toutes les methodes qui cree report pour une etude et les methode qui gere le rejet la validation c'est a dire les etapes d'une etude sur la capture adapte moi bien le design qui se ressemble bien a celui du figma je te donne  les caracteristiques du modal de detaisls d'une Etude et le differant phase celon les status des etudes adapte bien l'ajout de commentaire marche et l'affichage aussi et pratiquement tout est dynamique (adapte bien s'ilmreste dans le html )
-
-adapte bien lae modal de details en fnction des en fonction des status des etudes 
-
-En attente .En cours , Livrée ,validée  rejeté
-
-ajoute aussi le +ajout de rapport  si la demande est En atente (vient d'etre creer)
-
-les caracteristiques du modal de voir details d'une demande sue le figma
-
-width: 1100;
-
-height: 721;
-
-border-radius: 16px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-background: #FFFFFF;
-
-pour le header du modal
-
-la ou on ecrit le nom de la demande aligner avec l'icone  en X qui sert a fermer le modal  (Etude A sur la capture)
-
-width: 1100;
-
-height: 74;
-
-justify-content: space-between;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-bottom-width: 1px;
-
-padding-top: 30px;
-
-padding-right: 30px;
-
-padding-bottom: 20px;
-
-padding-left: 30px;
-
-border-bottom: 1px solid #F7FAFC
-
-et la partie en bas du header 
-
-width: 1100;
-
-height: 98;
-
-justify-content: space-between;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-bottom-width: 1px;
-
-padding-top: 20px;
-
-padding-right: 30px;
-
-padding-bottom: 20px;
-
-padding-left: 30px;
-
-bg :#FFFF
-
-et les indications qui montre l'etapes suivent le statut de la demande
-
-les lignes separatrices entre les cercles 1 2 3 et 4 
-
-width: 254.6666717529297;
-
-height: 2;
-
-angle: 0 deg;
-
-opacity: 1;
-
-et leurs couleur varient en fonction des status si c'est En attente on a
-
-le cercle 1 est de couleur 
-
-background: var(--orange-color, #FF5C02);
-
-(juste les contours et le texte c'est a dire 
-
-de topography
-
-font-family: Inter;
-
-font-weight: 600;
-
-font-style: Semi Bold;
-
-font-size: 12px;
-
-leading-trim: NONE;
-
-line-height: 100%;
-
-letter-spacing: 0%;
-
-text-align: center;
-
-) et si on  a le statut En cours
-
-l'icone orange  s'affiche sur le cercle de En attente  (en svg le voici )
-
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<path d="M9.07825 15.642L18.7202 6L20.0005 7.28025L9.07825 18.2025L4 13.1257L5.28025 11.8455L9.07825 15.642Z" fill="white"/>
-
-</svg>
-
-et le texte du cerle En cours est de la couleur  #FF5C02
-
-top: 15px;
-
-et la carde qui a information et rapports associes de la demande 
-
-width: 545;
-
-height: 454;
-
-angle: 0 deg;
-
-opacity: 1;
-
-gap: 20px;
-
-et dedans on a la carde informations 
-
-width: 546;
-
-height: 278;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-width: 1px;
-
-border: 1px solid #EAEFF6
-
-et de dans on a les rapport associer(voir capture )
-
-et en a droite on a la carde des commetaire 
-
-qui est bon deja 
-
-adapte moi bien le html tout en restant dynamique (l'affichage)
-
-et maintenant si le statut est livrée meme logique le cercle precedent 1 et 2 sont chager en orange par l'icone et le texte du statut correspondant est en orange et on a la possibiliter de velider ou de rejeter la demande (voir capture les button rejeter ou valider )
-
-caracteristique du button valider
-
-width: 111;
-
-height: 47;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-gap: 7px;
-
-padding-top: 15px;
-
-padding-right: 32px;
-
-padding-bottom: 15px;
-
-padding-left: 32px;
-
-background: var(--secondary, #1C3055);
-
-celui du button rejeter 
-
-width: 112;
-
-height: 47;
-
-border-radius: 8px;
-
-angle: 0 deg;
-
-opacity: 1;
-
-border-width: 1px;
-
-gap: 7px;
-
-padding-top: 15px;
-
-padding-right: 32px;
-
-padding-bottom: 15px;
-
-padding-left: 32px;
-
-border: 1px solid #F44336
-
-et inspire toi du logique de la partie demande c'est la meme chose pour le rejet ou valider une demande 
-
-
-
-
-
-adapte moi bien la partie des indicateurs sur  mon html de status-report
-
-je veux que le pourcentage actuelle s'affiche comme sur la capture sur le select 50% pour Gros oeuvre (un peu comme la meme logique que sur la status modification du status sur lot ) mais c'est un select cette fois et voici aide moi car si je fait une modification par exemple je donne 100 % au gros oeuvre apres mon select les gros oeuvre se modifie mais maximum a 67 il ne depasse pas les 67 sur l'affichage alors que cote backend la modification donne bien le retour
-
-Response body
-
-Download
-
-{
-  "id": 49,
-  "phaseName": "GROS_OEUVRE",
-  "progressPercentage": 100,
-  "lastUpdated": "2026-01-24T11:02:17"
-}
-
-et pour les ensemble
-
-Response body
-
-Download
-
-[
-  {
-    "id": 70,
-    "phaseName": "GROS_OEUVRE",
-    "progressPercentage": 100,
-    "lastUpdated": "2026-01-03T02:07:15"
-  },
-  {
-    "id": 71,
-    "phaseName": "SECOND_OEUVRE",
-    "progressPercentage": 95,
-    "lastUpdated": "2026-01-03T02:07:16"
-  },
-  {
-    "id": 72,
-    "phaseName": "FINITION",
-    "progressPercentage": 24,
-    "lastUpdated": "2026-01-03T02:07:16"
+  // Empêcher les changements multiples simultanés
+  if (this.isUpdatingStatus) {
+    return;
   }
-]
 
-et vocii la methode l'endpoint et les parametre qui permet de modifier 
+  // Vérifier si le statut a réellement changé
+  if (this.statutFrancais === nouveauStatutFr) {
+    
+    return;
+  }
 
-je pense qu'il y'a probleme sur l'id fixer 
+  const nouveauStatutEn = this.statutMap[nouveauStatutFr];
+  
+  if (!nouveauStatutEn) {
+    console.error('Statut invalide:', nouveauStatutFr);
+    return;
+  }
 
- // Données du tableau avec les IDs des indicateurs
-  lignes: TableRow[] = [
-    { etape: 'Gros œuvre', pourcentage: '', date: '', indicatorId: 49 },
-    { etape: 'Second œuvre', pourcentage: '', date: '', indicatorId: 50 },
-    { etape: 'Finition', pourcentage: '', date: '', indicatorId: 51 }
-  ];
+  this.isUpdatingStatus = true;
+  this.statusUpdateError = null;
 
+  console.log('🔄 Mise à jour du statut:', {
+    ancien: this.projet.constructionStatus,
+    nouveau: nouveauStatutEn,
+    projetId: this.projet.id
+  });
 
-parce adapte en ajoutant la methode getIndicatorByProject() le type de retour est donne en haut et vocii l'endpoint /indicators/property/{propertyId}
+  // Appel de la méthode changeProjectStatus au lieu de updateProject
+  this.realEstateService.changeProjectStatus(this.projet.id, nouveauStatutEn).subscribe({
+    next: (response) => {
+      console.log('✅ Statut mis à jour avec succès:', response);
+      
+      // Mettre à jour le projet local avec response.data.realEstateProperty
+      if (response && response.data && response.data.realEstateProperty) {
+        this.projet = response.data.realEstateProperty;
+      } else if (response && response.data) {
+        this.projet = response.data as RealEstateProject;
+      }
 
-adapte le si c'est ca le probleme 
-
-  <input 
-                #commentInput
-                type="text" 
-                placeholder="Ajouter un commentaire......"
-                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                (keyup.enter)="addCommentDetail(commentInput.value); commentInput.value=''">
-              <button 
-                (click)="addCommentDetail(commentInput.value); commentInput.value=''"
-                class="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90"
-                style="background-color: #FF5C01;"
-                [disabled]="!commentInput.value.trim()">
-                Envoyer
-              </button>
-
-
------------------------------------------------
-<!-- Historique des abonnements -->
-<div class="bg-white rounded-lg shadow-sm overflow-hidden">
-  <div class="p-6 border-b border-gray-200">
-    <h2 class="text-xl font-bold text-gray-900">Historique des abonnements</h2>
-  </div>
-
-  <!-- Loader abonnements -->
-  <div *ngIf="isLoadingAbonnements" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF5C01]"></div>
-  </div>
-
-  <!-- Table abonnements -->
-  <div *ngIf="!isLoadingAbonnements && abonnements.length > 0" class="overflow-x-auto">
-    <table class="w-full">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Niveau</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date début</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date fin</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Projets</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <tr *ngFor="let abonnement of abonnements" class="hover:bg-gray-50 transition-colors">
-          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ abonnement.plan }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.label }}</td>
-          <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ abonnement.montant }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.dateDebut }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.dateFin }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ abonnement.nombreProjets }}</td>
-          <td class="px-6 py-4">
-            <span class="px-3 py-1 rounded-full text-xs font-medium"
-              [ngClass]="getStatutAbonnementClass(abonnement.statut)">
-              {{ abonnement.statut }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Message si aucun abonnement -->
-  <div *ngIf="!isLoadingAbonnements && abonnements.length === 0" class="px-6 py-12 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-    <p class="text-gray-500 font-medium">Aucun abonnement pour cet utilisateur</p>
-    <p class="text-gray-400 text-sm mt-2">L'utilisateur n'a pas encore souscrit à un plan d'abonnement</p>
-  </div>
-</div>
-
-<!-- Historique des paiements -->
-<div class="bg-white rounded-lg shadow-sm overflow-hidden">
-  <div class="p-6 border-b border-gray-200">
-    <h2 class="text-xl font-bold text-gray-900">Historique des paiements</h2>
-  </div>
-
-  <!-- Loader paiements -->
-  <div *ngIf="isLoadingPaiements" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF5C01]"></div>
-  </div>
-
-  <!-- Table paiements -->
-  <div *ngIf="!isLoadingPaiements && paiements.length > 0" class="overflow-x-auto">
-    <table class="w-full">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">N° Facture</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Plan</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Montant</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Méthode</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-          <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Action</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <tr *ngFor="let paiement of paiements" class="hover:bg-gray-50 transition-colors">
-          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ paiement.idFacture }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.planLabel }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.date }}</td>
-          <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ paiement.montant }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ paiement.methodePaiement }}</td>
-          <td class="px-6 py-4">
-            <span class="px-3 py-1 rounded-full text-xs font-medium"
-              [ngClass]="getStatutPaiementClass(paiement.statut)">
-              {{ paiement.statut }}
-            </span>
-          </td>
-          <td class="px-6 py-4">
-            <button (click)="downloadFacture(paiement)"
-              class="text-[#0D47A1] hover:text-[#0c3d8a] transition-colors" title="Télécharger">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 15.577L8.461 12.039L9.169 11.319L11.5 13.65V5H12.5V13.65L14.83 11.32L15.539 12.039L12 15.577ZM6.616 19C6.15533 19 5.771 18.846 5.463 18.538C5.155 18.23 5.00067 17.8453 5 17.384V14.961H6V17.384C6 17.538 6.064 17.6793 6.192 17.808C6.32 17.9367 6.461 18.0007 6.615 18H17.385C17.5383 18 17.6793 17.936 17.808 17.808C17.9367 17.68 18.0007 17.5387 18 17.384V14.961H19V17.384C19 17.8447 18.846 18.229 18.538 18.537C18.23 18.845 17.8453 18.9993 17.384 19H6.616Z"
-                  fill="currentColor" />
-              </svg>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Message si aucun paiement -->
-  <div *ngIf="!isLoadingPaiements && paiements.length === 0" class="px-6 py-12 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-    <p class="text-gray-500 font-medium">Aucun paiement enregistré</p>
-    <p class="text-gray-400 text-sm mt-2">Aucune facture n'a encore été générée pour cet utilisateur</p>
-  </div>
-
-  <!-- Pagination factures -->
-  <div *ngIf="!isLoadingPaiements && paiements.length > 0 && totalPagesFactures > 1" 
-       class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-    <div class="text-sm text-gray-600">
-      Page {{ currentPageFactures + 1 }} sur {{ totalPagesFactures }} ({{ totalFactures }} facture(s))
-    </div>
-    <div class="flex space-x-2">
-      <button 
-        (click)="previousPageFactures()" 
-        [disabled]="currentPageFactures === 0"
-        [class.opacity-50]="currentPageFactures === 0"
-        [class.cursor-not-allowed]="currentPageFactures === 0"
-        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-        Précédent
-      </button>
-      <button 
-        (click)="nextPageFactures()" 
-        [disabled]="currentPageFactures >= totalPagesFactures - 1"
-        [class.opacity-50]="currentPageFactures >= totalPagesFactures - 1"
-        [class.cursor-not-allowed]="currentPageFactures >= totalPagesFactures - 1"
-        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-        Suivant
-      </button>
-    </div>
-  </div>
-</div>
-
-
-
-adapte moi ma carde de photo recent pour que si on clique sur un carde de ces photo on affiche un modal qui affiche les photos de l'album
-
-Bonjour je veux que tu m'adapte mon composant ts et html de commandes voici son service a l'aide de l'appelle de la methode createQuote() qui est dans  le service dans le ts de commande sur le modal qui affiche les details d'une commande adapte bien la partie materiaux commandés et sur l'affichage (la capture que je t'es envoyer) ajoute une petit icone  vert en V en bas de cette tableau (soit en svg pour valider la citation (le quote) ) maintenant on appelle la methode le fournisseur a la possibilité de saisir que le prix unitaire  du materiel (ou des materiaux en fonction de la demande ) donc seule le champ prix unitaire sera un input qui permettra au fournisseur de saisir le prix unitaire d'un materiel et (le montant sera afficher total ) si il clique sur l'icone pour valider maintenant on appelle la methode createquote() et la citation est creer 
-
-pour chaque  citation 
-
-le orderId: prend l'id de la commande choisi;   
-
-items: CreateQuoteItemRequest[];    et pour l'objet items on a 
-
- itemId: qui est l'id du materiel;   price: le prix saisi par le fournisseur ;
-
-
-
-generedById:  prend l'id du currentUser (qui est le fournisseur );
-
- et ainsi la citation est creer par le fournisseur dapte moi cette logique bien 
-
-vocii le html et le ts de commande adapte le et si la citation est creer le statu de la commande change pour passer a l'etape 2 en cours 
-
-
-
-creer moi le service  notification (on concate avec la environment.apiUrl les endpoints 
-avec les methode suivantes 
-getNotifications() endpoint /admin-notifications voici le type de retour et les query de cette methode 
-NameDescription
-userId.  (optionnel peut prendre userId  ou pas )
-integer($int64)
-(query)
-page
-integer($int32)
-(query)
-size
-integer($int32)
-(query)
-
-```json
-{
-  "content": [
-    {
-      "id": 2,
-      "libelle": "test 2",
-      "description": "vous avez recu un sms",
-      "date": [
-        2026,
-        1,
-        29,
-        10,
-        27,
-        55,
-        524773000
-      ],
-      "read": true
+      this.isUpdatingStatus = false;
+      console.log('✓ Statut changé à:', nouveauStatutFr);
     },
-    {
-      "id": 1,
-      "libelle": "TEST",
-      "description": "TEST",
-      "date": [
-        2026,
-        1,
-        28,
-        20,
-        8,
-        45,
-        403972000
-      ],
-      "read": true
+    error: (error) => {
+      console.error('❌ Erreur lors de la mise à jour du statut:', error);
+      this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
+      this.isUpdatingStatus = false;
+      
+      // Recharger le projet pour rétablir l'état précédent
+      if (this.projet?.id) {
+        this.loadProjectDetails(this.projet.id);
+      }
     }
-  ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 10,
-    "sort": {
-      "unsorted": true,
-      "sorted": false,
-      "empty": true
-    },
-    "offset": 0,
-    "paged": true,
-    "unpaged": false
-  },
-  "totalElements": 2,
-  "totalPages": 1,
-  "last": true,
-  "numberOfElements": 2,
-  "size": 10,
-  "number": 0,
-  "sort": {
-    "unsorted": true,
-    "sorted": false,
-    "empty": true
-  },
-  "first": true,
-  "empty": false
+  });
 }
-```
-
-SendNotification() voici l'endpoint /admin-notifications voici le corps de la requete
-{
-  
-  "libelle": "test 2",
-  "description": "vous avez recu un sms",
-  "date": "2026-01-29T10:27:06.293Z", (et le format de la date est ainsi etabli on prend la date a l'instant de l'envoie )
-  "read": false
-}
-ReadAllNotification() avec ( Methode PUT )  /admin-notifications/read-all et le type de retour 
-Server response
-CodeDetails204
-Undocumented
-Response headers
-getNombreDeNotificationNonLu() voici son endpoint
-/admin-notifications/unread/count voici sont type de retour 
-2  (exemple )
-  il retour un entier 
-la methode getNotificationById() /admin-notifications/{id} et de type de retour 
-Response body
-Download
-
-```json
-{
-  "id": 1,
-  "libelle": "TEST",
-  "description": "TEST",
-  "date": [
-    2026,
-    1,
-    28,
-    20,
-    8,
-    45,
-    403972000
-  ],
-  "read": true
-}
-
-```
-
-la methode deleteNotifcation() /admin-notifications/{id} 
-et ensuite apres la creation de se service appelle ses  methodes du service de notification  dans ts 
-et adapte le html en ajoutant une icone svg de notification avant  Aide & Support  (un genre de cloche) d'abord  a l'aide de la methode getNombreDeNotificationNonLu() qui affiche le nombre de de nouvelles notification si le nombre retourner par cette methode est different de 0 , ce nombre sera afficher sur une petite cercle   rouge ovale sur le plan horizontale en indice sous la cloche en bas a droite de la cloche ( comme naturellement la ou il se place ) et si on clique sur cette icone on aura l'ouverture d'un dropdown qui affiche a la liste des 10 derniers notification lapar la methode getNotifications() et maintenant si clique sur l'icone si on ouvre le dropdown on appellle la methode  ReadAllNotification  on peut cliquer sur une notification un modal (on appelle la methode getNotidictionById)  s'affiche pour afficher le label la description la date et l'heure mais sur le dropdown l'heure est placer sous la descpition separer les notifications par des interlignes minces  (sur le dropdown on pourra scroller pour voir les notifications) 
-voici mon tts de breadcrumb adapte le et son html 
-import { CommonModule } from '@angular/common'; import { Component, OnInit } from '@angular/core'; import { Router, NavigationEnd, ActivatedRoute } from '@angular/router'; import { filter } from 'rxjs/operators'; import { BreadcrumbItem, BreadcrumbService } from '../../../core/services/breadcrumb-service.service'; import { RouterModule } from '@angular/router';  @Component({   selector: 'app-breadcrumb',   templateUrl: './breadcrumb.component.html',   styleUrls: ['./breadcrumb.component.scss'],   standalone: true,   imports: [CommonModule, RouterModule], }) export class BreadcrumbComponent implements OnInit {   breadcrumbs: BreadcrumbItem[] = [];   showHelpModal = false;   emailAddress = 'contact@btpconnect.app';   phoneNumber = '+ 221 33 971 41 12';    constructor(     private router: Router,     private activatedRoute: ActivatedRoute,     private breadcrumbService: BreadcrumbService   ) {}    ngOnInit(): void {     // Cas 1 : on recharge manuellement les breadcrumbs à l'initialisation     const initialBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);     this.breadcrumbService.setBreadcrumbs(initialBreadcrumbs);        // Cas 2 : on écoute aussi les changements de navigation (navigations ultérieures)     this.router.events       .pipe(filter(event => event instanceof NavigationEnd))       .subscribe(() => {         const routeBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);         this.breadcrumbService.setBreadcrumbs(routeBreadcrumbs);       });        // S'abonne pour affichage     this.breadcrumbService.breadcrumbs$.subscribe(breadcrumbs => {       this.breadcrumbs = breadcrumbs;     });   }      // Génère le fil d’Ariane à partir des données des routes   private createBreadcrumbs(     route: ActivatedRoute,     url: string = '',     breadcrumbs: BreadcrumbItem[] = []   ): BreadcrumbItem[] {     const children: ActivatedRoute[] = route.children;      if (children.length === 0) {       return breadcrumbs;     }      for (const child of children) {       const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');       if (routeURL !== '') {         url += `/${routeURL}`;       }        const label = child.snapshot.data['breadcrumb'];       if (label) {         breadcrumbs.push({ label, path: url });       }        return this.createBreadcrumbs(child, url, breadcrumbs);     }      return breadcrumbs;   }    /**    * Ouvre la modal Aide & Support    */   openHelpModal(): void {     this.showHelpModal = true;   }    /**    * Ferme la modal Aide & Support    */   closeHelpModal(): void {     this.showHelpModal = false;   }    /**    * Copie le texte dans le presse-papiers    */   copyToClipboard(text: string): void {     if (navigator.clipboard) {       navigator.clipboard.writeText(text).then(() => {         console.log('Copié dans le presse-papiers:', text);       }).catch(err => {         console.error('Erreur lors de la copie:', err);       });     } else {       // Fallback pour les anciens navigateurs       const textarea = document.createElement('textarea');       textarea.value = text;       document.body.appendChild(textarea);       textarea.select();       try {         document.execCommand('copy');         console.log('Copié dans le presse-papiers:', text);       } catch (err) {         console.error('Erreur lors de la copie:', err);       }       document.body.removeChild(textarea);     }   } } 
- 
-donne le service notification avec ses methodes et interfaces dedans 
-adapte moi bien le ts et ce html  donne les bien fait en respectant les instructions et en respectant les code couleurs de l'application pas beaucoup de couleur plus simple et facile a utiliser

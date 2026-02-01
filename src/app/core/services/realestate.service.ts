@@ -146,7 +146,23 @@ export class RealestateService {
     return headers;
   }
 
-
+/**
+ * Change le statut d'un projet immobilier
+ * @param projectId ID du projet
+ * @param status Nouveau statut (IN_PROGRESS, DELAYED, PENDING, COMPLETED)
+ */
+changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<RealEstateProject>> {
+  const url = `${this.endpoints.projects}/change-status/${projectId}/${status}`;
+  
+  console.log('🔄 Changement de statut:', { projectId, status, url });
+  
+  return this.http.put<ApiResponse<RealEstateProject>>(url, {}, { headers: this.getHeaders() })
+    .pipe(
+      timeout(15000),
+      retry({ count: 2, delay: 1000 }),
+      catchError(this.handleError.bind(this))
+    );
+}
 
   /**
    * Build FormData with raw file

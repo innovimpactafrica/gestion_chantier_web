@@ -175,24 +175,7 @@ export class RegisterComponent implements OnInit {
       lieunaissance: this.profileForm.value.lieunaissance?.trim() || '',
       photo: this.selectedPhoto || undefined // Ajouter la photo
     };
-  
-    console.log('📤 Envoi des données d\'inscription:', {
-      ...userData,
-      password: '***', // Masquer le mot de passe dans les logs
-      photo: this.selectedPhoto ? this.selectedPhoto.name : 'Aucune'
-    });
-  
-    console.log('🔍 Vérification des champs:');
-    console.log('  - nom:', userData.nom);
-    console.log('  - prenom:', userData.prenom);
-    console.log('  - email:', userData.email);
-    console.log('  - password:', userData.password ? 'OK' : 'VIDE');
-    console.log('  - telephone:', userData.telephone);
-    console.log('  - date:', userData.date);
-    console.log('  - lieunaissance:', userData.lieunaissance);
-    console.log('  - adress:', userData.adress);
-    console.log('  - profil:', userData.profil);
-    console.log('  - photo:', this.selectedPhoto ? `${this.selectedPhoto.name} (${(this.selectedPhoto.size / 1024).toFixed(2)} KB)` : 'Aucune');
+
   
     // Appel du service UserService pour créer l'utilisateur
     this.userService.createUser(userData).subscribe({

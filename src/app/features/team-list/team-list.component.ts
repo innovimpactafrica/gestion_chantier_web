@@ -7,6 +7,7 @@ import { DetailsWorkerService, PerformanceAndTask, PresenceHistory, InfoDashboar
 import { forkJoin, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { catchError } from 'rxjs/operators';
+import { LanguageService } from '../../../services/language.service';
 
 interface TeamMember {
   id: number;
@@ -94,9 +95,14 @@ export class TeamListComponent implements OnInit {
     private utilisateurService: UtilisateurService,
     private authService: AuthService,
     private detailsWorkerService: DetailsWorkerService,
+    private languageService: LanguageService,
     private route: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   get filteredTeamMembers(): TeamMember[] {
     let filtered = this.teamMembers;

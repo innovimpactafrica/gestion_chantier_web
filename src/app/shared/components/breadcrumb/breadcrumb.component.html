@@ -118,7 +118,45 @@
         </div>
       </div>
     </div>
-
+ <!-- Select de langue avec drapeaux -->
+ <div class="relative">
+  <select (change)="onLanguageChange($event)" [value]="currentLang()"
+    class="appearance-none h-9 pl-9 pr-8 py-1 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer">
+    <option value="FR">FR</option>
+    <option value="EN">En</option>
+  </select>
+  <!-- Icône drapeau à gauche -->
+  <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+    <svg *ngIf="currentLang() === 'FR'" width="20" height="15" viewBox="0 0 900 600"
+      xmlns="http://www.w3.org/2000/svg">
+      <rect width="900" height="600" fill="#ED2939" />
+      <rect width="600" height="600" fill="#fff" />
+      <rect width="300" height="600" fill="#002395" />
+    </svg>
+    <svg *ngIf="currentLang() === 'EN'" width="20" height="15" viewBox="0 0 60 30"
+      xmlns="http://www.w3.org/2000/svg">
+      <clipPath id="s-breadcrumb">
+        <path d="M0,0 v30 h60 v-30 z" />
+      </clipPath>
+      <clipPath id="t-breadcrumb">
+        <path d="M30,15 h30 v15 z v-30 h-30 z h-30 v15 z v-15 h30 z" />
+      </clipPath>
+      <g clip-path="url(#s-breadcrumb)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+        <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t-breadcrumb)" stroke="#C8102E" stroke-width="4" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
+      </g>
+    </svg>
+  </div>
+  <!-- Icône flèche dropdown -->
+  <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </div>
+</div>
     <!-- ============================= -->
     <!-- AIDE & SUPPORT -->
     <!-- ============================= -->

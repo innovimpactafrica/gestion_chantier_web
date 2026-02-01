@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { signal, computed, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { LanguageService } from '../../../services/language.service';
 
 @Component({
   standalone: true,
@@ -22,6 +23,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   baseUrl = environment.filebaseUrl;
   profileImageLoading = true;
   showWindowsScroll = false;
+  showLogoutConfirm = signal<boolean>(false);
+
+  public languageService = inject(LanguageService);
 
   // Signals pour la gestion de l'abonnement
   private readonly hasActiveSubscription = signal<boolean>(false);
@@ -176,15 +180,25 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   getTranslatedProfile(): string {
-    const profileTranslations: { [key: string]: string } = {
-      'SITE_MANAGER': 'Manager',
-      'SUBCONTRACTOR': 'Sous-traitant',
-      'SUPPLIER': 'Fournisseur',
-      'ADMIN': 'Administrateur',
-      'BET': 'Bureau d\'études',
-      'USER': 'Utilisateur',
-      'PROMOTEUR': 'Promoteur',
-      'MOA': 'Maître d\'Ouvrage'
+    const profileKeyMap: { [key: string]: string } = {
+      'SITE_MANAGER': 'profile.siteManager',
+      'SUBCONTRACTOR': 'profile.subcontractor',
+      'SUPPLIER': 'profile.supplier',
+      'ADMIN': 'profile.admin',
+      'BET': 'profile.bet',
+      'USER': 'profile.user',
+      'PROMOTEUR': 'profile.promoter',
+      'MOA': 'profile.moa',
+      'NOTAIRE': 'profile.notaire',
+      'RESERVATAIRE': 'profile.reservataire',
+      'BANK': 'profile.bank',
+      'AGENCY': 'profile.agency',
+      'PROPRIETAIRE': 'profile.proprietaire',
+      'SYNDIC': 'profile.syndic',
+      'LOCATAIRE': 'profile.locataire',
+      'PRESTATAIRE': 'profile.prestataire',
+      'TOM': 'profile.tom',
+      'WORKER': 'profile.worker'
     };
 
     const user = this.authService.currentUser();
@@ -193,12 +207,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
 
     if (typeof user.profil === 'string') {
-      return profileTranslations[user.profil] || user.profil;
+      const key = profileKeyMap[user.profil];
+      return key ? this.languageService.translate(key) : user.profil;
     }
 
     if (Array.isArray(user.profil)) {
       return user.profil
-        .map(p => profileTranslations[p.toString()] || p.toString())
+        .map(p => {
+          const key = profileKeyMap[p.toString()];
+          return key ? this.languageService.translate(key) : p.toString();
+        })
         .join(', ');
     }
 
@@ -241,9 +259,23 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.activeMenu === menuId;
   }
 
-  logout(): void {
+  showLogoutDialog(): void {
+    this.showLogoutConfirm.set(true);
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm.set(false);
+  }
+
+  confirmLogout(): void {
+    this.showLogoutConfirm.set(false);
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Keep old method name for compatibility
+  logout(): void {
+    this.showLogoutDialog();
   }
 
   getProfileImageUrl(): string {
@@ -308,5 +340,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
     console.log('User Profil Value:', this.currentUser?.profil);
     console.log('Has Active Subscription:', this.hasActiveSubscription());
     console.log('Can Access Dashboard:', this.canAccessDashboard());
+  }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
   }
 }

@@ -5,6 +5,16 @@ import { catchError, tap, shareReplay, map } from 'rxjs/operators';
 import { UnitParameter, PaginatedResponse, PaginationParams } from '../../models/unit-parameter';
 import { environment } from '../../../environments/environment';
 
+// ========== INTERFACES À AJOUTER ==========
+
+export interface UpdateUnitParameterRequest {
+  label: string;
+  code: string;
+  hasStartDate: boolean;
+  hasEndDate: boolean;
+  type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY';
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,6 +36,46 @@ export class UnitParameterService {
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   constructor(private http: HttpClient) {}
+
+  /**
+ * Modifier un paramètre (méthode générique)
+ */
+modifierParametre(id: string, parameter: UpdateUnitParameterRequest): Observable<void> {
+  return this.http.put<void>(`${this.baseUrl}/${id}`, parameter).pipe(
+    tap(() => {
+      this.invalidateCache();
+      // Rafraîchir le bon subject selon le type
+      this.refreshByType(parameter.type);
+    }),
+    catchError(this.handleError)
+  );
+}
+private refreshByType(type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY'): void {
+  switch (type) {
+    case 'UNIT':
+      this.refreshUnitsAfterModification();
+      break;
+    case 'DOCUMENT':
+      this.refreshDocumentsAfterModification();
+      break;
+    case 'MATERIAL_CATEGORY':
+      this.refreshMaterialCategoriesAfterModification();
+      break;
+  }
+}
+/**
+ * Supprimer un paramètre (méthode générique)
+ */
+supprimerParametre(id: string, type: 'DOCUMENT' | 'UNIT' | 'MATERIAL_CATEGORY'): Observable<void> {
+  return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+    tap(() => {
+      this.invalidateCache();
+      // Rafraîchir le bon subject selon le type
+      this.refreshByType(type);
+    }),
+    catchError(this.handleError)
+  );
+}
 
   // ========== MÉTHODES GÉNÉRIQUES ==========
   
@@ -127,6 +177,8 @@ export class UnitParameterService {
       this.getUnits({ page: current.number + 1, size: current.size });
     }
   }
+
+  
 
   // ========== MÉTHODES POUR LES DOCUMENTS ==========
   

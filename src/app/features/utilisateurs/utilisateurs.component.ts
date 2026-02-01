@@ -7,6 +7,9 @@ import { UserService, User, UserPageResponse, CreateUserRequest } from '../../..
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/services/auth.service';
 import { UtilisateurService } from '../../../services/utilisateur.service';
+import { LanguageService } from '../../../services/language.service';
+import { ExportService } from '../../../services/export.service';
+
 
 @Component({
   selector: 'app-utilisateurs',
@@ -21,6 +24,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   pageSize: number = 10;
   totalPages: number = 0;
   totalResults: number = 0;
+  selectedProfile: string = ''; // Filter by profile
 
   Math = Math;
   editPhotoFile: File | null = null;
@@ -67,17 +71,17 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     lieunaissance: string;
     photo?: string;
   } = {
-    id: 0,
-    prenom: '',
-    nom: '',
-    email: '',
-    telephone: '',
-    profil: '',
-    adress: '',
-    date: '',
-    lieunaissance: '',
-    photo: ''
-  };
+      id: 0,
+      prenom: '',
+      nom: '',
+      email: '',
+      telephone: '',
+      profil: '',
+      adress: '',
+      date: '',
+      lieunaissance: '',
+      photo: ''
+    };
 
   utilisateurs: User[] = [];
   filteredUtilisateurs: User[] = [];
@@ -89,9 +93,14 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserService,
     private authService: AuthService,
-    private utilisateurService :UtilisateurService
-    
+    private utilisateurService: UtilisateurService,
+    public languageService: LanguageService,
+    private exportService: ExportService
   ) { }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   ngOnInit(): void {
     console.log('🚀 Initialisation du composant Utilisateurs');
@@ -108,7 +117,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     console.log('📥 Chargement de tous les utilisateurs...');
 
-    this.userService.getAllUsers(this.searchTerm, undefined, this.currentPage, this.pageSize)
+    // Use selectedProfile if set, otherwise undefined
+    const profileFilter = this.selectedProfile || undefined;
+
+    this.userService.getAllUsers(this.searchTerm, profileFilter, this.currentPage, this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: UserPageResponse) => {
@@ -132,6 +144,18 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  filterByProfile(): void {
+    console.log('🔍 Filtre par profil:', this.selectedProfile);
+    this.currentPage = 0;
+    this.loadAllUsers();
+  }
+
+  clearProfileFilter(): void {
+    this.selectedProfile = '';
+    this.currentPage = 0;
+    this.loadAllUsers();
   }
 
   searchUtilisateurs(): void {
@@ -215,7 +239,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.createPhotoPreview = null;
     this.errorMessage = '';
     this.successMessage = '';
-    
+
     this.createUserForm = {
       prenom: '',
       nom: '',
@@ -233,22 +257,22 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
       if (!allowedTypes.includes(file.type)) {
         this.errorMessage = 'Format invalide. Utilisez JPG, PNG ou GIF.';
         return;
       }
-      
+
       const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         this.errorMessage = 'La photo est trop volumineuse (max 5MB).';
         return;
       }
-      
+
       this.createPhotoFile = file;
       this.errorMessage = '';
-      
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.createPhotoPreview = e.target.result;
@@ -261,7 +285,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.showEditModal = false;
     this.editPhotoFile = null;
     this.editPhotoPreview = null;
-    
+
     this.editUserForm = {
       id: 0,
       prenom: '',
@@ -274,12 +298,12 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       lieunaissance: '',
       photo: ''
     };
-    
+
     this.errorMessage = '';
     this.successMessage = '';
   }
 
-  getFileBaseUrl(){
+  getFileBaseUrl() {
     return `${environment.filebaseUrl}`;
   }
 
@@ -332,32 +356,32 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   saveNewUser(): void {
     this.errorMessage = '';
     this.successMessage = '';
-  
+
     if (!this.createUserForm.prenom || !this.createUserForm.nom ||
       !this.createUserForm.email || !this.createUserForm.password ||
       !this.createUserForm.telephone || !this.createUserForm.profil) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
       return;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.createUserForm.email)) {
       this.errorMessage = 'Format d\'email invalide';
       return;
     }
-  
+
     const phoneRegex = /^\d{8,}$/;
     const cleanPhone = this.createUserForm.telephone.replace(/\s/g, '');
     if (!phoneRegex.test(cleanPhone)) {
       this.errorMessage = 'Le téléphone doit contenir au moins 8 chiffres';
       return;
     }
-  
+
     this.isLoading = true;
-  
+
     const formattedDate = this.createUserForm.date ?
       this.convertDateFormat(this.createUserForm.date) : '';
-  
+
     const createData: CreateUserRequest = {
       nom: this.createUserForm.nom.trim(),
       prenom: this.createUserForm.prenom.trim(),
@@ -369,18 +393,18 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       adress: this.createUserForm.adress.trim(),
       profil: this.createUserForm.profil
     };
-  
+
     if (this.createPhotoFile) {
       createData.photo = this.createPhotoFile;
       console.log('📸 Photo ajoutée à la création:', this.createPhotoFile.name);
     }
-  
+
     console.log('📤 Données envoyées:', {
       ...createData,
       password: '***',
       hasPhoto: !!this.createPhotoFile
     });
-  
+
     this.userService.createUser(createData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -388,10 +412,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           console.log('✅ Utilisateur créé avec succès:', response);
           this.successMessage = 'Utilisateur créé avec succès';
           this.isLoading = false;
-  
+
           this.createPhotoFile = null;
           this.createPhotoPreview = null;
-  
+
           setTimeout(() => {
             this.closeCreateModal();
             this.loadAllUsers();
@@ -399,7 +423,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Erreur création complète:', error);
-  
+
           let userMsg = 'Erreur lors de la création';
           if (error.status === 400) {
             userMsg = 'Données invalides. Vérifiez tous les champs.';
@@ -408,7 +432,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           } else if (error.status === 413) {
             userMsg = 'La photo est trop volumineuse.';
           }
-  
+
           this.errorMessage = error.userMessage || userMsg;
           this.isLoading = false;
         }
@@ -418,31 +442,31 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   saveEditedUser(): void {
     this.errorMessage = '';
     this.successMessage = '';
-  
+
     if (!this.editUserForm.prenom || !this.editUserForm.nom ||
       !this.editUserForm.email || !this.editUserForm.telephone ||
       !this.editUserForm.profil) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires (*)';
       return;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.editUserForm.email)) {
       this.errorMessage = 'Format d\'email invalide';
       return;
     }
-  
+
     const phoneRegex = /^\d{8,}$/;
     const cleanPhone = this.editUserForm.telephone.replace(/\s/g, '');
     if (!phoneRegex.test(cleanPhone)) {
       this.errorMessage = 'Le téléphone doit contenir au moins 8 chiffres';
       return;
     }
-  
+
     this.isLoading = true;
-  
+
     const formData = new FormData();
-    
+
     formData.append('nom', this.editUserForm.nom.trim());
     formData.append('prenom', this.editUserForm.prenom.trim());
     formData.append('email', this.editUserForm.email.trim().toLowerCase());
@@ -450,19 +474,19 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     formData.append('profil', this.editUserForm.profil);
     formData.append('adress', this.editUserForm.adress.trim());
     formData.append('lieunaissance', this.editUserForm.lieunaissance.trim());
-    
+
     if (this.editUserForm.date) {
       const formattedDate = this.convertDateFormat(this.editUserForm.date);
       formData.append('date', formattedDate);
     }
-  
+
     if (this.editPhotoFile) {
       formData.append('photo', this.editPhotoFile, this.editPhotoFile.name);
       console.log('📸 Photo ajoutée à la modification:', this.editPhotoFile.name);
     }
-  
+
     console.log('📤 FormData préparé pour modification de l\'utilisateur ID:', this.editUserForm.id);
-  
+
     // ✅ CORRECTION: Utiliser UserService au lieu de AuthService
     this.authService.updateAnyUserWithFormData(this.editUserForm.id, formData)
       .pipe(takeUntil(this.destroy$))
@@ -471,10 +495,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           console.log('✅ Utilisateur mis à jour:', updatedUser);
           this.successMessage = 'Utilisateur modifié avec succès';
           this.isLoading = false;
-  
+
           this.editPhotoFile = null;
           this.editPhotoPreview = null;
-  
+
           setTimeout(() => {
             this.closeEditModal();
             this.loadAllUsers();
@@ -541,14 +565,14 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   confirmBlockAction(): void {
     if (!this.selectedUserForAction) return;
-  
+
     this.isLoading = true;
-    
+
     // ✅ Déterminer l'état à envoyer (inverse du statut actuel)
     const shouldActivate = this.modalAction === 'activate';
-  
+
     console.log(`🔄 ${shouldActivate ? 'Activation' : 'Désactivation'} de l'utilisateur:`, this.selectedUserForAction);
-  
+
     // ✅ Appeler le service pour bloquer/débloquer
     this.utilisateurService.blockUser(this.selectedUserForAction.id, shouldActivate)
       .pipe(takeUntil(this.destroy$))
@@ -574,10 +598,10 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     this.showBlockModal = false;
     this.showNotification = true;
     this.isLoading = false;
-  
+
     // ✅ Recharger la liste des utilisateurs
     this.loadAllUsers();
-  
+
     setTimeout(() => {
       this.showNotification = false;
       this.selectedUserForAction = null;
@@ -608,5 +632,19 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       this.currentPage--;
       this.loadAllUsers();
     }
+  }
+  exportUsers(): void {
+    const data = this.utilisateurs.map(user => ({
+      Prénom: user.prenom,
+      Nom: user.nom,
+      Email: user.email,
+      Téléphone: user.telephone,
+      Profil: user.profil,
+      Adresse: user.adress,
+      Date: this.formatDate(user.date as any),
+      Statut: this.getUserStatus(user)
+    }));
+
+    this.exportService.exportToExcel(data, 'utilisateurs', 'Utilisateurs');
   }
 }

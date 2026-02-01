@@ -1,8 +1,8 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA] min-h-screen">
   <!-- En-tête -->
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-[#1E293B] mb-2">Gestion des Utilisateurs</h1>
-    <p class="text-gray-600">Créer, modifier, visualiser, rechercher, filtrer les utilisateurs inscrits</p>
+    <h1 class="text-3xl font-bold text-[#1E293B] mb-2">{{ t('users.title') }}</h1>
+    <p class="text-gray-600">{{ t('users.subtitle') }}</p>
   </div>
 
   <!-- Messages d'erreur et de succès -->
@@ -18,7 +18,7 @@
     <!-- Recherche -->
     <div class="relative w-full lg:w-96">
       <input type="text" [(ngModel)]="searchTerm" (input)="searchUtilisateurs()"
-        placeholder="Rechercher par nom, email, profil..."
+        [placeholder]="t('common.searchPlaceholder')"
         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent" />
       <svg xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
@@ -30,24 +30,108 @@
 
     <!-- Boutons d'action -->
     <div class="flex gap-3 w-full lg:w-auto">
-      <button
-        class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-        <span class="text-gray-700 font-medium">Filtres</span>
-      </button>
+      <!-- Profile Filter Dropdown -->
+      <div class="relative group">
+        <button
+          class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <span class="text-gray-700 font-medium">
+            {{ selectedProfile ? selectedProfile : t('common.filter') }}
+          </span>
+          <svg *ngIf="selectedProfile" (click)="clearProfileFilter(); $event.stopPropagation()"
+            class="h-4 w-4 ml-2 text-red-500 hover:text-red-700 cursor-pointer" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div
+          class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg hidden group-hover:block z-20 border border-gray-100 max-h-96 overflow-y-auto">
+          <div class="py-1">
+            <button (click)="selectedProfile = 'PROMOTEUR'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Promoteur
+            </button>
+            <button (click)="selectedProfile = 'MOA'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              MOA
+            </button>
+            <button (click)="selectedProfile = 'BET'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              BET
+            </button>
+            <button (click)="selectedProfile = 'NOTAIRE'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Notaire
+            </button>
+            <button (click)="selectedProfile = 'RESERVATAIRE'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Réservataire
+            </button>
+            <button (click)="selectedProfile = 'BANK'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Banque
+            </button>
+            <button (click)="selectedProfile = 'AGENCY'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Agence
+            </button>
+            <button (click)="selectedProfile = 'ADMIN'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Admin
+            </button>
+            <button (click)="selectedProfile = 'PROPRIETAIRE'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Propriétaire
+            </button>
+            <button (click)="selectedProfile = 'SYNDIC'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Syndic
+            </button>
+            <button (click)="selectedProfile = 'LOCATAIRE'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Locataire
+            </button>
+            <button (click)="selectedProfile = 'PRESTATAIRE'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Prestataire
+            </button>
+            <button (click)="selectedProfile = 'TOM'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              TOM
+            </button>
+            <button (click)="selectedProfile = 'SITE_MANAGER'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Site Manager
+            </button>
+            <button (click)="selectedProfile = 'SUPPLIER'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Fournisseur
+            </button>
+            <button (click)="selectedProfile = 'SUBCONTRACTOR'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Sous-traitant
+            </button>
+            <button (click)="selectedProfile = 'WORKER'; filterByProfile()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Ouvrier
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <button
+      <!-- Export Button (Excel only) -->
+      <button (click)="exportUsers()"
         class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
         </svg>
-        <span class="text-gray-700 font-medium">Exporter</span>
+        <span class="text-gray-700 font-medium">{{ t('export.excel') }}</span>
       </button>
 
       <button (click)="openCreateModal()"
@@ -56,8 +140,9 @@
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Nouvel Utilisateur
+        {{ t('users.create') }}
       </button>
+
     </div>
   </div>
 
@@ -72,12 +157,12 @@
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utilisateur</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Profil</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Téléphone</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date d'inscription</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('users.table.user') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('compte.form.profile') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('compte.form.phone') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('common.status') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('users.table.registerDate') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -85,17 +170,11 @@
             <!-- Utilisateur avec point de statut -->
             <td class="px-6 py-4">
               <div class="flex items-center">
-                <img 
-                *ngIf="user.photo" 
-                class="rounded-full h-8 w-8 mr-3 object-cover" 
-                [src]="getFileBaseUrl() + user.photo" 
-                [alt]="user.prenom + ' ' + user.nom">
-              
-              <img 
-                *ngIf="!user.photo" 
-                class="rounded-full h-8 w-8 mr-3 object-cover" 
-                src="assets/images/profil.png" 
-                [alt]="user.prenom + ' ' + user.nom">
+                <img *ngIf="user.photo" class="rounded-full h-8 w-8 mr-3 object-cover"
+                  [src]="getFileBaseUrl() + user.photo" [alt]="user.prenom + ' ' + user.nom">
+
+                <img *ngIf="!user.photo" class="rounded-full h-8 w-8 mr-3 object-cover" src="assets/images/profil.png"
+                  [alt]="user.prenom + ' ' + user.nom">
                 <div class="w-2 h-2 rounded-full mr-3" [ngClass]="getPointColor(getStatutPoint(user))"></div>
                 <div>
                   <div class="text-sm font-semibold text-gray-900">{{ user.prenom }} {{ user.nom }}</div>
@@ -152,7 +231,7 @@
                 </button>
 
                 <!-- Bloquer/Débloquer -->
-                <button (click)="toggleUserStatus(user)"
+                <!-- <button (click)="toggleUserStatus(user)"
                   [class]="getUserStatus(user) === 'Actif' ? 'text-gray-600 hover:text-gray-900' : 'text-green-600 hover:text-green-700'"
                   class="transition-colors" [title]="getUserStatus(user) === 'Actif' ? 'Bloquer' : 'Débloquer'">
 
@@ -177,7 +256,7 @@
                     </defs>
                   </svg>
 
-                </button>
+                </button> -->
 
               </div>
             </td>
@@ -323,7 +402,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent" />
           </div>
         </div>
-        
+
         <!-- Ligne 5: Lieu de naissance -->
         <div>
           <label class="block text-sm font-semibold text-gray-900 mb-2">Lieu de naissance</label>
@@ -336,52 +415,49 @@
         <div>
           <label class="block text-sm font-semibold text-gray-900 mb-2">Photo de profil</label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-[#FF5C01] transition-colors">
-            
+
             <!-- Prévisualisation de la photo -->
             <div *ngIf="createPhotoPreview" class="mb-4 flex justify-center">
               <div class="relative">
-                <img 
-                  [src]="createPhotoPreview" 
-                  alt="Aperçu photo"
+                <img [src]="createPhotoPreview" alt="Aperçu photo"
                   class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md">
                 <!-- Bouton pour supprimer la prévisualisation -->
-                <button 
-                  (click)="createPhotoFile = null; createPhotoPreview = null"
-                  type="button"
+                <button (click)="createPhotoFile = null; createPhotoPreview = null" type="button"
                   class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors shadow-lg">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
             </div>
-            
+
             <!-- Zone de sélection du fichier -->
             <div class="text-center">
-              <input 
-                type="file" 
-                id="createPhotoInput" 
-                (change)="onCreatePhotoSelected($event)"
-                accept="image/jpeg,image/jpg,image/png,image/gif"
-                class="hidden">
-              
-              <label 
-                for="createPhotoInput" 
+              <input type="file" id="createPhotoInput" (change)="onCreatePhotoSelected($event)"
+                accept="image/jpeg,image/jpg,image/png,image/gif" class="hidden">
+
+              <label for="createPhotoInput"
                 class="inline-flex items-center px-6 py-3 bg-[#FF5C01] text-white rounded-lg cursor-pointer hover:bg-[#E54F00] transition-colors shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  </path>
                 </svg>
                 {{ createPhotoFile ? 'Changer la photo' : 'Choisir une photo' }}
               </label>
-              
+
               <!-- Nom du fichier sélectionné -->
-              <div *ngIf="createPhotoFile && !createPhotoPreview" class="mt-3 flex items-center justify-center text-sm text-gray-700">
+              <div *ngIf="createPhotoFile && !createPhotoPreview"
+                class="mt-3 flex items-center justify-center text-sm text-gray-700">
                 <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
                 </svg>
                 {{ createPhotoFile.name }}
               </div>
-              
+
               <!-- Instructions -->
               <p class="mt-3 text-xs text-gray-500">
                 <span class="font-semibold">Formats acceptés :</span> JPG, PNG ou GIF
@@ -442,68 +518,61 @@
 
     <form (ngSubmit)="saveEditedUser()">
       <div class="space-y-6">
-        
+
         <!-- ✅ LIGNE 1 : Photo de profil (EN PREMIER) -->
         <div>
           <label class="block text-sm font-semibold text-gray-900 mb-2">Photo de profil</label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-[#FF5C01] transition-colors">
-            
+
             <!-- Prévisualisation de la photo -->
             <div class="mb-4 flex justify-center">
               <div class="relative">
                 <!-- Afficher la nouvelle photo OU la photo existante -->
-                <img 
-                  *ngIf="editPhotoPreview || editUserForm.photo"
-                  [src]="editPhotoPreview || getFileBaseUrl() + editUserForm.photo" 
-                  alt="Photo de profil"
+                <img *ngIf="editPhotoPreview || editUserForm.photo"
+                  [src]="editPhotoPreview || getFileBaseUrl() + editUserForm.photo" alt="Photo de profil"
                   class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md">
-                
+
                 <!-- Avatar par défaut si pas de photo -->
-                <img
-                  *ngIf="!editPhotoPreview && !editUserForm.photo"
-                  src="assets/images/profil.png"
-                  alt="Photo par défaut"
-                  class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md">
-                
+                <img *ngIf="!editPhotoPreview && !editUserForm.photo" src="assets/images/profil.png"
+                  alt="Photo par défaut" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md">
+
                 <!-- Bouton pour supprimer la nouvelle photo sélectionnée -->
-                <button 
-                  *ngIf="editPhotoFile"
-                  (click)="editPhotoFile = null; editPhotoPreview = null"
-                  type="button"
+                <button *ngIf="editPhotoFile" (click)="editPhotoFile = null; editPhotoPreview = null" type="button"
                   class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors shadow-lg">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
             </div>
-            
+
             <!-- Zone de sélection du fichier -->
             <div class="text-center">
-              <input 
-                type="file" 
-                id="editPhotoInput" 
-                (change)="onEditPhotoSelected($event)"
-                accept="image/jpeg,image/jpg,image/png,image/gif"
-                class="hidden">
-              
-              <label 
-                for="editPhotoInput" 
+              <input type="file" id="editPhotoInput" (change)="onEditPhotoSelected($event)"
+                accept="image/jpeg,image/jpg,image/png,image/gif" class="hidden">
+
+              <label for="editPhotoInput"
                 class="inline-flex items-center px-6 py-3 bg-[#FF5C01] text-white rounded-lg cursor-pointer hover:bg-[#E54F00] transition-colors shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  </path>
                 </svg>
-                {{ editPhotoFile ? 'Changer la photo' : (editUserForm.photo ? 'Modifier la photo' : 'Ajouter une photo') }}
+                {{ editPhotoFile ? 'Changer la photo' : (editUserForm.photo ? 'Modifier la photo' : 'Ajouter une photo')
+                }}
               </label>
-              
+
               <!-- Nom du fichier sélectionné -->
               <div *ngIf="editPhotoFile" class="mt-3 flex items-center justify-center text-sm text-gray-700">
                 <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
                 </svg>
                 {{ editPhotoFile.name }}
               </div>
-              
+
               <!-- Instructions -->
               <p class="mt-3 text-xs text-gray-500">
                 <span class="font-semibold">Formats acceptés :</span> JPG, PNG ou GIF

@@ -706,7 +706,8 @@ loadDeliveries(): void {
 
   loadProperties(): void {
     console.log('🔄 Chargement des propriétés...');
-
+  
+    // ✅ Utiliser getAll() qui retourne PropertyType[] directement
     this.propertyService.getAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({

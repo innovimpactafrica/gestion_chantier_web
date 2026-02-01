@@ -10,7 +10,7 @@
 
       <!-- Titre -->
       <h3 class="text-2xl font-bold text-gray-900 text-center mb-3">
-        Projet Bloqué
+        {{ t('projects.blockedTitle') }}
       </h3>
 
       <!-- Message principal -->
@@ -26,11 +26,10 @@
 
             <div class="text-left">
               <p class="text-sm font-medium text-red-800 mb-1">
-                Accès restreint
+                {{ t('projects.blockedRestricted') }}
               </p>
               <p class="text-sm text-red-700">
-                Ce projet est bloqué jusqu'au renouvellement de votre abonnement.
-                Veuillez mettre à jour votre plan pour y accéder.
+                {{ t('projects.blockedMessage') }}
               </p>
             </div>
           </div>
@@ -45,13 +44,13 @@
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            abonnements
+            {{ t('projects.subscriptions') }}
           </span>
         </button>
 
         <button (click)="closeBlockedPopup()"
           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200">
-          Fermer
+          {{ t('common.close') }}
         </button>
       </div>
     </div>
@@ -59,22 +58,37 @@
 
   <!-- ========== EN-TÊTE ET NOUVEAU PROJET ========== -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Projets en cours</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ t('projects.title') }}</h1>
 
-    <button *ngIf="canCreateProject() && !checkingPermission()"
-      class="bg-[#ff5c01] hover:bg-orange-600 text-white px-6 py-2 rounded-xl flex items-center justify-center transition-all duration-200 h-[52px] font-bold shadow-sm"
-      [routerLink]="['/nouveau-projet']" type="button">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-        stroke-width="3">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-      </svg>
-      Nouveau Projet
-    </button>
+    <div class="flex gap-3">
+      <!-- Export Button -->
+      <button (click)="exportToExcel()" [disabled]="projects().length === 0"
+        class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-xl flex items-center justify-center transition-all duration-200 h-[52px] font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        type="button">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+        {{ t('projects.export') }}
+      </button>
+
+      <!-- New Project Button -->
+      <button *ngIf="canCreateProject() && !checkingPermission()"
+        class="bg-[#ff5c01] hover:bg-orange-600 text-white px-6 py-2 rounded-xl flex items-center justify-center transition-all duration-200 h-[52px] font-bold shadow-sm"
+        [routerLink]="['/nouveau-projet']" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        {{ t('projects.newProject') }}
+      </button>
+    </div>
   </div>
 
   <!-- Description -->
   <p class="text-gray-500 mb-8 text-sm sm:text-base max-w-2xl">
-    Consultez la liste de vos chantiers actuellement en cours et suivez leur avancement en temps réel.
+    {{ t('projects.description') }}
   </p>
 
   <!-- ========== FORMULAIRE DE RECHERCHE ========== -->
@@ -91,17 +105,17 @@
 
       <input type="text" formControlName="search" (input)="onSearch()"
         class="block w-full h-[52px] pl-10 pr-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
-        placeholder="Rechercher par projet">
+        [placeholder]="t('projects.searchByProject')">
     </div>
 
     <!-- Filtre par période -->
     <div class="relative w-full sm:w-[220px]">
       <select formControlName="period"
         class="w-full h-[52px] px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none shadow-sm cursor-pointer">
-        <option value="all">Toutes les périodes</option>
-        <option value="current-year">Cette année</option>
-        <option value="last-year">Année dernière</option>
-        <option value="older">Plus ancien</option>
+        <option value="all">{{ t('projects.allPeriods') }}</option>
+        <option value="current-year">{{ t('projects.thisYear') }}</option>
+        <option value="last-year">{{ t('projects.lastYear') }}</option>
+        <option value="older">{{ t('projects.older') }}</option>
       </select>
       <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -116,11 +130,11 @@
     <div class="relative w-full sm:w-[200px]">
       <select formControlName="status"
         class="w-full h-[52px] px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none shadow-sm cursor-pointer">
-        <option value="all">Tous les statuts</option>
-        <option value="active">Actif</option>
-        <option value="inactive">Inactif</option>
-        <option value="completed">Terminé</option>
-        <option value="in-progress">En cours</option>
+        <option value="all">{{ t('projects.allStatuses') }}</option>
+        <option value="active">{{ t('projects.active') }}</option>
+        <option value="inactive">{{ t('projects.inactive') }}</option>
+        <option value="completed">{{ t('projects.completed') }}</option>
+        <option value="in-progress">{{ t('projects.inProgress') }}</option>
       </select>
       <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -136,7 +150,7 @@
   <div *ngIf="error() as errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
     {{ errorMessage }}
     <button (click)="onRefresh()" class="ml-4 underline hover:no-underline">
-      Réessayer
+      {{ t('projects.retry') }}
     </button>
   </div>
 
@@ -175,7 +189,7 @@
               d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
               clip-rule="evenodd" />
           </svg>
-          BLOQUÉ
+          {{ t('projects.blocked') }}
         </div>
 
         <!-- Image du projet -->
@@ -198,7 +212,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <p class="text-gray-400 text-xs">Aucune image</p>
+              <p class="text-gray-400 text-xs">{{ t('projects.noImage') }}</p>
             </div>
           </ng-container>
 
@@ -249,7 +263,8 @@
           <!-- Barre de progression -->
           <div class="mt-auto">
             <div class="flex justify-between items-end mb-2">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Progression</span>
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('projects.progress')
+                }}</span>
               <span class="text-sm font-bold text-gray-900">{{ formatProgress(project.progress) }}</span>
             </div>
             <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -266,7 +281,7 @@
     <div *ngIf="loading()" class="flex justify-center items-center py-8">
       <div class="flex items-center gap-2">
         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-        <span class="text-gray-600">Chargement des projets...</span>
+        <span class="text-gray-600">{{ t('projects.loadingProjects') }}</span>
       </div>
     </div>
 
@@ -286,12 +301,13 @@
       <!-- Informations de pagination -->
       <div class="flex flex-col items-center text-sm text-gray-600">
         <span class="font-medium">
-          Page {{ pagination().currentPage + 1 }} sur {{ pagination().totalPages }}
+          {{ t('projects.page') }} {{ pagination().currentPage + 1 }} {{ t('projects.on') }} {{ pagination().totalPages
+          }}
         </span>
         <span class="text-xs">
           {{ pagination().currentPage * pagination().pageSize + 1 }} -
           {{ Math.min((pagination().currentPage + 1) * pagination().pageSize, pagination().totalElements) }}
-          sur {{ pagination().totalElements }} projets
+          {{ t('projects.on') }} {{ pagination().totalElements }} {{ t('sidebar.projects').toLowerCase() }}
         </span>
       </div>
 
@@ -309,18 +325,19 @@
 
     <!-- Message aucun résultat -->
     <div *ngIf="projects().length === 0 && !loading()" class="text-center py-12">
-      <div class="text-gray-400 text-lg mb-2">Aucun projet trouvé</div>
+      <div class="text-gray-400 text-lg mb-2">{{ t('projects.noProjectFound') }}</div>
     </div>
   </div>
 
   <!-- ========== INFO PAGINATION FINALE ========== -->
   <div class="mt-6 flex justify-between items-center text-sm text-gray-600">
     <div>
-      Affichage de {{ projects().length }} sur {{ pagination().totalElements }} projets
+      {{ t('projects.showing') }} {{ projects().length }} {{ t('projects.on') }} {{ pagination().totalElements }} {{
+      t('sidebar.projects').toLowerCase() }}
     </div>
 
     <div class="flex items-center gap-2">
-      <span>Projets par page :</span>
+      <span>{{ t('projects.perPage') }}</span>
       <select (change)="onPageSizeChange($event)" [value]="pagination().pageSize"
         class="border border-gray-300 rounded px-2 py-1">
         <option *ngFor="let size of pageSizeOptions" [value]="size">

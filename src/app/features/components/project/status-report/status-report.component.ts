@@ -2,10 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressReportComponent } from "../../dashboard/progess-report/progess-report.component";
 import { FormsModule } from '@angular/forms';
-import { 
-  ProjectBudgetService, 
-  ProgressAlbum, 
-  CreateAlbumRequest, 
+import {
+  ProjectBudgetService,
+  ProgressAlbum,
+  CreateAlbumRequest,
   UpdateAlbumRequest,
   ProgressIndicator  // AJOUT
 } from '../../../../../services/project-details.service';
@@ -24,13 +24,13 @@ interface TableRow {
   standalone: true,
   imports: [CommonModule, ProgressReportComponent, FormsModule],
   templateUrl: './status-report.component.html',
-  styleUrl: './status-report.component.css' 
+  styleUrl: './status-report.component.css'
 })
 export class StatusReportComponent implements OnInit {
   @ViewChild(ProgressReportComponent) progressReportComponent!: ProgressReportComponent;
-  
+
   activeTab: 'albums' | 'graphique' | 'tableau' = 'albums';
-  
+
   projectId!: number;
   albums: ProgressAlbum[] = [];
   loading = true;
@@ -44,10 +44,15 @@ export class StatusReportComponent implements OnInit {
   showViewModal = false;
   showSuccessMessage = false;
   successMessage = '';
-  
+
   // Album en cours
   currentAlbum: ProgressAlbum | null = null;
   albumToDelete: ProgressAlbum | null = null;
+
+  // Variables pour la visionneuse d'images
+  selectedImage: string | null = null;
+  currentImageIndex: number = 0;
+  currentAlbumImages: string[] = [];
 
   // Formulaire
   albumForm = {
@@ -60,14 +65,14 @@ export class StatusReportComponent implements OnInit {
 
   // MODIFICATION: Tableau vide au départ, sera rempli dynamiquement
   lignes: TableRow[] = [];
-  
+
   // AJOUT: Stocker les indicateurs récupérés
   indicators: ProgressIndicator[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private budgetService: ProjectBudgetService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
@@ -85,9 +90,9 @@ export class StatusReportComponent implements OnInit {
   fetchIndicators(): void {
     this.loading = true;
     this.error = null;
-    
+
     console.log('📊 Chargement des indicateurs du projet', this.projectId);
-    
+
     this.budgetService.getIndicatorsByProperty(this.projectId).subscribe({
       next: (data) => {
         console.log('✅ Indicateurs récupérés:', data);
@@ -112,7 +117,7 @@ export class StatusReportComponent implements OnInit {
       date: this.budgetService.formatIndicatorDate(indicator.lastUpdated),
       indicatorId: indicator.id
     }));
-    
+
     console.log('📋 Tableau initialisé:', this.lignes);
   }
 
@@ -132,7 +137,7 @@ export class StatusReportComponent implements OnInit {
   fetchAlbumData(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.budgetService.getAlbum(this.projectId).subscribe({
       next: (data) => {
         this.albums = data;
@@ -158,7 +163,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleFetchError(error: any, type: string): void {
     this.loading = false;
-    
+
     if (error.status === 403) {
       this.error = `Accès refusé lors du chargement des ${type}. Vérifiez vos permissions.`;
     } else if (error.status === 401) {
@@ -170,7 +175,7 @@ export class StatusReportComponent implements OnInit {
 
   setActiveTab(tab: 'albums' | 'graphique' | 'tableau') {
     this.activeTab = tab;
-    
+
     if (tab === 'tableau') {
       this.onTableTabActivated();
     }
@@ -187,7 +192,7 @@ export class StatusReportComponent implements OnInit {
       this.error = 'Aucun album sélectionné pour modification';
       return;
     }
-    
+
     if (!this.validateAlbumForm()) return;
 
     const updatedAlbum: UpdateAlbumRequest = {
@@ -215,9 +220,9 @@ export class StatusReportComponent implements OnInit {
   updateTableWithProgressData(): void {
     if (this.progressReportComponent && this.progressReportComponent.progressData) {
       const progressData = this.progressReportComponent.progressData;
-      
+
       console.log('Mise à jour tableau avec données:', progressData);
-      
+
       this.lignes = this.lignes.map(ligne => {
         const matchingProgress = progressData.find(p => p.label === ligne.etape);
         if (matchingProgress) {
@@ -229,7 +234,7 @@ export class StatusReportComponent implements OnInit {
         }
         return ligne;
       });
-      
+
       console.log('Tableau mis à jour:', this.lignes);
     }
   }
@@ -237,7 +242,7 @@ export class StatusReportComponent implements OnInit {
   refreshTableData(): void {
     // MODIFICATION: Recharger les indicateurs depuis le serveur
     this.fetchIndicators();
-    
+
     if (this.progressReportComponent) {
       this.progressReportComponent.refreshData();
       setTimeout(() => {
@@ -255,18 +260,18 @@ export class StatusReportComponent implements OnInit {
 
     this.updatingPhase = phaseName;
     this.error = null;
-    
+
     console.log(`📊 Mise à jour de l'indicateur ${indicatorId} (${phaseName}) à ${newProgress}%`);
-    
+
     this.budgetService.updateIndicator(indicatorId, newProgress)
       .subscribe({
         next: (response) => {
           console.log(`✅ ${phaseName} mis à jour:`, response);
           this.updatingPhase = null;
-          
+
           // MODIFICATION: Mettre à jour avec les données de la réponse
           this.updateLocalProgressDataFromResponse(phaseName, response);
-          
+
           // Message de succès
           this.showSuccessMessage = true;
           this.successMessage = `${phaseName} mis à jour à ${newProgress}%`;
@@ -297,7 +302,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleProgressUpdateError(error: any, phaseName: string): void {
     this.updatingPhase = null;
-    
+
     if (error.status === 403) {
       this.error = `Vous n'avez pas les droits pour modifier ${phaseName}.`;
     } else if (error.status === 401) {
@@ -305,7 +310,7 @@ export class StatusReportComponent implements OnInit {
     } else {
       this.error = `Erreur lors de la mise à jour de ${phaseName}`;
     }
-    
+
     this.revertProgressChange(phaseName);
   }
 
@@ -339,14 +344,14 @@ export class StatusReportComponent implements OnInit {
 
   onPercentageChange(etape: string, event: any): void {
     const selectedValue = event.target.value;
-    
+
     if (!selectedValue || selectedValue === '') {
       console.warn('Aucune valeur sélectionnée');
       return;
     }
-    
+
     const numericValue = parseInt(selectedValue.replace('%', ''));
-    
+
     if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
       console.error('Valeur de pourcentage invalide:', selectedValue);
       this.error = 'Valeur de pourcentage invalide';
@@ -366,7 +371,7 @@ export class StatusReportComponent implements OnInit {
       // Mettre à jour immédiatement l'affichage local
       ligne.pourcentage = `${numericValue}%`;
       ligne.date = this.getCurrentDate();
-      
+
       // Envoyer la mise à jour au serveur
       this.updatePhaseProgress(ligne.indicatorId, etape, numericValue);
     } else {
@@ -391,7 +396,7 @@ export class StatusReportComponent implements OnInit {
       'Second œuvre': 'SECOND_OEUVRE',
       'Finition': 'FINITION'
     };
-    
+
     const phaseName = phaseNameMap[etape];
     if (phaseName) {
       const indicator = this.indicators.find(i => i.phaseName === phaseName);
@@ -399,7 +404,7 @@ export class StatusReportComponent implements OnInit {
         return indicator.progressPercentage;
       }
     }
-    
+
     return 0;
   }
 
@@ -407,24 +412,24 @@ export class StatusReportComponent implements OnInit {
     const files: FileList = event.target.files;
     if (files.length > 0) {
       this.error = null;
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         if (file.size > 5 * 1024 * 1024) {
           this.error = `Le fichier ${file.name} dépasse la taille maximale de 5MB`;
           continue;
         }
-        
+
         if (!file.type.startsWith('image/')) {
           this.error = `Le fichier ${file.name} n'est pas une image valide`;
           continue;
         }
-        
+
         this.convertToBase64(file);
       }
     }
-    
+
     event.target.value = '';
   }
 
@@ -445,7 +450,7 @@ export class StatusReportComponent implements OnInit {
       'Second œuvre': 'SECOND_OEUVRE',
       'Finition': 'FINITION'
     };
-    
+
     const phaseName = phaseNameMap[etape];
     if (phaseName) {
       const indicator = this.indicators.find(i => i.phaseName === phaseName);
@@ -453,13 +458,13 @@ export class StatusReportComponent implements OnInit {
         return this.budgetService.formatIndicatorDate(indicator.lastUpdated);
       }
     }
-    
+
     return this.getCurrentDate();
   }
 
   calculateAverageProgress(): number {
     if (this.indicators.length === 0) return 0;
-    
+
     const sum = this.indicators.reduce((acc, ind) => acc + ind.progressPercentage, 0);
     return Math.round(sum / this.indicators.length);
   }
@@ -477,7 +482,7 @@ export class StatusReportComponent implements OnInit {
   }
 
   // ... (le reste des méthodes reste identique)
-  
+
   private validateAlbumForm(): boolean {
     if (!this.albumForm.name.trim()) {
       this.error = 'Le nom de l\'album est requis';
@@ -510,13 +515,13 @@ export class StatusReportComponent implements OnInit {
 
   onEditAlbum(album: ProgressAlbum): void {
     this.currentAlbum = album;
-    
+
     this.albumForm = {
       name: album.phaseName,
       description: album.description || '',
       pictures: album.pictures ? [...album.pictures] : []
     };
-    
+
     this.showEditModal = true;
   }
 
@@ -579,7 +584,7 @@ export class StatusReportComponent implements OnInit {
 
   private handleAlbumOperationError(error: any, operation: string): void {
     this.loading = false;
-    
+
     if (error.status === 403) {
       this.error = `Vous n'avez pas les droits pour cette ${operation}. Vérifiez vos permissions.`;
     } else if (error.status === 401) {
@@ -597,44 +602,44 @@ export class StatusReportComponent implements OnInit {
     const files: FileList = event.target.files;
     if (files.length > 0) {
       this.error = null;
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         if (file.size > 5 * 1024 * 1024) {
           this.error = `Le fichier ${file.name} dépasse la taille maximale de 5MB`;
           continue;
         }
-        
+
         if (!file.type.startsWith('image/')) {
           this.error = `Le fichier ${file.name} n'est pas une image valide`;
           continue;
         }
-        
+
         this.convertToBase64(file);
       }
     }
-    
+
     event.target.value = '';
   }
 
   private convertToBase64(file: File): void {
     const reader = new FileReader();
-    
+
     reader.onload = (e: any) => {
       const base64String = e.target.result;
-      
+
       if (base64String && base64String.startsWith('data:image/')) {
         this.albumForm.pictures.push(base64String);
       } else {
         this.error = `Erreur lors de la conversion de ${file.name}`;
       }
     };
-    
+
     reader.onerror = (error) => {
       this.error = `Erreur lors de la lecture du fichier ${file.name}`;
     };
-    
+
     reader.readAsDataURL(file);
   }
 
@@ -642,7 +647,7 @@ export class StatusReportComponent implements OnInit {
     this.albumForm.pictures.splice(index, 1);
   }
 
-  getBaseFile(){
+  getBaseFile() {
     return environment.filebaseUrl;
   }
 
@@ -682,7 +687,7 @@ export class StatusReportComponent implements OnInit {
     const album = this.albums.find(a => a.id === id);
     if (!album) return;
 
-    switch(action) {
+    switch (action) {
       case 'edit':
         this.onEditAlbum(album);
         break;
@@ -709,5 +714,37 @@ export class StatusReportComponent implements OnInit {
 
   handleImageError(event: ErrorEvent, album: ProgressAlbum) {
     console.error('Erreur chargement image:', event);
+  }
+
+  // === MÉTHODES POUR LA VISIONNEUSE D'IMAGES ===
+  openImageViewer(picture: string, allPictures: string[]): void {
+    this.selectedImage = picture;
+    this.currentAlbumImages = allPictures;
+    this.currentImageIndex = allPictures.indexOf(picture);
+  }
+
+  closeImageViewer(): void {
+    this.selectedImage = null;
+    this.currentAlbumImages = [];
+    this.currentImageIndex = 0;
+  }
+
+  nextImage(): void {
+    if (this.currentImageIndex < this.currentAlbumImages.length - 1) {
+      this.currentImageIndex++;
+      this.selectedImage = this.currentAlbumImages[this.currentImageIndex];
+    }
+  }
+
+  previousImage(): void {
+    if (this.currentImageIndex > 0) {
+      this.currentImageIndex--;
+      this.selectedImage = this.currentAlbumImages[this.currentImageIndex];
+    }
+  }
+
+  selectImageIndex(index: number): void {
+    this.currentImageIndex = index;
+    this.selectedImage = this.currentAlbumImages[index];
   }
 }
