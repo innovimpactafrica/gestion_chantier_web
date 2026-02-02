@@ -535,7 +535,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
     if (!this.selectedCommande) return;
 
     this.isProcessing = true;
-    this.commandeService.updateStatusOrder(this.selectedCommande.id, 'DELIVERED').subscribe({
+    this.commandeService.updateStatusOrder(this.selectedCommande.id, 'APPROVED').subscribe({
       next: () => {
         this.showConfirmModal = false;
         this.showModal = false;

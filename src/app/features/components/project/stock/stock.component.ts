@@ -18,6 +18,7 @@ import { CommandeService,Quote, QuoteResponse } from '../../../../../services/co
 
 
 
+
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
 Chart.defaults.font.size = 12;
 Chart.defaults.color = '#7F8C8D';
@@ -286,6 +287,10 @@ loadingQuotes: boolean = false;
 quotesError: string | null = null;
 selectedQuote: Quote | null = null;
 // Pour les livraisons
+approvingOrder: boolean = false;
+showApproveConfirmModal: boolean = false;
+orderToApprove: Order | null = null;
+selectedQuoteForApproval: Quote | null = null;
 deliveryPageSize: number = 10;
 orderPageSize: number = 10;
   constructor(
@@ -344,15 +349,14 @@ this.orderForm = this.fb.group({
     const mat = this.materials.find(m => m.id === Number(materialId));
     return mat ? mat.quantity : 0;
   }
-  // ✅ CORRIGER ngOnInit
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
       this.propertyId = +idFromUrl;
-
+  
       this.materialForm.patchValue({ propertyId: this.propertyId });
       this.orderForm.patchValue({ propertyId: this.propertyId });
-
+  
       this.loadStock();
       this.loadStockMovements();
       this.loadOrders();
@@ -363,6 +367,35 @@ this.orderForm = this.fb.group({
       this.loadCriticalMaterials();
       this.loadStatistiques();
       this.loadSuppliers();
+      
+      // ✅ TEST MANUEL DES CITATIONS - RETIRER APRÈS DEBUG
+      setTimeout(() => {
+        console.log('🧪 TEST MANUEL - Vérification des propriétés:');
+        console.log('loadingQuotes:', this.loadingQuotes);
+        console.log('quotesError:', this.quotesError);
+        console.log('orderQuotes:', this.orderQuotes);
+        console.log('selectedQuote:', this.selectedQuote);
+        console.log('showOrderDetailsModal:', this.showOrderDetailsModal);
+        
+        // Test de modification manuelle
+        this.loadingQuotes = false;
+        this.orderQuotes = [{
+          id: 999,
+          uploadedAt: [2026, 1, 29, 12, 10, 19],
+          totalAmount: 12345,
+          generedBy: {
+            id: 14,
+            nom: 'TEST',
+            prenom: 'User',
+            telephone: '777777777'
+          }
+        }];
+        this.selectedQuote = this.orderQuotes[0];
+        
+        console.log('🧪 Après modification manuelle:');
+        console.log('orderQuotes:', this.orderQuotes);
+        console.log('selectedQuote:', this.selectedQuote);
+      }, 2000);
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
     }
@@ -439,7 +472,123 @@ this.orderForm = this.fb.group({
 
     return `${prenom} ${nom}`.trim() || 'N/A';
   }
+/**
+ * Ouvre la modal de confirmation d'approbation
+ */
+confirmApproveOrder(order: Order, quote: Quote): void {
+  if (!order || !quote) {
+    this.showErrorMessage('Données invalides pour l\'approbation');
+    return;
+  }
 
+  // Vérifier que la commande est dans un état permettant l'approbation
+  if (order.status === 'APPROVED' || order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+    this.showErrorMessage('Cette commande ne peut plus être approuvée');
+    return;
+  }
+
+  this.orderToApprove = order;
+  this.selectedQuoteForApproval = quote;
+  this.showApproveConfirmModal = true;
+}
+
+/**
+ * Annule l'approbation
+ */
+cancelApproveOrder(): void {
+  this.showApproveConfirmModal = false;
+  this.orderToApprove = null;
+  this.selectedQuoteForApproval = null;
+}
+
+/**
+ * Approuve la commande avec la citation sélectionnée
+ */
+approveOrderConfirmed(): void {
+  if (!this.orderToApprove || !this.selectedQuoteForApproval) {
+    this.showErrorMessage('Aucune commande ou citation sélectionnée');
+    return;
+  }
+
+  this.approvingOrder = true;
+
+  console.log('📝 Approbation de la commande:', this.orderToApprove.id);
+  console.log('💰 Avec la citation:', this.selectedQuoteForApproval.id);
+
+  this.commandeService.updateStatusOrder(this.orderToApprove.id, 'APPROVED')
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (updatedOrder) => {
+        console.log('✅ Commande approuvée:', updatedOrder);
+        this.approvingOrder = false;
+        this.showApproveConfirmModal = false;
+
+        // Mettre à jour la commande dans la liste
+        if (this.selectedOrderDetails) {
+          this.selectedOrderDetails.status = 'APPROVED';
+        }
+
+        // Recharger les commandes
+        this.loadOrders();
+
+        // Fermer le modal de détails
+        this.closeOrderDetailsModal();
+
+        // Afficher le message de succès
+        this.showSuccessMessage(
+          `Commande #CMD-${this.orderToApprove?.id.toString().padStart(4, '0')} approuvée avec succès !`
+        );
+
+        // Réinitialiser
+        this.orderToApprove = null;
+        this.selectedQuoteForApproval = null;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de l\'approbation:', error);
+        this.approvingOrder = false;
+        this.showApproveConfirmModal = false;
+
+        let errorMessage = 'Erreur lors de l\'approbation de la commande';
+        
+        if (error.status === 403) {
+          errorMessage = 'Accès refusé - Vous n\'avez pas les permissions nécessaires';
+        } else if (error.status === 404) {
+          errorMessage = 'Commande introuvable';
+        } else if (error.status === 400) {
+          errorMessage = error.error?.message || 'Données invalides';
+        }
+
+        this.showErrorMessage(errorMessage);
+
+        this.orderToApprove = null;
+        this.selectedQuoteForApproval = null;
+      }
+    });
+}
+
+// ===== MÉTHODE canApproveOrder() - CORRIGER =====
+canApproveOrder(order: Order | null, hasQuotes: boolean): boolean {
+  console.log('🔍 Vérification approbation possible:', {
+    order: order,
+    hasQuotes: hasQuotes,
+    orderQuotesLength: this.orderQuotes.length,
+    selectedQuote: this.selectedQuote,
+    orderStatus: order?.status
+  });
+
+  if (!order || !hasQuotes || this.orderQuotes.length === 0) {
+    console.log('❌ Pas de commande ou pas de citations');
+    return false;
+  }
+  
+  // Statuts permettant l'approbation
+  const approvableStatuses = ['PENDING', 'IN_PROGRESS'];
+  
+  const canApprove = approvableStatuses.includes(order.status);
+  console.log('✅ Peut approuver:', canApprove);
+  
+  return canApprove;
+}
   // Obtenir le texte du statut de livraison
   getDeliveryStatusText(status: string): string {
     const texts = {
@@ -2101,76 +2250,92 @@ initEvolutionChart() {
 }
 // ===== NOUVELLES MÉTHODES À AJOUTER =====
 
-/**
- * Ouvre le modal de détails de commande et charge les citations
- */
 viewOrderDetails(order: Order): void {
   if (!order || !order.id) {
     this.showErrorMessage('Commande invalide');
     return;
   }
 
+  console.log('🔍 Ouverture détails commande:', order);
   this.selectedOrderDetails = order;
   this.showOrderDetailsModal = true;
-  this.loadOrderQuotes(order.id);
+  
+  // ✅ AJOUTER un léger délai pour s'assurer que le modal est ouvert
+  setTimeout(() => {
+    this.loadOrderQuotes(order.id);
+  }, 100);
 }
 
-/**
- * Charge les citations d'une commande
- */
+
+// ===== MÉTHODE loadOrderQuotes() - VÉRIFIER QU'ELLE EST BIEN PRÉSENTE =====
 loadOrderQuotes(orderId: number): void {
   console.log('🔄 Chargement des citations pour commande:', orderId);
   
   this.loadingQuotes = true;
   this.quotesError = null;
   this.orderQuotes = [];
+  this.selectedQuote = null; // ✅ Réinitialiser
 
   this.commandeService.getQuotes(orderId, 0, 10)
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: QuoteResponse) => {
-        console.log('✅ Citations reçues:', response);
-        console.log('📊 Content:', response.content);
-        console.log('📈 Total elements:', response.totalElements);
+        console.log('✅ Réponse complète citations:', response);
         
-        this.orderQuotes = response.content || [];
-        this.loadingQuotes = false;
-
-        console.log('💾 orderQuotes après assignation:', this.orderQuotes);
-        console.log('🔢 Nombre de citations:', this.orderQuotes.length);
-
-        // Sélectionner automatiquement la première citation si disponible
-        if (this.orderQuotes.length > 0) {
-          this.selectedQuote = this.orderQuotes[0];
-          console.log('✓ Citation sélectionnée:', this.selectedQuote);
+        if (response && response.content) {
+          this.orderQuotes = response.content;
+          console.log('📋 Citations assignées:', this.orderQuotes);
+          console.log('🔢 Nombre de citations:', this.orderQuotes.length);
+          
+          // Sélectionner automatiquement la première citation
+          if (this.orderQuotes.length > 0) {
+            this.selectedQuote = this.orderQuotes[0];
+            console.log('✓ Citation auto-sélectionnée:', this.selectedQuote);
+          }
         } else {
-          console.warn('⚠️ Aucune citation dans le tableau');
+          console.warn('⚠️ Aucune citation dans la réponse');
+          this.quotesError = 'Aucune citation disponible';
         }
+        
+        this.loadingQuotes = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors du chargement des citations:', error);
+        console.error('❌ Erreur chargement citations:', error);
+        console.error('❌ Détails erreur:', {
+          status: error.status,
+          message: error.message,
+          error: error.error
+        });
+        
         this.loadingQuotes = false;
-        this.quotesError = 'Aucune citation disponible pour cette commande';
+        this.orderQuotes = [];
+        this.selectedQuote = null;
+        
+        if (error.status === 404) {
+          this.quotesError = 'Aucune citation trouvée pour cette commande';
+        } else if (error.status === 403) {
+          this.quotesError = 'Accès refusé aux citations';
+        } else {
+          this.quotesError = 'Erreur lors du chargement des citations';
+        }
       }
     });
 }
 
-/**
- * Sélectionne une citation spécifique
- */
 selectQuote(quote: Quote): void {
+  console.log('📌 Sélection citation:', quote);
   this.selectedQuote = quote;
 }
 
-/**
- * Ferme le modal de détails de commande
- */
+// ===== MÉTHODE closeOrderDetailsModal() - VÉRIFIER =====
 closeOrderDetailsModal(): void {
+  console.log('🚪 Fermeture modal détails');
   this.showOrderDetailsModal = false;
   this.selectedOrderDetails = null;
   this.orderQuotes = [];
   this.selectedQuote = null;
   this.quotesError = null;
+  this.loadingQuotes = false;
 }
 
 /**

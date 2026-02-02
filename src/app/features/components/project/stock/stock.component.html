@@ -1718,19 +1718,127 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-        <button (click)="closeOrderDetailsModal()" 
-          class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          Fermer
-        </button>
-        
-        <div *ngIf="selectedQuote" class="flex items-center space-x-3">
-          <span class="text-sm text-gray-600">Citation sélectionnée:</span>
-          <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
-            {{ formatAmount(selectedQuote.totalAmount) }} FCFA
-          </span>
+   <!-- Footer -->
+<div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+  <button (click)="closeOrderDetailsModal()" 
+    class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+    Fermer
+  </button>
+  
+  <div class="flex items-center space-x-3">
+    <!-- Affichage citation sélectionnée -->
+    <div *ngIf="selectedQuote" class="flex items-center space-x-3">
+      <span class="text-sm text-gray-600">Citation sélectionnée:</span>
+      <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
+        {{ formatAmount(selectedQuote.totalAmount) }} FCFA
+      </span>
+    </div>
+
+    <!-- Bouton Approuver -->
+    <button 
+      *ngIf="selectedQuote && canApproveOrder(selectedOrderDetails!, orderQuotes.length > 0)"
+      (click)="confirmApproveOrder(selectedOrderDetails!, selectedQuote)"
+      [disabled]="approvingOrder"
+      class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+      <svg *ngIf="!approvingOrder" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+      <span>{{ approvingOrder ? 'Approbation...' : 'Approuver' }}</span>
+    </button>
+
+    <!-- Message si commande déjà approuvée -->
+    <div *ngIf="selectedOrderDetails?.status === 'APPROVED'" 
+      class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+      <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" 
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+          clip-rule="evenodd"></path>
+      </svg>
+      <span class="text-sm font-medium text-green-800">Commande approuvée</span>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- MODAL CONFIRMATION APPROBATION -->
+<!-- ============================= -->
+<div *ngIf="showApproveConfirmModal && orderToApprove && selectedQuoteForApproval" 
+  class="fixed inset-0 z-[60] overflow-y-auto" 
+  aria-labelledby="approve-confirm-modal" 
+  role="dialog" 
+  aria-modal="true">
+  
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" 
+    (click)="cancelApproveOrder()"></div>
+
+  <!-- Modal Content -->
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+      
+      <!-- Icon -->
+      <div class="flex justify-center pt-6">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-6 py-4 text-center">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          Approuver cette commande ?
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Vous êtes sur le point d'approuver la commande 
+          <span class="font-semibold text-gray-900">
+            #CMD-{{ orderToApprove.id.toString().padStart(4, '0') }}
+          </span>
+        </p>
+
+        <!-- Détails de la citation -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-700 font-medium">Fournisseur:</span>
+            <span class="text-sm text-gray-900 font-semibold">
+              {{ selectedQuoteForApproval.generedBy.prenom }} {{ selectedQuoteForApproval.generedBy.nom }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-green-200">
+            <span class="text-sm text-gray-700 font-medium">Montant total:</span>
+            <span class="text-lg text-green-700 font-bold">
+              {{ formatAmount(selectedQuoteForApproval.totalAmount) }} FCFA
+            </span>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-6">
+          Cette action validera la citation et permettra le traitement de la commande.
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center space-x-3 px-6 py-4 bg-gray-50 rounded-b-xl">
+        <button 
+          (click)="cancelApproveOrder()"
+          [disabled]="approvingOrder"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Annuler
+        </button>
+        <button 
+          (click)="approveOrderConfirmed()"
+          [disabled]="approvingOrder"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          <span>{{ approvingOrder ? 'Approbation...' : 'Confirmer l\'approbation' }}</span>
+        </button>
       </div>
     </div>
   </div>
