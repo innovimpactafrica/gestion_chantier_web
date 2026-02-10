@@ -5,6 +5,7 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { SupplierService, DashboardInfos, OrderCountByStatus } from '../../../../services/supplier.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Subscription } from 'rxjs';
+import { LanguageService } from '../../../core/services/language.service';
 
 Chart.register(...registerables);
 
@@ -60,8 +61,9 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private supplierService: SupplierService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private languageService: LanguageService
+  ) { }
 
   ngOnInit() {
     this.initializeSupplierId();
@@ -107,7 +109,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
             console.error('Erreur refreshUser:', error);
           }
         });
-        
+
         this.subscriptions.add(refreshSubscription);
       }
     } else {
@@ -132,7 +134,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
         this.updateStatsFromDashboardData(data);
         this.updateTopProperties(data);
         this.loading = false;
-        
+
         // Créer les graphiques après mise à jour des données
         setTimeout(() => {
           this.createPieChart();
@@ -187,7 +189,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const total = this.getTotal();
-    
+
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: {
@@ -242,7 +244,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Limiter à 10 propriétés maximum pour la lisibilité
     const displayProperties = this.topProperties.slice(0, 10);
-    
+
     const config: ChartConfiguration = {
       type: 'bar',
       data: {
@@ -297,8 +299,8 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getTotal(): number {
-    return this.stats.enAttente + this.stats.approuvees + this.stats.rejetees + 
-           this.stats.enLivraison + this.stats.livrees;
+    return this.stats.enAttente + this.stats.approuvees + this.stats.rejetees +
+      this.stats.enLivraison + this.stats.livrees;
   }
 
   getPercentage(value: number): string {
@@ -363,5 +365,12 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   debugUserInfo(): void {
     console.log('Current User:', this.authService.currentUser());
     console.log('Supplier ID:', this.supplierId);
+  }
+
+  /**
+   * Méthode helper pour les traductions
+   */
+  t(key: string): string {
+    return this.languageService.translate(key);
   }
 }

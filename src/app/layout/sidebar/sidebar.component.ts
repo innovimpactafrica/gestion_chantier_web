@@ -8,10 +8,11 @@ import { Subscription } from 'rxjs';
 import { signal, computed, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
+import { PlanSelectionPopupComponent } from '../../shared/components/plan-selection-popup/plan-selection-popup.component';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PlanSelectionPopupComponent],
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
@@ -21,9 +22,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
   activeMenu = 'dashboard';
   private subscriptions: Subscription = new Subscription();
   baseUrl = environment.filebaseUrl;
-  profileImageLoading = true;
+  profileImageLoading = signal<boolean>(true);
   showWindowsScroll = false;
   showLogoutConfirm = signal<boolean>(false);
+  showPlanSelectionPopup = signal<boolean>(false);
 
   public languageService = inject(LanguageService);
 
@@ -65,6 +67,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
             // Les ADMIN n'ont pas besoin de vérification d'abonnement
             this.isCheckingSubscription.set(false);
             this.hasActiveSubscription.set(true);
+
+            // Ne pas afficher le popup pour les ADMIN
+            console.log('👤 Utilisateur ADMIN détecté - popup désactivé');
           }
         },
         error: (error) => {
@@ -93,11 +98,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
         console.log('✅ Statut abonnement actif:', isActive);
         this.hasActiveSubscription.set(isActive);
         this.isCheckingSubscription.set(false);
+
+        // ✅ Vérifier si on doit afficher le popup APRÈS avoir déterminé le statut
+        this.checkShouldShowPlanPopup();
       },
       error: (error) => {
         console.error('❌ Erreur vérification abonnement:', error);
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
+
+        // Même en cas d'erreur, vérifier si on doit afficher le popup
+        this.checkShouldShowPlanPopup();
       }
     });
   }
@@ -283,13 +294,59 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onImageLoad(): void {
-    this.profileImageLoading = false;
+    this.profileImageLoading.set(false);
   }
 
   onImageError(event: any): void {
     console.warn('Erreur lors du chargement de la photo de profil, utilisation de l\'image par défaut');
-    this.profileImageLoading = false;
+    this.profileImageLoading.set(false);
     event.target.src = 'assets/images/profil.png';
+  }
+
+  /**
+   * Check if we should show the plan selection popup
+   * Show for non-ADMIN users without active subscription (including expired subscriptions)
+   * This will show on every login until user has an active subscription
+   */
+  private checkShouldShowPlanPopup(): void {
+    console.log('🎯 checkShouldShowPlanPopup appelé');
+    console.log('  - isADMINProfile:', this.isADMINProfile());
+    console.log('  - hasActiveSubscription:', this.hasActiveSubscription());
+    console.log('  - isCheckingSubscription:', this.isCheckingSubscription());
+
+    // Don't show for ADMIN users
+    if (this.isADMINProfile()) {
+      console.log('❌ Popup désactivé: utilisateur ADMIN');
+      return;
+    }
+
+    // Wait for subscription check to complete
+    if (this.isCheckingSubscription()) {
+      console.log('⏳ Vérification d\'abonnement en cours, attente...');
+      return;
+    }
+
+    // Show popup if user doesn't have an active subscription
+    // This includes users who never subscribed or whose subscription expired
+    if (!this.hasActiveSubscription()) {
+      console.log('✅ Conditions remplies - affichage du popup dans 1 seconde');
+      // Small delay to ensure smooth UI rendering
+      setTimeout(() => {
+        this.showPlanSelectionPopup.set(true);
+        console.log('🎉 Popup affiché');
+      }, 1000);
+    } else {
+      console.log('❌ Popup désactivé: abonnement actif détecté');
+    }
+  }
+
+  onClosePlanPopup(): void {
+    this.showPlanSelectionPopup.set(false);
+  }
+
+  onPlanSelected(planType: string): void {
+    console.log('Plan selected:', planType);
+    this.showPlanSelectionPopup.set(false);
   }
 
   getUserDisplayName(): string {

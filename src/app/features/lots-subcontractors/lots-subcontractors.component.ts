@@ -2,9 +2,10 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LotService, Lot, LotsResponse, CreateLotRequest, Comment } from '../../../services/lot.service';
-import { AuthService } from '../../features/auth/services/auth.service';
+import { LotService, Lot, LotsResponse, CreateLotRequest, Comment, LotDocument } from '../../../services/lot.service';
+import { AuthService } from '../auth/services/auth.service';
 import { UserService } from '../../../services/user.service';
+import { LanguageService } from '../../core/services/language.service';
 
 interface LotDisplay {
   id: number;
@@ -12,7 +13,7 @@ interface LotDisplay {
   description: string;
   dateDebut: string;
   dateFin: string;
-  statut: 'En cours' | 'En attente' |  'Terminé';
+  statut: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
   progression: number;
   soustraitant?: { nom: string; telephone: string; company?: string };
   statutColor: string;
@@ -60,22 +61,22 @@ export class LotsSubcontractorsComponent implements OnInit {
   showProgressModal = false;
   showCommentsModal = false;
   showDetailsModal = false;
-  
+
   // Progression et statut
   showStatusDropdown: number | null = null;
   progressInput: number = 0;
   selectedLotForProgress: number | null = null;
-  
+
   // Commentaires et détails
   selectedLotId: number | null = null;
   selectedLotDetails: Lot | null = null;
   lotComments: Comment[] = [];
   newCommentText = '';
-  
+
   // Fichiers
   selectedFile: File | null = null;
   selectedFileName: string = '';
-  
+
   // Lot en cours d'édition
   currentLot: CurrentLot = {
     name: '',
@@ -92,10 +93,13 @@ export class LotsSubcontractorsComponent implements OnInit {
   subcontractorSearch: string = '';
   showSubcontractorDropdown: boolean = false;
 
+  // Comment counts
+  commentCounts: Map<number, number> = new Map();
+
   // Messages
   errorMessage: string = '';
   successMessage: string = '';
-  
+
   // Statuts disponibles
   availableStatuses = [
     { value: 'PENDING', label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
@@ -107,8 +111,13 @@ export class LotsSubcontractorsComponent implements OnInit {
     private lotService: LotService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private languageService: LanguageService
+  ) { }
+
+  public t(key: string, params?: { [key: string]: string | number }): string {
+    return this.languageService.translate(key, params);
+  }
 
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
@@ -119,17 +128,168 @@ export class LotsSubcontractorsComponent implements OnInit {
       this.chargerSousTraitants();
       this.chargerLots();
     } else {
-      this.errorMessage = 'ID de propriété manquant dans l\'URL';
+      this.errorMessage = this.t('lots.error.missingPropertyId');
     }
   }
 
   private checkUserPermissions(): void {
     const userToken = this.authService.getToken();
     if (!userToken) {
-      this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+      this.errorMessage = this.t('lots.error.sessionExpired');
+    }
+  }
+  // Ouvrir la modal d'upload document
+  openDocumentUpload(lotId: number): void {
+    this.selectedLotForDocument = lotId;
+    this.uploadingFile = null;
+    this.uploadingFileName = '';
+    this.documentLibelle = '';
+    this.errorMessage = '';
+    this.showDocumentUploadModal = true;
+  }
+
+  closeDocumentUpload(): void {
+    this.showDocumentUploadModal = false;
+    this.selectedLotForDocument = null;
+    this.uploadingFile = null;
+    this.uploadingFileName = '';
+    this.documentLibelle = '';
+    this.errorMessage = '';
+    this.isUploading = false;
+  }
+
+  onDocumentFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const maxSize = 10 * 1024 * 1024; // 10MB par ex.
+
+      if (file.size > maxSize) {
+        this.errorMessage = this.t('lots.error.fileTooBig');
+        return;
+      }
+
+      this.uploadingFile = file;
+      this.uploadingFileName = file.name;
+      this.errorMessage = '';
     }
   }
 
+  uploadDocument(): void {
+    const lotId = this.selectedLotForDocument;
+    const file = this.uploadingFile;
+    const libelle = this.documentLibelle.trim();
+
+    if (!lotId || !file) {
+      this.errorMessage = this.t('lots.error.noFileSelected');
+      return;
+    }
+
+    if (!libelle) {
+      this.errorMessage = this.t('lots.error.documentLabelRequired');
+      return;
+    }
+
+    this.isUploading = true;
+    this.errorMessage = '';
+
+    this.lotService.uploadLotFile(lotId, file, libelle)
+      .subscribe({
+        next: (response) => {
+          console.log('Document uploadé:', response);
+          this.successMessage = this.t('lots.success.documentAdded');
+          this.isUploading = false;
+
+          // Optionnel : recharger les documents si on est dans la modal détails
+          if (this.showDetailsModal && this.selectedLotId === lotId) {
+            this.loadLotDocuments(lotId);
+          }
+
+          setTimeout(() => {
+            this.closeDocumentUpload();
+            this.successMessage = '';
+          }, 1800);
+        },
+        error: (err) => {
+          console.error('Erreur upload document:', err);
+          this.errorMessage = err.error?.message || this.t('lots.error.documentUploadFailed');
+          this.isUploading = false;
+        }
+      });
+  }
+
+  // Charger les documents (à appeler dans loadLotDetails)
+  loadLotDocuments(lotId: number): void {
+    console.log('🔍 Chargement des documents pour le lot:', lotId);
+    this.lotService.getLotFiles(lotId).subscribe({
+      next: (docs) => {
+        console.log('✅ Documents chargés:', docs);
+        this.lotDocuments = docs || [];
+        console.log('📋 Nombre de documents:', this.lotDocuments.length);
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement documents:', err);
+        this.lotDocuments = [];
+      }
+    });
+  }
+
+  /**
+   * Supprime un document d'un lot
+   */
+  deleteLotDocument(fileId: number): void {
+    if (!confirm(this.t('lots.confirmDeleteDocument'))) {
+      return;
+    }
+
+    this.lotService.deleteLotFile(fileId).subscribe({
+      next: () => {
+        console.log('✅ Document supprimé');
+        this.successMessage = this.t('lots.success.documentDeleted');
+
+        // Recharger la liste des documents
+        if (this.selectedLotId) {
+          this.loadLotDocuments(this.selectedLotId);
+        }
+
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 2000);
+      },
+      error: (err) => {
+        console.error('❌ Erreur suppression document:', err);
+        this.errorMessage = err.error?.message || this.t('lots.error.deleteDocumentFailed');
+      }
+    });
+  }
+
+  /**
+   * Télécharge ou ouvre un document
+   */
+  downloadDocument(filePath: string): void {
+    const url = this.lotService.getDocumentDownloadUrl(filePath);
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Affiche un document dans un nouvel onglet
+   */
+  viewDocument(filePath: string): void {
+    const url = this.lotService.getDocumentDownloadUrl(filePath);
+    window.open(url, '_blank');
+  }
+  // Dans la classe LotsSubcontractorsComponent
+
+  // Pour l'upload de document
+  showDocumentUploadModal = false;
+  selectedLotForDocument: number | null = null;
+  uploadingFile: File | null = null;
+  uploadingFileName: string = '';
+  documentLibelle: string = '';
+  isUploading = false;
+
+  // Dans la modal Détails
+  lotDocuments: LotDocument[] = [];
   // ========== CHARGEMENT DES DONNÉES ==========
   chargerSousTraitants(): void {
     this.isLoadingSubcontractors = true;
@@ -149,7 +309,7 @@ export class LotsSubcontractorsComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur chargement sous-traitants:', error);
-        this.errorMessage = 'Impossible de charger les sous-traitants';
+        this.errorMessage = this.t('lots.error.loadSubcontractors');
         this.isLoadingSubcontractors = false;
       }
     });
@@ -166,13 +326,31 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.filtrerLots();
+        this.loadCommentCounts(); // Charger les compteurs de commentaires
         this.isLoading = false;
       },
       error: (error) => {
         console.error('❌ Erreur chargement lots:', error);
-        this.errorMessage = 'Impossible de charger les lots';
+        this.errorMessage = this.t('lots.error.loadLots');
         this.isLoading = false;
       }
+    });
+  }
+
+  /**
+   * Charge le nombre de commentaires pour chaque lot
+   */
+  loadCommentCounts(): void {
+    this.lots.forEach(lot => {
+      this.lotService.getCommentsForLot(lot.id).subscribe({
+        next: (comments) => {
+          this.commentCounts.set(lot.id, comments.length);
+        },
+        error: (err) => {
+          console.error(`Erreur chargement commentaires lot ${lot.id}:`, err);
+          this.commentCounts.set(lot.id, 0);
+        }
+      });
     });
   }
 
@@ -198,10 +376,10 @@ export class LotsSubcontractorsComponent implements OnInit {
         progression: lot.progressPercentage || 0,
         soustraitant: lot.subcontractor
           ? {
-              nom: `${lot.subcontractor.prenom || ''} ${lot.subcontractor.nom || ''}`.trim(),
-              telephone: lot.subcontractor.telephone || 'N/A',
-              company
-            }
+            nom: `${lot.subcontractor.prenom || ''} ${lot.subcontractor.nom || ''}`.trim(),
+            telephone: lot.subcontractor.telephone || 'N/A',
+            company
+          }
           : undefined,
         statutColor: this.getStatusColor(statut)
       };
@@ -209,12 +387,12 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   // IMPORTANT: Cette méthode doit être PUBLIC car elle est utilisée dans le template
-   formatDateFromAPI(date: any): string {
+  formatDateFromAPI(date: any): string {
     // Si c'est un tableau [year, month, day]
     if (Array.isArray(date) && date.length >= 3) {
       const [year, month, day] = date;
       return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-    } 
+    }
     // Si c'est une string dd-MM-yyyy
     else if (typeof date === 'string' && date.includes('-')) {
       const parts = date.split('-');
@@ -226,20 +404,16 @@ export class LotsSubcontractorsComponent implements OnInit {
     return 'N/A';
   }
 
-  mapStatus(apiStatus: string): 'En cours' | 'En attente' | 'Terminé' {
-    const statusMap: Record<string, 'En cours' | 'En attente' | 'Terminé'> = {
-      'PENDING': 'En attente',
-      'IN_PROGRESS': 'En cours',
-      'COMPLETED': 'Terminé'
-    };
-    return statusMap[apiStatus] ?? 'En attente';
+  mapStatus(apiStatus: string): 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' {
+    const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED'];
+    return validStatuses.includes(apiStatus) ? (apiStatus as any) : 'PENDING';
   }
 
   getStatusColor(status: string): string {
     const colorMap = {
-      'En cours': 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium',
-      'En attente': 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium',
-      'Terminé': 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium'
+      'IN_PROGRESS': 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium',
+      'PENDING': 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium',
+      'COMPLETED': 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium'
     };
     return colorMap[status as keyof typeof colorMap] || 'bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium';
   }
@@ -256,7 +430,7 @@ export class LotsSubcontractorsComponent implements OnInit {
         ));
 
       const matchStatus = !this.selectedStatus ||
-        lot.statut.toLowerCase() === this.selectedStatus.toLowerCase().replace('-', ' ');
+        lot.statut === this.selectedStatus;
 
       return matchSearch && matchStatus;
     });
@@ -354,15 +528,15 @@ export class LotsSubcontractorsComponent implements OnInit {
       next: (response) => {
         console.log('✅ Progression mise à jour:', response);
         this.successMessage = 'Progression mise à jour avec succès !';
-        
+
         const lotIndex = this.lots.findIndex(l => l.id === this.selectedLotForProgress);
         if (lotIndex !== -1) {
           this.lots[lotIndex].progression = this.progressInput;
           this.filtrerLots();
         }
-        
+
         this.isLoading = false;
-        
+
         setTimeout(() => {
           this.closeProgressModal();
           this.successMessage = '';
@@ -384,7 +558,7 @@ export class LotsSubcontractorsComponent implements OnInit {
 
   changeStatus(lotId: number, newStatus: string, event: Event): void {
     event.stopPropagation();
-    
+
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -392,17 +566,17 @@ export class LotsSubcontractorsComponent implements OnInit {
       next: (response) => {
         console.log('✅ Statut changé:', response);
         this.successMessage = 'Statut modifié avec succès !';
-        
+
         const lotIndex = this.lots.findIndex(l => l.id === lotId);
         if (lotIndex !== -1) {
           this.lots[lotIndex].statut = this.mapStatus(newStatus);
           this.lots[lotIndex].statutColor = this.getStatusColor(this.lots[lotIndex].statut);
           this.filtrerLots();
         }
-        
+
         this.showStatusDropdown = null;
         this.isLoading = false;
-        
+
         setTimeout(() => {
           this.successMessage = '';
         }, 2000);
@@ -417,7 +591,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   getStatusAPIValue(displayStatus: string): string {
-    return this.lotService.convertStatusToAPI(displayStatus);
+    return displayStatus;
   }
 
   @HostListener('document:click', ['$event'])
@@ -481,7 +655,7 @@ export class LotsSubcontractorsComponent implements OnInit {
 
   private convertToInputFormat(date: string): string {
     if (!date) return '';
-    
+
     const parts = date.split('/');
     if (parts.length === 3) {
       const [day, month, year] = parts;
@@ -508,40 +682,40 @@ export class LotsSubcontractorsComponent implements OnInit {
   saveLot(): void {
     this.errorMessage = '';
     this.successMessage = '';
-  
+
     if (!this.currentLot.name?.trim()) {
       this.errorMessage = 'Le nom du lot est requis';
       return;
     }
-  
+
     if (!this.currentLot.description?.trim()) {
       this.errorMessage = 'La description est requise';
       return;
     }
-  
+
     if (!this.currentLot.startDate) {
       this.errorMessage = 'La date de début est requise';
       return;
     }
-  
+
     if (!this.currentLot.endDate) {
       this.errorMessage = 'La date de fin est requise';
       return;
     }
-  
+
     if (new Date(this.currentLot.startDate) >= new Date(this.currentLot.endDate)) {
       this.errorMessage = 'La date de fin doit être après la date de début';
       return;
     }
-  
+
     if (!this.currentLot.subcontractorId) {
       this.errorMessage = 'Veuillez sélectionner un sous-traitant';
       return;
     }
-  
+
     const formattedStartDate = this.formatDateForAPI(this.currentLot.startDate);
     const formattedEndDate = this.formatDateForAPI(this.currentLot.endDate);
-  
+
     const request: CreateLotRequest = {
       name: this.currentLot.name,
       description: this.currentLot.description,
@@ -551,27 +725,27 @@ export class LotsSubcontractorsComponent implements OnInit {
       subcontractorId: this.currentLot.subcontractorId,
       file: this.selectedFile || undefined
     };
-  
+
     const validationErrors = this.lotService.validateLotData(request);
     if (validationErrors.length > 0) {
       this.errorMessage = validationErrors.join(', ');
       return;
     }
-  
+
     this.isLoading = true;
-  
+
     const operation = this.showCreateModal
       ? this.lotService.createLot(request)
       : this.lotService.updateLot(this.currentLot.id!, request);
-  
+
     operation.subscribe({
       next: (response) => {
         console.log('✅ Lot sauvegardé avec succès:', response);
         this.successMessage = this.showCreateModal ? 'Lot créé avec succès !' : 'Lot modifié avec succès !';
         this.isLoading = false;
-        
+
         this.chargerLots();
-        
+
         setTimeout(() => {
           this.closeModal();
           this.successMessage = '';
@@ -580,7 +754,7 @@ export class LotsSubcontractorsComponent implements OnInit {
       error: (err) => {
         console.error('❌ Erreur lors de la sauvegarde:', err);
         this.isLoading = false;
-        
+
         if (err.status === 0) {
           this.errorMessage = 'Erreur de connexion au serveur. Vérifiez votre connexion internet.';
         } else if (err.status === 400) {
@@ -602,7 +776,7 @@ export class LotsSubcontractorsComponent implements OnInit {
 
   private formatDateForAPI(date: string): string {
     if (!date) return '';
-    
+
     const parts = date.split('-');
     if (parts.length === 3) {
       const [year, month, day] = parts;
@@ -616,10 +790,10 @@ export class LotsSubcontractorsComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       const maxSize = 5 * 1024 * 1024;
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      
+
       if (file.size > maxSize) {
         this.errorMessage = "Le fichier ne doit pas dépasser 5MB";
         this.selectedFile = null;
@@ -627,7 +801,7 @@ export class LotsSubcontractorsComponent implements OnInit {
         input.value = '';
         return;
       }
-      
+
       if (!allowedTypes.includes(file.type)) {
         this.errorMessage = "Format non supporté. Utilisez PDF, JPG ou PNG";
         this.selectedFile = null;
@@ -635,7 +809,7 @@ export class LotsSubcontractorsComponent implements OnInit {
         input.value = '';
         return;
       }
-      
+
       this.selectedFile = file;
       this.selectedFileName = file.name;
       this.errorMessage = '';
@@ -645,7 +819,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   removeSelectedFile(): void {
     this.selectedFile = null;
     this.selectedFileName = '';
-    
+
     const fileInput = document.getElementById('lotFile') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -706,9 +880,15 @@ export class LotsSubcontractorsComponent implements OnInit {
         console.log('✅ Commentaire ajouté:', comment);
         this.successMessage = 'Commentaire ajouté avec succès !';
         this.newCommentText = '';
-        
+
         this.loadComments(this.selectedLotId!);
-        
+
+        // Mettre à jour le compteur de commentaires
+        if (this.selectedLotId) {
+          const currentCount = this.commentCounts.get(this.selectedLotId) || 0;
+          this.commentCounts.set(this.selectedLotId, currentCount + 1);
+        }
+
         setTimeout(() => {
           this.successMessage = '';
         }, 2000);
@@ -744,18 +924,24 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   loadLotDetails(lotId: number): void {
+    console.log('📖 Chargement des détails du lot:', lotId);
     this.isLoading = true;
     this.errorMessage = '';
 
+    // Charger les détails du lot
     this.lotService.getLotById(lotId).subscribe({
       next: (lot) => {
         console.log('✅ Détails du lot chargés:', lot);
         this.selectedLotDetails = lot;
+
+        // Charger les documents en parallèle
+        this.loadLotDocuments(lotId);
+
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('❌ Erreur chargement détails:', err);
-        this.errorMessage = 'Impossible de charger les détails du lot';
+        console.error('❌ Erreur détails lot:', err);
+        this.errorMessage = 'Impossible de charger les détails';
         this.isLoading = false;
       }
     });

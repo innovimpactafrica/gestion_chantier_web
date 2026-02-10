@@ -135,9 +135,19 @@ export class TeamListComponent implements OnInit {
     ];
   }
 
+  updateCurrentMonthYear(): void {
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  this.currentMonthYear = `${months[this.currentMonth]} ${this.currentYear}`;
+}
+
   ngOnInit(): void {
     this.generateCalendar();
     this.getPropertyIdAndLoadData();
+    // Sélectionner la date du jour par défaut
+  this.selectedDate = new Date();
+  this.selectedDate.setHours(0, 0, 0, 0);
+  this.updateCurrentMonthYear();
   }
 
   private getPropertyIdAndLoadData(): void {
@@ -689,32 +699,45 @@ export class TeamListComponent implements OnInit {
     this.generateCalendar();
   }
 
-  selectDate(day: any): void {
-    if (!day.isCurrentMonth) return;
-
-    this.selectedDate = day.date;
-    this.generateCalendar();
-
-    setTimeout(() => {
-      this.showDatePicker = false;
-    }, 200);
+selectDate(day: number): void {
+  const date = new Date(this.currentYear, this.currentMonth, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  
+  // Ne pas permettre la sélection de dates futures
+  if (date.getTime() > today.getTime()) {
+    return;
   }
+  
+  this.selectedDate = date;
+  this.showDatePicker = false;
+  // Appliquer le filtre ici
+  // this.applyDateFilter();
+}
 
-  getDayClasses(day: any): string {
-    const classes = [];
-
-    if (!day.isCurrentMonth) {
-      classes.push('text-gray-300 cursor-not-allowed');
-    } else if (day.isToday) {
-      classes.push('bg-orange-500 text-white hover:bg-orange-600');
-    } else if (day.isSelected) {
-      classes.push('bg-orange-100 text-orange-600 hover:bg-orange-200');
-    } else {
-      classes.push('text-gray-700 hover:bg-gray-100');
-    }
-
-    return classes.join(' ');
+ getDayClasses(day: number): string {
+  const date = new Date(this.currentYear, this.currentMonth, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  
+  const isToday = date.getTime() === today.getTime();
+  const isSelected = this.selectedDate && date.getTime() === this.selectedDate.getTime();
+  const isFuture = date.getTime() > today.getTime();
+  
+  let classes = '';
+  
+  if (isFuture) {
+    classes += ' text-gray-300 cursor-not-allowed pointer-events-none';
+  } else if (isSelected) {
+    classes += ' bg-orange-500 text-white font-semibold rounded-full';
+  } else if (isToday) {
+    classes += ' border border-orange-500 rounded-full';
   }
+  
+  return classes;
+}
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {

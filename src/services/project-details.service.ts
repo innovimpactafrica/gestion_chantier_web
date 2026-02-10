@@ -775,44 +775,44 @@ export class ProjectBudgetService {
   }
 
 
-// Ajoutez cette méthode dans la classe ProjectBudgetService
-/**
- * Récupère les indicateurs de progression d'un projet
- */
-getIndicatorsByProperty(propertyId: number): Observable<ProgressIndicator[]> {
-  console.log(`📊 Récupération des indicateurs du projet ${propertyId}`);
+  // Ajoutez cette méthode dans la classe ProjectBudgetService
+  /**
+   * Récupère les indicateurs de progression d'un projet
+   */
+  getIndicatorsByProperty(propertyId: number): Observable<ProgressIndicator[]> {
+    console.log(`📊 Récupération des indicateurs du projet ${propertyId}`);
 
-  return this.http.get<ProgressIndicator[]>(
-    `${this.baseUrl}/indicators/property/${propertyId}`,
-    { headers: this.getAuthHeaders() }
-  );
-}
+    return this.http.get<ProgressIndicator[]>(
+      `${this.baseUrl}/indicators/property/${propertyId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
-/**
- * Formate le nom de phase pour l'affichage
- */
-formatPhaseName(phaseName: string): string {
-  const phaseMap: Record<string, string> = {
-    'GROS_OEUVRE': 'Gros œuvre',
-    'SECOND_OEUVRE': 'Second œuvre',
-    'FINITION': 'Finition'
-  };
-  return phaseMap[phaseName] || phaseName;
-}
+  /**
+   * Formate le nom de phase pour l'affichage
+   */
+  formatPhaseName(phaseName: string): string {
+    const phaseMap: Record<string, string> = {
+      'GROS_OEUVRE': 'Gros œuvre',
+      'SECOND_OEUVRE': 'Second œuvre',
+      'FINITION': 'Finition'
+    };
+    return phaseMap[phaseName] || phaseName;
+  }
 
-/**
- * Formate la date ISO en format dd/MM/yyyy
- */
-formatIndicatorDate(dateString: string): string {
-  if (!dateString) return '';
-  
-  const date = new Date(dateString);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  
-  return `${day}/${month}/${year}`;
-}
+  /**
+   * Formate la date ISO en format dd/MM/yyyy
+   */
+  formatIndicatorDate(dateString: string): string {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
   // === MÉTHODES EXISTANTES ===
 
   GetProjectBudget(propertyId: number): Observable<any> {
@@ -866,28 +866,28 @@ formatIndicatorDate(dateString: string): string {
       .pipe(catchError(this.handleError));
   }
 
- 
-   /**
-   * Créer une nouvelle dépense avec upload de fichier
-   */
+
+  /**
+  * Créer une nouvelle dépense avec upload de fichier
+  */
   createDepense(expenseData: CreateExpenseRequest): Observable<ExpenseResponse> {
     const formData = new FormData();
-    
+
     // Ajouter les champs texte
     formData.append('date', expenseData.date);
-    
+
     if (expenseData.description) {
       formData.append('description', expenseData.description);
     }
-    
+
     if (expenseData.amount !== undefined && expenseData.amount !== null) {
       formData.append('amount', expenseData.amount.toString());
     }
-    
+
     if (expenseData.budgetId !== undefined && expenseData.budgetId !== null) {
       formData.append('budgetId', expenseData.budgetId.toString());
     }
-    
+
     // Ajouter le fichier s'il existe
     if (expenseData.evidence) {
       formData.append('evidence', expenseData.evidence, expenseData.evidence.name);
@@ -898,7 +898,7 @@ formatIndicatorDate(dateString: string): string {
       formData
     );
   }
-   
+
 
   putDepense(id: number, expense: any): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -906,7 +906,7 @@ formatIndicatorDate(dateString: string): string {
       .pipe(catchError(this.handleError));
   }
 
- 
+
   deleteDepense(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
     return this.http.delete<void>(`${this.baseUrl}/expenses/${id}`, { headers })

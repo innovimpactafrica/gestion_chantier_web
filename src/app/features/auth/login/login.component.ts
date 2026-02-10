@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, profil, UserProfile } from '../../../features/auth/services/auth.service';
 import { SubscriptionService } from '../../../../services/subscription.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface AlertMessage {
   type: 'success' | 'error' | 'warning';
@@ -15,14 +16,14 @@ interface AlertMessage {
   selector: 'app-login',
   templateUrl: './login.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], 
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
 })
 export class LoginComponent implements OnInit {
   // Signals pour l'état du composant
   activeTab = signal<'connexion' | 'inscription'>('connexion');
   showPassword = signal(false);
   isLoading = signal(false);
-  
+
   // Signal pour les alertes
   alert = signal<AlertMessage>({
     type: 'error',
@@ -57,7 +58,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    public languageService: LanguageService
   ) {
     // Formulaire de connexion - utilise un validateur personnalisé
     this.loginForm = this.fb.group({
@@ -141,16 +143,21 @@ export class LoginComponent implements OnInit {
     if (!control.value) {
       return null; // Laisse le required s'occuper des champs vides
     }
-    
+
     const value = control.value.toString().trim();
     const isValidEmail = this.emailRegex.test(value);
     const isValidPhone = this.phoneRegex.test(value);
-    
+
     if (!isValidEmail && !isValidPhone) {
       return { invalidFormat: true };
     }
-    
+
     return null;
+  }
+
+  // Helper pour la traduction
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   // Helper pour détecter le type d'identifiant
@@ -165,14 +172,14 @@ export class LoginComponent implements OnInit {
   get emailErrorMessage(): string {
     const form = this.getCurrentForm();
     const emailControl = form.get('email');
-    
+
     if (!emailControl?.touched) return '';
-    
+
     if (emailControl.hasError('required')) {
-      return 'L\'email ou le numéro de téléphone est requis';
+      return this.t('auth.login.error.required');
     }
     if (emailControl.hasError('invalidFormat')) {
-      return 'Format invalide. Utilisez un email valide ou un numéro au format 7XXXXXXXX (ex: 771234567)';
+      return this.t('auth.login.error.invalidFormat');
     }
     return '';
   }
@@ -180,14 +187,14 @@ export class LoginComponent implements OnInit {
   get passwordErrorMessage(): string {
     const form = this.getCurrentForm();
     const passwordControl = form.get('password');
-    
+
     if (!passwordControl?.touched) return '';
-    
+
     if (passwordControl.hasError('required')) {
-      return 'Le mot de passe est requis';
+      return this.t('auth.login.error.passwordRequired');
     }
     if (passwordControl.hasError('pattern')) {
-      return 'Le mot de passe doit contenir au moins 6 caractères';
+      return this.t('auth.login.error.passwordMinLength');
     }
     return '';
   }
@@ -218,7 +225,7 @@ export class LoginComponent implements OnInit {
   setActiveTab(tab: 'connexion' | 'inscription'): void {
     this.activeTab.set(tab);
     this.hideAlert();
-    
+
     // Réinitialiser les formulaires quand on change d'onglet
     this.loginForm.reset();
     this.registerForm.reset();
@@ -247,12 +254,12 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     const currentForm = this.getCurrentForm();
-    
+
     // Marquer tous les champs comme touchés pour afficher les erreurs
     currentForm.markAllAsTouched();
 
     if (!currentForm.valid) {
-      this.showAlert('error', 'Veuillez corriger les erreurs dans le formulaire');
+      this.showAlert('error', this.t('auth.login.error.formErrors'));
       return;
     }
 
@@ -266,7 +273,7 @@ export class LoginComponent implements OnInit {
   private handleLogin(): void {
     this.isLoading.set(true);
     this.hideAlert();
-  
+
     const emailValue = this.loginForm.get('email')?.value;
     const credentials = {
       email: emailValue,
@@ -274,15 +281,15 @@ export class LoginComponent implements OnInit {
     };
 
     const identifierType = this.getIdentifierType(emailValue);
-    console.log('🚀 Tentative de connexion avec:', { 
-      identifier: credentials.email, 
-      type: identifierType 
+    console.log('🚀 Tentative de connexion avec:', {
+      identifier: credentials.email,
+      type: identifierType
     });
-  
+
     this.authService.login(credentials).subscribe({
       next: (response) => {
         console.log('📥 Réponse serveur complète:', response);
-        
+
         // Attendre un délai pour s'assurer que toutes les données sont sauvegardées
         setTimeout(() => {
           this.processLoginSuccess(response);
@@ -295,7 +302,7 @@ export class LoginComponent implements OnInit {
       }
     });
   }
-  
+
   private processLoginSuccess(response: any): void {
     try {
       console.log('📥 Réponse serveur complète:', response);
@@ -304,7 +311,7 @@ export class LoginComponent implements OnInit {
       this.authService.refreshUser().subscribe({
         next: (user) => {
           console.log('✅ Utilisateur rafraîchi:', user);
-          
+
           // Vérifier que le token est bien présent
           const token = this.authService.getToken();
           console.log('🔑 Token présent après refresh:', !!token);
@@ -339,10 +346,10 @@ export class LoginComponent implements OnInit {
             isBET = this.authService.isBETProfile();
             isSUPPLIER = this.authService.isSUPPLIERProfile();
             isADMIN = this.authService.isADMINProfile();
-            console.log('🔄 Fallback - Vérification via service:', { 
-              isBET, 
-              isSUPPLIER, 
-              isADMIN 
+            console.log('🔄 Fallback - Vérification via service:', {
+              isBET,
+              isSUPPLIER,
+              isADMIN
             });
           }
 
@@ -407,11 +414,11 @@ export class LoginComponent implements OnInit {
         } else {
           // Pas d'abonnement actif, redirection vers mon-compte (onglet abonnements)
           console.log('⚠️ Pas d\'abonnement actif, redirection vers mon-compte');
-          this.router.navigate(['/mon-compte'], { 
+          this.router.navigate(['/mon-compte'], {
             queryParams: { tab: 'abonnements' }
           }).then(success => {
             if (success) {
-              this.showAlert('warning', 'Veuillez souscrire à un abonnement pour accéder au dashboard.');
+              this.showAlert('warning', this.t('auth.login.warning.noSubscription'));
             }
           });
         }
@@ -421,13 +428,13 @@ export class LoginComponent implements OnInit {
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
         this.isLoading.set(false);
-        
+
         // En cas d'erreur, redirection vers mon-compte par sécurité
-        this.router.navigate(['/mon-compte'], { 
+        this.router.navigate(['/mon-compte'], {
           queryParams: { tab: 'abonnements' }
         }).then(success => {
           if (success) {
-            this.showAlert('error', 'Erreur lors de la vérification de votre abonnement. Veuillez réessayer.');
+            this.showAlert('error', this.t('auth.login.error.subscriptionCheck'));
           }
         });
       }
@@ -446,7 +453,7 @@ export class LoginComponent implements OnInit {
     if (isADMIN) {
       console.log('✅ Redirection vers dashboard ADMIN');
       this.router.navigate(['/dashboard-admin']).then(success => {
-        this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace administrateur.');
+        this.showAlert('success', this.t('auth.login.success.welcomeAdmin'));
         if (!success) {
           console.warn('⚠️ Redirection vers dashboard-admin échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
@@ -459,7 +466,7 @@ export class LoginComponent implements OnInit {
     if (isBET) {
       console.log('✅ Redirection vers dashboard BET');
       this.router.navigate(['/dashboard-etude']).then(success => {
-        this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace BET.');
+        this.showAlert('success', this.t('auth.login.success.welcomeBET'));
         if (!success) {
           console.warn('⚠️ Redirection vers dashboard-etude échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
@@ -467,12 +474,12 @@ export class LoginComponent implements OnInit {
       });
       return;
     }
-    
+
     // ✅ PRIORITÉ 3: Redirection SUPPLIER
     if (isSUPPLIER) {
       console.log('✅ Redirection vers dashboard fournisseur');
       this.router.navigate(['/dashboardf']).then(success => {
-        this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace fournisseur.');
+        this.showAlert('success', this.t('auth.login.success.welcomeSupplier'));
         if (!success) {
           console.warn('⚠️ Redirection vers dashboardf échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
@@ -485,28 +492,28 @@ export class LoginComponent implements OnInit {
     console.log('✅ Redirection vers dashboard standard');
     this.router.navigate(['/dashboard']).then(success => {
       if (success) {
-        this.showAlert('success', 'Connexion réussie ! Bienvenue sur votre espace.');
+        this.showAlert('success', this.t('auth.login.success.welcome'));
       }
     });
   }
 
   private handleLoginError(err: any): void {
-    let errorMessage = 'Erreur de connexion';
-    
+    let errorMessage = this.t('auth.login.error.invalidCredentials');
+
     if (err.status === 401) {
-      errorMessage = 'Email/téléphone ou mot de passe incorrect';
+      errorMessage = this.t('auth.login.error.invalidCredentials');
     } else if (err.status === 0) {
-      errorMessage = 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.';
+      errorMessage = this.t('auth.login.error.networkError');
     } else if (err.status === 403) {
-      errorMessage = 'Accès refusé. Votre compte pourrait être suspendu.';
+      errorMessage = this.t('auth.login.error.accessDenied');
     } else if (err.status === 500) {
-      errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+      errorMessage = this.t('auth.login.error.serverError');
     } else if (err.error?.message) {
       errorMessage = err.error.message;
     } else if (err.message) {
       errorMessage = err.message;
     }
-    
+
     this.showAlert('error', errorMessage);
   }
 

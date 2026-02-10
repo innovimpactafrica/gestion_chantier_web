@@ -27,7 +27,7 @@
                 d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
                 fill="#FF5C02" />
             </svg>
-            Nouveau matériel
+            {{ t('stock.newMaterial') }}
           </button>
           <button *ngIf="activeTab === 'commandes'" (click)="openOrderModal()"
             class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
@@ -36,7 +36,7 @@
                 d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
                 fill="#FF5C02" />
             </svg>
-            Nouvelle commande
+            {{ t('stock.newOrder') }}
           </button>
         </div>
       </div>
@@ -61,7 +61,7 @@
             </svg>
 
           </span>
-          <span class="font-medium">Inventaires</span>
+          <span class="font-medium">{{ t('stock.tabs.inventories') }}</span>
         </button>
 
         <button (click)="setActiveTab('commandes')" [class]="activeTab === 'commandes'
@@ -75,7 +75,7 @@
             </svg>
 
           </span>
-          <span class="font-medium">Commandes</span>
+          <span class="font-medium">{{ t('stock.tabs.orders') }}</span>
         </button>
 
         <button (click)="setActiveTab('livraisons')" [class]="activeTab === 'livraisons'
@@ -89,7 +89,7 @@
             </svg>
 
           </span>
-          <span class="font-medium">Livraisons</span>
+          <span class="font-medium">{{ t('stock.tabs.deliveries') }}</span>
         </button>
 
         <button (click)="setActiveTab('statistiques')" [class]="activeTab === 'statistiques'
@@ -223,18 +223,18 @@
                       style="top: auto;">
 
                       <!-- Voir détails -->
-                      <button (click)="onAction('voir', material, $event)"
-                        class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M17.9529 9.20352C18.2063 9.55852 18.3329 9.73685 18.3329 9.99935C18.3329 10.2627 18.2063 10.4402 17.9529 10.7952C16.8146 12.3918 13.9071 15.8327 9.99959 15.8327C6.09126 15.8327 3.18459 12.391 2.04626 10.7952C1.79293 10.4402 1.66626 10.2618 1.66626 9.99935C1.66626 9.73602 1.79293 9.55852 2.04626 9.20352C3.18459 7.60685 6.09209 4.16602 9.99959 4.16602C13.9079 4.16602 16.8146 7.60768 17.9529 9.20352Z"
-                            stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
-                          <path
-                            d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z"
-                            stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span class="text-sm">Voir détails</span>
-                      </button>
+                      <!-- <button
+class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M17.9529 9.20352C18.2063 9.55852 18.3329 9.73685 18.3329 9.99935C18.3329 10.2627 18.2063 10.4402 17.9529 10.7952C16.8146 12.3918 13.9071 15.8327 9.99959 15.8327C6.09126 15.8327 3.18459 12.391 2.04626 10.7952C1.79293 10.4402 1.66626 10.2618 1.66626 9.99935C1.66626 9.73602 1.79293 9.55852 2.04626 9.20352C3.18459 7.60685 6.09209 4.16602 9.99959 4.16602C13.9079 4.16602 16.8146 7.60768 17.9529 9.20352Z"
+    stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+  <path
+    d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z"
+    stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+<span class="text-sm">Voir détails</span>
+</button> -->
 
                       <!-- Modifier -->
                       <!-- <button (click)="onAction('modifier', material, $event)"
@@ -457,7 +457,7 @@
                       [style.margin-top]="i < paginatedOrders.length - 2 ? '0.5rem' : '0'">
 
                       <!-- Voir détails -->
-                      <!-- <button (click)="onOrderAction('voir', order, $event)"
+                      <button (click)="viewOrderDetails(order)"
                         class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg-gray-50 transition-colors">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
@@ -468,7 +468,7 @@
                             stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <span class="text-sm">Voir détails</span>
-                      </button> -->
+                      </button>
 
                       <!-- Modifier -->
                       <button (click)="onOrderAction('modifier', order, $event)"
@@ -1199,7 +1199,7 @@
                 [class.focus:ring-red-500]="isFieldInvalid('propertyId')">
                 <option value="">Sélectionnez une propriété</option>
                 <option *ngFor="let property of properties" [value]="property.id">
-                  {{ property.typeName || property.name }}
+                  {{ property.typeName }}
                 </option>
               </select>
               <!-- ⚠️ Message de debug (à retirer en production) -->
@@ -1462,6 +1462,352 @@
         class="px-6 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition">
         Fermer
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- MODAL DÉTAILS COMMANDE -->
+<!-- ============================= -->
+<div *ngIf="showOrderDetailsModal && selectedOrderDetails" class="fixed inset-0 z-50 overflow-y-auto"
+  aria-labelledby="order-details-modal" role="dialog" aria-modal="true">
+
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" (click)="closeOrderDetailsModal()"></div>
+
+  <!-- Modal Content -->
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900">
+              Commande #CMD-{{ selectedOrderDetails.id.toString().padStart(4, '0') }}
+            </h3>
+            <p class="text-sm text-gray-500">{{ getFormattedDate(selectedOrderDetails.orderDate) }}</p>
+          </div>
+          <span [class]="getOrderStatusClass(selectedOrderDetails.status)"
+            class="ml-3 px-3 py-1 rounded-full text-xs font-medium">
+            {{ getOrderStatusText(selectedOrderDetails.status) }}
+          </span>
+        </div>
+        <button (click)="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Left Column: Informations -->
+          <div class="space-y-6">
+            <!-- Informations générales -->
+            <div class="bg-white border border-gray-200 rounded-lg p-5">
+              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Informations
+              </h4>
+              <div class="space-y-3">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-600">Fournisseur</span>
+                  <span class="text-sm font-medium text-gray-900">
+                    {{ selectedOrderDetails.supplier.prenom }} {{ selectedOrderDetails.supplier.nom }}
+                  </span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-600">Téléphone</span>
+                  <span class="text-sm font-medium text-gray-900">
+                    {{ selectedOrderDetails.supplier.telephone || 'N/A' }}
+                  </span>
+                </div>
+                <div class="flex justify-between py-2">
+                  <span class="text-sm text-gray-600">Matériaux</span>
+                  <span class="text-sm font-medium text-gray-900">
+                    {{ selectedOrderDetails.materials.length || 0 }} article(s)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Matériaux commandés -->
+            <div class="bg-white border border-gray-200 rounded-lg p-5">
+              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                Matériaux commandés
+              </h4>
+
+              <div *ngIf="selectedOrderDetails.materials && selectedOrderDetails.materials.length > 0"
+                class="space-y-2">
+                <div *ngFor="let material of selectedOrderDetails.materials"
+                  class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ material.material || 'Mat #' + material.id }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm text-gray-600">Qté: <span class="font-medium text-gray-900">{{ material.quantity
+                        }}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="!selectedOrderDetails.materials || selectedOrderDetails.materials.length === 0"
+                class="text-sm text-gray-500 italic py-4 text-center">
+                Aucun matériau
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Citations -->
+          <div class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-lg p-5">
+              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center justify-between">
+                <span class="flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
+                  Citations reçues
+                </span>
+                <span class="text-xs font-normal bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                  {{ orderQuotes.length || 0 }}
+                </span>
+              </h4>
+
+              <!-- Loading State -->
+              <div *ngIf="loadingQuotes" class="flex flex-col items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mb-3"></div>
+                <p class="text-sm text-gray-600">Chargement des citations...</p>
+              </div>
+
+              <!-- Error State -->
+              <div *ngIf="quotesError && !loadingQuotes"
+                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                <svg class="w-10 h-10 text-yellow-500 mx-auto mb-2" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                  </path>
+                </svg>
+                <p class="text-sm text-yellow-800">{{ quotesError }}</p>
+              </div>
+
+              <!-- Citations List -->
+              <div *ngIf="!loadingQuotes && !quotesError && orderQuotes && orderQuotes.length > 0" class="space-y-3">
+
+                <div *ngFor="let quote of orderQuotes; let i = index" (click)="selectQuote(quote)"
+                  [class.border-orange-500]="selectedQuote?.id === quote.id"
+                  [class.bg-orange-50]="selectedQuote?.id === quote.id"
+                  [class.border-gray-300]="selectedQuote?.id !== quote.id"
+                  class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md hover:border-orange-400">
+
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                      <!-- Badge numéro -->
+                      <div
+                        class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm font-bold">#{{ i + 1 }}</span>
+                      </div>
+
+                      <!-- Info fournisseur -->
+                      <div>
+                        <p class="text-xs text-gray-500">
+                          {{ quote.generedBy.prenom }} {{ quote.generedBy.nom }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ quote.generedBy.telephone || 'N/A' }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Checkmark si sélectionné -->
+                    <div *ngIf="selectedQuote?.id === quote.id"
+                      class="flex items-center justify-center w-6 h-6 bg-orange-500 rounded-full flex-shrink-0">
+                      <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Montant -->
+                  <div class="bg-gray-50 rounded-lg p-3 mb-2">
+                    <div class="flex items-baseline justify-between">
+                      <span class="text-xs text-gray-600 font-medium">Montant total</span>
+                      <div class="text-right">
+                        <span class="text-xl font-bold text-gray-900">
+                          {{ formatAmount(quote.totalAmount) }}
+                        </span>
+                        <span class="text-sm text-gray-600 ml-1">FCFA</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Date de soumission -->
+                  <div class="flex items-center text-xs text-gray-500">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Soumis le {{ formatQuoteDate(quote.uploadedAt) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="!loadingQuotes && !quotesError && (!orderQuotes || orderQuotes.length === 0)"
+                class="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
+                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-700 mb-1">
+                  Aucune citation disponible
+                </p>
+                <p class="text-xs text-gray-500 text-center max-w-xs">
+                  Le fournisseur n'a pas encore soumis de devis pour cette commande
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+        <button (click)="closeOrderDetailsModal()"
+          class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Fermer
+        </button>
+
+        <div class="flex items-center space-x-3">
+          <!-- Affichage citation sélectionnée -->
+          <div *ngIf="selectedQuote" class="flex items-center space-x-3">
+            <span class="text-sm text-gray-600">Citation sélectionnée:</span>
+            <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
+              {{ formatAmount(selectedQuote.totalAmount) }} FCFA
+            </span>
+          </div>
+
+          <!-- Bouton Approuver -->
+          <button *ngIf="selectedQuote && canApproveOrder(selectedOrderDetails!, orderQuotes.length > 0)"
+            (click)="confirmApproveOrder(selectedOrderDetails!, selectedQuote)" [disabled]="approvingOrder"
+            class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+            <svg *ngIf="!approvingOrder" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>{{ approvingOrder ? 'Approbation...' : 'Approuver' }}</span>
+          </button>
+
+          <!-- Message si commande déjà approuvée -->
+          <div *ngIf="selectedOrderDetails?.status === 'APPROVED'"
+            class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm font-medium text-green-800">Commande approuvée</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- MODAL CONFIRMATION APPROBATION -->
+<!-- ============================= -->
+<div *ngIf="showApproveConfirmModal && orderToApprove && selectedQuoteForApproval"
+  class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="approve-confirm-modal" role="dialog" aria-modal="true">
+
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" (click)="cancelApproveOrder()"></div>
+
+  <!-- Modal Content -->
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+
+      <!-- Icon -->
+      <div class="flex justify-center pt-6">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-6 py-4 text-center">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          Approuver cette commande ?
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Vous êtes sur le point d'approuver la commande
+          <span class="font-semibold text-gray-900">
+            #CMD-{{ orderToApprove.id.toString().padStart(4, '0') }}
+          </span>
+        </p>
+
+        <!-- Détails de la citation -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-700 font-medium">Fournisseur:</span>
+            <span class="text-sm text-gray-900 font-semibold">
+              {{ selectedQuoteForApproval.generedBy.prenom }} {{ selectedQuoteForApproval.generedBy.nom }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-green-200">
+            <span class="text-sm text-gray-700 font-medium">Montant total:</span>
+            <span class="text-lg text-green-700 font-bold">
+              {{ formatAmount(selectedQuoteForApproval.totalAmount) }} FCFA
+            </span>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-6">
+          Cette action validera la citation et permettra le traitement de la commande.
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center space-x-3 px-6 py-4 bg-gray-50 rounded-b-xl">
+        <button (click)="cancelApproveOrder()" [disabled]="approvingOrder"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Annuler
+        </button>
+        <button (click)="approveOrderConfirmed()" [disabled]="approvingOrder"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          <span>{{ approvingOrder ? 'Approbation...' : 'Confirmer l\'approbation' }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>

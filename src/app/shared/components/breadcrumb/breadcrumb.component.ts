@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { BreadcrumbItem, BreadcrumbService } from '../../../core/services/breadcrumb-service.service';
@@ -9,6 +9,14 @@ import { LanguageService, Language } from '../../../core/services/language.servi
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { Observable } from 'rxjs';
+
+interface Notification {
+  id: number;
+  libelle: string;
+  description: string;
+  date: string;
+  read: boolean;
+}
 
 @Component({
   selector: 'app-breadcrumb',
@@ -20,10 +28,16 @@ import { Observable } from 'rxjs';
 export class BreadcrumbComponent implements OnInit {
   breadcrumbs: BreadcrumbItem[] = [];
   showHelpModal = false;
-  emailAddress = 'contact@btpconnect.app';
+  emailAddress = 'contact@btpcloud.app';
   phoneNumber = '+ 221 33 971 41 12';
 
+  // Notifications properties
   showNotificationDropdown = false;
+  showNotificationModal = false;
+  loadingNotifications = false;
+  notifications: Notification[] = [];
+  selectedNotification: Notification | null = null;
+  unreadCount = 0;
   unreadCount$!: Observable<number>;
   notifications$!: Observable<any[]>;
 
@@ -53,27 +67,149 @@ export class BreadcrumbComponent implements OnInit {
     this.breadcrumbService.setBreadcrumbs(currentBreadcrumbs);
   }
 
-  toggleNotificationDropdown(event: Event) {
-    event.stopPropagation();
+  /**
+   * Toggle notification dropdown
+   */
+  toggleNotificationDropdown() {
     this.showNotificationDropdown = !this.showNotificationDropdown;
 
     if (this.showNotificationDropdown) {
-      // Reload notifications and unread count when opening dropdown
       this.loadAdminNotifications();
       this.loadUnreadCount();
     }
   }
 
-  markAsRead(id: number, event: Event) {
-    event.stopPropagation();
-    this.notificationService.markAsRead(id);
+  /**
+   * Close notification dropdown
+   */
+  closeNotificationDropdown() {
+    this.showNotificationDropdown = false;
   }
 
+  /**
+   * Open notification detail modal
+   */
+  openNotificationDetail(notification: Notification) {
+    this.selectedNotification = notification;
+    this.showNotificationModal = true;
+    this.showNotificationDropdown = false;
 
+    // Mark as read when opening
+    if (!notification.read) {
+      this.markAsRead(notification.id);
+    }
+  }
+
+  /**
+   * Close notification detail modal
+   */
+  closeNotificationModal() {
+    this.showNotificationModal = false;
+    this.selectedNotification = null;
+  }
+
+  /**
+   * Mark notification as read
+   */
+  markAsRead(id: number, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    // Call the service method (assuming it returns void or doesn't return an observable)
+    this.notificationService.markAsRead(id);
+    
+    // Update local notifications array immediately
+    const notification = this.notifications.find(n => n.id === id);
+    if (notification) {
+      notification.read = true;
+    }
+    
+    // Reload unread count after a short delay to ensure API update
+    setTimeout(() => {
+      this.loadUnreadCount();
+    }, 300);
+  }
+
+  /**
+   * Format time for notification (e.g., "14:30")
+   */
+  formatTime(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch (error) {
+      return '';
+    }
+  }
+
+  /**
+   * Format relative time (e.g., "Il y a 2h")
+   */
+  formatRelativeTime(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return this.t('notifications.justNow') || 'À l\'instant';
+      if (diffMins < 60) return `${diffMins}min`;
+      if (diffHours < 24) return `${diffHours}h`;
+      if (diffDays < 7) return `${diffDays}j`;
+      
+      return date.toLocaleDateString('fr-FR', { 
+        day: '2-digit', 
+        month: '2-digit' 
+      });
+    } catch (error) {
+      return '';
+    }
+  }
+
+  /**
+   * Format notification date for modal (e.g., "Lundi 9 février 2026 à 14:30")
+   */
+  formatNotificationDate(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  /**
+   * Translate helper
+   */
   t(key: string, params?: any): string {
     return this.languageService.translate(key, params);
   }
 
+  /**
+   * Close dropdown when clicking outside
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.relative');
+    
+    if (!clickedInside && this.showNotificationDropdown) {
+      this.showNotificationDropdown = false;
+    }
+  }
 
   ngOnInit(): void {
     // Cas 1 : on recharge manuellement les breadcrumbs à l'initialisation
@@ -97,6 +233,16 @@ export class BreadcrumbComponent implements OnInit {
     if (this.authService.isADMINProfile()) {
       this.loadAdminNotifications();
       this.loadUnreadCount();
+      
+      // Subscribe to notifications$ to update local array
+      this.notifications$.subscribe(notifications => {
+        this.notifications = notifications;
+      });
+
+      // Subscribe to unreadCount$ to update local count
+      this.unreadCount$.subscribe(count => {
+        this.unreadCount = count;
+      });
     }
   }
 
@@ -104,19 +250,27 @@ export class BreadcrumbComponent implements OnInit {
    * Load admin notifications from API
    */
   private loadAdminNotifications(): void {
+    this.loadingNotifications = true;
+    
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         if (user?.id) {
           this.notificationService.loadNotifications(user.id, 0, 10).subscribe({
-            error: (err) => {
+            next: () => {
+              this.loadingNotifications = false;
+            },
+            error: (err: any) => {
               console.error('Error loading notifications:', err);
-              // Notifications will remain empty, error is handled in service
+              this.loadingNotifications = false;
             }
           });
+        } else {
+          this.loadingNotifications = false;
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error getting current user:', err);
+        this.loadingNotifications = false;
       }
     });
   }
@@ -126,15 +280,13 @@ export class BreadcrumbComponent implements OnInit {
    */
   private loadUnreadCount(): void {
     this.notificationService.getUnreadCount().subscribe({
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading unread count:', err);
       }
     });
   }
 
-
-
-  // Génère le fil d’Ariane à partir des données des routes
+  // Génère le fil d'Ariane à partir des données des routes
   private createBreadcrumbs(
     route: ActivatedRoute,
     url: string = '',
@@ -184,7 +336,7 @@ export class BreadcrumbComponent implements OnInit {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         console.log('Copié dans le presse-papiers:', text);
-      }).catch(err => {
+      }).catch((err: any) => {
         console.error('Erreur lors de la copie:', err);
       });
     } else {

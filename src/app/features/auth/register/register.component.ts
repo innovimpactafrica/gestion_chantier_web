@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserService, CreateUserRequest } from '../../../../services/user.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 // Mapping des profils
 interface ProfileMapping {
@@ -13,13 +14,13 @@ interface ProfileMapping {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnInit {
   profileForm!: FormGroup;
-  
+
   successMessage = '';
   errorMessage = '';
   validationErrors: string[] = [];
@@ -40,9 +41,15 @@ export class RegisterComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    public languageService: LanguageService
   ) {
     this.initializeForm();
+  }
+
+  // Helper pour la traduction
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   ngOnInit(): void {
@@ -58,14 +65,14 @@ export class RegisterComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       telephone: ['', [Validators.required, Validators.pattern(/^7[05678]\d{7}$/)]],
-      
+
       // Adresse
       adress: ['', Validators.required],
-      
+
       // Informations optionnelles
       date: [''], // Date de naissance (optionnel)
       lieunaissance: [''], // Lieu de naissance (optionnel)
-      
+
       // Profil utilisateur - REQUIS
       profil: ['', Validators.required]
     });
@@ -92,33 +99,33 @@ export class RegisterComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
         this.errorMessage = 'Veuillez sélectionner une image valide';
         return;
       }
-      
+
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.errorMessage = 'La taille de l\'image ne doit pas dépasser 5 MB';
         return;
       }
-      
+
       this.selectedPhoto = file;
-      
+
       // Créer un aperçu de l'image
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         this.photoPreview = e.target?.result as string;
       };
       reader.readAsDataURL(file);
-      
+
       this.errorMessage = '';
       console.log('📸 Photo sélectionnée:', file.name, `(${(file.size / 1024).toFixed(2)} KB)`);
     }
   }
-  
+
   removePhoto(): void {
     this.selectedPhoto = null;
     this.photoPreview = null;
@@ -133,23 +140,23 @@ export class RegisterComponent implements OnInit {
   onSubmit(): void {
     // Réinitialiser les messages
     this.clearMessages();
-    
+
     // Marquer tous les champs comme touchés pour afficher les erreurs
     this.profileForm.markAllAsTouched();
-  
+
     if (!this.profileForm.valid) {
       this.showValidationErrors();
       return;
     }
-  
+
     this.isLoading = true;
-    
+
     // Formater la date si elle existe (format DD-MM-YYYY pour l'API)
     let formattedDate = '';
     if (this.profileForm.value.date) {
       formattedDate = this.convertDateFormat(this.profileForm.value.date);
     }
-  
+
     // Préparer les données d'inscription - TOUS LES CHAMPS REQUIS + PHOTO
     const userData: CreateUserRequest = {
       nom: this.profileForm.value.nom?.trim() || '',
@@ -163,13 +170,13 @@ export class RegisterComponent implements OnInit {
       lieunaissance: this.profileForm.value.lieunaissance?.trim() || '',
       photo: this.selectedPhoto || undefined // Ajouter la photo
     };
-  
+
     console.log('📤 Envoi des données d\'inscription:', {
       ...userData,
       password: '***', // Masquer le mot de passe dans les logs
       photo: this.selectedPhoto ? this.selectedPhoto.name : 'Aucune'
     });
-  
+
     console.log('🔍 Vérification des champs:');
     console.log('  - nom:', userData.nom);
     console.log('  - prenom:', userData.prenom);
@@ -181,7 +188,7 @@ export class RegisterComponent implements OnInit {
     console.log('  - adress:', userData.adress);
     console.log('  - profil:', userData.profil);
     console.log('  - photo:', this.selectedPhoto ? `${this.selectedPhoto.name} (${(this.selectedPhoto.size / 1024).toFixed(2)} KB)` : 'Aucune');
-  
+
     // Appel du service UserService pour créer l'utilisateur
     this.userService.createUser(userData).subscribe({
       next: (response) => {
@@ -197,7 +204,7 @@ export class RegisterComponent implements OnInit {
     console.log('✅ Inscription réussie:', response);
     this.successMessage = "Compte créé avec succès ! Redirection vers la connexion...";
     this.isLoading = false;
-    
+
     // Rediriger vers la page de connexion après 2 secondes
     setTimeout(() => {
       this.navigateToLogin();
@@ -207,7 +214,7 @@ export class RegisterComponent implements OnInit {
   private handleRegistrationError(error: any): void {
     console.error('❌ Erreur lors de l\'inscription:', error);
     this.isLoading = false;
-    
+
     if (error.userMessage) {
       this.errorMessage = error.userMessage;
     } else if (error.error?.message) {
@@ -223,7 +230,7 @@ export class RegisterComponent implements OnInit {
 
   private showValidationErrors(): void {
     this.validationErrors = [];
-    
+
     Object.keys(this.profileForm.controls).forEach(key => {
       const control = this.profileForm.get(key);
       if (control && control.invalid && control.touched) {
@@ -258,7 +265,7 @@ export class RegisterComponent implements OnInit {
       'date': 'Date de naissance',
       'lieunaissance': 'Lieu de naissance'
     };
-    
+
     return fieldNames[fieldName] || fieldName;
   }
 
@@ -273,8 +280,8 @@ export class RegisterComponent implements OnInit {
   }
 
   // Getters pour le template
-  get f() { 
-    return this.profileForm.controls; 
+  get f() {
+    return this.profileForm.controls;
   }
 
   get isFormValid(): boolean {

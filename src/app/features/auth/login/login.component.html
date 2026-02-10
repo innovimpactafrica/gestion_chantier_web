@@ -4,10 +4,66 @@
     <img src="assets/images/loginimg.png" alt="Outils de construction"
       class="object-cover w-[678] h-[910] mx-auto py-4" />
   </div>
-  
+
   <!-- Partie droite - Formulaire -->
   <div class="w-full md:w-1/2 flex flex-col justify-center px-8 py-12">
     <div class="max-w-lg mx-auto w-full">
+     <!-- Language Selector Styled -->
+<div class="flex justify-end mb-4">
+  <div class="relative">
+
+    <select
+      [(ngModel)]="languageService.currentLang"
+      (change)="languageService.changeLanguage(languageService.currentLang())"
+      class="appearance-none h-9 pl-9 pr-8 py-1 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer">
+
+      <option value="FR">FR</option>
+      <option value="EN">EN</option>
+    </select>
+
+    <!-- Icône drapeau dynamique -->
+    <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+
+      <!-- France -->
+      <svg *ngIf="languageService.currentLang() === 'FR'" width="20" height="15" viewBox="0 0 900 600"
+        xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="600" fill="#ED2939" />
+        <rect width="600" height="600" fill="#fff" />
+        <rect width="300" height="600" fill="#002395" />
+      </svg>
+
+      <!-- UK -->
+      <svg *ngIf="languageService.currentLang() === 'EN'" width="20" height="15" viewBox="0 0 60 30"
+        xmlns="http://www.w3.org/2000/svg">
+        <clipPath id="s-lang">
+          <path d="M0,0 v30 h60 v-30 z" />
+        </clipPath>
+        <clipPath id="t-lang">
+          <path d="M30,15 h30 v15 z v-30 h-30 z h-30 v15 z v-15 h30 z" />
+        </clipPath>
+        <g clip-path="url(#s-lang)">
+          <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+          <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+          <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t-lang)" stroke="#C8102E" stroke-width="4" />
+          <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+          <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
+        </g>
+      </svg>
+
+    </div>
+
+    <!-- Icône flèche -->
+    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </div>
+
+  </div>
+</div>
+
+
       <!-- Alerte -->
       <div *ngIf="currentAlert.show" class="mb-4 p-4 rounded-lg" [ngClass]="{
              'bg-green-100 border border-green-400 text-green-700': currentAlert.type === 'success',
@@ -15,19 +71,28 @@
              'bg-yellow-100 border border-yellow-400 text-yellow-700': currentAlert.type === 'warning'
            }">
         <div class="flex items-start">
-          <svg *ngIf="currentAlert.type === 'success'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          <svg *ngIf="currentAlert.type === 'success'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor"
+            viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd" />
           </svg>
-          <svg *ngIf="currentAlert.type === 'error'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          <svg *ngIf="currentAlert.type === 'error'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor"
+            viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd" />
           </svg>
-          <svg *ngIf="currentAlert.type === 'warning'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          <svg *ngIf="currentAlert.type === 'warning'" class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor"
+            viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd" />
           </svg>
           <span class="flex-1">{{ currentAlert.message }}</span>
         </div>
       </div>
-      
+
       <!-- Bouton de retour -->
       <div class="mb-6">
         <button (click)="navigateToHome()"
@@ -37,38 +102,27 @@
           </svg>
         </button>
       </div>
-      
+
       <!-- En-tête -->
       <div class="mx-auto mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">Bienvenue sur BTP Connect.</h1>
-        <p class="text-lg text-gray-600">Simplifiez vos chantiers, boostez votre efficacité !</p>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ t('auth.login.title') }}</h1>
+        <p class="text-lg text-gray-600">{{ t('auth.login.subtitle') }}</p>
       </div>
-
-      <!-- Onglets de navigation -->
-      <!-- <div class="flex mb-8">
-        <button class="flex-1 py-2 px-4 text-center rounded-lg font-medium transition-colors"
-          [class.bg-orange-500]="currentActiveTab === 'connexion'" 
-          [class.text-white]="currentActiveTab === 'connexion'"
-          [class.bg-gray-100]="currentActiveTab !== 'connexion'"
-          [class.text-gray-600]="currentActiveTab !== 'connexion'" 
-          (click)="setActiveTab('connexion')">
-          Connexion
-        </button>
-      </div> -->
 
       <!-- Formulaire de connexion -->
       <form [formGroup]="currentLoginForm" (ngSubmit)="onSubmit()" *ngIf="currentActiveTab === 'connexion'">
         <!-- Champ Email/Téléphone -->
         <div class="mb-4">
-          <label for="email" class="block text-gray-700 font-medium mb-2">Identifiant ou Adresse email</label>
-          <input type="tel" id="email" formControlName="email" 
-            placeholder="Entrez votre identifiant"
+          <label for="email" class="block text-gray-700 font-medium mb-2">{{ t('auth.login.emailLabel') }}</label>
+          <input type="tel" id="email" formControlName="email" [placeholder]="t('auth.login.emailPlaceholder')"
             class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 border border-gray-300 focus:border-orange-500 transition-all"
             [class.border-red-500]="currentLoginForm.get('email')?.invalid && currentLoginForm.get('email')?.touched"
             [disabled]="currentIsLoading" />
           <div *ngIf="currentEmailError" class="text-red-500 text-sm mt-1 flex items-center">
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd" />
             </svg>
             {{ currentEmailError }}
           </div>
@@ -76,10 +130,10 @@
 
         <!-- Champ Mot de passe -->
         <div class="mb-2">
-          <label for="password" class="block text-gray-700 font-medium mb-2">Mot de passe</label>
+          <label for="password" class="block text-gray-700 font-medium mb-2">{{ t('auth.login.passwordLabel') }}</label>
           <div class="relative">
             <input [type]="currentShowPassword ? 'text' : 'password'" id="password" formControlName="password"
-              placeholder="Entrez votre mot de passe (6 caractères min)"
+              [placeholder]="t('auth.login.passwordPlaceholder')"
               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 border-gray-300 transition-all"
               [class.border-red-500]="currentLoginForm.get('password')?.invalid && currentLoginForm.get('password')?.touched"
               [disabled]="currentIsLoading" />
@@ -102,7 +156,9 @@
           </div>
           <div *ngIf="currentPasswordError" class="text-red-500 text-sm mt-1 flex items-center">
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd" />
             </svg>
             {{ currentPasswordError }}
           </div>
@@ -111,18 +167,19 @@
         <div class="flex justify-between items-center mb-6">
           <!-- Lien Register -->
           <a href="/register" class="text-sm text-orange-500 hover:text-orange-600 underline italic transition-colors">
-            Créer un compte
+            {{ t('auth.login.createAccount') }}
           </a>
           <!-- Lien Mot de passe oublié -->
-          <a href="/resetpassword" class="text-sm text-gray-600 hover:text-orange-500 underline italic transition-colors">
-            Mot de passe oublié ?
+          <a href="/resetpassword"
+            class="text-sm text-gray-600 hover:text-orange-500 underline italic transition-colors">
+            {{ t('auth.login.forgotPassword') }}
           </a>
         </div>
 
         <!-- Bouton de connexion -->
         <button type="submit" [disabled]="currentIsLoading"
           class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-          <span *ngIf="!currentIsLoading">Se connecter</span>
+          <span *ngIf="!currentIsLoading">{{ t('auth.login.loginButton') }}</span>
           <span *ngIf="currentIsLoading" class="flex items-center justify-center">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24">
@@ -131,7 +188,7 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-            Connexion en cours...
+            {{ t('auth.login.loggingIn') }}
           </span>
         </button>
       </form>

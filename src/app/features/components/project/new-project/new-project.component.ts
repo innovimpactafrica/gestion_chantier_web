@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { LanguageService } from '../../../../core/services/language.service';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProjectService, ProjectData, ApiResponse } from '../../../../../services/projet.service';
@@ -29,14 +30,14 @@ interface Manager {
 
 @Component({
   selector: 'app-new-project',
-  standalone:true,
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule  // Ajoutez cette ligne
   ],
   templateUrl: './new-project.component.html',
   styleUrls: ['./new-project.component.scss']
-  
+
 })
 export class NewProjectComponent implements OnInit, OnDestroy {
   projectForm!: FormGroup;
@@ -60,9 +61,14 @@ export class NewProjectComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private projectService: ProjectService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    public languageService: LanguageService
   ) {
     this.initializeForm();
+  }
+
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   ngOnInit(): void {
@@ -88,7 +94,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
           console.error('Erreur lors du chargement de l\'utilisateur:', error);
         }
       });
-      
+
       this.subscriptions.add(userSubscription);
     } else {
       // Si l'utilisateur n'est pas connecté, utiliser les données actuelles
@@ -101,7 +107,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
    */
   private updateFormWithUserData(): void {
     const currentUser = this.authService.currentUser();
-    
+
     if (currentUser && currentUser.id) {
       // Mettre à jour le formulaire avec l'ID de l'utilisateur comme manager
       this.projectForm.patchValue({
@@ -155,16 +161,16 @@ export class NewProjectComponent implements OnInit, OnDestroy {
   /**
    * Validateur personnalisé pour vérifier que la date de fin est après la date de début
    */
-  private dateRangeValidator(control: AbstractControl): {[key: string]: any} | null {
+  private dateRangeValidator(control: AbstractControl): { [key: string]: any } | null {
     const startDate = control.get('startDate')?.value;
     const endDate = control.get('endDate')?.value;
 
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      
+
       if (end <= start) {
-        return { dateRange: { message: 'La date de fin doit être postérieure à la date de début' } };
+        return { dateRange: { message: this.t('newProject.dateRange') } };
       }
     }
     return null;
@@ -262,14 +268,11 @@ export class NewProjectComponent implements OnInit, OnDestroy {
           alert('Veuillez sélectionner un fichier image valide');
           return;
         }
-        
+
         // Vérification de la taille (max 10MB)
         const maxSize = 10 * 1024 * 1024; // 10MB
-        if (file.size > maxSize) {
-          alert('Le fichier est trop volumineux. Taille maximale: 10MB');
-          return;
-        }
-        
+        alert(this.t('newProject.fileTooLarge', { size: '10MB' })); // TODO: Add key or use generic
+
         this.planFile = file;
       }
     }
@@ -308,16 +311,16 @@ export class NewProjectComponent implements OnInit, OnDestroy {
     let value = event.target.value;
     // Supprimer tous les caractères non numériques sauf les points
     value = value.replace(/[^\d]/g, '');
-    
+
     // Ajouter des espaces pour la lisibilité
     if (value) {
       value = parseInt(value).toLocaleString('fr-FR');
     }
-    
+
     // Mettre à jour le contrôle du formulaire avec la valeur numérique
     const numericValue = value ? parseInt(value.replace(/\s/g, '')) : '';
     this.projectForm.patchValue({ price: numericValue });
-    
+
     // Mettre à jour l'affichage
     event.target.value = value;
   }
@@ -327,114 +330,114 @@ export class NewProjectComponent implements OnInit, OnDestroy {
    */
   private convertDateToApiFormat(dateString: string): string {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    
+
     return `${month}-${day}-${year}`;
   }
 
- /**
- * Soumet le formulaire
- */
- async onSubmit(): Promise<void> {
-  if (this.projectForm.invalid || !this.planFile) {
-    this.projectForm.markAllAsTouched();
-    return;
-  }
-
-  // Vérifier que l'utilisateur est authentifié
-  if (!this.authService.isAuthenticated()) {
-    alert('Vous devez être connecté pour créer un projet');
-    this.router.navigate(['/login']);
-    return;
-  }
-
-  this.isSubmitting = true;
-
-  try {
-    // Préparer les données du projet
-    const formValues = this.projectForm.value;
-    const currentUser = this.authService.currentUser();
-
-    
-    if (!currentUser || !currentUser.id) {
-      alert('Erreur: Impossible de récupérer les informations de l\'utilisateur connecté');
-      this.isSubmitting = false;
+  /**
+  * Soumet le formulaire
+  */
+  async onSubmit(): Promise<void> {
+    if (this.projectForm.invalid || !this.planFile) {
+      this.projectForm.markAllAsTouched();
       return;
     }
-    
-    // Convertir propertyTypeId en nombre
-    const propertyTypeId = Number(formValues.propertyTypeId);
-    
-    const projectData: ProjectData = {
-      name: formValues.name,
-      number: formValues.number,
-      address: formValues.address,
-      price: typeof formValues.price === 'string' ? 
-             parseInt(formValues.price.replace(/\s/g, '')) : formValues.price,
-      numberOfRooms: formValues.numberOfRooms,
-      area: formValues.area,
-      latitude: formValues.latitude || undefined,
-      longitude: formValues.longitude || undefined,
-      description: formValues.description || undefined,
-      numberOfLots: formValues.numberOfLots,
-      promoterId: 1, // Fixé à 1
-      moaId: 1, // Fixé à 1
-      managerId: currentUser.id, // ID de l'utilisateur connecté
-      propertyTypeId: propertyTypeId, // Converti en nombre
-      plan: this.planFile,
-      // Dates converties au format requis
-      startDate: this.convertDateToApiFormat(formValues.startDate),
-      endDate: this.convertDateToApiFormat(formValues.endDate),
-      // Équipements
-      hasHall: formValues.hasHall || false,
-      hasParking: formValues.hasParking || false,
-      hasElevator: formValues.hasElevator || false,
-      hasSwimmingPool: formValues.hasSwimmingPool || false,
-      hasGym: formValues.hasGym || false,
-      hasPlayground: formValues.hasPlayground || false,
-      hasSecurityService: formValues.hasSecurityService || false,
-      hasGarden: formValues.hasGarden || false,
-      hasSharedTerrace: formValues.hasSharedTerrace || false,
-      hasBicycleStorage: formValues.hasBicycleStorage || false,
-      hasLaundryRoom: formValues.hasLaundryRoom || false,
-      hasStorageRooms: formValues.hasStorageRooms || false,
-      hasWasteDisposalArea: formValues.hasWasteDisposalArea || false,
-      mezzanine: formValues.mezzanine || false
-    };
 
-    // Appeler le service pour créer le projet
-    const response = await this.projectService.createProject(projectData).toPromise();
-    
-    if (response?.success) {
-      alert('Projet créé avec succès !');
-      this.router.navigate(['/projects']); // Rediriger vers la liste des projets
-    } else {
-      alert('Erreur lors de la création du projet: ' + (response?.message || 'Erreur inconnue'));
-    }
-
-  } catch (error: any) {
-    console.error('Erreur complète:', error);
-    if (error.status === 403) {
-      alert('Accès refusé. Vérifiez vos permissions ou reconnectez-vous.');
-      this.authService.logout();
+    // Vérifier que l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      alert(this.t('newProject.accessDenied'));
       this.router.navigate(['/login']);
-    } else {
-      alert('Erreur lors de la création du projet: ' + (error.message || error.error || 'Erreur inconnue'));
+      return;
     }
-  } finally {
-    this.isSubmitting = false;
+
+    this.isSubmitting = true;
+
+    try {
+      // Préparer les données du projet
+      const formValues = this.projectForm.value;
+      const currentUser = this.authService.currentUser();
+
+
+      if (!currentUser || !currentUser.id) {
+        alert('Erreur: Impossible de récupérer les informations de l\'utilisateur connecté');
+        this.isSubmitting = false;
+        return;
+      }
+
+      // Convertir propertyTypeId en nombre
+      const propertyTypeId = Number(formValues.propertyTypeId);
+
+      const projectData: ProjectData = {
+        name: formValues.name,
+        number: formValues.number,
+        address: formValues.address,
+        price: typeof formValues.price === 'string' ?
+          parseInt(formValues.price.replace(/\s/g, '')) : formValues.price,
+        numberOfRooms: formValues.numberOfRooms,
+        area: formValues.area,
+        latitude: formValues.latitude || undefined,
+        longitude: formValues.longitude || undefined,
+        description: formValues.description || undefined,
+        numberOfLots: formValues.numberOfLots,
+        promoterId: 1, // Fixé à 1
+        moaId: 1, // Fixé à 1
+        managerId: currentUser.id, // ID de l'utilisateur connecté
+        propertyTypeId: propertyTypeId, // Converti en nombre
+        plan: this.planFile,
+        // Dates converties au format requis
+        startDate: this.convertDateToApiFormat(formValues.startDate),
+        endDate: this.convertDateToApiFormat(formValues.endDate),
+        // Équipements
+        hasHall: formValues.hasHall || false,
+        hasParking: formValues.hasParking || false,
+        hasElevator: formValues.hasElevator || false,
+        hasSwimmingPool: formValues.hasSwimmingPool || false,
+        hasGym: formValues.hasGym || false,
+        hasPlayground: formValues.hasPlayground || false,
+        hasSecurityService: formValues.hasSecurityService || false,
+        hasGarden: formValues.hasGarden || false,
+        hasSharedTerrace: formValues.hasSharedTerrace || false,
+        hasBicycleStorage: formValues.hasBicycleStorage || false,
+        hasLaundryRoom: formValues.hasLaundryRoom || false,
+        hasStorageRooms: formValues.hasStorageRooms || false,
+        hasWasteDisposalArea: formValues.hasWasteDisposalArea || false,
+        mezzanine: formValues.mezzanine || false
+      };
+
+      // Appeler le service pour créer le projet
+      const response = await this.projectService.createProject(projectData).toPromise();
+
+      if (response?.success) {
+        alert(this.t('newProject.success'));
+        this.router.navigate(['/projects']); // Rediriger vers la liste des projets
+      } else {
+        alert('Erreur lors de la création du projet: ' + (response?.message || 'Erreur inconnue'));
+      }
+
+    } catch (error: any) {
+      console.error('Erreur complète:', error);
+      if (error.status === 403) {
+        alert(this.t('newProject.accessDenied'));
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      } else {
+        alert('Erreur lors de la création du projet: ' + (error.message || error.error || 'Erreur inconnue'));
+      }
+    } finally {
+      this.isSubmitting = false;
+    }
   }
-}
 
   /**
    * Annule et retourne à la liste
    */
   onCancel(): void {
-    if (confirm('Êtes-vous sûr de vouloir annuler? Toutes les données saisies seront perdues.')) {
+    if (confirm(this.t('newProject.cancelConfirm') || 'Are you sure you want to cancel?')) {
       this.router.navigate(['/projects']);
     }
   }
@@ -456,68 +459,16 @@ export class NewProjectComponent implements OnInit, OnDestroy {
     const field = this.projectForm.get(fieldName);
     if (!field?.errors || !field?.touched) return '';
 
-    const errors: {[key: string]: string} = {
-      required: 'Ce champ est requis',
-      minlength: `Minimum ${field.errors?.['minlength']?.requiredLength} caractères`,
-      maxlength: `Maximum ${field.errors?.['maxlength']?.requiredLength} caractères`,
-      min: `La valeur doit être supérieure ou égale à ${field.errors?.['min']?.min}`,
-      email: 'Format d\'email invalide'
-    };
-
-    // Gestion spéciale pour le validateur de plage de dates
-    if (fieldName === 'endDate' && this.projectForm.hasError('dateRange')) {
-      return 'La date de fin doit être postérieure à la date de début';
-    }
-
-    // Messages spécifiques par champ
-    const fieldMessages: {[key: string]: {[key: string]: string}} = {
-      name: {
-        required: 'Le nom du projet est requis',
-        minlength: 'Le nom doit contenir au moins 3 caractères'
-      },
-      number: {
-        required: 'Le numéro du projet est requis'
-      },
-      propertyTypeId: {
-        required: 'Veuillez sélectionner un type de projet'
-      },
-      area: {
-        required: 'La surface est requise',
-        min: 'La surface doit être positive'
-      },
-      price: {
-        required: 'Le prix est requis',
-        min: 'Le prix ne peut pas être négatif'
-      },
-      startDate: {
-        required: 'La date de début est requise'
-      },
-      endDate: {
-        required: 'La date de fin est requise'
-      },
-      address: {
-        required: 'L\'adresse est requise',
-        minlength: 'L\'adresse doit contenir au moins 5 caractères'
-      },
-      numberOfLots: {
-        required: 'Le nombre de lots est requis',
-        min: 'Le nombre de lots doit être positif'
-      },
-      numberOfRooms: {
-        required: 'Le nombre de chambres est requis',
-        min: 'Le nombre de chambres doit être positif'
-      },
-      promoterId: {
-        required: 'Veuillez sélectionner un promoteur'
-      },
-      description: {
-        maxlength: 'La description ne peut pas dépasser 1000 caractères'
-      }
-    };
-
-    // Retourner le message spécifique au champ et à l'erreur
+    // Retourner le message spécifique au champ et à l'erreur via les clés de traduction
     const errorType = Object.keys(field.errors)[0];
-    return fieldMessages[fieldName]?.[errorType] || errors[errorType] || 'Erreur de validation';
+
+    // Clés spécifiques ou génériques
+    if (errorType === 'required') return this.t(`newProject.errors.${fieldName}.required`) !== `newProject.errors.${fieldName}.required` ? this.t(`newProject.errors.${fieldName}.required`) : this.t('newProject.required');
+    if (errorType === 'minlength') return this.t('newProject.minLength');
+    if (errorType === 'maxlength') return this.t('newProject.maxLength');
+    if (errorType === 'min') return this.t('newProject.min');
+
+    return this.t('newProject.error'); // Fallback generic
   }
 
   // Getters pour les contrôles du formulaire (pour faciliter l'accès dans le template)

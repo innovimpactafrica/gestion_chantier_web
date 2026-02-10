@@ -133,6 +133,12 @@ export interface LotsResponse {
   empty: boolean;
 }
 
+export interface LotDocument {
+  id: number;
+  libelle: string;
+  filePath: string;
+}
+
 export interface CreateLotRequest {
   name: string;
   description: string;
@@ -153,101 +159,101 @@ export class LotService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
-// Ajoutez ces interfaces en haut du fichier après les interfaces existantes
+  ) { }
+  // Ajoutez ces interfaces en haut du fichier après les interfaces existantes
 
 
-// Ajoutez ces méthodes dans la classe LotService
+  // Ajoutez ces méthodes dans la classe LotService
 
-/**
- * Récupère un lot par son ID
- */
-getLotById(lotId: number): Observable<Lot> {
-  console.log(`📖 Récupération du lot ${lotId}`);
+  /**
+   * Récupère un lot par son ID
+   */
+  getLotById(lotId: number): Observable<Lot> {
+    console.log(`📖 Récupération du lot ${lotId}`);
 
-  return this.http.get<Lot>(
-    `${this.apiUrl}/${lotId}`,
-    { headers: this.getAuthHeaders() }
-  );
-}
-
-/**
- * Récupère les commentaires d'un lot
- */
-getCommentsForLot(lotId: number): Observable<Comment[]> {
-  console.log(`💬 Récupération des commentaires du lot ${lotId}`);
-
-  return this.http.get<Comment[]>(
-    `${this.apiUrl}/${lotId}/comments`,
-    { headers: this.getAuthHeaders() }
-  );
-}
-
-/**
- * Crée un commentaire pour un lot
- */
-createCommentToLot(lotId: number, userId: number, commentText: string): Observable<Comment> {
-  if (!commentText?.trim()) {
-    throw new Error('Le texte du commentaire est requis');
+    return this.http.get<Lot>(
+      `${this.apiUrl}/${lotId}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
-  const params = new HttpParams()
-    .set('userId', userId.toString())
-    .set('commentText', commentText.trim());
+  /**
+   * Récupère les commentaires d'un lot
+   */
+  getCommentsForLot(lotId: number): Observable<Comment[]> {
+    console.log(`💬 Récupération des commentaires du lot ${lotId}`);
 
-  console.log(`💬 Ajout commentaire au lot ${lotId}:`, { userId, commentText });
+    return this.http.get<Comment[]>(
+      `${this.apiUrl}/${lotId}/comments`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
-  return this.http.post<Comment>(
-    `${this.apiUrl}/${lotId}/comments`,
-    null,
-    { 
-      params,
-      headers: this.getAuthHeaders()
+  /**
+   * Crée un commentaire pour un lot
+   */
+  createCommentToLot(lotId: number, userId: number, commentText: string): Observable<Comment> {
+    if (!commentText?.trim()) {
+      throw new Error('Le texte du commentaire est requis');
     }
-  );
-}
 
-/**
- * Formate un tableau de date en string lisible
- */
-formatCommentDate(dateArray: number[]): string {
-  if (!dateArray || dateArray.length < 6) {
-    return 'Date inconnue';
+    const params = new HttpParams()
+      .set('userId', userId.toString())
+      .set('commentText', commentText.trim());
+
+    console.log(`💬 Ajout commentaire au lot ${lotId}:`, { userId, commentText });
+
+    return this.http.post<Comment>(
+      `${this.apiUrl}/${lotId}/comments`,
+      null,
+      {
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
-  const [year, month, day, hour, minute] = dateArray;
-  const date = new Date(year, month - 1, day, hour, minute);
-  
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  /**
+   * Formate un tableau de date en string lisible
+   */
+  formatCommentDate(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 6) {
+      return 'Date inconnue';
+    }
 
-  // Si moins d'une heure
-  if (diffMins < 60) {
-    return diffMins <= 1 ? "À l'instant" : `Il y a ${diffMins} min`;
+    const [year, month, day, hour, minute] = dateArray;
+    const date = new Date(year, month - 1, day, hour, minute);
+
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    // Si moins d'une heure
+    if (diffMins < 60) {
+      return diffMins <= 1 ? "À l'instant" : `Il y a ${diffMins} min`;
+    }
+
+    // Si moins de 24h
+    if (diffHours < 24) {
+      return `Il y a ${diffHours}h`;
+    }
+
+    // Si moins de 7 jours
+    if (diffDays < 7) {
+      return `Il y a ${diffDays}j`;
+    }
+
+    // Sinon date complète
+    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year} à ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
   }
-  
-  // Si moins de 24h
-  if (diffHours < 24) {
-    return `Il y a ${diffHours}h`;
-  }
-  
-  // Si moins de 7 jours
-  if (diffDays < 7) {
-    return `Il y a ${diffDays}j`;
-  }
-  
-  // Sinon date complète
-  return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year} à ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-}
   /**
    * Récupère la liste des sous-traitants avec pagination
    */
   getSubcontractors(page: number = 0, size: number = 30): Observable<SubcontractorsResponse> {
     const managerId = this.authService.currentUser()?.id;
-    
+
     if (!managerId) {
       throw new Error('Utilisateur non connecté');
     }
@@ -258,7 +264,7 @@ formatCommentDate(dateArray: number[]): string {
 
     return this.http.get<SubcontractorsResponse>(
       `${this.baseURL}api/workers/${managerId}/subcontractors`,
-      { 
+      {
         params,
         headers: this.getAuthHeaders()
       }
@@ -276,7 +282,7 @@ formatCommentDate(dateArray: number[]): string {
 
     return this.http.get<LotsResponse>(
       `${this.apiUrl}/by-property`,
-      { 
+      {
         params,
         headers: this.getAuthHeaders()
       }
@@ -286,85 +292,148 @@ formatCommentDate(dateArray: number[]): string {
   /**
    * Crée un nouveau lot avec FormData pour supporter l'upload de fichier
    */
- /**
-   * Crée un nouveau lot - Envoi en JSON
+  /**
+    * Crée un nouveau lot - Envoi en JSON
+    */
+  createLot(lotData: CreateLotRequest): Observable<Lot> {
+    const payload = {
+      name: lotData.name,
+      description: lotData.description,
+      startDate: lotData.startDate,  // Format dd-MM-yyyy
+      endDate: lotData.endDate,      // Format dd-MM-yyyy
+      realEstatePropertyId: lotData.realEstatePropertyId,
+      subcontractorId: lotData.subcontractorId
+    };
+
+    console.log('📤 Création de lot - Payload JSON:', payload);
+
+    return this.http.post<Lot>(
+      this.apiUrl,
+      payload,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+  /**
+   * Met à jour la progression d'un lot
    */
- createLot(lotData: CreateLotRequest): Observable<Lot> {
-  const payload = {
-    name: lotData.name,
-    description: lotData.description,
-    startDate: lotData.startDate,  // Format dd-MM-yyyy
-    endDate: lotData.endDate,      // Format dd-MM-yyyy
-    realEstatePropertyId: lotData.realEstatePropertyId,
-    subcontractorId: lotData.subcontractorId
-  };
+  updateLotProgress(lotId: number, percentage: number): Observable<Lot> {
+    if (percentage < 0 || percentage > 100) {
+      throw new Error('Le pourcentage doit être entre 0 et 100');
+    }
 
-  console.log('📤 Création de lot - Payload JSON:', payload);
+    const params = new HttpParams().set('percentage', percentage.toString());
 
-  return this.http.post<Lot>(
-    this.apiUrl,
-    payload,
-    { headers: this.getAuthHeaders() }
-  );
-}
-/**
- * Met à jour la progression d'un lot
- */
-updateLotProgress(lotId: number, percentage: number): Observable<Lot> {
-  if (percentage < 0 || percentage > 100) {
-    throw new Error('Le pourcentage doit être entre 0 et 100');
+    console.log(`📊 Mise à jour progression lot ${lotId}: ${percentage}%`);
+
+    return this.http.put<Lot>(
+      `${this.apiUrl}/${lotId}/progress`,
+      null,
+      {
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
-  const params = new HttpParams().set('percentage', percentage.toString());
+  /**
+   * Change le statut d'un lot
+   */
+  changeStatus(lotId: number, status: string): Observable<Lot> {
+    const validStatuses = ['PENDING', 'IN_PROGRESS', 'PLANNED', 'COMPLETED'];
 
-  console.log(`📊 Mise à jour progression lot ${lotId}: ${percentage}%`);
-
-  return this.http.put<Lot>(
-    `${this.apiUrl}/${lotId}/progress`,
-    null,
-    { 
-      params,
-      headers: this.getAuthHeaders()
+    if (!validStatuses.includes(status)) {
+      throw new Error(`Statut invalide. Valeurs autorisées: ${validStatuses.join(', ')}`);
     }
-  );
-}
 
-/**
- * Change le statut d'un lot
- */
-changeStatus(lotId: number, status: string): Observable<Lot> {
-  const validStatuses = ['PENDING', 'IN_PROGRESS', 'PLANNED', 'COMPLETED'];
-  
-  if (!validStatuses.includes(status)) {
-    throw new Error(`Statut invalide. Valeurs autorisées: ${validStatuses.join(', ')}`);
+    const params = new HttpParams().set('status', status);
+
+    console.log(`🔄 Changement statut lot ${lotId}: ${status}`);
+
+    return this.http.put<Lot>(
+      `${this.apiUrl}/${lotId}/status`,
+      null,
+      {
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
-  const params = new HttpParams().set('status', status);
+  /**
+   * Récupère la liste des fichiers/documents associés à un lot
+   */
+  getLotFiles(lotId: number): Observable<LotDocument[]> {
+    console.log(`📄 Récupération des fichiers du lot ${lotId}`);
+    return this.http.get<LotDocument[]>(
+      `${this.apiUrl}/${lotId}/files`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
-  console.log(`🔄 Changement statut lot ${lotId}: ${status}`);
-
-  return this.http.put<Lot>(
-    `${this.apiUrl}/${lotId}/status`,
-    null,
-    { 
-      params,
-      headers: this.getAuthHeaders()
+  /**
+   * Upload un fichier vers un lot (multipart/form-data)
+   */
+  uploadLotFile(lotId: number, file: File, libelle: string): Observable<LotDocument> {
+    if (!file) {
+      throw new Error('Aucun fichier sélectionné');
     }
-  );
-}
 
-/**
- * Convertit le statut français vers le statut API
- */
-convertStatusToAPI(displayStatus: string): string {
-  const statusMap: Record<string, string> = {
-    'En attente': 'PENDING',
-    'En cours': 'IN_PROGRESS',
-    'Planifié': 'PLANNED',
-    'Terminé': 'COMPLETED'
-  };
-  return statusMap[displayStatus] || 'PENDING';
-}
+    if (!libelle?.trim()) {
+      throw new Error('Le libellé du document est requis');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('libelle', libelle.trim());
+
+    // Important : NE PAS mettre 'Content-Type' manuellement avec FormData
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+      // Content-Type sera automatiquement défini par le navigateur avec boundary
+    });
+
+    console.log(`📤 Upload fichier vers lot ${lotId}:`, file.name, 'Libellé:', libelle);
+
+    return this.http.post<LotDocument>(
+      `${this.apiUrl}/${lotId}/files`,
+      formData,
+      { headers }
+    );
+  }
+
+  /**
+   * Supprime un fichier/document d'un lot
+   */
+  deleteLotFile(fileId: number): Observable<void> {
+    console.log(`🗑️ Suppression du fichier ${fileId}`);
+
+    return this.http.delete<void>(
+      `${this.apiUrl}/files/${fileId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /**
+   * Construit l'URL de téléchargement/visualisation d'un document
+   */
+  getDocumentDownloadUrl(filePath: string): string {
+    // L'URL complète dépend de votre configuration backend
+    // Ajustez selon votre environnement
+    return `${this.baseURL}/uploads/${filePath}`;
+  }
+
+  /**
+   * Convertit le statut français vers le statut API
+   */
+  convertStatusToAPI(displayStatus: string): string {
+    const statusMap: Record<string, string> = {
+      'En attente': 'PENDING',
+      'En cours': 'IN_PROGRESS',
+      'Planifié': 'PLANNED',
+      'Terminé': 'COMPLETED'
+    };
+    return statusMap[displayStatus] || 'PENDING';
+  }
   /**
    * Met à jour un lot existant
    */
@@ -415,7 +484,7 @@ convertStatusToAPI(displayStatus: string): string {
     if (!dateArray || dateArray.length < 3) {
       throw new Error('Date array must contain at least 3 elements [year, month, day]');
     }
-    
+
     const [year, month, day] = dateArray;
     return `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
   }
@@ -427,7 +496,7 @@ convertStatusToAPI(displayStatus: string): string {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    
+
     return `${day}-${month}-${year}`;
   }
 
@@ -444,7 +513,7 @@ convertStatusToAPI(displayStatus: string): string {
    */
   convertInputDateToAPIFormat(inputDate: string): string {
     if (!inputDate) return '';
-    
+
     const [year, month, day] = inputDate.split('-');
     return `${day}-${month}-${year}`;
   }
@@ -454,7 +523,7 @@ convertStatusToAPI(displayStatus: string): string {
    */
   convertAPIDateToInputFormat(apiDate: string): string {
     if (!apiDate) return '';
-    
+
     const [day, month, year] = apiDate.split('-');
     return `${year}-${month}-${day}`;
   }
@@ -496,10 +565,10 @@ convertStatusToAPI(displayStatus: string): string {
       try {
         const [startDay, startMonth, startYear] = lotData.startDate.split('-').map(Number);
         const [endDay, endMonth, endYear] = lotData.endDate.split('-').map(Number);
-        
+
         const start = new Date(startYear, startMonth - 1, startDay);
         const end = new Date(endYear, endMonth - 1, endDay);
-        
+
         if (end <= start) {
           errors.push('La date de fin doit être postérieure à la date de début');
         }

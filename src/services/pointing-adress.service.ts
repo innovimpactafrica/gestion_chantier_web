@@ -25,13 +25,23 @@ export interface CreatePointingAddressRequest {
   qrcode: string;
 }
 
+export interface ProjectDetailsResponse {
+  realEstateProperty: {
+    id: number;
+    name: string;
+    qrcode: string;
+    // ... other properties
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PointingAddressService {
   private apiUrl = environment.apiUrlAddress;
+  private apiBaseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   saveAddress(address: CreatePointingAddressRequest): Observable<PointingAddressResponse> {
     return this.http.post<PointingAddressResponse>(this.apiUrl, address);
@@ -51,5 +61,12 @@ export class PointingAddressService {
 
   deleteAddress(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Récupère les détails d'un projet incluant son QR code
+   */
+  getProjectDetails(propertyId: number): Observable<ProjectDetailsResponse> {
+    return this.http.get<ProjectDetailsResponse>(`${this.apiBaseUrl}/realestate/details/${propertyId}`);
   }
 }

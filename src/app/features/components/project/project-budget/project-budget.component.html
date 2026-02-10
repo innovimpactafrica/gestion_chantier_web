@@ -2,7 +2,7 @@
 <div class="p-8 bg-gray-50 min-h-screen">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-bold text-gray-800">Gestion du Budget</h1>
+    <h1 class="text-2xl font-bold text-gray-800">{{ t('projectBudget.title') }}</h1>
     <button
       class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
       (click)="openBudgetModal()" [disabled]="loading">
@@ -11,7 +11,7 @@
           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
         </path>
       </svg>
-      Modifier Budget
+      {{ t('projectBudget.editBudget') }}
     </button>
   </div>
 
@@ -36,7 +36,7 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
         </path>
       </svg>
-      <p class="text-sm text-blue-800">Chargement en cours...</p>
+      <p class="text-sm text-blue-800">{{ t('projectBudget.loading') }}</p>
     </div>
   </div>
 
@@ -57,7 +57,7 @@
       <!-- Budget prévu -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="text-right">
-          <p class="text-sm text-gray-500 mb-1">Budget prévu</p>
+          <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.plannedBudget') }}</p>
           <p class="text-3xl font-bold text-gray-800">{{ formatCurrency(budgetPrevu) }}</p>
         </div>
       </div>
@@ -65,12 +65,12 @@
       <!-- Budget restant et utilisé -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
-          <p class="text-sm text-gray-500 mb-1">Budget restant</p>
+          <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.remainingBudget') }}</p>
           <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetRestant) }}</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-          <p class="text-sm text-gray-500 mb-1">Budget utilisé</p>
+          <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.consumedBudget') }}</p>
           <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetUtilise) }}</p>
         </div>
       </div>
@@ -80,14 +80,14 @@
   <!-- Liste des dépenses -->
   <div class="mt-12 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-800">Liste des dépenses</h2>
+      <h2 class="text-xl font-semibold text-gray-800">{{ t('projectBudget.expensesList') }}</h2>
       <button
         class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         (click)="openExpenseModal()" [disabled]="loading">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
-        
+
       </button>
     </div>
 
@@ -96,11 +96,16 @@
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Description</th>
-            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Preuve</th>
-            <th class="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-            <th class="px-6 py-4 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">{{
+              t('projectBudget.date') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">{{
+              t('projectBudget.description') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">{{
+              t('projectBudget.evidence') }}</th>
+            <th class="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">{{
+              t('projectBudget.amount') }}</th>
+            <th class="px-6 py-4 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">{{
+              t('projectBudget.actions') }}</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -110,11 +115,14 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ expense.description }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex align items-center gap-2">
-              <svg class="cursor-pointer" (click)="openEvidenceModal(expense)" width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.0003 6.6884C13.8089 6.68239 15.5825 7.18688 17.1172 8.14387C18.6518 9.10087 19.8853 10.4715 20.6757 12.0982C19.0528 15.413 15.738 17.5081 12.0003 17.5081C8.26263 17.5081 4.94788 15.413 3.32493 12.0982C4.11537 10.4715 5.34883 9.10087 6.8835 8.14387C8.41816 7.18688 10.1917 6.68239 12.0003 6.6884ZM12.0003 4.72119C7.0823 4.72119 2.8823 7.78021 1.18066 12.0982C2.8823 16.4163 7.0823 19.4753 12.0003 19.4753C16.9184 19.4753 21.1184 16.4163 22.82 12.0982C21.1184 7.78021 16.9184 4.72119 12.0003 4.72119ZM12.0003 9.63922C12.6525 9.63922 13.278 9.8983 13.7391 10.3595C14.2003 10.8206 14.4594 11.4461 14.4594 12.0982C14.4594 12.7504 14.2003 13.3759 13.7391 13.837C13.278 14.2982 12.6525 14.5573 12.0003 14.5573C11.3482 14.5573 10.7227 14.2982 10.2615 13.837C9.80039 13.3759 9.54132 12.7504 9.54132 12.0982C9.54132 11.4461 9.80039 10.8206 10.2615 10.3595C10.7227 9.8983 11.3482 9.63922 12.0003 9.63922ZM12.0003 7.67201C9.56099 7.67201 7.57411 9.6589 7.57411 12.0982C7.57411 14.5376 9.56099 16.5245 12.0003 16.5245C14.4397 16.5245 16.4266 14.5376 16.4266 12.0982C16.4266 9.6589 14.4397 7.67201 12.0003 7.67201Z" fill="#4B4848"/>
+              <svg class="cursor-pointer" (click)="openEvidenceModal(expense)" width="24" height="25"
+                viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12.0003 6.6884C13.8089 6.68239 15.5825 7.18688 17.1172 8.14387C18.6518 9.10087 19.8853 10.4715 20.6757 12.0982C19.0528 15.413 15.738 17.5081 12.0003 17.5081C8.26263 17.5081 4.94788 15.413 3.32493 12.0982C4.11537 10.4715 5.34883 9.10087 6.8835 8.14387C8.41816 7.18688 10.1917 6.68239 12.0003 6.6884ZM12.0003 4.72119C7.0823 4.72119 2.8823 7.78021 1.18066 12.0982C2.8823 16.4163 7.0823 19.4753 12.0003 19.4753C16.9184 19.4753 21.1184 16.4163 22.82 12.0982C21.1184 7.78021 16.9184 4.72119 12.0003 4.72119ZM12.0003 9.63922C12.6525 9.63922 13.278 9.8983 13.7391 10.3595C14.2003 10.8206 14.4594 11.4461 14.4594 12.0982C14.4594 12.7504 14.2003 13.3759 13.7391 13.837C13.278 14.2982 12.6525 14.5573 12.0003 14.5573C11.3482 14.5573 10.7227 14.2982 10.2615 13.837C9.80039 13.3759 9.54132 12.7504 9.54132 12.0982C9.54132 11.4461 9.80039 10.8206 10.2615 10.3595C10.7227 9.8983 11.3482 9.63922 12.0003 9.63922ZM12.0003 7.67201C9.56099 7.67201 7.57411 9.6589 7.57411 12.0982C7.57411 14.5376 9.56099 16.5245 12.0003 16.5245C14.4397 16.5245 16.4266 14.5376 16.4266 12.0982C16.4266 9.6589 14.4397 7.67201 12.0003 7.67201Z"
+                  fill="#4B4848" />
               </svg>
-                <!-- <img class="h-5 w-5" [src]="getBaseFile()+ expense.evidence" alt=""> -->
-           
+              <!-- <img class="h-5 w-5" [src]="getBaseFile()+ expense.evidence" alt=""> -->
+
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
               {{ formatCurrency(expense.amount) }}
@@ -123,7 +131,8 @@
               <div class="flex justify-center space-x-2">
                 <button
                   class="text-orange-500 hover:text-orange-600 p-2 rounded-lg hover:bg-orange-50 transition-colors"
-                  (click)="openEditExpenseModal(expense)" [disabled]="loading" title="Modifier">
+                  (click)="openEditExpenseModal(expense)" [disabled]="loading"
+                  [title]="t('projectBudget.editExpenseModal')">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
@@ -131,7 +140,8 @@
                   </svg>
                 </button>
                 <button class="text-red-500 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                  (click)="confirmDeleteExpense(expense)" [disabled]="loading" title="Supprimer">
+                  (click)="confirmDeleteExpense(expense)" [disabled]="loading"
+                  [title]="t('projectBudget.confirmDelete')">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -151,8 +161,8 @@
             d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
           </path>
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune dépense</h3>
-        <p class="mt-1 text-sm text-gray-500">Commencez par ajouter une nouvelle dépense.</p>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">{{ t('projectBudget.noExpenses') }}</h3>
+        <p class="mt-1 text-sm text-gray-500">{{ t('projectBudget.startAdding') }}</p>
       </div>
     </div>
 
@@ -161,7 +171,7 @@
       <nav class="flex space-x-2">
         <button class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
           [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
-          Précédent
+          {{ t('projectBudget.previous') }}
         </button>
 
         <button *ngFor="let page of pageNumbers" class="px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -173,7 +183,7 @@
 
         <button class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
           [disabled]="currentPage === totalPages - 1" (click)="changePage(currentPage + 1)">
-          Suivant
+          {{ t('projectBudget.next') }}
         </button>
       </nav>
     </div>
@@ -184,7 +194,7 @@
 <div *ngIf="showBudgetModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-semibold text-gray-800">Modifier le budget</h2>
+      <h2 class="text-xl font-semibold text-gray-800">{{ t('projectBudget.editBudgetModal') }}</h2>
       <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeBudgetModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,21 +209,21 @@
 
     <form (ngSubmit)="saveBudget()" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Budget prévu</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('projectBudget.budgetAmount') }}</label>
         <input type="number" [(ngModel)]="budgetToEdit.plannedBudget" name="plannedBudget"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Montant du budget" required>
+          [placeholder]="t('projectBudget.budgetAmount')" required>
       </div>
 
       <div class="flex justify-end space-x-3 pt-4">
         <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           (click)="closeBudgetModal()">
-          Annuler
+          {{ t('projectBudget.cancel') }}
         </button>
         <button type="submit"
           class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
           [disabled]="loading">
-          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          {{ loading ? t('projectBudget.saving') : t('projectBudget.save') }}
         </button>
       </div>
     </form>
@@ -225,7 +235,7 @@
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-semibold text-gray-800">
-        {{ isEditingExpense ? 'Modifier la dépense' : 'Nouvelle dépense' }}
+        {{ isEditingExpense ? t('projectBudget.editExpenseModal') : t('projectBudget.newExpenseModal') }}
       </h2>
       <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeExpenseModal()">
@@ -241,70 +251,64 @@
 
     <form (ngSubmit)="saveExpense()" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('projectBudget.description') }}</label>
         <input type="text" [(ngModel)]="newExpense.description" name="description"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Description de la dépense" required>
+          [placeholder]="t('projectBudget.expenseDescription')" required>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('projectBudget.date') }}</label>
         <input type="date" [(ngModel)]="newExpense.date" name="date"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           required>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Montant</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('projectBudget.amountInCurrency') }}</label>
         <input type="number" [(ngModel)]="newExpense.amount" name="amount"
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Montant en F" required>
+          [placeholder]="t('projectBudget.amountInCurrency')" required>
       </div>
 
       <!-- Nouveau champ pour le fichier justificatif -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          Justificatif <span class="text-gray-500 text-xs">(optionnel)</span>
+          {{ t('projectBudget.evidenceOptional') }} <span class="text-gray-500 text-xs">(optionnel)</span>
         </label>
-        
+
         <!-- Zone de drop ou sélection -->
         <div class="relative">
-          <input 
-            type="file" 
-            id="evidenceFile"
-            name="evidence"
-            accept=".pdf,.jpg,.jpeg,.png"
-            (change)="onFileSelected($event)"
-            class="hidden">
-          
-          <label for="evidenceFile" 
+          <input type="file" id="evidenceFile" name="evidence" accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelected($event)" class="hidden">
+
+          <label for="evidenceFile"
             class="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
-            
+
             <!-- Si aucun fichier sélectionné -->
             <div *ngIf="!selectedFileName" class="text-center">
               <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
               <p class="text-sm text-gray-600">
-                <span class="font-medium text-orange-500">Cliquez pour parcourir</span>
-                ou glissez un fichier
+                <span class="font-medium text-orange-500">{{ t('projectBudget.clickToBrowse') }}</span>
+                {{ t('statusReport.clickToAdd') }}
               </p>
-              <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG (max 5MB)</p>
+              <p class="text-xs text-gray-500 mt-1">{{ t('projectBudget.acceptedFormats') }}</p>
             </div>
-            
+
             <!-- Si un fichier est sélectionné -->
             <div *ngIf="selectedFileName" class="flex items-center justify-between w-full">
               <div class="flex items-center space-x-2">
                 <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
                 </svg>
                 <span class="text-sm text-gray-700 truncate max-w-[200px]">{{ selectedFileName }}</span>
               </div>
-              <button 
-                type="button"
-                (click)="removeSelectedFile(); $event.stopPropagation()"
+              <button type="button" (click)="removeSelectedFile(); $event.stopPropagation()"
                 class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -313,21 +317,22 @@
             </div>
           </label>
         </div>
-        
+
         <p class="text-xs text-gray-500 mt-1">
-          Formats acceptés : PDF, JPG, PNG • Taille max : 5MB
+          {{ t('projectBudget.acceptedFormats') }}
         </p>
       </div>
 
       <div class="flex justify-end space-x-3 pt-4">
         <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           (click)="closeExpenseModal()">
-          Annuler
+          {{ t('projectBudget.cancel') }}
         </button>
         <button type="submit"
           class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
           [disabled]="loading">
-          {{ loading ? 'Enregistrement...' : (isEditingExpense ? 'Modifier' : 'Ajouter') }}
+          {{ loading ? t('projectBudget.saving') : (isEditingExpense ? t('projectBudget.save') :
+          t('projectBudget.newExpense')) }}
         </button>
       </div>
     </form>
@@ -338,7 +343,7 @@
 <div *ngIf="showConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-semibold text-gray-800">Confirmer la suppression</h2>
+      <h2 class="text-xl font-semibold text-gray-800">{{ t('projectBudget.confirmDelete') }}</h2>
       <button class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
         (click)="closeConfirmModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,32 +361,32 @@
         </svg>
       </div>
       <p class="text-gray-800 text-center">
-        Êtes-vous sûr de vouloir supprimer cette dépense ?
+        {{ t('projectBudget.deleteConfirmMessage') }}
       </p>
       <div *ngIf="expenseToDelete" class="mt-4 p-4 bg-gray-50 rounded-lg">
         <p class="text-sm text-gray-600">
-          <strong>Description:</strong> {{ expenseToDelete.description }}
+          <strong>{{ t('projectBudget.description') }}:</strong> {{ expenseToDelete.description }}
         </p>
         <p class="text-sm text-gray-600 mt-1">
-          <strong>Montant:</strong> {{ formatCurrency(expenseToDelete.amount) }}
+          <strong>{{ t('projectBudget.amount') }}:</strong> {{ formatCurrency(expenseToDelete.amount) }}
         </p>
         <p class="text-sm text-gray-600 mt-1">
-          <strong>Date:</strong> {{ getFormattedDate(expenseToDelete.date) }}
+          <strong>{{ t('projectBudget.date') }}:</strong> {{ getFormattedDate(expenseToDelete.date) }}
         </p>
       </div>
       <p class="text-sm text-red-600 text-center mt-4">
-        Cette action est irréversible.
+        {{ t('projectBudget.irreversibleAction') }}
       </p>
     </div>
 
     <div class="flex justify-end space-x-3">
       <button type="button" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
         (click)="closeConfirmModal()">
-        Annuler
+        {{ t('projectBudget.cancel') }}
       </button>
       <button type="button" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
         (click)="deleteExpense()" [disabled]="loading">
-        {{ loading ? 'Suppression...' : 'Supprimer' }}
+        {{ loading ? t('projectBudget.deleting') : t('projectBudget.delete') }}
       </button>
     </div>
   </div>
@@ -394,7 +399,7 @@
   <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
     <!-- En-tête du modal -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h3 class="text-xl font-bold text-gray-800">Preuve de la dépense</h3>
+      <h3 class="text-xl font-bold text-gray-800">{{ t('projectBudget.evidenceModal') }}</h3>
       <button (click)="closeEvidenceModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -408,15 +413,15 @@
       <div *ngIf="selectedExpense" class="mb-6 bg-gray-50 rounded-lg p-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <p class="text-xs text-gray-500 mb-1">Date</p>
+            <p class="text-xs text-gray-500 mb-1">{{ t('projectBudget.date') }}</p>
             <p class="text-sm font-semibold text-gray-800">{{ getFormattedDate(selectedExpense.date) }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Description</p>
+            <p class="text-xs text-gray-500 mb-1">{{ t('projectBudget.description') }}</p>
             <p class="text-sm font-semibold text-gray-800">{{ selectedExpense.description }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Montant</p>
+            <p class="text-xs text-gray-500 mb-1">{{ t('projectBudget.amount') }}</p>
             <p class="text-sm font-semibold text-orange-500">{{ formatCurrency(selectedExpense.amount) }}</p>
           </div>
         </div>
@@ -427,46 +432,38 @@
         <!-- Message si pas de preuve -->
         <div *ngIf="!selectedExpense.evidence" class="text-center py-12">
           <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
             </path>
           </svg>
-          <p class="mt-4 text-gray-500">Aucune preuve disponible</p>
+          <p class="mt-4 text-gray-500">{{ t('projectBudget.noEvidence') }}</p>
         </div>
 
         <!-- Affichage de l'image ou du PDF -->
         <div *ngIf="selectedExpense.evidence" class="flex flex-col items-center">
           <!-- Si c'est une image -->
           <div *ngIf="isImage(selectedExpense.evidence)" class="w-full">
-            <img 
-              [src]="getBaseFile() + selectedExpense.evidence" 
-              [alt]="'Preuve - ' + selectedExpense.description"
-              class="w-full h-auto rounded-lg shadow-sm"
-              (error)="onImageError($event)">
+            <img [src]="getBaseFile() + selectedExpense.evidence"
+              [alt]="t('projectBudget.evidence') + ' - ' + selectedExpense.description"
+              class="w-full h-auto rounded-lg shadow-sm" (error)="onImageError($event)">
           </div>
 
           <!-- Si c'est un PDF -->
           <div *ngIf="isPDF(selectedExpense.evidence)" class="w-full">
-            <iframe 
-              [src]="getPDFUrl(selectedExpense.evidence)" 
-              class="w-full h-[600px] rounded-lg"
-              frameborder="0">
+            <iframe [src]="getPDFUrl(selectedExpense.evidence)" class="w-full h-[600px] rounded-lg" frameborder="0">
             </iframe>
           </div>
 
           <!-- Bouton de téléchargement -->
           <div class="mt-4 w-full flex justify-center">
-            <a 
-              [href]="getBaseFile() + selectedExpense.evidence" 
-              download
-              target="_blank"
+            <a [href]="getBaseFile() + selectedExpense.evidence" download target="_blank"
               class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
                 </path>
               </svg>
-              Télécharger la preuve
+              {{ t('projectBudget.downloadEvidence') }}
             </a>
           </div>
         </div>
@@ -475,10 +472,9 @@
 
     <!-- Pied du modal -->
     <div class="flex justify-end p-6 border-t border-gray-200">
-      <button 
-        (click)="closeEvidenceModal()"
+      <button (click)="closeEvidenceModal()"
         class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-        Fermer
+        {{ t('projectBudget.close') }}
       </button>
     </div>
   </div>

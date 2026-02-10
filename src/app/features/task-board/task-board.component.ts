@@ -2,19 +2,19 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { 
+import {
   CreateTaskRequest,
   UpdateTaskRequest,
-  ProjectBudgetService, 
-  Task, 
-  TasksResponse 
+  ProjectBudgetService,
+  Task,
+  TasksResponse
 } from './../../../services/project-details.service';
-import { 
-  UtilisateurService, 
-  Worker, 
-  WorkersResponse 
+import {
+  UtilisateurService,
+  Worker,
+  WorkersResponse
 } from './../../../services/utilisateur.service';
-import { 
+import {
   CommentFileService,
   Document,
   DocumentsResponse,
@@ -22,6 +22,7 @@ import {
   AddDocumentRequest
 } from './../../../services/comment-file.service';
 import { ActivatedRoute } from '@angular/router';
+import { LanguageService } from '../../core/services/language.service';
 import { environment } from '../../../environments/environment';
 
 interface User {
@@ -58,7 +59,7 @@ interface TaskColumn {
   selector: 'app-task-board',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl:'./task-board.component.html',
+  templateUrl: './task-board.component.html',
   styleUrls: ['./task-board.component.scss']
 })
 export class TaskBoardComponent implements OnInit, OnDestroy {
@@ -66,11 +67,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   columns: TaskColumn[] = [];
   users: User[] = [];
   workers: Worker[] = [];
-  
+
   // Form data
   newTask: Partial<Task> = {};
   updateTask: Partial<Task> = {};
-  
+
   // UI state
   isEditMode = false;
   selectedTask: TaskDisplay | null = null;
@@ -84,13 +85,13 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   errorMessage: string | null = null;
   successMessage: string | null = null;
   searchQuery: string = '';
-  
+
   // Drag and drop state
   draggedTask: TaskDisplay | null = null;
   isDragging = false;
   dragOverColumn: string | null = null;
   isUpdatingTaskStatus = false;
-  
+
   // Pagination pour les tâches
   currentPage = 0;
   pageSize = 50;
@@ -108,7 +109,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   // File upload
   selectedFiles: File[] = [];
-  
+
   // Property ID
   currentPropertyId: number = 17;
 
@@ -139,7 +140,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     description: '',
     file: null as File | null
   };
-  
+
   // File modal
   fileToJoin: File | null = null;
   fileLibelle: string = '';
@@ -151,8 +152,13 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     private projectBudgetService: ProjectBudgetService,
     private utilisateurService: UtilisateurService,
     private commentFileService: CommentFileService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private languageService: LanguageService
   ) { }
+
+  public t(key: string, params?: { [key: string]: string | number }): string {
+    return this.languageService.translate(key, params);
+  }
 
   setPropertyId(propertyId: number): void {
     this.currentPropertyId = propertyId;
@@ -174,14 +180,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.resetCurrentTask();
     this.getPropertyIdFromRoute();
   }
-  
+
   private getPropertyIdFromRoute(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
       this.currentPropertyId = +idFromUrl;
       this.currentTask.realEstateProperty = { id: this.currentPropertyId };
       console.log('Property ID récupéré depuis l\'URL:', this.currentPropertyId);
-      
+
       this.loadWorkers();
       this.loadTasks();
     } else {
@@ -202,7 +208,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private loadWorkers(): void {
     console.log('🔄 Chargement des workers pour la propriété:', this.currentPropertyId);
-    
+
     this.utilisateurService.getWorkers(0, 100, this.currentPropertyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -228,22 +234,22 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     });
   }
 
-  public getFileBaseUrl(){
+  public getFileBaseUrl() {
     return `${environment.filebaseUrl}`;
   }
   private loadTasks(): void {
     if (!this.currentPropertyId) {
       console.warn('⚠️ Property ID not set, cannot load tasks');
-      this.error = 'ID de propriété non défini';
+      this.error = this.t('taskBoard.error.propertyNotSet') || 'ID de propriété non défini';
       this.initializeEmptyColumns();
       return;
     }
-  
+
     this.loading = true;
     this.error = null;
-  
+
     console.log('🔄 Chargement des tâches pour la propriété:', this.currentPropertyId);
-  
+
     this.projectBudgetService.getTasks(this.currentPropertyId, this.currentPage, this.pageSize)
       .pipe(
         takeUntil(this.destroy$),
@@ -261,18 +267,18 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Erreur lors du chargement des tâches:', error);
-          
-          let errorMsg = 'Erreur lors du chargement des tâches';
+
+          let errorMsg = this.t('taskBoard.error.loadTasks') || 'Erreur lors du chargement des tâches';
           if (error.status === 404) {
-            errorMsg = 'Propriété non trouvée';
+            errorMsg = this.t('taskBoard.error.propertyNotFound') || 'Propriété non trouvée';
           } else if (error.status === 403) {
-            errorMsg = 'Accès refusé à cette propriété';
+            errorMsg = this.t('taskBoard.error.accessDenied') || 'Accès refusé à cette propriété';
           } else if (error.error?.message) {
             errorMsg = error.error.message;
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           this.error = errorMsg;
           this.errorMessage = errorMsg;
           this.initializeEmptyColumns();
@@ -287,32 +293,32 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private organizeTasks(apiTasks: Task[]): void {
     const transformedTasks = apiTasks.map(task => this.transformApiTask(task));
-  
+
     this.columns = [
       {
         id: 'TODO',
-        title: 'À faire',
+        title: this.t('taskBoard.column.TODO'),
         color: 'gray',
         count: transformedTasks.filter(t => t.status === 'TODO').length,
         tasks: transformedTasks.filter(t => t.status === 'TODO')
       },
       {
         id: 'IN_PROGRESS',
-        title: 'En cours',
+        title: this.t('taskBoard.column.IN_PROGRESS'),
         color: 'yellow-400',
         count: transformedTasks.filter(t => t.status === 'IN_PROGRESS').length,
         tasks: transformedTasks.filter(t => t.status === 'IN_PROGRESS')
       },
       {
         id: 'BLOCKED',
-        title: 'Bloqué',
+        title: this.t('taskBoard.column.BLOCKED'),
         color: 'red-400',
         count: transformedTasks.filter(t => t.status === 'BLOCKED').length,
         tasks: transformedTasks.filter(t => t.status === 'BLOCKED')
       },
       {
         id: 'DONE',
-        title: 'Terminé',
+        title: this.t('taskBoard.column.DONE'),
         color: 'green-400',
         count: transformedTasks.filter(t => t.status === 'DONE').length,
         tasks: transformedTasks.filter(t => t.status === 'DONE')
@@ -322,10 +328,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private initializeEmptyColumns(): void {
     this.columns = [
-      { id: 'TODO', title: 'À faire', color: 'gray', count: 0, tasks: [] },
-      { id: 'IN_PROGRESS', title: 'En cours', color: 'yellow-400', count: 0, tasks: [] },
-      { id: 'BLOCKED', title: 'Bloqué', color: 'red-400', count: 0, tasks: [] },
-      { id: 'DONE', title: 'Terminé', color: 'green-400', count: 0, tasks: [] }
+      { id: 'TODO', title: this.t('taskBoard.column.TODO'), color: 'gray', count: 0, tasks: [] },
+      { id: 'IN_PROGRESS', title: this.t('taskBoard.column.IN_PROGRESS'), color: 'yellow-400', count: 0, tasks: [] },
+      { id: 'BLOCKED', title: this.t('taskBoard.column.BLOCKED'), color: 'red-400', count: 0, tasks: [] },
+      { id: 'DONE', title: this.t('taskBoard.column.DONE'), color: 'green-400', count: 0, tasks: [] }
     ];
   }
 
@@ -353,7 +359,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private getAssignedUsers(executors: any[]): User[] {
     if (!executors || executors.length === 0) return [];
-    
+
     return executors.slice(0, 3).map((executor) => {
       const worker = this.workers.find(w => w.id === executor.id);
       if (worker) {
@@ -363,7 +369,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           name: `${worker.prenom} ${worker.nom}`
         };
       }
-      
+
       return {
         id: executor.id,
         avatarUrl: 'assets/images/profil.png',
@@ -374,33 +380,33 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private getTagForTask(task: Task): TaskTag {
     const priorityTags: Record<string, TaskTag> = {
-      'LOW': { 
-        name: 'Basse priorité', 
-        colorClass: 'bg-blue-50', 
-        textColorClass: 'text-blue-500' 
+      'LOW': {
+        name: this.t('taskBoard.priority.LOW'),
+        colorClass: 'bg-blue-50',
+        textColorClass: 'text-blue-500'
       },
-      'MEDIUM': { 
-        name: 'Priorité moyenne', 
-        colorClass: 'bg-yellow-50', 
-        textColorClass: 'text-yellow-500' 
+      'MEDIUM': {
+        name: this.t('taskBoard.priority.MEDIUM'),
+        colorClass: 'bg-yellow-50',
+        textColorClass: 'text-yellow-500'
       },
-      'HIGH': { 
-        name: 'Haute priorité', 
-        colorClass: 'bg-red-50', 
-        textColorClass: 'text-red-500' 
+      'HIGH': {
+        name: this.t('taskBoard.priority.HIGH'),
+        colorClass: 'bg-red-50',
+        textColorClass: 'text-red-500'
       }
     };
 
-    return priorityTags[task.priority] || { 
-      name: 'Tâche', 
-      colorClass: 'bg-gray-50', 
-      textColorClass: 'text-gray-500' 
+    return priorityTags[task.priority] || {
+      name: 'Tâche',
+      colorClass: 'bg-gray-50',
+      textColorClass: 'text-gray-500'
     };
   }
 
   public formatDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return 'N/A';
-    
+
     try {
       const [year, month, day] = dateArray;
       const date = new Date(year, month - 1, day);
@@ -413,7 +419,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   private resetCurrentTask(): void {
     const now = new Date();
     const currentDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-    
+
     this.currentTask = {
       id: null,
       title: '',
@@ -429,7 +435,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   // ================== PAGINATION PAR COLONNE ==================
-  
+
   getVisibleTasks(column: TaskColumn): TaskDisplay[] {
     const startIndex = this.columnPages[column.id] * this.tasksPerColumn;
     const endIndex = startIndex + this.tasksPerColumn;
@@ -461,18 +467,18 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   onDragStart(event: DragEvent, task: TaskDisplay): void {
     console.log('🎯 Début du drag de la tâche:', task.title);
-    
+
     if (event.dataTransfer && task.id) {
       this.draggedTask = { ...task };
       this.isDragging = true;
-      
+
       event.dataTransfer.setData('application/json', JSON.stringify({
         taskId: task.id,
         originalStatus: task.status,
         taskTitle: task.title
       }));
       event.dataTransfer.effectAllowed = 'move';
-      
+
       if (event.target instanceof HTMLElement) {
         event.target.classList.add('dragging');
       }
@@ -481,11 +487,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   onDragEnd(event: DragEvent): void {
     console.log('🏁 Fin du drag');
-    
+
     this.draggedTask = null;
     this.isDragging = false;
     this.dragOverColumn = null;
-    
+
     if (event.target instanceof HTMLElement) {
       event.target.classList.remove('dragging');
     }
@@ -494,11 +500,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   onDragOver(event: DragEvent, columnId?: string): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
     }
-    
+
     if (columnId && this.isDragging) {
       this.dragOverColumn = columnId;
     }
@@ -508,7 +514,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
-    
+
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       if (this.dragOverColumn === columnId) {
         this.dragOverColumn = null;
@@ -519,11 +525,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   onDrop(event: DragEvent, targetStatus: string): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     console.log('📥 Drop dans la colonne:', targetStatus);
-    
+
     this.dragOverColumn = null;
-    
+
     if (!event.dataTransfer) {
       console.warn('⚠️ Pas de dataTransfer disponible');
       return;
@@ -543,7 +549,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
 
     const { taskId, originalStatus, taskTitle } = dragData;
-    
+
     if (!taskId || isNaN(Number(taskId))) {
       console.warn('⚠️ ID de tâche invalide:', taskId);
       return;
@@ -555,7 +561,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
 
     console.log('🔄 Changement de statut demandé:', originalStatus, '->', targetStatus);
-    
+
     const task = this.findTaskById(Number(taskId));
     if (!task) {
       console.warn('⚠️ Tâche introuvable avec l\'ID:', taskId);
@@ -577,7 +583,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private updateTaskStatusLocally(task: TaskDisplay, newStatus: string): void {
     const oldStatus = task.status;
-    
+
     const oldColumn = this.columns.find(col => col.id === oldStatus);
     if (oldColumn) {
       const taskIndex = oldColumn.tasks.findIndex(t => t.id === task.id);
@@ -586,7 +592,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         oldColumn.count = oldColumn.tasks.length;
       }
     }
-    
+
     const newColumn = this.columns.find(col => col.id === newStatus);
     if (newColumn) {
       task.status = newStatus as any;
@@ -594,25 +600,25 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       newColumn.tasks.push(task);
       newColumn.count = newColumn.tasks.length;
     }
-    
+
     console.log('✅ Mise à jour locale terminée');
   }
 
   private updateTaskStatusOnServer(
-    taskId: number, 
-    newStatus: string, 
-    originalTaskData: TaskDisplay, 
+    taskId: number,
+    newStatus: string,
+    originalTaskData: TaskDisplay,
     taskTitle: string
   ): void {
     if (this.isUpdatingTaskStatus) {
       console.log('⏳ Mise à jour déjà en cours...');
       return;
     }
-  
+
     this.isUpdatingTaskStatus = true;
-    
+
     console.log('📤 Envoi de la mise à jour au serveur:', { taskId, status: newStatus });
-  
+
     this.projectBudgetService.updateTaskStatus(taskId, newStatus)
       .pipe(
         takeUntil(this.destroy$),
@@ -624,14 +630,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         next: (response) => {
           console.log('✅ Statut mis à jour avec succès sur le serveur:', response);
           this.successMessage = `Tâche "${taskTitle}" déplacée vers "${this.getStatusColumnTitle(newStatus)}"`;
-          
+
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
         },
         error: (error) => {
           console.error('❌ Erreur lors de la mise à jour du statut:', error);
-          
+
           let errorMsg = 'Erreur lors du déplacement de la tâche';
           if (error.status === 403) {
             errorMsg = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette tâche.';
@@ -644,20 +650,20 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           this.errorMessage = errorMsg;
           this.revertTaskStatusLocally(originalTaskData);
-          
+
           setTimeout(() => {
             this.errorMessage = null;
           }, 5000);
         }
       });
   }
-  
+
   private revertTaskStatusLocally(originalTaskData: TaskDisplay): void {
     console.log('🔄 Annulation du changement local...');
-    
+
     const currentTask = this.findTaskById(originalTaskData.id!);
     if (currentTask) {
       const currentColumn = this.columns.find(col => col.tasks.includes(currentTask));
@@ -668,7 +674,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           currentColumn.count = currentColumn.tasks.length;
         }
       }
-      
+
       const originalColumn = this.columns.find(col => col.id === originalTaskData.status);
       if (originalColumn) {
         Object.assign(currentTask, originalTaskData);
@@ -748,9 +754,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   private loadComments(): void {
     if (!this.currentPropertyId) return;
-    
+
     this.loadingComments = true;
-    
+
     this.commentFileService.getComment(this.currentPropertyId, this.commentPage, this.commentPageSize)
       .pipe(
         takeUntil(this.destroy$),
@@ -809,7 +815,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
             file: null
           };
           this.loadComments();
-          
+
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
@@ -864,7 +870,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           this.fileLibelle = '';
           this.closeFileModal();
           this.loadTasks(); // Recharger les tâches pour mettre à jour le compteur de fichiers
-          
+
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
@@ -872,7 +878,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Erreur lors de la jointure du fichier:', error);
           this.errorMessage = 'Erreur lors de la jointure du fichier';
-          
+
           setTimeout(() => {
             this.errorMessage = null;
           }, 5000);
@@ -887,12 +893,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     if (!dateString) {
       return this.formatDateForApi(this.getCurrentDateArray());
     }
-    
+
     const parts = dateString.split('-');
     if (parts.length === 3) {
       return `${parts[1]}-${parts[2]}-${parts[0]}`;
     }
-    
+
     return this.formatDateForApi(this.getCurrentDateArray());
   }
 
@@ -904,7 +910,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       }
       return dateArray;
     }
-    
+
     if (!dateArray || dateArray.length < 3) {
       const now = new Date();
       const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -912,7 +918,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       const year = now.getFullYear();
       return `${year}-${month}-${day}`;
     }
-    
+
     const [year, month, day] = dateArray;
     return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
   }
@@ -950,10 +956,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
       return;
     }
-  
+
     this.loading = true;
     this.error = null;
-  
+
     this.projectBudgetService.deleteTask(taskId)
       .pipe(
         takeUntil(this.destroy$),
@@ -966,23 +972,23 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           console.log('✅ Tâche supprimée avec succès');
           this.successMessage = 'Tâche supprimée avec succès';
           this.loadTasks();
-          
+
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
         },
         error: (error) => {
           console.error('❌ Erreur lors de la suppression de la tâche:', error);
-          
+
           let errorMsg = 'Erreur lors de la suppression de la tâche';
           if (error.error?.message) {
             errorMsg = error.error.message;
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           this.errorMessage = errorMsg;
-          
+
           setTimeout(() => {
             this.errorMessage = null;
           }, 5000);
@@ -1021,7 +1027,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     if (typeof dateArray === 'string') {
       return dateArray;
     }
-    
+
     if (!dateArray || dateArray.length < 3) {
       const now = new Date();
       const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -1029,7 +1035,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       const year = now.getFullYear();
       return `${month}-${day}-${year}`;
     }
-    
+
     const [year, month, day] = dateArray;
     return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}-${year}`;
   }
@@ -1059,10 +1065,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   getStatusColumnTitle(status: string): string {
     const statusMap: Record<string, string> = {
-      'TODO': 'À faire',
-      'IN_PROGRESS': 'En cours',
-      'BLOCKED': 'Bloqué',
-      'DONE': 'Terminé'
+      'TODO': this.t('tasks.todo'),
+      'IN_PROGRESS': this.t('tasks.inProgress'),
+      'BLOCKED': this.t('tasks.blocked'),
+      'DONE': this.t('tasks.done')
     };
     return statusMap[status] || status;
   }
@@ -1078,12 +1084,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   getExecutorDetails(executor: any): string {
     if (!executor) return 'Exécuteur non défini';
-    
+
     const worker = this.workers.find(w => w.id === executor.id);
     if (worker) {
       return `${worker.prenom || ''} ${worker.nom || ''}`.trim();
     }
-    
+
     return `Exécuteur ${executor.id}`;
   }
 
@@ -1183,7 +1189,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   onExecutorChange(event: any): void {
     const selectedOptions = Array.from(event.target.selectedOptions) as HTMLOptionElement[];
     const selectedIds = selectedOptions.map(option => parseInt(option.value));
-    
+
     this.currentTask.executors = selectedIds.map(id => ({ id }));
   }
 
@@ -1226,21 +1232,21 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
             this.successMessage = 'Tâche créée avec succès';
             this.closeModal();
             this.loadTasks();
-            
+
             setTimeout(() => {
               this.successMessage = null;
             }, 3000);
           },
           error: (error) => {
             console.error('❌ Erreur lors de la création de la tâche:', error);
-            
+
             let errorMsg = 'Erreur lors de la création de la tâche';
             if (error.error?.message) {
               errorMsg = error.error.message;
             } else if (error.message) {
               errorMsg = error.message;
             }
-            
+
             this.error = errorMsg;
             this.errorMessage = errorMsg;
           }
@@ -1271,7 +1277,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       this.loading = false;
       return;
     }
-  
+
     const updateData: UpdateTaskRequest = {
       title: taskData.title,
       description: taskData.description,
@@ -1283,7 +1289,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       executorIds: taskData.executorIds,
       pictures: taskData.pictures
     };
-  
+
     this.projectBudgetService.updateTask(this.currentTask.id, updateData)
       .pipe(
         takeUntil(this.destroy$),
@@ -1297,24 +1303,24 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           this.successMessage = 'Tâche mise à jour avec succès';
           this.closeModal();
           this.loadTasks();
-          
+
           setTimeout(() => {
             this.successMessage = null;
           }, 3000);
         },
         error: (error) => {
           console.error('❌ Erreur lors de la mise à jour de la tâche:', error);
-          
+
           let errorMsg = 'Erreur lors de la mise à jour de la tâche';
           if (error.error?.message) {
             errorMsg = error.error.message;
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           this.error = errorMsg;
           this.errorMessage = errorMsg;
-          
+
           setTimeout(() => {
             this.errorMessage = null;
           }, 5000);

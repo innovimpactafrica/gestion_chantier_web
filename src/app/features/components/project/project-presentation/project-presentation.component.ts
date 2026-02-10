@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RealEstateProject, RealestateService } from '../../../../core/services/realestate.service';
 import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
 import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language.service';
 
@@ -117,31 +117,33 @@ export class ProjectPresentationComponent implements OnInit {
     });
 
     // Appel de la méthode updateProject
-    this.realEstateService.updateProject(this.projet.id, projetMisAJour).subscribe({
-      next: (response) => {
-        console.log('✅ Statut mis à jour avec succès:', response);
+    this.realEstateService.updateProject(this.projet.id, projetMisAJour)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Statut mis à jour avec succès:', response);
 
-        // Mettre à jour le projet local avec response.data.realEstateProperty
-        if (response && response.data && response.data.realEstateProperty) {
-          this.projet = response.data.realEstateProperty;
-        } else if (response && response.data) {
-          this.projet = response.data as RealEstateProject;
+          // Mettre à jour le projet local avec response.data.realEstateProperty
+          if (response && response.data && response.data.realEstateProperty) {
+            this.projet = response.data.realEstateProperty;
+          } else if (response && response.data) {
+            this.projet = response.data as RealEstateProject;
+          }
+
+          this.isUpdatingStatus = false;
+          console.log('✓ Statut changé à:', nouveauStatutFr);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la mise à jour du statut:', error);
+          this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
+          this.isUpdatingStatus = false;
+
+          // Recharger le projet pour rétablir l'état précédent
+          if (this.projet?.id) {
+            this.loadProjectDetails(this.projet.id);
+          }
         }
-
-        this.isUpdatingStatus = false;
-        console.log('✓ Statut changé à:', nouveauStatutFr);
-      },
-      error: (error) => {
-        console.error('❌ Erreur lors de la mise à jour du statut:', error);
-        this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
-        this.isUpdatingStatus = false;
-
-        // Recharger le projet pour rétablir l'état précédent
-        if (this.projet?.id) {
-          this.loadProjectDetails(this.projet.id);
-        }
-      }
-    });
+      });
   }
 
   /**
@@ -177,27 +179,30 @@ export class ProjectPresentationComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.realEstateService.getRealEstateDetails(id).subscribe({
-      next: (response) => {
-        if (response && response.realEstateProperty) {
-          this.projet = response.realEstateProperty;
-        } else {
-          this.projet = response || null;
+    this.realEstateService.getRealEstateDetails(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.realEstateProperty) {
+            this.projet = response.realEstateProperty;
+          } else {
+            this.projet = response || null;
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement du projet:', error);
+          this.error = 'Erreur lors du chargement des détails du projet';
+          this.projet = null;
+          this.loading = false;
         }
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement du projet:', error);
-        this.error = 'Erreur lors du chargement des détails du projet';
-        this.projet = null;
-        this.loading = false;
-      }
-    });
+      });
   }
 
   private loadProgression(): void {
     this.isLoadingProgress = true;
     this.dashboardService.etatAvancement().pipe(
+      takeUntil(this.destroy$),
       catchError(error => {
         console.error('Erreur progression:', error);
         this.progressError = 'Impossible de charger la progression';
@@ -222,6 +227,7 @@ export class ProjectPresentationComponent implements OnInit {
     this.budgetError = null;
 
     this.projectBudgetService.GetProjectBudget(propertyId).pipe(
+      takeUntil(this.destroy$),
       catchError(error => {
         console.error('Erreur lors du chargement du budget:', error);
         this.budgetError = 'Impossible de charger les données du budget';
@@ -308,8 +314,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasHall) {
       equipements.push({
         icon: 'assets/images/project-icons/hall1.png',
-        nom: 'Hall d\'entrée',
-        description: 'Espace d\'accueil de l\'immeuble'
+        nom: this.t('equipment.hall'),
+        description: this.t('equipment.hallDesc')
       });
     }
 
@@ -317,8 +323,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasElevator) {
       equipements.push({
         icon: 'assets/images/project-icons/elevator.png',
-        nom: 'Ascenseur',
-        description: 'Accès aux différents niveaux'
+        nom: this.t('equipment.elevator'),
+        description: this.t('equipment.elevatorDesc')
       });
     }
 
@@ -326,8 +332,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasParking) {
       equipements.push({
         icon: 'assets/images/project-icons/parking.png',
-        nom: 'Parking',
-        description: 'Espaces de stationnement'
+        nom: this.t('equipment.parking'),
+        description: this.t('equipment.parkingDesc')
       });
     }
 
@@ -335,8 +341,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasSwimmingPool) {
       equipements.push({
         icon: 'assets/images/project-icons/swimming.png', // Assurez-vous d'avoir cette icône
-        nom: 'Piscine',
-        description: 'Bassin de natation'
+        nom: this.t('equipment.pool'),
+        description: this.t('equipment.poolDesc')
       });
     }
 
@@ -344,8 +350,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasGym) {
       equipements.push({
         icon: 'assets/images/project-icons/muscle.png',
-        nom: 'Salle de sport',
-        description: 'Espace fitness équipé'
+        nom: this.t('equipment.gym'),
+        description: this.t('equipment.gymDesc')
       });
     }
 
@@ -353,8 +359,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasPlayground) {
       equipements.push({
         icon: 'assets/images/project-icons/playground.png',
-        nom: 'Terrain de jeux',
-        description: 'Espace de jeux pour enfants'
+        nom: this.t('equipment.playground'),
+        description: this.t('equipment.playgroundDesc')
       });
     }
 
@@ -362,8 +368,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasSecurityService) {
       equipements.push({
         icon: 'assets/images/project-icons/security.png',
-        nom: 'Service de sécurité',
-        description: 'Surveillance 24/7'
+        nom: this.t('equipment.security'),
+        description: this.t('equipment.securityDesc')
       });
     }
 
@@ -371,8 +377,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasGarden) {
       equipements.push({
         icon: 'assets/images/project-icons/park.png',
-        nom: 'Jardin',
-        description: 'Espace vert paysager'
+        nom: this.t('equipment.garden'),
+        description: this.t('equipment.gardenDesc')
       });
     }
 
@@ -380,8 +386,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasSharedTerrace) {
       equipements.push({
         icon: 'assets/images/project-icons/hall.png',
-        nom: 'Terrasse partagée',
-        description: 'Espace extérieur commun'
+        nom: this.t('equipment.terrace'),
+        description: this.t('equipment.terraceDesc')
       });
     }
 
@@ -389,8 +395,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasBicycleStorage) {
       equipements.push({
         icon: 'assets/images/project-icons/bike-parking.png',
-        nom: 'Local à vélos',
-        description: 'Stationnement sécurisé pour vélos'
+        nom: this.t('equipment.bikeStorage'),
+        description: this.t('equipment.bikeStorageDesc')
       });
     }
 
@@ -398,8 +404,8 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasLaundryRoom) {
       equipements.push({
         icon: 'assets/images/project-icons/washing-machine.png',
-        nom: 'Laverie',
-        description: 'Espace buanderie commun'
+        nom: this.t('equipment.laundry'),
+        description: this.t('equipment.laundryDesc')
       });
     }
 
@@ -407,18 +413,27 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.projet.hasStorageRooms) {
       equipements.push({
         icon: 'assets/images/project-icons/boxes.png',
-        nom: 'Locaux de stockage',
-        description: 'Espaces de rangement individuels'
+        nom: this.t('equipment.storage'),
+        description: this.t('equipment.storageDesc')
       });
     }
 
     // Couloirs (toujours présent)
     equipements.push({
       icon: 'assets/images/project-icons/couloir.png',
-      nom: 'Couloirs',
-      description: 'Espaces de circulation'
+      nom: this.t('equipment.corridors'),
+      description: this.t('equipment.corridorsDesc')
     });
 
     return equipements;
+  }
+
+  /**
+   * Called when progress is updated in the status report component
+   * Reloads the progress data to keep the sidebar in sync
+   */
+  onProgressUpdated(): void {
+    console.log('🔄 Progress updated, reloading progression data...');
+    this.loadProgression();
   }
 }

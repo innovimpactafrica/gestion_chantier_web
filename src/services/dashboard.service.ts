@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
 
@@ -16,7 +17,7 @@ export interface ProjectKpi {
   inProgress: number;
   delayed: number;
   pending: number;
-  pendingpending:number;
+  pendingpending: number;
 }
 export interface StudyKpi {
   total: number;
@@ -152,36 +153,36 @@ export class DashboardService {
    */
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
-    
+
     if (!token) {
       console.error('❌ Aucun token disponible pour DashboardService');
     }
-    
+
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
   }
-/**
- * Vue d'ensemble et répartition des études
- * Endpoint: api/study-requests/kpi/moa/{moaId}
- */
-getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
-  const userId = this.getCurrentUserId();
-  console.log('📊 getVueEnsembleAndRepartitionEtude - utilisateur:', userId);
-  
-  if (!userId) {
-    throw new Error('Utilisateur non connecté'); 
-  }
+  /**
+   * Vue d'ensemble et répartition des études
+   * Endpoint: api/study-requests/kpi/moa/{moaId}
+   */
+  getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
+    const userId = this.getCurrentUserId();
+    console.log('📊 getVueEnsembleAndRepartitionEtude - utilisateur:', userId);
 
-  const url = `${this.baseUrl}/study-requests/kpi/moa/${userId}`;
-  
-  console.log('📡 Appel API:', url);
-  
-  return this.http.get<StudyKpi>(url, {
-    headers: this.getAuthHeaders()
-  });
-}
+    if (!userId) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    const url = `${this.baseUrl}/study-requests/kpi/moa/${userId}`;
+
+    console.log('📡 Appel API:', url);
+
+    return this.http.get<StudyKpi>(url, {
+      headers: this.getAuthHeaders()
+    });
+  }
   /**
    * Récupère l'ID de l'utilisateur connecté
    */
@@ -198,10 +199,10 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
     const token = this.authService.getToken();
     const hasToken = !!token;
     const hasUser = !!this.authService.currentUser();
-    
+
     console.log('🔍 Token exists:', hasToken);
     console.log('🔍 User exists:', hasUser);
-    
+
     return hasToken && hasUser;
   }
 
@@ -212,16 +213,16 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
   vueEnsemble(): Observable<TasksKpi> {
     const userId = this.getCurrentUserId();
     console.log('📊 vueEnsemble - utilisateur:', userId);
-    
+
     if (!userId) {
       throw new Error('Utilisateur non connecté');
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/kpis`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<TasksKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -230,16 +231,16 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
   vueEnsembleProject(): Observable<ProjectKpi> {
     const userId = this.getCurrentUserId();
     console.log('📊 vueEnsemble - utilisateur:', userId);
-    
+
     if (!userId) {
       throw new Error('Utilisateur non connecté');
     }
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.baseUrl}/realestate/kpi/status`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<ProjectKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -258,9 +259,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.indicators}/global`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<GlobalIndicator>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -279,9 +280,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.budgets}/dashboard/kpi`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<BudgetKpi>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -302,11 +303,11 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
       .set('promoterId', userId.toString())
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     const url = `${this.endpoints.materials}/critical`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<PageableResponse<CriticalMaterial>>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -325,9 +326,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.indicators}/by-phase`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<PhaseIndicator[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -346,9 +347,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.incidents}/kpi`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<IncidentStatistic[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -367,9 +368,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/critical`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<CriticalTask[]>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -390,11 +391,11 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
       .set('promoterId', userId.toString())
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     const url = `${this.endpoints.progressAlbum}/recent`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<PageableResponse<RecentPhoto>>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -413,9 +414,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/late/count`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -434,9 +435,9 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
 
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.incidents}/count-last-7-days`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
       params: params
@@ -452,14 +453,20 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
     if (!userId) {
       throw new Error('Utilisateur non connecté');
     }
-    
+
     const url = `${this.endpoints.workers}/manager/${userId}/precense-rate`;
-    
+
     console.log('📡 Appel API:', url);
-    
+
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      catchError(error => {
+        console.warn('⚠️ Erreur lors de la récupération du taux de présence:', error);
+        // Return 0 as default value if API fails
+        return of(0);
+      })
+    );
   }
 
   /**
@@ -476,7 +483,7 @@ getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
     if (!dateArray || dateArray.length < 3) {
       return new Date();
     }
-    
+
     const [year, month, day, hour = 0, minute = 0, second = 0] = dateArray;
     return new Date(year, month - 1, day, hour, minute, second);
   }

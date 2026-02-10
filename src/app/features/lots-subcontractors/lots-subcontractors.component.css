@@ -1,0 +1,52 @@
+/* Lot Card Custom Styles */
+.lot-card-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lot-card-shadow:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Progress Bar Animation */
+.progress-bar-fill {
+    transition: width 0.5s ease-in-out;
+}
+
+/* Badge Styles */
+.lot-badge {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+/* Subcontractor Section */
+.subcontractor-section {
+    background: linear-gradient(to right, #f9fafb, #f3f4f6);
+}
+
+/* Action Button Hover */
+.action-button {
+    transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+    transform: scale(1.05);
+}
+
+/* Modal Animations */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content {
+    animation: modalFadeIn 0.2s ease-out;
+}

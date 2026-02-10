@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectBudgetService, Document, DocumentType, CreateDocumentRequest, DocumentsResponse, DocumentTypesResponse } from '../../../services/project-details.service';
 import { environment } from '../../../environments/environment';
+import { LanguageService } from '../../core/services/language.service';
 
 interface FileDisplay {
   id: number;
@@ -55,8 +56,13 @@ export class DocumentsComponent implements OnInit {
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public languageService: LanguageService
   ) { }
+
+  t(key: string, params?: { [key: string]: string | number }): string {
+    return this.languageService.translate(key, params);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {

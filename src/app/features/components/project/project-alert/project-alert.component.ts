@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { LanguageService } from '../../../../core/services/language.service';
 import { ProjectBudgetService, Signalement, SignalementResponse, CreateSignalementRequest } from '../../../../../services/project-details.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-project-alert',
@@ -22,11 +24,17 @@ export class ProjectAlertComponent implements OnInit {
   loading: boolean = false;
   propertyId!: number;
 
+  baseUrl = environment.filebaseUrl; // ✨ Base URL for images
+
   // Ajout de confirmation suppression
   showDeleteConfirmModal: boolean = false;
   signalementIdToDelete: number | null = null;
 
-  // Ajout modal
+  // Ajout modal photo
+  showPhotoModal: boolean = false;
+  selectedSignalementForPhotos: Signalement | null = null;
+
+  // Ajout modal ajout
   showAddModal: boolean = false;
   newSignalement: CreateSignalementRequest = {
     title: '',
@@ -39,24 +47,41 @@ export class ProjectAlertComponent implements OnInit {
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    public languageService: LanguageService
+  ) { }
+
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
 
   ngOnInit(): void {
     this.getPropertyIdFromRoute();
   }
 
-    private getPropertyIdFromRoute(): void {
-      const idFromUrl = this.route.snapshot.paramMap.get('id');
-      if (idFromUrl) {
-        this.propertyId = +idFromUrl;
-        this.newSignalement.propertyId = this.propertyId;
-        this.loadSignalements();
-      } else {
-        console.error("ID de propriété non trouvé dans l'URL.");
-        // Gérer l'erreur ou rediriger
-      }
+  // ... (existing code)
+
+  openPhotoModal(signalement: Signalement) {
+    this.selectedSignalementForPhotos = signalement;
+    this.showPhotoModal = true;
+  }
+
+  closePhotoModal() {
+    this.showPhotoModal = false;
+    this.selectedSignalementForPhotos = null;
+  }
+
+  private getPropertyIdFromRoute(): void {
+    const idFromUrl = this.route.snapshot.paramMap.get('id');
+    if (idFromUrl) {
+      this.propertyId = +idFromUrl;
+      this.newSignalement.propertyId = this.propertyId;
+      this.loadSignalements();
+    } else {
+      console.error("ID de propriété non trouvé dans l'URL.");
+      // Gérer l'erreur ou rediriger
     }
+  }
 
   loadSignalements(): void {
     this.loading = true;
@@ -146,21 +171,21 @@ export class ProjectAlertComponent implements OnInit {
             const base64Data = picture.split(',')[1];
             const byteCharacters = atob(base64Data);
             const byteNumbers = new Array(byteCharacters.length);
-            
+
             for (let i = 0; i < byteCharacters.length; i++) {
               byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
-            
+
             const byteArray = new Uint8Array(byteNumbers);
             const blob = new Blob([byteArray]);
-            
+
             const mimeType = picture.match(/data:(.*);base64/)?.[1] || 'image/png';
             const fileExtension = mimeType.split('/')[1] || 'png';
-            
-            const file = new File([blob], `signalement_${Date.now()}_${index}.${fileExtension}`, { 
-              type: mimeType 
+
+            const file = new File([blob], `signalement_${Date.now()}_${index}.${fileExtension}`, {
+              type: mimeType
             });
-            
+
             formData.append('pictures', file);
           } catch (error) {
             console.error('Erreur conversion image:', error);
@@ -210,18 +235,18 @@ export class ProjectAlertComponent implements OnInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5;
-    
+
     let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
-    
+
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(0, endPage - maxPagesToShow + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   }
 

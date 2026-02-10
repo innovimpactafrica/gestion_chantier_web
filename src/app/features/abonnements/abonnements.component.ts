@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from '../../../services/plan-abonnement.service';
+import { LanguageService } from '../../core/services/language.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -21,9 +22,9 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
 
   allPlans: SubscriptionPlan[] = [];
   filteredPlans: SubscriptionPlan[] = [];
-  
+
   searchTerm: string = '';
-  
+
   currentPage: number = 1;
   pageSize: number = 10;
   totalResults: number = 0;
@@ -41,9 +42,15 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
 
   constructor(
     private planService: PlanAbonnementService,
-    private router: Router
+    private router: Router,
+    public languageService: LanguageService
   ) {
     console.log('🚀 AbonnementsComponent initialisé');
+  }
+
+  // Helper pour la traduction
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   ngOnInit(): void {
@@ -57,18 +64,18 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
 
   loadPlans(): void {
     this.isLoading = true;
-    
+
     this.planService.getAllPlans()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plans) => {
           console.log('✅ Plans chargés:', plans);
-          
+
           this.allPlans = plans;
           this.filteredPlans = [...this.allPlans];
           this.totalResults = this.allPlans.length;
           this.isLoading = false;
-  
+
           console.log('📊 Plans chargés:', this.allPlans.length);
         },
         error: (error) => {
@@ -87,13 +94,13 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     }
 
     const term = this.searchTerm.toLowerCase().trim();
-    
+
     this.filteredPlans = this.allPlans.filter(plan =>
       plan.name.toLowerCase().includes(term) ||
       plan.label.toLowerCase().includes(term) ||
       plan.description.toLowerCase().includes(term)
     );
-    
+
     this.totalResults = this.filteredPlans.length;
     this.currentPage = 1;
 
@@ -153,7 +160,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           console.log('✅ Statut du plan mis à jour avec succès');
-          
+
           // ✅ Mettre à jour manuellement le plan dans la liste locale
           const index = this.allPlans.findIndex(p => p.id === this.selectedPlanForAction!.id);
           if (index !== -1) {
@@ -164,7 +171,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
             };
             this.searchPlans(); // Rafraîchir la liste filtrée
           }
-          
+
           // Afficher la notification
           this.notificationType = newStatus ? 'activated' : 'deactivated';
           this.showToggleModal = false;
@@ -208,14 +215,14 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           console.log('✅ Plan supprimé:', planId);
-          
+
           this.allPlans = this.allPlans.filter(p => p.id !== planId);
           this.searchPlans();
-          
+
           this.isDeleting = false;
           this.showDeleteModal = false;
           this.planToDelete = null;
-          
+
           alert(`Plan "${planLabel}" supprimé avec succès`);
         },
         error: (error) => {

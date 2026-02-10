@@ -19,28 +19,28 @@ export class DemandeComponent implements OnInit, OnDestroy {
   showModal: boolean = false;
   selectedDemande: Demande | null = null;
   comment: string = '';
-  
+
   // Modals
   showCreateReportModal: boolean = false;
   showConfirmValidateModal: boolean = false;
   showConfirmRejectModal: boolean = false;
   showConfirmDeleteModal: boolean = false;
   demandeToDelete: Demande | null = null;
-  
+
   // Rejection reason
   rejectionReason: string = '';
-  
+
   // Nouveau rapport
   newReport: {
     title: string;
     version: string;
     file: File | null;
   } = {
-    title: '',
-    version: '',
-    file: null
-  };
-  
+      title: '',
+      version: '',
+      file: null
+    };
+
   // États
   isCreatingReport: boolean = false;
   createReportError: string | null = null;
@@ -48,35 +48,35 @@ export class DemandeComponent implements OnInit, OnDestroy {
   isRejecting: boolean = false;
   isDeleting: boolean = false;
   actionError: string | null = null;
-  
+
   // Données
   demandes: Demande[] = [];
   filteredDemandes: Demande[] = [];
   loading: boolean = true;
   error: string | null = null;
-  
+
   // Pagination
   currentPage: number = 0;
   pageSize: number = 10;
   totalElements: number = 0;
   totalPages: number = 0;
-  
+
   // Commentaires
   comments: DemandeComment[] = [];
   loadingComments: boolean = false;
-  
+
   // ID du BET
   betId: number | null = null;
-  
+
   // Subscriptions
   private subscriptions: Subscription = new Subscription();
-  
+
   Math = Math;
 
   constructor(
     private demandeService: DemandeService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initializeBetId();
@@ -89,7 +89,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
   private initializeBetId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
-      
+
       if (user && user.id) {
         this.betId = user.id;
         this.loadDemandes();
@@ -108,7 +108,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
             console.error('Erreur refreshUser:', error);
           }
         });
-        
+
         this.subscriptions.add(refreshSubscription);
       }
     } else {
@@ -141,32 +141,32 @@ export class DemandeComponent implements OnInit, OnDestroy {
       this.loading = false;
       return;
     }
-  
+
     if (!this.isBETUser()) {
       this.error = 'Accès réservé aux utilisateurs BET';
       this.loading = false;
       return;
     }
-  
+
     this.loading = true;
     this.error = null;
-    
+
     const userId = this.authService.currentUser();
-    
+
     if (!userId || !userId.id) {
       console.error('❌ Utilisateur non connecté ou ID manquant');
       this.error = 'Utilisateur non connecté';
       this.loading = false;
       return;
     }
-    
+
     this.demandeService.getDemande(userId.id, page, this.pageSize).subscribe({
       next: (response) => {
         this.demandes = response.content;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.currentPage = response.number;
-        
+
         this.filterDemandes();
         this.loading = false;
       },
@@ -181,7 +181,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
   changePageSize(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const newSize = +target.value;
-    
+
     this.pageSize = newSize;
     this.currentPage = 0;
     this.loadDemandes();
@@ -190,11 +190,11 @@ export class DemandeComponent implements OnInit, OnDestroy {
   filterDemandes() {
     this.filteredDemandes = this.demandes.filter(demande => {
       const matchesSearch = demande.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           demande.description.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
+        demande.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+
       const matchesPeriod = this.selectedPeriod === 'Période' || this.matchesPeriodFilter(demande);
       const matchesStatus = this.selectedStatus === 'Statut' || this.mapStatusToFrench(demande.status) === this.selectedStatus;
-      
+
       return matchesSearch && matchesPeriod && matchesStatus;
     });
   }
@@ -202,7 +202,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
   private matchesPeriodFilter(demande: Demande): boolean {
     const createdDate = this.arrayToDate(demande.createdAt);
     const now = new Date();
-    
+
     switch (this.selectedPeriod) {
       case 'Cette semaine':
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -232,8 +232,8 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   arrayToDate(dateArray: number[]): Date {
     if (dateArray && dateArray.length >= 3) {
-      return new Date(dateArray[0], dateArray[1] - 1, dateArray[2], 
-                      dateArray[3] || 0, dateArray[4] || 0, dateArray[5] || 0);
+      return new Date(dateArray[0], dateArray[1] - 1, dateArray[2],
+        dateArray[3] || 0, dateArray[4] || 0, dateArray[5] || 0);
     }
     return new Date();
   }
@@ -316,16 +316,16 @@ export class DemandeComponent implements OnInit, OnDestroy {
     const validateSubscription = this.demandeService.validateDemande(this.selectedDemande.id).subscribe({
       next: (updatedDemande: Demande) => {
         console.log('✅ Demande validée avec succès:', updatedDemande);
-        
+
         // Mettre à jour la demande locale
         this.selectedDemande = updatedDemande;
-        
+
         // Mettre à jour dans la liste
         const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
         if (index !== -1) {
           this.demandes[index] = updatedDemande;
         }
-        
+
         this.filterDemandes();
         this.closeValidateConfirmation();
       },
@@ -359,21 +359,21 @@ export class DemandeComponent implements OnInit, OnDestroy {
     this.actionError = null;
 
     const rejectSubscription = this.demandeService.rejectDemande(
-      this.selectedDemande.id, 
+      this.selectedDemande.id,
       this.rejectionReason.trim() || undefined
     ).subscribe({
       next: (updatedDemande: Demande) => {
         console.log('✅ Demande rejetée avec succès:', updatedDemande);
-        
+
         // Mettre à jour la demande locale
         this.selectedDemande = updatedDemande;
-        
+
         // Mettre à jour dans la liste
         const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
         if (index !== -1) {
           this.demandes[index] = updatedDemande;
         }
-        
+
         this.filterDemandes();
         this.closeRejectConfirmation();
       },
@@ -423,13 +423,13 @@ export class DemandeComponent implements OnInit, OnDestroy {
     const deleteSubscription = this.demandeService.deleteDemande(this.demandeToDelete.id).subscribe({
       next: () => {
         console.log('✅ Demande supprimée avec succès');
-        
+
         // Retirer de la liste
         this.demandes = this.demandes.filter(d => d.id !== this.demandeToDelete!.id);
         this.filterDemandes();
-        
+
         this.closeDeleteConfirmation();
-        
+
         // Recharger si la liste est vide
         if (this.demandes.length === 0 && this.currentPage > 0) {
           this.loadDemandes(this.currentPage - 1);
@@ -530,8 +530,8 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   private isCreateReportFormValid(): boolean {
     return !!(
-      this.newReport.title.trim() && 
-      this.newReport.version.trim() && 
+      this.newReport.title.trim() &&
+      this.newReport.version.trim() &&
       this.newReport.file
     );
   }
@@ -575,14 +575,14 @@ export class DemandeComponent implements OnInit, OnDestroy {
     const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
       next: (response: Report) => {
         console.log('✅ Rapport créé avec succès:', response);
-        
+
         if (this.selectedDemande) {
           if (!this.selectedDemande.reports) {
             this.selectedDemande.reports = [];
           }
           this.selectedDemande.reports.push(response);
         }
-        
+
         this.closeCreateReportModal();
       },
       error: (error: any) => {
@@ -629,11 +629,125 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   // ========== UTILITAIRES ==========
 
-  canAcceptOrReject(): boolean {
+  canAccept(): boolean {
     return this.selectedDemande?.status === 'PENDING';
+  }
+
+  canMarkAsDelivered(): boolean {
+    return this.selectedDemande?.status === 'IN_PROGRESS';
+  }
+
+  canValidateOrReject(): boolean {
+    return this.selectedDemande?.status === 'DELIVERED';
   }
 
   getUserDisplayName(): string {
     return this.authService.getUserDisplayName();
+  }
+
+  // ========== PROGRESS STEPPER ==========
+
+  getProgressSteps(statut: string): {
+    step: number;
+    isCompleted: boolean;
+    isCurrent: boolean;
+    label: string;
+    showCheck: boolean;
+  }[] {
+    const steps = [
+      { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false, showCheck: false }
+    ];
+
+    switch (statut) {
+      case 'PENDING':
+        steps[0].isCurrent = true;
+        break;
+      case 'IN_PROGRESS':
+        steps[0].isCompleted = true;
+        steps[0].showCheck = true;
+        steps[1].isCurrent = true;
+        break;
+      case 'DELIVERED':
+        steps[0].isCompleted = true;
+        steps[0].showCheck = true;
+        steps[1].isCompleted = true;
+        steps[1].showCheck = true;
+        steps[2].isCurrent = true;
+        break;
+      case 'VALIDATED':
+      case 'REJECTED':
+        steps.forEach(step => {
+          step.isCompleted = true;
+          step.showCheck = true;
+        });
+        break;
+    }
+
+    return steps;
+  }
+
+  // ========== ACTIONS SELON STATUT ==========
+
+  acceptDemande(): void {
+    if (!this.selectedDemande) return;
+
+    this.isValidating = true;
+    this.actionError = null;
+
+    const acceptSubscription = this.demandeService.acceptDemande(this.selectedDemande.id).subscribe({
+      next: (updatedDemande: Demande) => {
+        console.log('✅ Demande acceptée avec succès:', updatedDemande);
+
+        this.selectedDemande = updatedDemande;
+
+        const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
+        if (index !== -1) {
+          this.demandes[index] = updatedDemande;
+        }
+
+        this.filterDemandes();
+        this.isValidating = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de l\'acceptation:', error);
+        this.actionError = 'Erreur lors de l\'acceptation de la demande';
+        this.isValidating = false;
+      }
+    });
+
+    this.subscriptions.add(acceptSubscription);
+  }
+
+  markAsDelivered(): void {
+    if (!this.selectedDemande) return;
+
+    this.isValidating = true;
+    this.actionError = null;
+
+    const deliverSubscription = this.demandeService.deliverDemande(this.selectedDemande.id).subscribe({
+      next: (updatedDemande: Demande) => {
+        console.log('✅ Demande marquée comme livrée:', updatedDemande);
+
+        this.selectedDemande = updatedDemande;
+
+        const index = this.demandes.findIndex(d => d.id === updatedDemande.id);
+        if (index !== -1) {
+          this.demandes[index] = updatedDemande;
+        }
+
+        this.filterDemandes();
+        this.isValidating = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la livraison:', error);
+        this.actionError = 'Erreur lors de la livraison de la demande';
+        this.isValidating = false;
+      }
+    });
+
+    this.subscriptions.add(deliverSubscription);
   }
 }

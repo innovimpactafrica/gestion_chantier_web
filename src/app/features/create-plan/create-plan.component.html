@@ -1,13 +1,12 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA] min-h-screen">
   <!-- En-tête avec bouton retour -->
   <div class="mb-6">
-    <button 
-      (click)="goBack()"
-      class="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <button (click)="goBack()" class="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
-      <span class="font-medium">Retour</span>
+      <span class="font-medium">{{ t('common.back') }}</span>
     </button>
     <h1 class="text-3xl font-bold text-[#1E293B]">{{ pageTitle }}</h1>
   </div>
@@ -19,27 +18,23 @@
 
   <!-- Formulaire -->
   <div *ngIf="!isLoading" class="bg-white rounded-lg shadow-sm p-8">
-    <h2 class="text-2xl font-bold text-[#1E293B] mb-6">Informations générales</h2>
+    <h2 class="text-2xl font-bold text-[#1E293B] mb-6">{{ t('common.generalInfo') }}</h2>
 
     <form (ngSubmit)="savePlan()" class="space-y-6">
-      
+
       <!-- Ligne 1: Type de plan (name) et Niveau (label) -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         <!-- Type de plan (name) - SELECT -->
         <div>
           <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
-            Type de plan <span class="text-red-500">*</span>
+            {{ t('subscriptions.planName') }} <span class="text-red-500">*</span>
           </label>
-          <select
-            id="name"
-            name="name"
-            [(ngModel)]="formData.name"
-            [disabled]="isReadOnly"
+          <select id="name" name="name" [(ngModel)]="formData.name" [disabled]="isReadOnly"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white appearance-none"
             [class.border-red-500]="errors['name']"
             style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.25rem;">
-            <option value="" disabled selected>Sélectionner un type</option>
+            <option value="" disabled selected>{{ t('common.selectType') }}</option>
             <option *ngFor="let option of nameOptions" [value]="option.value">
               {{ option.label }}
             </option>
@@ -50,17 +45,13 @@
         <!-- Niveau (label) - SELECT -->
         <div>
           <label for="label" class="block text-sm font-semibold text-gray-700 mb-2">
-            Niveau <span class="text-red-500">*</span>
+            {{ t('common.level') }} <span class="text-red-500">*</span>
           </label>
-          <select
-            id="label"
-            name="label"
-            [(ngModel)]="formData.label"
-            [disabled]="isReadOnly"
+          <select id="label" name="label" [(ngModel)]="formData.label" [disabled]="isReadOnly"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white appearance-none"
             [class.border-red-500]="errors['label']"
             style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.25rem;">
-            <option value="" disabled selected>Sélectionner un niveau</option>
+            <option value="" disabled selected>{{ t('common.selectLevel') }}</option>
             <option *ngFor="let option of labelOptions" [value]="option.value">
               {{ option.label }}
             </option>
@@ -71,80 +62,53 @@
 
       <!-- Ligne 2: Coût total et Nombre d'échéances -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         <!-- Coût total -->
         <div>
           <label for="totalCost" class="block text-sm font-semibold text-gray-700 mb-2">
-            Coût total (F CFA) <span class="text-red-500">*</span>
+            {{ t('common.totalCost') }} (F CFA) <span class="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            id="totalCost"
-            name="totalCost"
-            [(ngModel)]="formData.totalCost"
-            [disabled]="isReadOnly"
-            placeholder="Ex: 50000"
-            min="0"
-            step="1000"
+          <input type="number" id="totalCost" name="totalCost" [(ngModel)]="formData.totalCost" [disabled]="isReadOnly"
+            placeholder="Ex: 50000" min="0" step="1000"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            [class.border-red-500]="errors['totalCost']"
-          />
+            [class.border-red-500]="errors['totalCost']" />
           <p *ngIf="errors['totalCost']" class="mt-1 text-sm text-red-600">{{ errors['totalCost'] }}</p>
         </div>
 
         <!-- Nombre d'échéances -->
         <div>
           <label for="installmentCount" class="block text-sm font-semibold text-gray-700 mb-2">
-            Nombre d'échéances <span class="text-red-500">*</span>
+            {{ t('common.installments') }} <span class="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            id="installmentCount"
-            name="installmentCount"
-            [(ngModel)]="formData.installmentCount"
-            [disabled]="isReadOnly"
-            placeholder="Ex: 1"
-            min="1"
+          <input type="number" id="installmentCount" name="installmentCount" [(ngModel)]="formData.installmentCount"
+            [disabled]="isReadOnly" placeholder="Ex: 1" min="1"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            [class.border-red-500]="errors['installmentCount']"
-          />
+            [class.border-red-500]="errors['installmentCount']" />
           <p *ngIf="errors['installmentCount']" class="mt-1 text-sm text-red-600">{{ errors['installmentCount'] }}</p>
         </div>
       </div>
 
       <!-- Ligne 3: Limite de projets et Remise annuelle -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         <!-- Limite de projets -->
         <div>
           <label for="projectLimit" class="block text-sm font-semibold text-gray-700 mb-2">
-            Limite de projets <span class="text-red-500">*</span>
+            {{ t('common.projectLimit') }} <span class="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            id="projectLimit"
-            name="projectLimit"
-            [(ngModel)]="formData.projectLimit"
-            [disabled]="isReadOnly || formData.unlimitedProjects"
-            placeholder="Ex: 5"
-            min="0"
+          <input type="number" id="projectLimit" name="projectLimit" [(ngModel)]="formData.projectLimit"
+            [disabled]="isReadOnly || formData.unlimitedProjects" placeholder="Ex: 5" min="0"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            [class.border-red-500]="errors['projectLimit']"
-          />
+            [class.border-red-500]="errors['projectLimit']" />
           <p *ngIf="errors['projectLimit']" class="mt-1 text-sm text-red-600">{{ errors['projectLimit'] }}</p>
-          
+
           <!-- Checkbox Projets illimités -->
           <div class="mt-3">
             <label class="flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                [(ngModel)]="formData.unlimitedProjects"
-                (change)="onUnlimitedProjectsChange()"
-                [disabled]="isReadOnly"
-                name="unlimitedProjects"
-                class="w-4 h-4 text-[#FF5C01] bg-gray-100 border-gray-300 rounded focus:ring-[#FF5C01] focus:ring-2 disabled:cursor-not-allowed"
-              />
-              <span class="ml-2 text-sm text-gray-700">Projets illimités</span>
+              <input type="checkbox" [(ngModel)]="formData.unlimitedProjects" (change)="onUnlimitedProjectsChange()"
+                [disabled]="isReadOnly" name="unlimitedProjects"
+                class="w-4 h-4 text-[#FF5C01] bg-gray-100 border-gray-300 rounded focus:ring-[#FF5C01] focus:ring-2 disabled:cursor-not-allowed" />
+              <span class="ml-2 text-sm text-gray-700">{{ t('common.unlimitedProjects') }}</span>
             </label>
           </div>
         </div>
@@ -152,60 +116,45 @@
         <!-- Remise annuelle -->
         <div>
           <label for="yearlyDiscountRate" class="block text-sm font-semibold text-gray-700 mb-2">
-            Remise annuelle (%) <span class="text-red-500">*</span>
+            {{ t('common.yearlyDiscount') }} (%) <span class="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            id="yearlyDiscountRate"
-            name="yearlyDiscountRate"
-            [(ngModel)]="formData.yearlyDiscountRate"
-            [disabled]="isReadOnly"
-            placeholder="Ex: 10"
-            min="0"
-            max="100"
+          <input type="number" id="yearlyDiscountRate" name="yearlyDiscountRate"
+            [(ngModel)]="formData.yearlyDiscountRate" [disabled]="isReadOnly" placeholder="Ex: 10" min="0" max="100"
             step="0.1"
             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            [class.border-red-500]="errors['yearlyDiscountRate']"
-          />
-          <p *ngIf="errors['yearlyDiscountRate']" class="mt-1 text-sm text-red-600">{{ errors['yearlyDiscountRate'] }}</p>
+            [class.border-red-500]="errors['yearlyDiscountRate']" />
+          <p *ngIf="errors['yearlyDiscountRate']" class="mt-1 text-sm text-red-600">{{ errors['yearlyDiscountRate'] }}
+          </p>
         </div>
       </div>
 
       <!-- Ligne 4: Description -->
       <div>
         <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-          Description <span class="text-red-500">*</span>
+          {{ t('common.description') }} <span class="text-red-500">*</span>
         </label>
-        <textarea
-          id="description"
-          name="description"
-          [(ngModel)]="formData.description"
-          [disabled]="isReadOnly"
-          rows="4"
-          placeholder="Ex: Plan pour promoteurs immobiliers avec accès complet"
+        <textarea id="description" name="description" [(ngModel)]="formData.description" [disabled]="isReadOnly"
+          rows="4" placeholder="Ex: Plan pour promoteurs immobiliers avec accès complet"
           class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-          [class.border-red-500]="errors['description']"
-        ></textarea>
+          [class.border-red-500]="errors['description']"></textarea>
         <p *ngIf="errors['description']" class="mt-1 text-sm text-red-600">{{ errors['description'] }}</p>
       </div>
 
       <!-- Ligne 5: Statut du plan -->
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">
-          Statut du plan
+          {{ t('common.status') }}
         </label>
         <div class="flex items-center h-12">
           <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              [(ngModel)]="formData.active"
-              [disabled]="isReadOnly"
-              name="active"
-              class="sr-only peer"
-            />
-            <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#FF5C01]"></div>
-            <span class="ml-3 text-sm font-medium" [class.text-gray-900]="formData.active" [class.text-gray-500]="!formData.active">
-              {{ formData.active ? 'Actif' : 'Inactif' }}
+            <input type="checkbox" [(ngModel)]="formData.active" [disabled]="isReadOnly" name="active"
+              class="sr-only peer" />
+            <div
+              class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#FF5C01]">
+            </div>
+            <span class="ml-3 text-sm font-medium" [class.text-gray-900]="formData.active"
+              [class.text-gray-500]="!formData.active">
+              {{ formData.active ? t('common.active') : t('common.inactive') }}
             </span>
           </label>
         </div>
@@ -213,27 +162,24 @@
 
       <!-- Boutons d'action -->
       <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
-        <button
-          *ngIf="!isReadOnly"
-          type="submit"
-          [disabled]="isSaving"
+        <button *ngIf="!isReadOnly" type="submit" [disabled]="isSaving"
           class="bg-[#FF5C01] hover:bg-[#E54F00] text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-          <span *ngIf="!isSaving">{{ mode === 'create' ? 'Enregistrer' : 'Mettre à jour' }}</span>
+          <span *ngIf="!isSaving">{{ mode === 'create' ? t('common.save') : t('common.update') }}</span>
           <span *ngIf="isSaving" class="flex items-center">
             <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none">
+              </circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
             </svg>
-            Enregistrement...
+            {{ t('common.saving') }}
           </span>
         </button>
 
-        <button
-          type="button"
-          (click)="isReadOnly ? goBack() : cancel()"
-          [disabled]="isSaving"
+        <button type="button" (click)="isReadOnly ? goBack() : cancel()" [disabled]="isSaving"
           class="px-8 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isReadOnly ? 'Fermer' : 'Annuler' }}
+          {{ isReadOnly ? t('common.close') : t('common.cancel') }}
         </button>
       </div>
     </form>
@@ -254,9 +200,9 @@
       </svg>
     </div>
     <div class="flex-1">
-      <p class="text-sm font-semibold text-gray-900 mb-1">Plan créé avec succès !</p>
+      <p class="text-sm font-semibold text-gray-900 mb-1">{{ t('subscriptions.success.created') }}</p>
       <p class="text-sm text-gray-600">
-        Le plan <strong>"{{ planLabel }}"</strong> a été créé.
+        {{ t('common.planCreatedMessage', { plan: planLabel }) }}
       </p>
     </div>
   </div>
@@ -271,9 +217,9 @@
       </svg>
     </div>
     <div class="flex-1">
-      <p class="text-sm font-semibold text-gray-900 mb-1">Plan modifié avec succès !</p>
+      <p class="text-sm font-semibold text-gray-900 mb-1">{{ t('subscriptions.success.updated') }}</p>
       <p class="text-sm text-gray-600">
-        Le plan <strong>"{{ planLabel }}"</strong> a été mis à jour.
+        {{ t('common.planUpdatedMessage', { plan: planLabel }) }}
       </p>
     </div>
   </div>
@@ -281,18 +227,19 @@
 
 <!-- Animation CSS à ajouter dans create-plan.component.css -->
 <style>
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
 
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
-}
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
 </style>

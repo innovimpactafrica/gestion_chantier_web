@@ -22,17 +22,17 @@
       <button (click)="setActiveTab('albums')"
         [ngClass]="activeTab === 'albums' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
         class="py-4 px-4 w-2/6 rounded-[4px]">
-        Vue Albums
+        {{ t('statusReport.albumsView') }}
       </button>
       <button (click)="setActiveTab('graphique')"
         [ngClass]="activeTab === 'graphique' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
         class="py-4 px-4 w-2/6 rounded-[4px]">
-        Vue Graphique
+        {{ t('statusReport.graphView') }}
       </button>
       <button (click)="setActiveTab('tableau')"
         [ngClass]="activeTab === 'tableau' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
         class="py-4 px-4 w-2/6 rounded-[4px]">
-        Tableau indicateurs
+        {{ t('statusReport.indicatorsTable') }}
       </button>
     </div>
   </div>
@@ -51,7 +51,7 @@
           <button
             (click)="album.pictures && album.pictures.length > 0 && openImageViewer(album.pictures[0], album.pictures); $event.stopPropagation()"
             class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200 border border-white/30"
-            title="Voir les photos">
+            [title]="t('statusReport.viewPhotos')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -61,7 +61,7 @@
 
           <button (click)="onEditAlbum(album); $event.stopPropagation()"
             class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-200 border border-white/30"
-            title="Modifier l'album">
+            [title]="t('statusReport.editAlbum')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -71,7 +71,7 @@
 
           <button (click)="onDeleteAlbum(album); $event.stopPropagation()"
             class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-red-500/70 hover:scale-110 transition-all duration-200 border border-white/30"
-            title="Supprimer l'album">
+            [title]="t('statusReport.deleteAlbum')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -94,7 +94,7 @@
             </div>
             <div class="flex items-center gap-1">
               <i class="fa-solid fa-image text-sm"></i>
-              <span>{{ getPhotoCount(album.pictures) }} photos</span>
+              <span>{{ getPhotoCount(album.pictures) }} {{ t('statusReport.photos') }}</span>
             </div>
           </div>
         </div>
@@ -126,9 +126,9 @@
         <table class="min-w-full text-left text-sm">
           <thead class="bg-[#F5F7FA]">
             <tr>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">Étape</th>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">%Pourcentage</th>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">Date Mise À Jour</th>
+              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.step') }}</th>
+              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.percentage') }}</th>
+              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.updateDate') }}</th>
             </tr>
           </thead>
           <tbody class="text-gray-700">
@@ -166,7 +166,7 @@
 
                       <!-- Option par défaut si aucun pourcentage -->
                       <option value="" [selected]="getProgressValue(ligne.etape) === 0" disabled>
-                        Sélectionner une pourcentage
+                        {{ t('statusReport.selectPercentage') }}
                       </option>
 
                       <!-- Options des pourcentages -->
@@ -218,7 +218,7 @@
 <!-- Modal Créer Album -->
 <div *ngIf="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-    <h2 class="text-xl font-bold mb-4">Créer un nouvel album</h2>
+    <h2 class="text-xl font-bold mb-4">{{ t('statusReport.createAlbum') }}</h2>
 
     <form (ngSubmit)="createAlbum()" class="space-y-4">
       <div>
@@ -237,7 +237,7 @@
 
       <!-- Section d'ajout de photos -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Photos de l'album</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('statusReport.albumPhotos') }}</label>
 
         <!-- Input pour upload de fichiers -->
         <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
@@ -251,10 +251,10 @@
               </path>
             </svg>
             <p class="mt-1 text-sm text-gray-600">
-              Cliquez pour ajouter des photos ou glissez-déposez
+              {{ t('statusReport.clickToAdd') }}
             </p>
             <p class="text-xs text-gray-500">
-              PNG, JPG, JPEG jusqu'à 10MB
+              {{ t('statusReport.acceptedFormats') }}
             </p>
           </label>
         </div>
@@ -262,7 +262,7 @@
         <!-- Aperçu des photos sélectionnées -->
         <div *ngIf="albumForm.pictures.length > 0" class="mt-3">
           <p class="text-sm font-medium text-gray-700 mb-2">
-            Photos sélectionnées ({{ albumForm.pictures.length }})
+            {{ t('statusReport.selectedPhotos') }} ({{ albumForm.pictures.length }})
           </p>
           <div class="grid grid-cols-3 gap-2">
             <div *ngFor="let picture of albumForm.pictures; let i = index" class="relative">
@@ -282,11 +282,11 @@
       <div class="flex gap-3 pt-4">
         <button type="button" (click)="closeCreateModal()"
           class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">
-          Annuler
+          {{ t('statusReport.cancel') }}
         </button>
         <button type="submit" [disabled]="!albumForm.name.trim()"
           class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
-          Créer
+          {{ t('statusReport.create') }}
         </button>
       </div>
     </form>
@@ -298,14 +298,14 @@
 <!-- ============================================ -->
 <div *ngIf="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-    <h2 class="text-xl font-bold mb-4">Modifier l'album</h2>
+    <h2 class="text-xl font-bold mb-4">{{ t('statusReport.editAlbum') }}</h2>
 
     <form (ngSubmit)="updateAlbum()" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nom de l'album *</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('statusReport.albumName') }} *</label>
         <input type="text" [(ngModel)]="albumForm.name" name="name" required
           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          placeholder="Nom de l'album">
+          [placeholder]="t('statusReport.albumName')">
       </div>
 
       <div>
@@ -317,12 +317,12 @@
 
       <!-- NOUVEAU: Section de gestion des photos -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Photos de l'album</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('statusReport.albumPhotos') }}</label>
 
         <!-- Photos existantes -->
         <div *ngIf="albumForm.pictures.length > 0" class="mb-3">
           <p class="text-sm text-gray-600 mb-2">
-            Photos actuelles ({{ albumForm.pictures.length }})
+            {{ t('statusReport.currentPhotos') }} ({{ albumForm.pictures.length }})
           </p>
           <div class="grid grid-cols-3 gap-2">
             <div *ngFor="let picture of albumForm.pictures; let i = index" class="relative">
@@ -349,10 +349,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             <p class="mt-1 text-sm text-gray-600">
-              Ajouter de nouvelles photos
+              {{ t('statusReport.addNewPhotos') }}
             </p>
             <p class="text-xs text-gray-500">
-              PNG, JPG, JPEG jusqu'à 5MB
+              {{ t('statusReport.acceptedFormats') }}
             </p>
           </label>
         </div>
@@ -361,11 +361,11 @@
       <div class="flex gap-3 pt-4">
         <button type="button" (click)="closeEditModal()"
           class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition-colors">
-          Annuler
+          {{ t('statusReport.cancel') }}
         </button>
         <button type="submit" [disabled]="!albumForm.name.trim()"
           class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          Modifier
+          {{ t('statusReport.modify') }}
         </button>
       </div>
     </form>
@@ -377,21 +377,21 @@
   <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
     <div class="text-center">
       <i class="fa-solid fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-      <h2 class="text-xl font-bold mb-4">Confirmer la suppression</h2>
+      <h2 class="text-xl font-bold mb-4">{{ t('statusReport.confirmDeletion') }}</h2>
       <p class="text-gray-600 mb-6">
-        Êtes-vous sûr de vouloir supprimer l'album
+        {{ t('statusReport.deleteConfirmMessage') }}
         <strong>"{{ albumToDelete?.phaseName }}"</strong> ?
         <br>
-        Cette action est irréversible.
+        {{ t('statusReport.irreversibleAction') }}
       </p>
 
       <div class="flex gap-3">
         <button (click)="closeDeleteModal()"
           class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">
-          Non, annuler
+          {{ t('statusReport.noCancel') }}
         </button>
         <button (click)="confirmDelete()" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">
-          Oui, supprimer
+          {{ t('statusReport.yesDelete') }}
         </button>
       </div>
     </div>
@@ -440,7 +440,7 @@
       <!-- Message si pas de photos -->
       <div *ngIf="!currentAlbum.pictures || currentAlbum.pictures.length === 0" class="text-center py-12 text-gray-500">
         <i class="fa-solid fa-images text-4xl mb-3"></i>
-        <p>Aucune photo dans cet album</p>
+        <p>{{ t('statusReport.noPhotos') }}</p>
       </div>
     </div>
   </div>

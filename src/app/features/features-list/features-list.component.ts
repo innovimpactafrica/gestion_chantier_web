@@ -266,8 +266,8 @@ export class FeaturesListComponent implements OnInit {
 
     getPageDescription(): string {
         return this.currentLang === 'FR'
-            ? 'Découvrez toutes les fonctionnalités de BTP CONNECT pour gérer vos chantiers efficacement'
-            : 'Discover all BTP CONNECT features to manage your construction sites efficiently';
+            ? 'Découvrez toutes les fonctionnalités de BTP CLOUD pour gérer vos chantiers efficacement'
+            : 'Discover all BTP CLOUD features to manage your construction sites efficiently';
     }
 
     getBackButton(): string {

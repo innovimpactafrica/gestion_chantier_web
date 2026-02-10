@@ -1,16 +1,17 @@
 <div class="max-w-6xl mx-auto p-6 bg-white">
   <!-- En-tête -->
   <div class="mb-8">
-    <h1 class="text-2xl font-semibold text-gray-900 mb-2">Nouveau projet</h1>
-    <p class="text-gray-600">Remplissez ce formulaire pour créer un nouveau projet</p>
-    
+    <h1 class="text-2xl font-semibold text-gray-900 mb-2">{{ t('newProject.title') }}</h1>
+    <p class="text-gray-600">{{ t('newProject.subtitle') }}</p>
+
     <!-- Information utilisateur connecté -->
     <div *ngIf="isUserAuthenticated" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <div class="flex items-center text-sm text-blue-800">
         <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
         </svg>
-        <span>Manager assigné : <strong>{{ getUserDisplayName() }}</strong></span>
+        <span>{{ t('newProject.assignedManager') }} : <strong>{{ getUserDisplayName() }}</strong></span>
       </div>
     </div>
   </div>
@@ -18,21 +19,27 @@
   <!-- Indicateur de chargement ou erreur -->
   <div *ngIf="isLoadingData" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
     <div class="flex items-center">
-      <svg class="animate-spin h-5 w-5 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-5 w-5 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
       </svg>
-      <span class="text-sm text-blue-800">Chargement des données...</span>
+      <span class="text-sm text-blue-800">{{ t('newProject.loading') }}</span>
     </div>
   </div>
   <div *ngIf="loadingError" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
     <div class="flex">
       <svg class="h-5 w-5 text-red-400 mr-3" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd" />
       </svg>
       <div class="text-sm text-red-700">
         {{ loadingError }}
-        <button (click)="retryLoadData()" class="ml-2 text-blue-600 hover:underline">Réessayer</button>
+        <button (click)="retryLoadData()" class="ml-2 text-blue-600 hover:underline">{{ t('newProject.retry')
+          }}</button>
       </div>
     </div>
   </div>
@@ -40,25 +47,22 @@
   <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="space-y-8">
     <!-- Informations générales -->
     <div class="bg-white p-6 rounded-lg border border-gray-200">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Informations générales</h2>
-      
+      <h2 class="text-lg font-medium text-gray-900 mb-6">{{ t('newProject.generalInfo') }}</h2>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Type de projet -->
         <div>
           <label for="propertyTypeId" class="block text-sm font-medium text-gray-700 mb-2">
-            Type de projet *
+            {{ t('newProject.projectType') }} *
           </label>
-          <select
-          id="propertyTypeId"
-          formControlName="propertyTypeId"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          [class.border-red-500]="hasError('propertyTypeId', 'required')"
-        >
-          <option value="">Sélectionner un type</option>
-          <option *ngFor="let type of propertyTypes; trackBy: trackByTypeId" [value]="type.id">
-            {{ type.typename }}
-          </option>
-        </select>
+          <select id="propertyTypeId" formControlName="propertyTypeId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            [class.border-red-500]="hasError('propertyTypeId', 'required')">
+            <option value="">{{ t('newProject.selectType') }}</option>
+            <option *ngFor="let type of propertyTypes; trackBy: trackByTypeId" [value]="type.id">
+              {{ type.typename }}
+            </option>
+          </select>
           <div *ngIf="hasError('propertyTypeId', 'required')" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('propertyTypeId') }}
           </div>
@@ -67,16 +71,11 @@
         <!-- Nom du projet -->
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-            Nom du projet *
+            {{ t('newProject.projectName') }} *
           </label>
-          <input
-            type="text"
-            id="name"
-            formControlName="name"
-            placeholder="Ex: Construction immeuble"
+          <input type="text" id="name" formControlName="name" placeholder="Ex: Construction immeuble"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('name', 'required') || hasError('name', 'minlength')"
-          />
+            [class.border-red-500]="hasError('name', 'required') || hasError('name', 'minlength')" />
           <div *ngIf="nameControl?.invalid && nameControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('name') }}
           </div>
@@ -85,16 +84,11 @@
         <!-- Numéro -->
         <div>
           <label for="number" class="block text-sm font-medium text-gray-700 mb-2">
-            Numéro *
+            {{ t('newProject.number') }} *
           </label>
-          <input
-            type="text"
-            id="number"
-            formControlName="number"
-            placeholder="Ex: PRJ-2025-001"
+          <input type="text" id="number" formControlName="number" placeholder="Ex: PRJ-2025-001"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('number', 'required')"
-          />
+            [class.border-red-500]="hasError('number', 'required')" />
           <div *ngIf="hasError('number', 'required')" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('number') }}
           </div>
@@ -103,17 +97,11 @@
         <!-- Surface -->
         <div>
           <label for="area" class="block text-sm font-medium text-gray-700 mb-2">
-            Surface (m²) *
+            {{ t('newProject.area') }} *
           </label>
-          <input
-            type="number"
-            id="area"
-            formControlName="area"
-            placeholder="Ex: 400"
-            min="1"
+          <input type="number" id="area" formControlName="area" placeholder="Ex: 400" min="1"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('area', 'required') || hasError('area', 'min')"
-          />
+            [class.border-red-500]="hasError('area', 'required') || hasError('area', 'min')" />
           <div *ngIf="areaControl?.invalid && areaControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('area') }}
           </div>
@@ -122,18 +110,12 @@
         <!-- Prix total -->
         <div>
           <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-            Prix total (F CFA) *
+            {{ t('newProject.price') }} *
           </label>
-          <input
-            type="text"
-            id="price"
-            formControlName="price"
-            placeholder="Ex: 2 000 000"
-            min="0"
+          <input type="text" id="price" formControlName="price" placeholder="Ex: 2 000 000" min="0"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             [class.border-red-500]="hasError('price', 'required') || hasError('price', 'min')"
-            (input)="onPriceInput($event)"
-          />
+            (input)="onPriceInput($event)" />
           <div *ngIf="priceControl?.invalid && priceControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('price') }}
           </div>
@@ -142,15 +124,11 @@
         <!-- Date début prévue -->
         <div>
           <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">
-            Date début prévue *
+            {{ t('newProject.startDate') }} *
           </label>
-          <input
-            type="date"
-            id="startDate"
-            formControlName="startDate"
+          <input type="date" id="startDate" formControlName="startDate"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('startDate', 'required')"
-          />
+            [class.border-red-500]="hasError('startDate', 'required')" />
           <div *ngIf="hasError('startDate', 'required')" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('startDate') }}
           </div>
@@ -159,16 +137,13 @@
         <!-- Date fin prévue -->
         <div>
           <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">
-            Date fin prévue *
+            {{ t('newProject.endDate') }} *
           </label>
-          <input
-            type="date"
-            id="endDate"
-            formControlName="endDate"
+          <input type="date" id="endDate" formControlName="endDate"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('endDate', 'required') || projectForm.hasError('dateRange')"
-          />
-          <div *ngIf="hasError('endDate', 'required') || projectForm.hasError('dateRange')" class="text-red-500 text-xs mt-1">
+            [class.border-red-500]="hasError('endDate', 'required') || projectForm.hasError('dateRange')" />
+          <div *ngIf="hasError('endDate', 'required') || projectForm.hasError('dateRange')"
+            class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('endDate') }}
           </div>
         </div>
@@ -176,16 +151,11 @@
         <!-- Adresse -->
         <div>
           <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-            Adresse *
+            {{ t('newProject.address') }} *
           </label>
-          <input
-            type="text"
-            id="address"
-            formControlName="address"
-            placeholder="Ex: Dakar, Médina Rue 12"
+          <input type="text" id="address" formControlName="address" placeholder="Ex: Dakar, Médina Rue 12"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('address', 'required') || hasError('address', 'minlength')"
-          />
+            [class.border-red-500]="hasError('address', 'required') || hasError('address', 'minlength')" />
           <div *ngIf="addressControl?.invalid && addressControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('address') }}
           </div>
@@ -194,17 +164,11 @@
         <!-- Nombre de Lots -->
         <div>
           <label for="numberOfLots" class="block text-sm font-medium text-gray-700 mb-2">
-            Nombre de Lots *
+            {{ t('newProject.numberOfLots') }} *
           </label>
-          <input
-            type="number"
-            id="numberOfLots"
-            formControlName="numberOfLots"
-            placeholder="Ex: 50"
-            min="1"
+          <input type="number" id="numberOfLots" formControlName="numberOfLots" placeholder="Ex: 50" min="1"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('numberOfLots', 'required') || hasError('numberOfLots', 'min')"
-          />
+            [class.border-red-500]="hasError('numberOfLots', 'required') || hasError('numberOfLots', 'min')" />
           <div *ngIf="numberOfLotsControl?.invalid && numberOfLotsControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('numberOfLots') }}
           </div>
@@ -213,17 +177,11 @@
         <!-- Nombre de chambres -->
         <div>
           <label for="numberOfRooms" class="block text-sm font-medium text-gray-700 mb-2">
-            Nombre de chambres *
+            {{ t('newProject.numberOfRooms') }} *
           </label>
-          <input
-            type="number"
-            id="numberOfRooms"
-            formControlName="numberOfRooms"
-            placeholder="Ex: 7"
-            min="1"
+          <input type="number" id="numberOfRooms" formControlName="numberOfRooms" placeholder="Ex: 7" min="1"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            [class.border-red-500]="hasError('numberOfRooms', 'required') || hasError('numberOfRooms', 'min')"
-          />
+            [class.border-red-500]="hasError('numberOfRooms', 'required') || hasError('numberOfRooms', 'min')" />
           <div *ngIf="numberOfRoomsControl?.invalid && numberOfRoomsControl?.touched" class="text-red-500 text-xs mt-1">
             {{ getErrorMessage('numberOfRooms') }}
           </div>
@@ -259,67 +217,47 @@
         <!-- Statut de construction -->
         <div>
           <label for="constructionStatus" class="block text-sm font-medium text-gray-700 mb-2">
-            Statut de construction
+            {{ t('newProject.constructionStatus') }}
           </label>
-          <select
-            id="constructionStatus"
-            formControlName="constructionStatus"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          >
-            <option value="">Sélectionner un statut</option>
-            <option value="PLANIFICATION">Planification</option>
-            <option value="EN_COURS">En cours</option>
-            <option value="SUSPENDU">Suspendu</option>
-            <option value="TERMINE">Terminé</option>
-            <option value="ANNULE">Annulé</option>
+          <select id="constructionStatus" formControlName="constructionStatus"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            <option value="">{{ t('newProject.selectStatus') }}</option>
+            <option value="PLANIFICATION">{{ t('projectStatus.planning') }}</option>
+            <option value="EN_COURS">{{ t('projectStatus.inProgress') }}</option>
+            <option value="SUSPENDU">{{ t('projectStatus.suspended') }}</option>
+            <option value="TERMINE">{{ t('projectStatus.completed') }}</option>
+            <option value="ANNULE">{{ t('projectStatus.cancelled') }}</option>
           </select>
         </div>
 
         <!-- Latitude (optionnel) -->
         <div>
           <label for="latitude" class="block text-sm font-medium text-gray-700 mb-2">
-            Latitude (optionnel)
+            {{ t('newProject.latitude') }}
           </label>
-          <input
-            type="number"
-            id="latitude"
-            formControlName="latitude"
-            placeholder="Ex: 14.7167"
-            step="any"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
+          <input type="number" id="latitude" formControlName="latitude" placeholder="Ex: 14.7167" step="any"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
         </div>
 
         <!-- Longitude (optionnel) -->
         <div>
           <label for="longitude" class="block text-sm font-medium text-gray-700 mb-2">
-            Longitude (optionnel)
+            {{ t('newProject.longitude') }}
           </label>
-          <input
-            type="number"
-            id="longitude"
-            formControlName="longitude"
-            placeholder="Ex: -17.4677"
-            step="any"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
+          <input type="number" id="longitude" formControlName="longitude" placeholder="Ex: -17.4677" step="any"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
         </div>
       </div>
 
       <!-- Description du projet -->
       <div class="mt-6">
         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-          Description du projet
+          {{ t('newProject.description') }}
         </label>
-        <textarea
-          id="description"
-          formControlName="description"
-          rows="4"
-          placeholder="Décrivez brièvement le projet..."
+        <textarea id="description" formControlName="description" rows="4" placeholder="Décrivez brièvement le projet..."
           maxlength="1000"
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          [class.border-red-500]="hasError('description', 'maxlength')"
-        ></textarea>
+          [class.border-red-500]="hasError('description', 'maxlength')"></textarea>
         <div class="text-xs text-gray-500 mt-1">
           {{ descriptionControl?.value?.length || 0 }}/1000 caractères
         </div>
@@ -331,141 +269,99 @@
 
     <!-- Équipements communs -->
     <div class="bg-white p-6 rounded-lg border border-gray-200">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Équipements communs</h2>
-      
+      <h2 class="text-lg font-medium text-gray-900 mb-6">{{ t('newProject.commonEquipment') }}</h2>
+
       <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasHall"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Hall</span>
+          <input type="checkbox" formControlName="hasHall"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.hall') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasParking"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Parking</span>
+          <input type="checkbox" formControlName="hasParking"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.parking') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasElevator"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Ascenseur</span>
+          <input type="checkbox" formControlName="hasElevator"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.elevator') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasSwimmingPool"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Piscine</span>
+          <input type="checkbox" formControlName="hasSwimmingPool"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.pool') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasGym"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Salle de Gym</span>
+          <input type="checkbox" formControlName="hasGym"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.gym') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasPlayground"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Aire de jeux</span>
+          <input type="checkbox" formControlName="hasPlayground"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.playground') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasSecurityService"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Service de sécurité</span>
+          <input type="checkbox" formControlName="hasSecurityService"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.security') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasGarden"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Jardin</span>
+          <input type="checkbox" formControlName="hasGarden"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.garden') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasSharedTerrace"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Terrasse partagée</span>
+          <input type="checkbox" formControlName="hasSharedTerrace"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.terrace') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasBicycleStorage"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Rangement pour vélos</span>
+          <input type="checkbox" formControlName="hasBicycleStorage"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.bikeStorage') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasLaundryRoom"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Salle de lavage</span>
+          <input type="checkbox" formControlName="hasLaundryRoom"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.laundry') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasStorageRooms"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Chambres de stockage</span>
+          <input type="checkbox" formControlName="hasStorageRooms"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.storage') }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="hasWasteDisposalArea"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Zone de déchets</span>
+          <input type="checkbox" formControlName="hasWasteDisposalArea"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.wasteDisposal') || 'Zone de déchets' }}</span>
         </label>
 
         <label class="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            formControlName="mezzanine"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="text-sm text-gray-700">Mezzanine</span>
+          <input type="checkbox" formControlName="mezzanine"
+            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+          <span class="text-sm text-gray-700">{{ t('equipment.mezzanine') || 'Mezzanine' }}</span>
         </label>
       </div>
     </div>
 
     <!-- Documents Joints -->
     <div class="bg-white p-6 rounded-lg border border-gray-200">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Documents Joints</h2>
-      
+      <h2 class="text-lg font-medium text-gray-900 mb-6">{{ t('newProject.documents') }}</h2>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Plan -->
         <div>
@@ -473,25 +369,16 @@
             Plan (image) *
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
-            <input
-              type="file"
-              id="planFile"
-              (change)="onFileChange($event, 'plan')"
-              accept="image/*"
-              class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-            />
+            <input type="file" id="planFile" (change)="onFileChange($event, 'plan')" accept="image/*"
+              class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
             <div *ngIf="isPlanFileSelected()" class="mt-2 flex items-center justify-between">
               <span class="text-sm text-green-600">✓ {{ getPlanFileName() }}</span>
-              <button
-                type="button"
-                (click)="removePlanFile()"
-                class="text-sm text-red-600 hover:text-red-800"
-              >
-                Supprimer
+              <button type="button" (click)="removePlanFile()" class="text-sm text-red-600 hover:text-red-800">
+                {{ t('newProject.remove') }}
               </button>
             </div>
             <div *ngIf="!isPlanFileSelected() && projectForm.touched" class="text-red-500 text-xs mt-1">
-              Le plan (image) est requis
+              {{ t('newProject.planRequired') }}
             </div>
           </div>
         </div>
@@ -500,25 +387,21 @@
 
     <!-- Boutons d'action -->
     <div class="flex justify-start space-x-4 pt-6 border-t border-gray-200">
-      <button
-        type="submit"
-        [disabled]="isSubmitting || projectForm.invalid || !isPlanFileSelected()"
-        class="px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#FF5C02] hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-      >
-        <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <button type="submit" [disabled]="isSubmitting || projectForm.invalid || !isPlanFileSelected()"
+        class="px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#FF5C02] hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+        <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
         </svg>
-        {{ isSubmitting ? 'Enregistrement...' : 'Enregistrer' }}
+        {{ isSubmitting ? t('newProject.saving') : t('newProject.save') }}
       </button>
-      
-      <button
-        type="button"
-        (click)="onCancel()"
-        [disabled]="isSubmitting"
-        class="px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Annuler
+
+      <button type="button" (click)="onCancel()" [disabled]="isSubmitting"
+        class="px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ t('newProject.cancel') }}
       </button>
     </div>
 
@@ -527,27 +410,34 @@
       <div class="flex">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd" />
           </svg>
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-red-800">
-            Veuillez corriger les erreurs suivantes :
+            {{ t('newProject.errors') }}
           </h3>
           <div class="mt-2 text-sm text-red-700">
             <ul class="list-disc list-inside space-y-1">
-              <li *ngIf="hasError('name', 'required') || hasError('name', 'minlength')">{{ getErrorMessage('name') }}</li>
+              <li *ngIf="hasError('name', 'required') || hasError('name', 'minlength')">{{ getErrorMessage('name') }}
+              </li>
               <li *ngIf="hasError('number', 'required')">{{ getErrorMessage('number') }}</li>
               <li *ngIf="hasError('propertyTypeId', 'required')">{{ getErrorMessage('propertyTypeId') }}</li>
               <li *ngIf="hasError('area', 'required') || hasError('area', 'min')">{{ getErrorMessage('area') }}</li>
               <li *ngIf="hasError('price', 'required') || hasError('price', 'min')">{{ getErrorMessage('price') }}</li>
               <li *ngIf="hasError('startDate', 'required')">{{ getErrorMessage('startDate') }}</li>
-              <li *ngIf="hasError('endDate', 'required') || projectForm.hasError('dateRange')">{{ getErrorMessage('endDate') }}</li>
-              <li *ngIf="hasError('address', 'required') || hasError('address', 'minlength')">{{ getErrorMessage('address') }}</li>
-              <li *ngIf="hasError('numberOfLots', 'required') || hasError('numberOfLots', 'min')">{{ getErrorMessage('numberOfLots') }}</li>
-              <li *ngIf="hasError('numberOfRooms', 'required') || hasError('numberOfRooms', 'min')">{{ getErrorMessage('numberOfRooms') }}</li>
+              <li *ngIf="hasError('endDate', 'required') || projectForm.hasError('dateRange')">{{
+                getErrorMessage('endDate') }}</li>
+              <li *ngIf="hasError('address', 'required') || hasError('address', 'minlength')">{{
+                getErrorMessage('address') }}</li>
+              <li *ngIf="hasError('numberOfLots', 'required') || hasError('numberOfLots', 'min')">{{
+                getErrorMessage('numberOfLots') }}</li>
+              <li *ngIf="hasError('numberOfRooms', 'required') || hasError('numberOfRooms', 'min')">{{
+                getErrorMessage('numberOfRooms') }}</li>
               <li *ngIf="hasError('description', 'maxlength')">{{ getErrorMessage('description') }}</li>
-              <li *ngIf="!isPlanFileSelected()">Le plan (image) est requis</li>
+              <li *ngIf="!isPlanFileSelected()">{{ t('newProject.planRequired') }}</li>
             </ul>
           </div>
         </div>

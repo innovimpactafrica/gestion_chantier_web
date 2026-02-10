@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -14,7 +14,11 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
 import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
-import { CommandeService } from '../../../../../services/commande.service';
+import { CommandeService, Quote, QuoteResponse } from '../../../../../services/commande.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { LanguageService } from '../../../../core/services/language.service';
+
+
 
 
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
@@ -195,6 +199,10 @@ interface DeliveriesResponse {
 })
 export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
+  private languageService = inject(LanguageService);
+
+  // Translation helper
+  t = (key: string, params?: any) => this.languageService.translate(key, params);
   stockAlertes: StockAlerte[] = [];
   orders: Order[] = [];
   paginatedOrders: Order[] = [];
@@ -276,8 +284,19 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   showErrorModal: boolean = false;
   successMessage: string = '';
   errorMessage: string = '';
-
+  // ===== AJOUTS DANS LES PROPRIÉTÉS DE LA CLASSE =====
+  // Modal de détails de commande avec citations
+  showOrderDetailsModal: boolean = false;
+  selectedOrderDetails: Order | null = null;
+  orderQuotes: Quote[] = [];
+  loadingQuotes: boolean = false;
+  quotesError: string | null = null;
+  selectedQuote: Quote | null = null;
   // Pour les livraisons
+  approvingOrder: boolean = false;
+  showApproveConfirmModal: boolean = false;
+  orderToApprove: Order | null = null;
+  selectedQuoteForApproval: Quote | null = null;
   deliveryPageSize: number = 10;
   orderPageSize: number = 10;
   constructor(
@@ -290,6 +309,8 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     private statistiqueService: StatistiqueService,
     private userService: UserService,
     private commandeService: CommandeService,
+    private toastService: ToastService,
+
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
@@ -335,7 +356,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     const mat = this.materials.find(m => m.id === Number(materialId));
     return mat ? mat.quantity : 0;
   }
-  // ✅ CORRIGER ngOnInit
   ngOnInit(): void {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
@@ -354,6 +374,35 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadCriticalMaterials();
       this.loadStatistiques();
       this.loadSuppliers();
+
+      // ✅ TEST MANUEL DES CITATIONS - RETIRER APRÈS DEBUG
+      setTimeout(() => {
+        console.log('🧪 TEST MANUEL - Vérification des propriétés:');
+        console.log('loadingQuotes:', this.loadingQuotes);
+        console.log('quotesError:', this.quotesError);
+        console.log('orderQuotes:', this.orderQuotes);
+        console.log('selectedQuote:', this.selectedQuote);
+        console.log('showOrderDetailsModal:', this.showOrderDetailsModal);
+
+        // Test de modification manuelle
+        this.loadingQuotes = false;
+        this.orderQuotes = [{
+          id: 999,
+          uploadedAt: [2026, 1, 29, 12, 10, 19],
+          totalAmount: 12345,
+          generedBy: {
+            id: 14,
+            nom: 'TEST',
+            prenom: 'User',
+            telephone: '777777777'
+          }
+        }];
+        this.selectedQuote = this.orderQuotes[0];
+
+        console.log('🧪 Après modification manuelle:');
+        console.log('orderQuotes:', this.orderQuotes);
+        console.log('selectedQuote:', this.selectedQuote);
+      }, 2000);
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
     }
@@ -430,7 +479,123 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
     return `${prenom} ${nom}`.trim() || 'N/A';
   }
+  /**
+   * Ouvre la modal de confirmation d'approbation
+   */
+  confirmApproveOrder(order: Order, quote: Quote): void {
+    if (!order || !quote) {
+      this.showErrorMessage('Données invalides pour l\'approbation');
+      return;
+    }
 
+    // Vérifier que la commande est dans un état permettant l'approbation
+    if (order.status === 'APPROVED' || order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+      this.showErrorMessage('Cette commande ne peut plus être approuvée');
+      return;
+    }
+
+    this.orderToApprove = order;
+    this.selectedQuoteForApproval = quote;
+    this.showApproveConfirmModal = true;
+  }
+
+  /**
+   * Annule l'approbation
+   */
+  cancelApproveOrder(): void {
+    this.showApproveConfirmModal = false;
+    this.orderToApprove = null;
+    this.selectedQuoteForApproval = null;
+  }
+
+  /**
+   * Approuve la commande avec la citation sélectionnée
+   */
+  approveOrderConfirmed(): void {
+    if (!this.orderToApprove || !this.selectedQuoteForApproval) {
+      this.showErrorMessage('Aucune commande ou citation sélectionnée');
+      return;
+    }
+
+    this.approvingOrder = true;
+
+    console.log('📝 Approbation de la commande:', this.orderToApprove.id);
+    console.log('💰 Avec la citation:', this.selectedQuoteForApproval.id);
+
+    this.commandeService.updateStatusOrder(this.orderToApprove.id, 'APPROVED')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedOrder) => {
+          console.log('✅ Commande approuvée:', updatedOrder);
+          this.approvingOrder = false;
+          this.showApproveConfirmModal = false;
+
+          // Mettre à jour la commande dans la liste
+          if (this.selectedOrderDetails) {
+            this.selectedOrderDetails.status = 'APPROVED';
+          }
+
+          // Recharger les commandes
+          this.loadOrders();
+
+          // Fermer le modal de détails
+          this.closeOrderDetailsModal();
+
+          // Afficher le message de succès
+          this.showSuccessMessage(
+            `Commande #CMD-${this.orderToApprove?.id.toString().padStart(4, '0')} approuvée avec succès !`
+          );
+
+          // Réinitialiser
+          this.orderToApprove = null;
+          this.selectedQuoteForApproval = null;
+        },
+        error: (error) => {
+          // Erreur gérée par showErrorMessage ci-dessous
+          this.approvingOrder = false;
+          this.showApproveConfirmModal = false;
+
+          let errorMessage = 'Erreur lors de l\'approbation de la commande';
+
+          if (error.status === 403) {
+            errorMessage = 'Accès refusé - Vous n\'avez pas les permissions nécessaires';
+          } else if (error.status === 404) {
+            errorMessage = 'Commande introuvable';
+          } else if (error.status === 400) {
+            errorMessage = error.error?.message || 'Données invalides';
+          }
+
+          this.showErrorMessage(errorMessage);
+
+          this.orderToApprove = null;
+          this.selectedQuoteForApproval = null;
+        }
+      });
+  }
+
+  // ===== MÉTHODE canApproveOrder() - CORRIGER =====
+  canApproveOrder(order: Order | null, hasQuotes: boolean): boolean {
+    console.log('🔍 Vérification approbation possible:', {
+      order: order,
+      hasQuotes: hasQuotes,
+      orderQuotesLength: this.orderQuotes.length,
+      selectedQuote: this.selectedQuote,
+      orderStatus: order?.status
+    });
+
+    if (!order || !hasQuotes || this.orderQuotes.length === 0) {
+      console.log('❌ Pas de commande ou pas de citations');
+      return false;
+    }
+
+    // Statuts permettant l'approbation
+    const approvableStatuses = ['PENDING', 'IN_PROGRESS'];
+
+    const canApprove = approvableStatuses.includes(order.status);
+    console.log('✅ Peut approuver:', canApprove);
+
+    return canApprove;
+  }
   // Obtenir le texte du statut de livraison
   getDeliveryStatusText(status: string): string {
     const texts = {
@@ -488,7 +653,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: MaterialsResponse) => {
-          console.log('Réponse reçue:', response);
+          // Réponse reçue avec succès
           this.data = response;
           this.materials = response.content || [];
           this.totalMaterialElements = response.totalElements || 0;
@@ -500,7 +665,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement du stock:', error);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.loading = false;
           this.showErrorMessage(error.message || 'Erreur lors du chargement du stock');
         }
@@ -522,7 +687,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des commandes:', error);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.loading = false;
           this.showErrorMessage('Erreur lors du chargement des commandes');
         }
@@ -544,7 +709,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          console.log('Livraisons reçues:', response);
 
           if (response && Array.isArray(response.content)) {
             this.deliveries = response.content.map((delivery: any) => ({
@@ -557,7 +721,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
             this.totalDeliveryPages = response.totalPages || 0;
             this.paginatedDeliveries = [...this.deliveries];
           } else {
-            console.warn('Structure de réponse inattendue:', response);
             this.deliveries = [];
             this.paginatedDeliveries = [];
           }
@@ -565,7 +728,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading = false;
         },
         error: (error: any) => {
-          console.error('Erreur lors du chargement des livraisons:', error);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.loading = false;
           this.deliveries = [];
           this.paginatedDeliveries = [];
@@ -652,7 +815,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des mouvements récents:', error);
+          // Erreur lors du chargement des mouvements récents
           this.loading = false;
           this.recentMovements = [];
           if (error.status === 403) {
@@ -660,7 +823,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           } else if (error.status === 401) {
             this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
           } else if (error.status === 404) {
-            console.log('Aucun mouvement trouvé pour cette propriété');
           } else {
             this.showErrorMessage('Erreur lors du chargement des mouvements récents');
           }
@@ -677,19 +839,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         next: (response: PaginatedResponse<UnitParameter>) => {
           // La réponse est paginée, nous devons extraire le tableau 'content'
           this.units = response.content || [];
-          console.log('✅ Unités chargées:', this.units.length, 'unités');
-          console.log('📋 Liste des unités:', this.units);
-
-          // Si vous avez besoin des informations de pagination, vous pouvez les stocker
-          console.log('📊 Informations pagination:', {
-            totalElements: response.totalElements,
-            totalPages: response.totalPages,
-            pageSize: response.size,
-            currentPage: response.number
-          });
+          // Unités chargées avec succès
         },
         error: (err) => {
-          console.error('❌ Erreur lors du chargement des unités:', err);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.showErrorMessage('Erreur lors du chargement des unités');
         }
       });
@@ -698,16 +851,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadProperties(): void {
     console.log('🔄 Chargement des propriétés...');
 
+    // ✅ Utiliser getAll() qui retourne PropertyType[] directement
     this.propertyService.getAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (properties: PropertyType[]) => {
           this.properties = properties;
-          console.log('✅ Propriétés chargées:', this.properties.length, 'propriétés');
-          console.log('📋 Liste des propriétés:', this.properties);
+          // Propriétés chargées avec succès
         },
         error: (err) => {
-          console.error('❌ Erreur lors du chargement des propriétés:', err);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.showErrorMessage('Erreur lors du chargement des propriétés');
         }
       });
@@ -716,7 +869,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.criticalMaterialsLoading = true;
     this.criticalMaterialsError = null;
     if (!this.dashboardService) {
-      console.error('DashboardService n\'est pas injecté');
       this.criticalMaterialsLoading = false;
       this.criticalMaterialsError = 'Service indisponible';
       return;
@@ -733,7 +885,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.criticalMaterialsLoading = false;
         },
         error: (error: any) => {
-          console.error('Erreur lors du chargement des matériaux critiques:', error);
+          // Erreur lors du chargement des matériaux critiques
           this.criticalMaterialsLoading = false;
           this.criticalMaterialsError = 'Erreur lors du chargement des matériaux critiques';
         }
@@ -784,11 +936,11 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: (response: any) => {
           this.suppliers = response.content || [];
-          console.log('✅ Fournisseurs chargés:', this.suppliers.length);
+          // Fournisseurs chargés avec succès
           this.suppliersLoading = false;
         },
         error: (error: any) => {
-          console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+          // Erreur gérée par showErrorMessage ci-dessous
           this.showErrorMessage('Erreur lors du chargement des fournisseurs');
           this.suppliersLoading = false;
           this.suppliers = [];
@@ -1284,17 +1436,18 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (createdMovement) => {
-            console.log('Mouvement créé:', createdMovement);
-            this.loading = false;
+            this.loading = false; // ✅ Reset loading state
             this.closeMovementModal();
             this.addToRecentMovements(createdMovement, this.selectedMaterial!);
             this.loadStock();
             this.loadStockMovements();
+            this.loadRecentMovements(); // ✅ Reload recent movements list
+            this.loadStatistiques(); // ✅ Reload statistics after movement
             this.showSuccessMessage('Mouvement enregistré avec succès !');
           },
           error: (error) => {
             this.loading = false;
-            console.error('Erreur lors de la création du mouvement:', error);
+            // Erreur gérée par showErrorMessage ci-dessous
             if (error.status === 403) {
               this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
             } else if (error.status === 401) {
@@ -1478,20 +1631,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   showSuccessMessage(message: string): void {
-    this.successMessage = message;
-    this.showSuccessModal = true;
-
-    // Auto-fermeture après 3 secondes
-    setTimeout(() => {
-      this.closeSuccessModal();
-    }, 3000);
+    this.toastService.showSuccess(message);
   }
 
   showErrorMessage(message: string): void {
-    this.errorMessage = message;
-    this.showErrorModal = true;
+    this.toastService.showError(message);
   }
 
+  // Méthodes conservées pour compatibilité avec les modals existants
   closeSuccessModal(): void {
     this.showSuccessModal = false;
     this.successMessage = '';
@@ -1587,9 +1734,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  viewOrderDetails(order: Order): void {
-    console.log('Voir détails de la commande:', order);
-  }
+
 
   editOrder(order: Order): void {
     if (order.status === 'LIVREE' || order.status === 'ANNULEE') {
@@ -2091,6 +2236,192 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+  // ===== NOUVELLES MÉTHODES À AJOUTER =====
 
+  viewOrderDetails(order: Order): void {
+    if (!order || !order.id) {
+      this.showErrorMessage('Commande invalide');
+      return;
+    }
+
+    console.log('🔍 Ouverture détails commande:', order);
+    this.selectedOrderDetails = order;
+    this.showOrderDetailsModal = true;
+
+    // ✅ AJOUTER un léger délai pour s'assurer que le modal est ouvert
+    setTimeout(() => {
+      this.loadOrderQuotes(order.id);
+    }, 100);
+  }
+
+
+  // ===== MÉTHODE loadOrderQuotes() - VÉRIFIER QU'ELLE EST BIEN PRÉSENTE =====
+  loadOrderQuotes(orderId: number): void {
+    console.log('🔄 Chargement des citations pour commande:', orderId);
+
+    this.loadingQuotes = true;
+    this.quotesError = null;
+    this.orderQuotes = [];
+    this.selectedQuote = null; // ✅ Réinitialiser
+
+    this.commandeService.getQuotes(orderId, 0, 10)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: QuoteResponse) => {
+          console.log('✅ Réponse complète citations:', response);
+
+          if (response && response.content) {
+            this.orderQuotes = response.content;
+            console.log('📋 Citations assignées:', this.orderQuotes);
+            console.log('🔢 Nombre de citations:', this.orderQuotes.length);
+
+            // Sélectionner automatiquement la première citation
+            if (this.orderQuotes.length > 0) {
+              this.selectedQuote = this.orderQuotes[0];
+              console.log('✓ Citation auto-sélectionnée:', this.selectedQuote);
+            }
+          } else {
+            console.warn('⚠️ Aucune citation dans la réponse');
+            this.quotesError = 'Aucune citation disponible';
+          }
+
+          this.loadingQuotes = false;
+        },
+        error: (error) => {
+          console.error('❌ Erreur chargement citations:', error);
+          console.error('❌ Détails erreur:', {
+            status: error.status,
+            message: error.message,
+            error: error.error
+          });
+
+          this.loadingQuotes = false;
+          this.orderQuotes = [];
+          this.selectedQuote = null;
+
+          if (error.status === 404) {
+            this.quotesError = 'Aucune citation trouvée pour cette commande';
+          } else if (error.status === 403) {
+            this.quotesError = 'Accès refusé aux citations';
+          } else {
+            this.quotesError = 'Erreur lors du chargement des citations';
+          }
+        }
+      });
+  }
+
+  selectQuote(quote: Quote): void {
+    console.log('📌 Sélection citation:', quote);
+    this.selectedQuote = quote;
+  }
+
+  // ===== MÉTHODE closeOrderDetailsModal() - VÉRIFIER =====
+  closeOrderDetailsModal(): void {
+    console.log('🚪 Fermeture modal détails');
+    this.showOrderDetailsModal = false;
+    this.selectedOrderDetails = null;
+    this.orderQuotes = [];
+    this.selectedQuote = null;
+    this.quotesError = null;
+    this.loadingQuotes = false;
+  }
+
+  /**
+   * Formate la date d'upload de la citation
+   */
+  /**
+   * Formate la date de citation depuis le format LocalDateTime
+   * Format: [year, month, day, hour, minute, second, nanosecond]
+   * Exemple: [2025, 6, 9, 18, 38, 13, 99096000]
+   */
+  formatQuoteDate(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) {
+      return 'N/A';
+    }
+
+    // Extraction des composants (nanoseconds ignorées)
+    const [year, month, day, hours = 0, minutes = 0, seconds = 0] = dateArray;
+
+    // Validation des valeurs
+    if (!year || !month || !day) {
+      return 'N/A';
+    }
+
+    // Création de la date (month - 1 car JS utilise 0-11 pour les mois)
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+    // Vérification que la date est valide
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+
+    // Format: DD/MM/YYYY HH:mm
+    const formattedDate = date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const formattedTime = date.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${formattedDate} ${formattedTime}`;
+  }
+
+  /**
+   * Formate le montant avec séparateurs de milliers
+   */
+  formatAmount(amount: number | null | undefined): string {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return '0';
+    }
+    return amount.toLocaleString('fr-FR');
+  }
+
+  /**
+   * Récupère le nom complet du fournisseur de manière sécurisée
+   */
+  getSupplierFullName(quote: Quote | null): string {
+    if (!quote || !quote.generedBy) {
+      return 'N/A';
+    }
+    const { prenom, nom } = quote.generedBy;
+    if (!prenom && !nom) {
+      return 'Fournisseur inconnu';
+    }
+    return `${prenom || ''} ${nom || ''}`.trim();
+  }
+
+  /**
+   * Récupère le téléphone du fournisseur de manière sécurisée
+   */
+  getSupplierPhone(quote: Quote | null): string {
+    if (!quote || !quote.generedBy || !quote.generedBy.telephone) {
+      return 'N/A';
+    }
+    return quote.generedBy.telephone;
+  }
+
+  /**
+   * Récupère l'email du fournisseur de manière sécurisée (si nécessaire)
+   */
+  getSupplierEmail(quote: Quote | null): string {
+    if (!quote || !quote.generedBy || !quote.generedBy.email) {
+      return 'N/A';
+    }
+    return quote.generedBy.email;
+  }
+
+  /**
+   * Récupère la société du fournisseur de manière sécurisée
+   */
+  getSupplierCompany(quote: Quote | null): string {
+    if (!quote || !quote.generedBy || !quote.generedBy.company) {
+      return 'N/A';
+    }
+    return quote.generedBy.company;
+  }
 
 }

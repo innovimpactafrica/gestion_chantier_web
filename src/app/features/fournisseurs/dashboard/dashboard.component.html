@@ -4,7 +4,9 @@
   <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex items-center">
       <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd" />
       </svg>
       <p class="text-red-800 font-medium">{{ error }}</p>
     </div>
@@ -19,14 +21,15 @@
   <div *ngIf="!loading && !error">
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-2xl font-semibold text-gray-900">Tableau de bord Fournisseur</h1>
+      <h1 class="text-2xl font-semibold text-gray-900">{{ t('supplier.dashboard.title') }}</h1>
       <div class="flex items-center space-x-4">
-        <button (click)="refreshData()" 
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button (click)="refreshData()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Actualiser
+          {{ t('supplier.dashboard.refresh') }}
         </button>
         <div class="flex items-center space-x-2">
           <span class="text-lg font-medium text-gray-700">{{ currentYear }}</span>
@@ -43,7 +46,7 @@
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 mb-1">En attente</p>
+            <p class="text-sm text-gray-600 mb-1">{{ t('supplier.dashboard.stats.pending') }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ stats.enAttente.toString().padStart(2, '0') }}</p>
           </div>
           <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -60,14 +63,14 @@
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 mb-1">Approuvées</p>
+            <p class="text-sm text-gray-600 mb-1">{{ t('supplier.dashboard.stats.approved') }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ stats.approuvees.toString().padStart(2, '0') }}</p>
           </div>
           <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M9 12L11 14L15 10M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z"
-                stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
         </div>
@@ -77,14 +80,14 @@
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 mb-1">En livraison</p>
+            <p class="text-sm text-gray-600 mb-1">{{ t('supplier.dashboard.stats.inDelivery') }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ stats.enLivraison.toString().padStart(2, '0') }}</p>
           </div>
           <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M13 16V6C13 5.73478 12.8946 5.48043 12.7071 5.29289C12.5196 5.10536 12.2652 5 12 5H4C3.73478 5 3.48043 5.10536 3.29289 5.29289C3.10536 5.48043 3 5.73478 3 6V16M13 16H20M13 16H3M20 16C20 16.5304 20.2107 17.0391 20.5858 17.4142C20.9609 17.7893 21.4696 18 22 18C22.5304 18 23.0391 17.7893 23.4142 17.4142C23.7893 17.0391 24 16.5304 24 16C24 15.4696 23.7893 14.9609 23.4142 14.5858C23.0391 14.2107 22.5304 14 22 14C21.4696 14 20.9609 14.2107 20.5858 14.5858C20.2107 14.9609 20 15.4696 20 16ZM3 16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18C5.53043 18 6.03914 17.7893 6.41421 17.4142C6.78929 17.0391 7 16.5304 7 16C7 15.4696 6.78929 14.9609 6.41421 14.5858C6.03914 14.2107 5.53043 14 5 14C4.46957 14 3.96086 14.2107 3.58579 14.5858C3.21071 14.9609 3 15.4696 3 16Z"
-                stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
         </div>
@@ -94,7 +97,7 @@
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 mb-1">Livrées</p>
+            <p class="text-sm text-gray-600 mb-1">{{ t('supplier.dashboard.stats.delivered') }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ stats.livrees.toString().padStart(2, '0') }}</p>
           </div>
           <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -111,14 +114,14 @@
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-600 mb-1">Rejetées</p>
+            <p class="text-sm text-gray-600 mb-1">{{ t('supplier.dashboard.stats.rejected') }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ stats.rejetees.toString().padStart(2, '0') }}</p>
           </div>
           <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M12 8V12M12 16H12.01M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z"
-                stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
         </div>
@@ -130,14 +133,14 @@
       <!-- Pie Chart -->
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-semibold text-gray-900">Répartition des commandes (%)</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ t('supplier.dashboard.charts.distribution') }}</h3>
           <div class="relative">
             <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange(selectedPeriod)"
               class="appearance-none bg-gray-50 border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="Ce-mois">Ce mois</option>
-              <option value="Ce-trimestre">Ce trimestre</option>
-              <option value="Cette-année">Cette année</option>
-            </select> 
+              <option value="Ce-mois">{{ t('supplier.dashboard.period.thisMonth') }}</option>
+              <option value="Ce-trimestre">{{ t('supplier.dashboard.period.thisQuarter') }}</option>
+              <option value="Cette-année">{{ t('supplier.dashboard.period.thisYear') }}</option>
+            </select>
             <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -156,23 +159,28 @@
         <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto">
           <div class="flex items-center">
             <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-            <span class="text-sm text-gray-600">Livrées • {{ getPercentage(stats.livrees) }}%</span>
+            <span class="text-sm text-gray-600">{{ t('supplier.dashboard.stats.delivered') }} • {{
+              getPercentage(stats.livrees) }}%</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-            <span class="text-sm text-gray-600">En livraison • {{ getPercentage(stats.enLivraison) }}%</span>
+            <span class="text-sm text-gray-600">{{ t('supplier.dashboard.stats.inDelivery') }} • {{
+              getPercentage(stats.enLivraison) }}%</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-emerald-500 rounded-full mr-3"></div>
-            <span class="text-sm text-gray-600">Approuvées • {{ getPercentage(stats.approuvees) }}%</span>
+            <span class="text-sm text-gray-600">{{ t('supplier.dashboard.stats.approved') }} • {{
+              getPercentage(stats.approuvees) }}%</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-amber-500 rounded-full mr-3"></div>
-            <span class="text-sm text-gray-600">En attente • {{ getPercentage(stats.enAttente) }}%</span>
+            <span class="text-sm text-gray-600">{{ t('supplier.dashboard.stats.pending') }} • {{
+              getPercentage(stats.enAttente) }}%</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-            <span class="text-sm text-gray-600">Rejetées • {{ getPercentage(stats.rejetees) }}%</span>
+            <span class="text-sm text-gray-600">{{ t('supplier.dashboard.stats.rejected') }} • {{
+              getPercentage(stats.rejetees) }}%</span>
           </div>
         </div>
       </div>
@@ -180,13 +188,13 @@
       <!-- Bar Chart - Top Properties -->
       <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-semibold text-gray-900">Top Propriétés</h3>
+          <h3 class="text-lg font-semibold text-gray-900">{{ t('supplier.dashboard.charts.topProperties') }}</h3>
           <div class="relative">
             <select [(ngModel)]="selectedVolumePeriod" (change)="onVolumePeriodChange(selectedVolumePeriod)"
               class="appearance-none bg-gray-50 border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="Ce-mois">Ce mois</option>
-              <option value="Ce-trimestre">Ce trimestre</option>
-              <option value="Cette-année">Cette année</option>
+              <option value="Ce-mois">{{ t('supplier.dashboard.period.thisMonth') }}</option>
+              <option value="Ce-trimestre">{{ t('supplier.dashboard.period.thisQuarter') }}</option>
+              <option value="Cette-année">{{ t('supplier.dashboard.period.thisYear') }}</option>
             </select>
             <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +205,7 @@
 
         <!-- Message si aucune donnée -->
         <div *ngIf="topProperties.length === 0" class="h-64 flex items-center justify-center text-gray-500">
-          <p>Aucune donnée disponible</p>
+          <p>{{ t('supplier.dashboard.noData') }}</p>
         </div>
 
         <!-- Graphique -->

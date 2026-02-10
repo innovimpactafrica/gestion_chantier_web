@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from '../../../services/plan-abonnement.service';
+import { LanguageService } from '../../core/services/language.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -62,9 +63,15 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
   constructor(
     private planService: PlanAbonnementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public languageService: LanguageService
   ) {
     console.log('🚀 CreatePlanComponent initialisé');
+  }
+
+  // Helper pour la traduction
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   ngOnInit(): void {
@@ -225,7 +232,7 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
         next: (createdPlan) => {
           console.log('✅ Plan créé avec succès:', createdPlan);
           this.isSaving = false;
-          
+
           // Afficher la notification
           this.planLabel = createdPlan.label;
           this.notificationType = 'created';
@@ -240,83 +247,83 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('❌ Erreur lors de la création:', error);
           this.isSaving = false;
-          
+
           let errorMsg = 'Erreur lors de la création du plan';
           if (error.status === 400) {
             errorMsg = 'Données invalides. Vérifiez tous les champs.';
           } else if (error.status === 409) {
             errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
           }
-          
+
           alert(error.userMessage || errorMsg);
         }
       });
   }
 
-/**
- * Met à jour un plan existant
- */
-private updatePlan(): void {
-  if (!this.planId) return;
+  /**
+   * Met à jour un plan existant
+   */
+  private updatePlan(): void {
+    if (!this.planId) return;
 
-  const planData: CreatePlanRequest = {
-    id: this.planId,
-    name: this.formData.name,
-    label: this.formData.label,
-    description: this.formData.description.trim(),
-    totalCost: this.formData.totalCost!,
-    installmentCount: this.formData.installmentCount,
-    projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
-    unlimitedProjects: this.formData.unlimitedProjects,
-    yearlyDiscountRate: this.formData.yearlyDiscountRate,
-    active: this.formData.active
-  };
+    const planData: CreatePlanRequest = {
+      id: this.planId,
+      name: this.formData.name,
+      label: this.formData.label,
+      description: this.formData.description.trim(),
+      totalCost: this.formData.totalCost!,
+      installmentCount: this.formData.installmentCount,
+      projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
+      unlimitedProjects: this.formData.unlimitedProjects,
+      yearlyDiscountRate: this.formData.yearlyDiscountRate,
+      active: this.formData.active
+    };
 
-  console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
+    console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
 
-  this.planService.putPlanAbonnement(this.planId, planData)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        console.log('✅ Plan mis à jour avec succès');
-        this.isSaving = false;
-        
-        // Afficher la notification avec le label du formulaire
-        this.planLabel = this.getLabelDisplay(this.formData.label);
-        this.notificationType = 'updated';
-        this.showNotification = true;
+    this.planService.putPlanAbonnement(this.planId, planData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('✅ Plan mis à jour avec succès');
+          this.isSaving = false;
 
-        // Masquer la notification et rediriger après 2 secondes
-        setTimeout(() => {
-          this.showNotification = false;
-          this.goBack();
-        }, 2000);
-      },
-      error: (error) => {
-        console.error('❌ Erreur lors de la mise à jour:', error);
-        this.isSaving = false;
-        
-        let errorMsg = 'Erreur lors de la mise à jour du plan';
-        if (error.status === 400) {
-          errorMsg = 'Données invalides. Vérifiez tous les champs.';
-        } else if (error.status === 404) {
-          errorMsg = 'Plan introuvable.';
-        } else if (error.status === 409) {
-          errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
+          // Afficher la notification avec le label du formulaire
+          this.planLabel = this.getLabelDisplay(this.formData.label);
+          this.notificationType = 'updated';
+          this.showNotification = true;
+
+          // Masquer la notification et rediriger après 2 secondes
+          setTimeout(() => {
+            this.showNotification = false;
+            this.goBack();
+          }, 2000);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la mise à jour:', error);
+          this.isSaving = false;
+
+          let errorMsg = 'Erreur lors de la mise à jour du plan';
+          if (error.status === 400) {
+            errorMsg = 'Données invalides. Vérifiez tous les champs.';
+          } else if (error.status === 404) {
+            errorMsg = 'Plan introuvable.';
+          } else if (error.status === 409) {
+            errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
+          }
+
+          alert(error.userMessage || errorMsg);
         }
-        
-        alert(error.userMessage || errorMsg);
-      }
-    });
-}
+      });
+  }
 
-/**
- * Retourne le label formaté pour l'affichage
- */
-private getLabelDisplay(label: string): string {
-  const option = this.labelOptions.find(opt => opt.value === label);
-  return option ? option.label : label;
-}
+  /**
+   * Retourne le label formaté pour l'affichage
+   */
+  private getLabelDisplay(label: string): string {
+    const option = this.labelOptions.find(opt => opt.value === label);
+    return option ? option.label : label;
+  }
 
   /**
    * Annule et retourne à la liste

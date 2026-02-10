@@ -295,7 +295,7 @@
 
           <!-- Onglet État d'avancement -->
           <div *ngIf="isActiveTab('avancement')">
-            <app-status-report></app-status-report>
+            <app-status-report (progressUpdated)="onProgressUpdated()"></app-status-report>
           </div>
 
           <!-- Onglet Budget -->

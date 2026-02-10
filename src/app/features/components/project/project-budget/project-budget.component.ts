@@ -1,6 +1,6 @@
 // project-budget.component.ts
 import {
-  Component, OnInit, ElementRef, ViewChild, Inject, PLATFORM_ID
+  Component, OnInit, OnDestroy, ElementRef, ViewChild, Inject, PLATFORM_ID, inject
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,9 @@ import { Chart, registerables } from 'chart.js';
 import { ProjectBudgetService, BudgetResponse, Expense, ExpensesResponse, CreateExpenseRequest } from '../../../../../services/project-details.service';
 import { environment } from '../../../../../environments/environment';
 import { DomSanitizer } from '@angular/platform-browser';
+import { LanguageService } from '../../../../core/services/language.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 Chart.register(...registerables);
 
@@ -19,8 +22,13 @@ Chart.register(...registerables);
   templateUrl: './project-budget.component.html',
   styleUrls: ['./project-budget.component.css']
 })
-export class ProjectBudgetComponent implements OnInit {
+export class ProjectBudgetComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @ViewChild('budgetChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
+
+  // Injection du service de langue
+  private languageService = inject(LanguageService);
+  t = (key: string) => this.languageService.translate(key);
 
   projectId!: number;
   budgetId!: number;
@@ -40,22 +48,22 @@ export class ProjectBudgetComponent implements OnInit {
   totalPages = 0;
   pageSize = 10;
 
-// 1. Ajouter une propriété pour le fichier sélectionné
-selectedFile: File | null = null;
-selectedFileName: string = '';
+  // 1. Ajouter une propriété pour le fichier sélectionné
+  selectedFile: File | null = null;
+  selectedFileName: string = '';
 
-// Ajouter ces propriétés au début de la classe
-showEvidenceModal = false;
-selectedExpense: Expense | null = null;
+  // Ajouter ces propriétés au début de la classe
+  showEvidenceModal = false;
+  selectedExpense: Expense | null = null;
 
-// 2. Modifier l'interface newExpense pour inclure evidence au lieu de proof
-newExpense: CreateExpenseRequest & { evidence?: File } = {
-  description: '',
-  date: '',
-  amount: 0,
-  budgetId: 0,
-  evidence: undefined
-};
+  // 2. Modifier l'interface newExpense pour inclure evidence au lieu de proof
+  newExpense: CreateExpenseRequest & { evidence?: File } = {
+    description: '',
+    date: '',
+    amount: 0,
+    budgetId: 0,
+    evidence: undefined
+  };
 
   editingExpense: Expense | null = null;
 
@@ -88,39 +96,41 @@ newExpense: CreateExpenseRequest & { evidence?: File } = {
 
   fetchBudgetData(): void {
     this.loading = true;
-    this.budgetService.GetProjectBudget(this.projectId).subscribe({
-      next: (data: BudgetResponse) => {
-        console.log('Réponse budget complète:', data);
+    this.budgetService.GetProjectBudget(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: BudgetResponse) => {
+          console.log('Réponse budget complète:', data);
 
-        if (data.id && (typeof data.id === 'number' || typeof data.id === 'string')) {
-          this.budgetId = Number(data.id);
-        } else {
-          console.error('ID du budget manquant ou invalide dans la réponse:', data);
-          this.error = "ID du budget manquant dans la réponse du serveur";
+          if (data.id && (typeof data.id === 'number' || typeof data.id === 'string')) {
+            this.budgetId = Number(data.id);
+          } else {
+            console.error('ID du budget manquant ou invalide dans la réponse:', data);
+            this.error = "ID du budget manquant dans la réponse du serveur";
+            this.loading = false;
+            return;
+          }
+
+          this.budgetPrevu = data.plannedBudget;
+          this.budgetUtilise = data.consumedBudget;
+          this.budgetRestant = data.remainingBudget;
+          this.budgetToEdit.plannedBudget = data.plannedBudget;
+
+          this.newExpense.budgetId = this.budgetId;
           this.loading = false;
-          return;
+
+          this.fetchExpenses();
+
+          if (this.isBrowser) {
+            setTimeout(() => this.renderChart(), 100);
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement du budget:', error);
+          this.error = "Erreur lors du chargement du budget";
+          this.loading = false;
         }
-
-        this.budgetPrevu = data.plannedBudget;
-        this.budgetUtilise = data.consumedBudget;
-        this.budgetRestant = data.remainingBudget;
-        this.budgetToEdit.plannedBudget = data.plannedBudget;
-
-        this.newExpense.budgetId = this.budgetId;
-        this.loading = false;
-
-        this.fetchExpenses();
-
-        if (this.isBrowser) {
-          setTimeout(() => this.renderChart(), 100);
-        }
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement du budget:', error);
-        this.error = "Erreur lors du chargement du budget";
-        this.loading = false;
-      }
-    });
+      });
   }
   getEvidenceForExpense() {
 
@@ -132,22 +142,24 @@ newExpense: CreateExpenseRequest & { evidence?: File } = {
       return;
     }
 
-    this.budgetService.getDepense(this.budgetId, this.currentPage, this.pageSize).subscribe({
-      next: (response: ExpensesResponse) => {
-        this.expenses = response.content;
-        this.totalPages = response.totalPages;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des dépenses:', error);
-        this.error = "Erreur lors du chargement des dépenses";
-      }
-    });
+    this.budgetService.getDepense(this.budgetId, this.currentPage, this.pageSize)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: ExpensesResponse) => {
+          this.expenses = response.content;
+          this.totalPages = response.totalPages;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des dépenses:', error);
+          this.error = "Erreur lors du chargement des dépenses";
+        }
+      });
   }
   removeSelectedFile(): void {
     this.selectedFile = null;
     this.selectedFileName = '';
     this.newExpense.evidence = undefined;
-    
+
     // Réinitialiser l'input file
     const fileInput = document.getElementById('evidenceFile') as HTMLInputElement;
     if (fileInput) {
@@ -184,14 +196,16 @@ newExpense: CreateExpenseRequest & { evidence?: File } = {
 
     this.loading = true;
 
-    this.budgetService.putBudget(this.budgetId, this.budgetToEdit.plannedBudget).subscribe({
-      next: (data: BudgetResponse) => {
-        this.handleBudgetUpdateSuccess(data);
-      },
-      error: (error) => {
-        this.handleBudgetUpdateError(error);
-      }
-    });
+    this.budgetService.putBudget(this.budgetId, this.budgetToEdit.plannedBudget)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: BudgetResponse) => {
+          this.handleBudgetUpdateSuccess(data);
+        },
+        error: (error) => {
+          this.handleBudgetUpdateError(error);
+        }
+      });
   }
 
   private handleBudgetUpdateSuccess(data: BudgetResponse): void {
@@ -251,27 +265,27 @@ newExpense: CreateExpenseRequest & { evidence?: File } = {
     this.resetExpenseForm();
   }
 
-// 4. Modifier la méthode resetExpenseForm
-resetExpenseForm(): void {
-  this.newExpense = {
-    description: '',
-    date: '',
-    amount: 0,
-    budgetId: this.budgetId,
-    evidence: undefined
-  };
-  this.selectedFile = null;
-  this.selectedFileName = '';
-}
+  // 4. Modifier la méthode resetExpenseForm
+  resetExpenseForm(): void {
+    this.newExpense = {
+      description: '',
+      date: '',
+      amount: 0,
+      budgetId: this.budgetId,
+      evidence: undefined
+    };
+    this.selectedFile = null;
+    this.selectedFileName = '';
+  }
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Validation du fichier (optionnel)
       const maxSize = 5 * 1024 * 1024; // 5MB
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      
+
       if (file.size > maxSize) {
         this.error = "Le fichier ne doit pas dépasser 5MB";
         this.selectedFile = null;
@@ -279,7 +293,7 @@ resetExpenseForm(): void {
         input.value = '';
         return;
       }
-      
+
       if (!allowedTypes.includes(file.type)) {
         this.error = "Format non supporté. Utilisez PDF, JPG ou PNG";
         this.selectedFile = null;
@@ -287,7 +301,7 @@ resetExpenseForm(): void {
         input.value = '';
         return;
       }
-      
+
       this.selectedFile = file;
       this.selectedFileName = file.name;
       this.newExpense.evidence = file;
@@ -303,19 +317,21 @@ resetExpenseForm(): void {
     if (!this.expenseToDelete) return;
 
     this.loading = true;
-    this.budgetService.deleteDepense(this.expenseToDelete.id).subscribe({
-      next: () => {
-        this.loading = false;
-        this.closeConfirmModal();
-        this.fetchExpenses();
-        this.fetchBudgetData();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la suppression de la dépense:', error);
-        this.error = "Erreur lors de la suppression de la dépense";
-        this.loading = false;
-      }
-    });
+    this.budgetService.deleteDepense(this.expenseToDelete.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.closeConfirmModal();
+          this.fetchExpenses();
+          this.fetchBudgetData();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression de la dépense:', error);
+          this.error = "Erreur lors de la suppression de la dépense";
+          this.loading = false;
+        }
+      });
   }
 
   // project-budget.component.ts
@@ -396,7 +412,7 @@ resetExpenseForm(): void {
     }
     return true;
   }
-  getBaseFile(){
+  getBaseFile() {
     return environment.filebaseUrl;
   }
   // Méthode createExpense avec gestion d'erreur améliorée
@@ -409,61 +425,65 @@ resetExpenseForm(): void {
       budgetId: expenseData.budgetId,
       evidence: this.selectedFile || undefined
     };
-  
-    this.budgetService.createDepense(requestData).subscribe({
-      next: (response) => {
-        console.log('Dépense créée avec succès:', response);
-        this.loading = false;
-        this.closeExpenseModal();
-        this.fetchExpenses();
-        this.fetchBudgetData();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la création de la dépense:', error);
-        this.loading = false;
-  
-        if (error.includes('403') || error.includes('Forbidden')) {
-          this.error = "Vous n'avez pas les droits pour créer une dépense.";
-        } else if (error.includes('401')) {
-          this.error = "Session expirée. Veuillez vous reconnecter.";
-        } else if (error.includes('400')) {
-          this.error = "Données invalides. Vérifiez les informations saisies.";
-        } else {
-          this.error = "Erreur lors de la création de la dépense. Veuillez réessayer.";
+
+    this.budgetService.createDepense(requestData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('Dépense créée avec succès:', response);
+          this.loading = false;
+          this.closeExpenseModal();
+          this.fetchExpenses();
+          this.fetchBudgetData();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création de la dépense:', error);
+          this.loading = false;
+
+          if (error.includes('403') || error.includes('Forbidden')) {
+            this.error = "Vous n'avez pas les droits pour créer une dépense.";
+          } else if (error.includes('401')) {
+            this.error = "Session expirée. Veuillez vous reconnecter.";
+          } else if (error.includes('400')) {
+            this.error = "Données invalides. Vérifiez les informations saisies.";
+          } else {
+            this.error = "Erreur lors de la création de la dépense. Veuillez réessayer.";
+          }
         }
-      }
-    });
+      });
   }
-  
+
 
   // Méthode updateExpense avec gestion d'erreur améliorée
   private updateExpenseWithFormattedDate(expenseData: any): void {
     if (!this.editingExpense) return;
 
-    this.budgetService.putDepense(this.editingExpense.id, expenseData).subscribe({
-      next: (response) => {
-        console.log('Dépense modifiée avec succès:', response);
-        this.loading = false;
-        this.closeExpenseModal();
-        this.fetchExpenses();
-        this.fetchBudgetData();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la modification de la dépense:', error);
-        this.loading = false;
+    this.budgetService.putDepense(this.editingExpense.id, expenseData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('Dépense modifiée avec succès:', response);
+          this.loading = false;
+          this.closeExpenseModal();
+          this.fetchExpenses();
+          this.fetchBudgetData();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la modification de la dépense:', error);
+          this.loading = false;
 
-        // CORRECTION: Gestion spécifique des erreurs
-        if (error.includes('403') || error.includes('Forbidden')) {
-          this.error = "Vous n'avez pas les droits pour modifier cette dépense.";
-        } else if (error.includes('401')) {
-          this.error = "Session expirée. Veuillez vous reconnecter.";
-        } else if (error.includes('404')) {
-          this.error = "Dépense introuvable.";
-        } else {
-          this.error = "Erreur lors de la modification de la dépense. Veuillez réessayer.";
+          // CORRECTION: Gestion spécifique des erreurs
+          if (error.includes('403') || error.includes('Forbidden')) {
+            this.error = "Vous n'avez pas les droits pour modifier cette dépense.";
+          } else if (error.includes('401')) {
+            this.error = "Session expirée. Veuillez vous reconnecter.";
+          } else if (error.includes('404')) {
+            this.error = "Dépense introuvable.";
+          } else {
+            this.error = "Erreur lors de la modification de la dépense. Veuillez réessayer.";
+          }
         }
-      }
-    });
+      });
   }
 
   closeConfirmModal(): void {
@@ -617,43 +637,55 @@ resetExpenseForm(): void {
   }
 
   // Méthodes pour gérer le modal de preuve
-openEvidenceModal(expense: Expense): void {
-  this.selectedExpense = expense;
-  this.showEvidenceModal = true;
-}
+  openEvidenceModal(expense: Expense): void {
+    this.selectedExpense = expense;
+    this.showEvidenceModal = true;
+  }
 
-closeEvidenceModal(): void {
-  this.showEvidenceModal = false;
-  this.selectedExpense = null;
-}
+  closeEvidenceModal(): void {
+    this.showEvidenceModal = false;
+    this.selectedExpense = null;
+  }
 
-// Méthode pour vérifier si c'est une image
-isImage(filename: string): boolean {
-  if (!filename) return false;
-  const extension = filename.toLowerCase().split('.').pop();
-  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension || '');
-}
+  // Méthode pour vérifier si c'est une image
+  isImage(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.toLowerCase().split('.').pop();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension || '');
+  }
 
-// Méthode pour vérifier si c'est un PDF
-isPDF(filename: string): boolean {
-  if (!filename) return false;
-  const extension = filename.toLowerCase().split('.').pop();
-  return extension === 'pdf';
-}
+  // Méthode pour vérifier si c'est un PDF
+  isPDF(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.toLowerCase().split('.').pop();
+    return extension === 'pdf';
+  }
 
-// Méthode pour obtenir l'URL du PDF (avec sanitization pour Angular)
-getPDFUrl(filename: string): any {
-  // Si vous utilisez DomSanitizer, décommentez ces lignes:
-  // import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-  // return this.sanitizer.bypassSecurityTrustResourceUrl(this.getBaseFile() + filename);
-  
-  // Version simple sans sanitizer (peut nécessiter d'ajuster la sécurité Angular)
-  return this.getBaseFile() + filename;
-}
+  // Méthode pour obtenir l'URL du PDF (avec sanitization pour Angular)
+  getPDFUrl(filename: string): any {
+    // Si vous utilisez DomSanitizer, décommentez ces lignes:
+    // import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+    // return this.sanitizer.bypassSecurityTrustResourceUrl(this.getBaseFile() + filename);
 
-// Méthode pour gérer les erreurs de chargement d'image
-onImageError(event: any): void {
-  console.error('Erreur de chargement de l\'image');
-  event.target.src = 'assets/images/image-not-found.png'; // Image de fallback
-}
+    // Version simple sans sanitizer (peut nécessiter d'ajuster la sécurité Angular)
+    return this.getBaseFile() + filename;
+  }
+
+  // Méthode pour gérer les erreurs de chargement d'image
+  onImageError(event: any): void {
+    console.error('Erreur de chargement de l\'image');
+    event.target.src = 'assets/images/image-not-found.png'; // Image de fallback
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Clean up Chart instance
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = null;
+    }
+  }
 }

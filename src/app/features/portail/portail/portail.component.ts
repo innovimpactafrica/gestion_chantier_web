@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PlanAbonnementService, SubscriptionPlan } from '../../../../services/plan-abonnement.service';
 import { PartnerService, Partner } from '../../../../services/partner.service';
+import { LanguageService, Language } from '../../../core/services/language.service';
 import { Subject, takeUntil, interval } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
@@ -16,8 +17,6 @@ interface Profil {
   image: string;
   expanded: boolean;
 }
-
-type Language = 'FR' | 'EN';
 
 interface Translations {
   FR: { [key: string]: string };
@@ -74,6 +73,8 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoadingPlans = true;
   currentLang: Language = 'FR';
 
+  private languageService = inject(LanguageService);
+
   // Partenaires
   partners = signal<Partner[]>([]);
   isLoadingPartners = signal(false);
@@ -97,7 +98,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   animationKey: number = 0;
 
   showHelpModal = false;
-  emailAddress = 'contact@btpconnect.app';
+  emailAddress = 'contact@btpcloud.app';
   phoneNumber = '+ 221 33 971 41 12';
 
   // Traductions statiques
@@ -115,13 +116,13 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Hero Section
       'hero.title': 'Simplifiez la gestion de vos chantiers, du bureau au terrain.',
       'hero.description': 'Suivi en temps réel, pointages, plannings, rapports PDF, coûts et photos — le tout dans une seule plateforme prête pour le MOA, le BET, le chef de chantier et les équipes terrain.',
-      'hero.btn.features': 'Voir les fonctionnalités',
+      'hero.btn.features': 'Voir Démos',
       'hero.btn.download': 'Télécharger l\'application',
 
       // About Section
       'about.badge': 'Présentation',
       'about.title': 'À propos',
-      'about.description': 'BTP CONNECT centralise le pilotage des projets : suivi du terrain, coordination documentaire et reporting. Conçu pour réduire les frictions et accélérer la prise de décision.',
+      'about.description': 'BTP CLOUD centralise le pilotage des projets : suivi du terrain, coordination documentaire et reporting. Conçu pour réduire les frictions et accélérer la prise de décision.',
       'about.feature1': 'Suivi des chantiers en temps réel',
       'about.feature2': 'Gestion des équipes et des tâches',
       'about.feature3': 'Partage de documents et rapports',
@@ -130,14 +131,14 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Profiles Section
       'profiles.badge': 'Profils utilisateurs',
       'profiles.title': 'Une solution adaptée à chaque intervenant',
-      'profiles.description': 'BTP CONNECT. propose des fonctionnalités spécifiques pour chaque profil impliqué dans vos projets de construction',
+      'profiles.description': 'BTP CLOUD propose des fonctionnalités spécifiques pour chaque profil impliqué dans vos projets de construction',
       'profiles.readMore': 'Lire plus',
       'profiles.readLess': 'Lire moins',
 
       // Features Section
       'features.badge': 'Fonctionnalités clés',
       'features.title': 'Tout ce dont vous avez besoin pour gérer vos chantiers',
-      'features.description': 'BTP CONNECT, centralise tous les outils nécessaires pour gérer efficacement vos projets de construction dans une interface intuitive et accessible',
+      'features.description': 'BTP CLOUD centralise tous les outils nécessaires pour gérer efficacement vos projets de construction dans une interface intuitive et accessible',
 
       // Pricing Section
       'pricing.badge': 'Offres et abonnements',
@@ -178,7 +179,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Testimonials Section
       'testimonials.badge': 'Témoignages clients',
       'testimonials.title': 'Ce que nos clients disent de nous',
-      'testimonials.description': 'Découvrez comment BTP CONNECT. transforme la gestion des projets de construction pour des entreprises comme la vôtre',
+      'testimonials.description': 'Découvrez comment BTP CLOUD transforme la gestion des projets de construction pour des entreprises comme la vôtre',
 
       // Footer
       'footer.description': 'La solution complète pour la gestion de vos projets de construction. Simplifiez votre quotidien et optimisez la rentabilité de vos chantiers.',
@@ -191,7 +192,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'footer.cookies': 'Cookies',
 
       // Témoignages - Contenu des cartes
-      'testimonial1.text': 'Depuis que nous utilisons BTP CONNECT, nous avons réduit nos délais de 20% et amélioré la communication entre nos équipes. Un outil indispensable pour notre entreprise.',
+      'testimonial1.text': 'Depuis que nous utilisons BTP CLOUD, nous avons réduit nos délais de 20% et amélioré la communication entre nos équipes. Un outil indispensable pour notre entreprise.',
       'testimonial1.name': 'Jean Dupont',
       'testimonial1.position': 'Directeur de projets, Construction Moderne',
 
@@ -199,7 +200,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'testimonial2.name': 'Marie Lambert',
       'testimonial2.position': 'Chef de chantier, Bâtiments du Sud',
 
-      'testimonial3.text': 'BTP CONNECT a transformé notre façon de gérer les projets. La gestion des tâches et le traitement des rapports sont devenus beaucoup plus simples et efficaces.. Je recommande vivement cette solution à toutes les entreprises du BTP.',
+      'testimonial3.text': 'BTP CLOUD a transformé notre façon de gérer les projets. La gestion des tâches et le traitement des rapports sont devenus beaucoup plus simples et efficaces. Je recommande vivement cette solution à toutes les entreprises du BTP.',
       'testimonial3.name': 'Thomas Martin',
       'testimonial3.position': 'PDG, Constructions MTG',
       // ✅ AJOUTE CES LIGNES POUR LES FEATURES
@@ -258,7 +259,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // About Section
       'about.badge': 'Presentation',
       'about.title': 'About',
-      'about.description': 'BTP CONNECT centralizes project management: field monitoring, document coordination and reporting. Designed to reduce friction and accelerate decision-making.',
+      'about.description': 'BTP CLOUD centralizes project management: field monitoring, document coordination and reporting. Designed to reduce friction and accelerate decision-making.',
       'about.feature1': 'Real-time site tracking',
       'about.feature2': 'Team and task management',
       'about.feature3': 'Document and report sharing',
@@ -267,14 +268,14 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Profiles Section
       'profiles.badge': 'User profiles',
       'profiles.title': 'A solution tailored to each stakeholder',
-      'profiles.description': 'BTP CONNECT. offers specific features for each profile involved in your construction projects',
+      'profiles.description': 'BTP CLOUD offers specific features for each profile involved in your construction projects',
       'profiles.readMore': 'Read more',
       'profiles.readLess': 'Read less',
 
       // Features Section
       'features.badge': 'Key features',
       'features.title': 'Everything you need to manage your construction sites',
-      'features.description': 'BTP CONNECT. centralizes all the tools needed to effectively manage your construction projects in an intuitive and accessible interface',
+      'features.description': 'BTP CLOUD centralizes all the tools needed to effectively manage your construction projects in an intuitive and accessible interface',
 
       // Pricing Section
       'pricing.badge': 'Plans and subscriptions',
@@ -315,7 +316,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Testimonials Section
       'testimonials.badge': 'Customer testimonials',
       'testimonials.title': 'What our customers say about us',
-      'testimonials.description': 'Discover how BTP CONNECT. transforms construction project management for companies like yours',
+      'testimonials.description': 'Discover how BTP CLOUD transforms construction project management for companies like yours',
 
       // Footer
       'footer.description': 'The complete solution for managing your construction projects. Simplify your daily work and optimize your site profitability.',
@@ -328,7 +329,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'footer.cookies': 'Cookies',
 
       // Testimonials - Card content
-      'testimonial1.text': 'Since we started using BTP CONNECT, we have reduced our timelines by 20% and improved communication between our teams. An essential tool for our company.',
+      'testimonial1.text': 'Since we started using BTP CLOUD, we have reduced our timelines by 20% and improved communication between our teams. An essential tool for our company.',
       'testimonial1.name': 'Jean Dupont',
       'testimonial1.position': 'Project Director, Construction Moderne',
 
@@ -336,7 +337,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'testimonial2.name': 'Marie Lambert',
       'testimonial2.position': 'Site Manager, Bâtiments du Sud',
 
-      'testimonial3.text': 'BTP CONNECT has transformed the way we manage projects. Task management and report processing has become much simpler and more efficient. I highly recommend this solution to all construction companies.',
+      'testimonial3.text': 'BTP CLOUD has transformed the way we manage projects. Task management and report processing has become much simpler and more efficient. I highly recommend this solution to all construction companies.',
       'testimonial3.name': 'Thomas Martin',
       'testimonial3.position': 'CEO, Constructions MTG',
 
@@ -449,6 +450,11 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('🚀 PortailComponent initialisé');
+
+    // Synchroniser avec le LanguageService centralisé
+    this.currentLang = this.languageService.currentLang();
+    console.log('🌐 Langue synchronisée depuis LanguageService:', this.currentLang);
+
     this.loadPlans();
     this.loadPartners();
   }
@@ -484,6 +490,10 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   // Toggle de langue
   toggleLanguage(): void {
     this.currentLang = this.currentLang === 'FR' ? 'EN' : 'FR';
+
+    // Utiliser le service centralisé pour sauvegarder
+    this.languageService.changeLanguage(this.currentLang);
+
     console.log('🌐 Langue changée:', this.currentLang);
   }
 
@@ -491,6 +501,10 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   onLanguageChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     this.currentLang = selectElement.value as Language;
+
+    // Utiliser le service centralisé pour sauvegarder
+    this.languageService.changeLanguage(this.currentLang);
+
     console.log('🌐 Langue changée (select):', this.currentLang);
   }
 

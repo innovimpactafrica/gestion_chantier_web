@@ -14,7 +14,7 @@
         </svg>
       </div>
 
-      <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher ici..." class="w-full h-11 pl-10 pr-4
+      <input type="text" [(ngModel)]="searchQuery" [placeholder]="t('taskBoard.searchPlaceholder')" class="w-full h-11 pl-10 pr-4
              border border-gray-300 rounded-lg
              focus:ring-2 focus:ring-orange-500 focus:border-orange-500
              outline-none transition text-sm bg-white">
@@ -33,7 +33,7 @@
           fill="white" />
       </svg>
 
-      Nouvelle tâche
+      {{ t('taskBoard.newTask') }}
     </button>
 
   </div>
@@ -236,8 +236,8 @@
               d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
             </path>
           </svg>
-          <p class="text-base font-medium">Aucune tâche</p>
-          <p class="text-sm mt-1">Cliquez sur + pour ajouter une tâche</p>
+          <p class="text-base font-medium">{{ t('taskBoard.task.noTasks') }}</p>
+          <p class="text-sm mt-1">{{ t('taskBoard.task.clickToAdd') }}</p>
         </div>
       </div>
 
@@ -247,7 +247,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
-          <span class="text-[10px] uppercase tracking-wider font-bold">Scrollez pour voir plus</span>
+          <span class="text-[10px] uppercase tracking-wider font-bold">{{ t('taskBoard.task.scrollMore') }}</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
@@ -260,16 +260,16 @@
   <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-4 mt-8">
     <button (click)="previousPage()" [disabled]="currentPage === 0"
       class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-      Précédent
+      {{ t('common.previous') }}
     </button>
 
     <span class="text-sm text-gray-600 font-medium">
-      Page {{ currentPage + 1 }} sur {{ totalPages }}
+      {{ t('projects.page') }} {{ currentPage + 1 }} {{ t('projects.on') }} {{ totalPages }}
     </span>
 
     <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
       class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-      Suivant
+      {{ t('common.next') }}
     </button>
   </div>
 </div>
@@ -282,7 +282,7 @@
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
       <h2 class="text-xl font-semibold text-gray-800">
-        {{ isEditMode ? 'Modifier la tâche' : 'Nouvelle tâche' }}
+        {{ isEditMode ? t('taskBoard.editTask') : t('taskBoard.newTask') }}
       </h2>
       <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,40 +303,40 @@
         <!-- Title -->
         <div class="mb-4">
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-            Titre *
+            {{ t('taskBoard.form.title') }} *
           </label>
           <input type="text" id="title" [(ngModel)]="currentTask.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Titre de la tâche">
+            [placeholder]="t('taskBoard.form.title')">
         </div>
 
         <!-- Description -->
         <div class="mb-4">
           <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-            Description *
+            {{ t('taskBoard.form.description') }} *
           </label>
           <textarea id="description" [(ngModel)]="currentTask.description" name="description" required rows="3"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Description de la tâche"></textarea>
+            [placeholder]="t('taskBoard.form.description')"></textarea>
         </div>
 
         <!-- Priority -->
         <div class="mb-4">
           <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
-            Priorité
+            {{ t('taskBoard.form.priority') }}
           </label>
           <select id="priority" [(ngModel)]="currentTask.priority" name="priority"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-            <option value="LOW">Basse</option>
-            <option value="MEDIUM">Moyenne</option>
-            <option value="HIGH">Haute</option>
+            <option value="LOW">{{ t('taskBoard.priority.LOW') }}</option>
+            <option value="MEDIUM">{{ t('taskBoard.priority.MEDIUM') }}</option>
+            <option value="HIGH">{{ t('taskBoard.priority.HIGH') }}</option>
           </select>
         </div>
 
         <!-- Start Date -->
         <div class="mb-4">
           <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">
-            Date de début *
+            {{ t('taskBoard.form.startDate') }} *
           </label>
           <input type="date" id="startDate" [(ngModel)]="currentTask.startDate" name="startDate" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
@@ -345,7 +345,7 @@
         <!-- End Date -->
         <div class="mb-4">
           <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">
-            Date de fin *
+            {{ t('taskBoard.form.endDate') }} *
           </label>
           <input type="date" id="endDate" [(ngModel)]="currentTask.endDate" name="endDate" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
@@ -354,58 +354,53 @@
         <!-- Status (seulement en mode édition) -->
         <div class="mb-4" *ngIf="isEditMode">
           <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-            Statut
+            {{ t('taskBoard.form.status') }}
           </label>
           <select id="status" [(ngModel)]="currentTask.status" name="status"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-            <option value="TODO">À faire</option>
-            <option value="IN_PROGRESS">En cours</option>
-            <option value="BLOCKED">Bloqué</option>
-            <option value="DONE">Terminé</option>
+            <option value="TODO">{{ getStatusColumnTitle('TODO') }}</option>
+            <option value="IN_PROGRESS">{{ getStatusColumnTitle('IN_PROGRESS') }}</option>
+            <option value="BLOCKED">{{ getStatusColumnTitle('BLOCKED') }}</option>
+            <option value="DONE">{{ getStatusColumnTitle('DONE') }}</option>
           </select>
         </div>
 
         <!-- Executors Select avec multi-sélection améliorée -->
         <div class="mb-4" *ngIf="users.length > 0">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Assigner à des workers
+            {{ t('taskBoard.form.assignUsers') }}
           </label>
-          
+
           <!-- Liste déroulante des workers disponibles -->
           <div class="border border-gray-300 rounded-lg p-3 max-h-60 overflow-y-auto bg-gray-50">
-            <div *ngFor="let user of users" 
-                 class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer transition-colors"
-                 (click)="toggleUserSelection(user.id)">
-              <input type="checkbox" 
-                     [checked]="isUserSelected(user.id)"
-                     class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500">
-              <img [src]="user.avatarUrl" 
-                   class="w-8 h-8 rounded-full border border-gray-200" 
-                   (error)="onImageError($event)">
+            <div *ngFor="let user of users"
+              class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+              (click)="toggleUserSelection(user.id)">
+              <input type="checkbox" [checked]="isUserSelected(user.id)"
+                class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500">
+              <img [src]="user.avatarUrl" class="w-8 h-8 rounded-full border border-gray-200"
+                (error)="onImageError($event)">
               <span class="text-sm text-gray-700">{{ user.name }}</span>
             </div>
-            
-            <!-- Empty state si aucun worker -->
+
             <div *ngIf="users.length === 0" class="text-center py-4 text-gray-500 text-sm">
-              Aucun worker disponible
+              {{ t('taskBoard.form.noWorkerAvailable') }}
             </div>
           </div>
 
-          <!-- Workers sélectionnés -->
           <div *ngIf="currentTask.executors.length > 0" class="mt-3">
-            <p class="text-xs text-gray-600 mb-2">Workers sélectionnés ({{ currentTask.executors.length }})</p>
+            <p class="text-xs text-gray-600 mb-2">{{ t('taskBoard.form.selectWorkers') }} ({{
+              currentTask.executors.length }})</p>
             <div class="flex flex-wrap gap-2">
               <div *ngFor="let executor of currentTask.executors"
                 class="flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">
-                <img [src]="getUserAvatar(executor.id)" 
-                     class="w-5 h-5 rounded-full" 
-                     (error)="onImageError($event)">
+                <img [src]="getUserAvatar(executor.id)" class="w-5 h-5 rounded-full" (error)="onImageError($event)">
                 <span class="text-sm text-orange-700">{{ getUserName(executor.id) }}</span>
-                <button type="button" 
-                        (click)="removeExecutor(executor.id)" 
-                        class="text-orange-500 hover:text-orange-700">
+                <button type="button" (click)="removeExecutor(executor.id)"
+                  class="text-orange-500 hover:text-orange-700">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -414,47 +409,41 @@
 
           <!-- Message si aucun worker sélectionné -->
           <p *ngIf="currentTask.executors.length === 0" class="text-xs text-gray-500 mt-2">
-            Cliquez sur un worker pour l'assigner à cette tâche
+            {{ t('taskBoard.form.clickToAssign') }}
           </p>
         </div>
 
         <!-- File Upload -->
         <div class="mb-6">
           <label for="files" class="block text-sm font-medium text-gray-700 mb-2">
-            Images
+            {{ t('taskBoard.form.images') }}
           </label>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
-            <input type="file" 
-                   id="files" 
-                   (change)="onFileSelected($event)" 
-                   multiple 
-                   accept="image/*"
-                   class="hidden">
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
+            <input type="file" id="files" (change)="onFileSelected($event)" multiple accept="image/*" class="hidden">
             <label for="files" class="cursor-pointer">
               <svg class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                 </path>
               </svg>
               <p class="text-sm text-gray-600">
-                <span class="text-orange-500 font-medium">Cliquez pour ajouter des images</span>
+                <span class="text-orange-500 font-medium">{{ t('taskBoard.form.clickToAddImages') }}</span>
               </p>
-              <p class="text-xs text-gray-500 mt-1">PNG, JPG jusqu'à 10MB</p>
+              <p class="text-xs text-gray-500 mt-1">{{ t('taskBoard.form.imageFormat') }}</p>
             </label>
           </div>
-          
-          <!-- Liste des fichiers sélectionnés -->
+
           <div *ngIf="selectedFiles.length > 0" class="mt-3">
-            <p class="text-sm text-gray-600 mb-2">{{ selectedFiles.length }} fichier(s) sélectionné(s)</p>
+            <p class="text-sm text-gray-600 mb-2">{{ selectedFiles.length }} {{ t('taskBoard.form.selectedFiles') }}</p>
             <div class="flex flex-wrap gap-2">
               <div *ngFor="let file of selectedFiles; let i = index"
                 class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded border border-gray-300">
                 <span class="text-sm text-gray-700">{{ file.name }}</span>
-                <button type="button" 
-                        (click)="removeFile(i)" 
-                        class="text-red-500 hover:text-red-700">
+                <button type="button" (click)="removeFile(i)" class="text-red-500 hover:text-red-700">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -466,7 +455,7 @@
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
           <button type="button" (click)="closeModal()"
             class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-            Annuler
+            {{ t('common.cancel') }}
           </button>
           <button type="submit" [disabled]="loading || taskForm.invalid"
             class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -477,9 +466,9 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                 </path>
               </svg>
-              Enregistrement...
+              {{ t('common.saving') }}
             </span>
-            <span *ngIf="!loading">{{ isEditMode ? 'Modifier' : 'Créer' }}</span>
+            <span *ngIf="!loading">{{ isEditMode ? t('common.update') : t('common.create') }}</span>
           </button>
         </div>
       </form>
@@ -495,7 +484,7 @@
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
       <h2 class="text-xl font-semibold text-gray-800">
-        Joindre un fichier - {{ currentTaskForFile.title }}
+        {{ t('taskBoard.modal.joinFileTitle') }} - {{ currentTaskForFile.title }}
       </h2>
       <button (click)="closeFileModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,7 +497,7 @@
     <div class="p-6">
       <!-- Fichiers actuels de la tâche -->
       <div *ngIf="currentTaskForFile.pictures && currentTaskForFile.pictures.length > 0" class="mb-6">
-        <h3 class="text-sm font-medium text-gray-700 mb-3">Fichiers actuellement attachés</h3>
+        <h3 class="text-sm font-medium text-gray-700 mb-3">{{ t('taskBoard.modal.attachedFiles') }}</h3>
         <div class="grid grid-cols-2 gap-3">
           <div *ngFor="let picture of currentTaskForFile.pictures" class="relative group">
             <img [src]="getFileBaseUrl() + picture" [alt]="currentTaskForFile.title"
@@ -517,7 +506,7 @@
               class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
               <a [href]="getFileBaseUrl() + picture" target="_blank"
                 class="opacity-0 group-hover:opacity-100 text-white bg-blue-600 px-3 py-1 rounded-lg text-sm transition-opacity">
-                Voir
+                {{ t('common.view') }}
               </a>
             </div>
           </div>
@@ -527,12 +516,12 @@
       <!-- Formulaire de jointure -->
       <form (ngSubmit)="joinFileToTask()" class="space-y-4">
         <div class="border-t border-gray-200 pt-6">
-          <h3 class="text-sm font-medium text-gray-700 mb-4">Ajouter un nouveau fichier</h3>
+          <h3 class="text-sm font-medium text-gray-700 mb-4">{{ t('taskBoard.modal.addNewFile') }}</h3>
 
           <!-- Libellé du fichier -->
           <div class="mb-4">
             <label for="fileLibelle" class="block text-sm font-medium text-gray-700 mb-2">
-              Libellé du fichier *
+              {{ t('taskBoard.modal.fileLabel') }} *
             </label>
             <input type="text" id="fileLibelle" [(ngModel)]="fileLibelle" name="fileLibelle" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -542,7 +531,7 @@
           <!-- Sélection du fichier -->
           <div class="mb-4">
             <label for="fileToJoin" class="block text-sm font-medium text-gray-700 mb-2">
-              Sélectionner un fichier *
+              {{ t('taskBoard.modal.selectFile') }} *
             </label>
             <div
               class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
@@ -554,8 +543,8 @@
                   </path>
                 </svg>
                 <p class="text-sm text-gray-600">
-                  <span class="text-orange-500 font-medium">Cliquez pour sélectionner</span>
-                  ou glissez-déposez un fichier
+                  <span class="text-orange-500 font-medium">{{ t('taskBoard.modal.clickToSelect') }}</span>
+                  {{ t('taskBoard.modal.dragDrop') }}
                 </p>
                 <p class="text-xs text-gray-500 mt-1">
                   PNG, JPG, PDF jusqu'à 10MB
@@ -566,7 +555,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
-              Fichier sélectionné: {{ fileToJoin.name }}
+              {{ t('taskBoard.modal.selectedFile') }}: {{ fileToJoin.name }}
             </p>
           </div>
 
@@ -579,7 +568,7 @@
           <div class="flex justify-end gap-3 pt-4">
             <button type="button" (click)="closeFileModal()"
               class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-              Annuler
+              {{ t('common.cancel') }}
             </button>
             <button type="submit" [disabled]="loadingFileJoin || !fileToJoin || !fileLibelle"
               class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -590,9 +579,9 @@
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                   </path>
                 </svg>
-                Jointure en cours...
+                {{ t('taskBoard.modal.joining') }}
               </span>
-              <span *ngIf="!loadingFileJoin">Joindre le fichier</span>
+              <span *ngIf="!loadingFileJoin">{{ t('taskBoard.modal.joinFileButton') }}</span>
             </button>
           </div>
         </div>
@@ -655,8 +644,9 @@
                 </path>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-800">Galerie d'images</h3>
-            <span class="ml-auto text-sm text-gray-500">{{ selectedTask.pictures.length }} photo(s)</span>
+            <h3 class="text-lg font-semibold text-gray-800">{{ t('taskBoard.detail.gallery') }}</h3>
+            <span class="ml-auto text-sm text-gray-500">{{ selectedTask.pictures.length }} {{ t('statusReport.photos')
+              }}</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div *ngFor="let picture of selectedTask.pictures"
@@ -668,7 +658,7 @@
                 <div class="absolute bottom-3 left-3 right-3 flex justify-center">
                   <a [href]="getFileBaseUrl() + picture" target="_blank"
                     class="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                    Voir en grand
+                    {{ t('taskBoard.detail.viewBig') }}
                   </a>
                 </div>
               </div>
@@ -686,7 +676,7 @@
                 </path>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-800">Description</h3>
+            <h3 class="text-lg font-semibold text-gray-800">{{ t('taskBoard.form.description') }}</h3>
           </div>
           <p class="text-gray-700 leading-relaxed pl-12">{{ selectedTask.description }}</p>
         </div>
@@ -704,17 +694,17 @@
                   </path>
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-gray-800">Période</h3>
+              <h3 class="text-lg font-semibold text-gray-800">{{ t('taskBoard.detail.period') }}</h3>
             </div>
             <div class="space-y-3 pl-1">
               <div class="flex items-center gap-3">
-                <span class="text-sm font-medium text-gray-600 w-20">Début:</span>
+                <span class="text-sm font-medium text-gray-600 w-20">{{ t('taskBoard.detail.start') }}:</span>
                 <span class="text-sm font-semibold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">
                   {{ formatDate(selectedTask.startDate) }}
                 </span>
               </div>
               <div class="flex items-center gap-3">
-                <span class="text-sm font-medium text-gray-600 w-20">Fin:</span>
+                <span class="text-sm font-medium text-gray-600 w-20">{{ t('taskBoard.detail.end') }}:</span>
                 <span class="text-sm font-semibold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">
                   {{ selectedTask.dueDate }}
                 </span>
@@ -732,16 +722,16 @@
                   </path>
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-gray-800">Statistiques</h3>
+              <h3 class="text-lg font-semibold text-gray-800">{{ t('taskBoard.detail.stats') }}</h3>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 rounded-lg p-3 text-center">
                 <div class="text-2xl font-bold text-gray-900">{{ selectedTask.comments }}</div>
-                <div class="text-xs text-gray-600 mt-1">Commentaires</div>
+                <div class="text-xs text-gray-600 mt-1">{{ t('taskBoard.task.comments') }}</div>
               </div>
               <div class="bg-gray-50 rounded-lg p-3 text-center">
                 <div class="text-2xl font-bold text-gray-900">{{ selectedTask.attachments }}</div>
-                <div class="text-xs text-gray-600 mt-1">Fichiers joints</div>
+                <div class="text-xs text-gray-600 mt-1">{{ t('taskBoard.task.attachments') }}</div>
               </div>
             </div>
           </div>
@@ -759,8 +749,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">Équipe assignée</h3>
-              <p class="text-sm text-gray-600">{{ selectedTask.executors.length }} membre(s)</p>
+              <h3 class="text-lg font-semibold text-gray-800">{{ t('taskBoard.detail.assignedTeam') }}</h3>
+              <p class="text-sm text-gray-600">{{ selectedTask.executors.length }} {{ t('taskBoard.task.members') }}</p>
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -773,7 +763,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-gray-900 truncate">{{ getExecutorDetails(executor) }}</p>
-                <p class="text-xs text-gray-500">Exécuteur</p>
+                <p class="text-xs text-gray-500">{{ t('taskBoard.detail.executor') }}</p>
               </div>
             </div>
           </div>
@@ -787,8 +777,8 @@
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
             </path>
           </svg>
-          <p class="text-gray-600 font-medium">Aucun exécuteur assigné</p>
-          <p class="text-sm text-gray-500 mt-1">Cliquez sur "Modifier" pour assigner des membres à cette tâche</p>
+          <p class="text-gray-600 font-medium">{{ t('taskBoard.detail.noExecutor') }}</p>
+          <p class="text-sm text-gray-500 mt-1">{{ t('taskBoard.detail.clickEditToAssign') }}</p>
         </div>
 
       </div>

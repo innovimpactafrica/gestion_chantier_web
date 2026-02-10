@@ -1,8 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface AlertMessage {
   type: 'success' | 'error' | 'warning';
@@ -14,12 +15,12 @@ interface AlertMessage {
   selector: 'app-reset-password',
   templateUrl: './resetpassword.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
 })
 export class ResetpasswordComponent implements OnInit {
   // Signals pour l'état du composant
   isLoading = signal(false);
-  
+
   // Signal pour les alertes
   alert = signal<AlertMessage>({
     type: 'error',
@@ -36,7 +37,8 @@ export class ResetpasswordComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    public languageService: LanguageService
   ) {
     // Formulaire avec validation email
     this.requestForm = this.fb.group({
@@ -48,6 +50,11 @@ export class ResetpasswordComponent implements OnInit {
     });
   }
 
+  // Helper pour la traduction
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
+  }
+
   ngOnInit(): void {
     // Initialisation
   }
@@ -55,9 +62,9 @@ export class ResetpasswordComponent implements OnInit {
   // Message d'erreur pour l'email
   get emailErrorMessage(): string {
     const emailControl = this.requestForm.get('email');
-    
+
     if (!emailControl?.touched) return '';
-    
+
     if (emailControl.hasError('required')) {
       return 'L\'email est requis';
     }
@@ -110,7 +117,7 @@ export class ResetpasswordComponent implements OnInit {
         console.log('✅ Email envoyé:', response);
         this.isLoading.set(false);
         this.showAlert('success', `Un email de réinitialisation a été envoyé à ${email}. Veuillez vérifier votre boîte de réception.`);
-        
+
         // Réinitialiser le formulaire après succès
         setTimeout(() => {
           this.requestForm.reset();
@@ -128,11 +135,11 @@ export class ResetpasswordComponent implements OnInit {
   // Gestion générique des erreurs
   private handleError(err: any, defaultMessage: string): void {
     let errorMessage = defaultMessage;
-    
+
     console.error('❌ Erreur complète:', err);
     console.error('❌ Status:', err.status);
     console.error('❌ Error body:', err.error);
-    
+
     if (err.error instanceof ProgressEvent) {
       errorMessage = 'L\'API n\'est pas accessible ou retourne un format invalide. Vérifiez l\'URL de l\'API.';
     } else if (err.status === 404) {
@@ -146,7 +153,7 @@ export class ResetpasswordComponent implements OnInit {
     } else if (err.error?.message) {
       errorMessage = err.error.message;
     }
-    
+
     this.showAlert('error', errorMessage);
   }
 

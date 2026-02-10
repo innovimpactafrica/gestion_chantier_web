@@ -1,9 +1,9 @@
-
 <div class="p-6 bg-gray-50 min-h-screen">
   <!-- Header -->
   <div class="mb-6">
     <h1 class="text-2xl font-semibold text-gray-900 mb-2">Demandes d'études reçues</h1>
-    <p class="text-gray-600">Visualisez toutes les demandes d'études reçues, filtrez par période ou statut et suivez leur progression en temps réel.</p>
+    <p class="text-gray-600">Visualisez toutes les demandes d'études reçues, filtrez par période ou statut et suivez
+      leur progression en temps réel.</p>
   </div>
 
   <!-- Filters -->
@@ -11,46 +11,42 @@
     <!-- Search -->
     <div class="flex-1 min-w-64">
       <div class="relative">
-        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()"
-          placeholder="Rechercher par demande"
+        <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Rechercher par demande"
           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
       </div>
     </div>
 
     <!-- Period Filter -->
     <div class="relative">
-      <select 
-        [(ngModel)]="selectedPeriod"
-        (change)="onPeriodChange()"
+      <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()"
         class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="Période">Période</option>
         <option value="Cette semaine">Cette semaine</option>
         <option value="Ce mois">Ce mois</option>
         <option value="Ce trimestre">Ce trimestre</option>
       </select>
-      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
       </svg>
     </div>
 
     <!-- Status Filter -->
     <div class="relative">
-      <select 
-        [(ngModel)]="selectedStatus"
-        (change)="onStatusChange()"
+      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()"
         class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="Statut">Statut</option>
         <option value="En attente">En attente</option>
         <option value="Validée">Validée</option>
         <option value="Rejetée">Rejetée</option>
       </select>
-      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
       </svg>
     </div>
@@ -66,7 +62,9 @@
   <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
     <div class="flex">
       <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"></path>
       </svg>
       <p class="ml-3 text-sm text-red-800">{{ error }}</p>
     </div>
@@ -76,16 +74,20 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && !error && filteredDemandes.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+  <div *ngIf="!loading && !error && filteredDemandes.length === 0"
+    class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+      </path>
     </svg>
     <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune demande trouvée</h3>
     <p class="mt-1 text-sm text-gray-500">Aucune demande ne correspond à vos filtres.</p>
   </div>
 
   <!-- Table -->
-  <div *ngIf="!loading && !error && filteredDemandes.length > 0" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+  <div *ngIf="!loading && !error && filteredDemandes.length > 0"
+    class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-gray-50 border-b border-gray-200">
@@ -93,7 +95,8 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BET</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de création</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de création
+            </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
@@ -103,13 +106,14 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                  <img *ngIf="demande.propertyImg; else defaultIcon" 
-                       [src]="'https://wakana.online/repertoire_chantier/' + demande.propertyImg" 
-                       [alt]="demande.propertyName"
-                       class="w-6 h-6 object-cover rounded">
+                  <img *ngIf="demande.propertyImg; else defaultIcon"
+                    [src]="'https://wakana.online/repertoire_chantier/' + demande.propertyImg"
+                    [alt]="demande.propertyName" class="w-6 h-6 object-cover rounded">
                   <ng-template #defaultIcon>
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                      </path>
                     </svg>
                   </ng-template>
                 </div>
@@ -129,49 +133,46 @@
               <div class="text-sm text-gray-900">{{ formatDate(demande.createdAt) }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ getStatusClass(demande.status) }}">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ getStatusClass(demande.status) }}">
                 {{ mapStatusToFrench(demande.status) }}
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <div class="flex items-center space-x-3">
                 <!-- View Details -->
-                <button 
-                  (click)="openDetails(demande)"
-                  class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  title="Voir les détails">
+                <button (click)="openDetails(demande)"
+                  class="text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Voir les détails">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
                   </svg>
                 </button>
                 <!-- Approve -->
-                <button 
-                  *ngIf="demande.status === 'PENDING'"
-                  (click)="quickValidate(demande)"
-                  class="text-green-400 hover:text-green-600 transition-colors duration-200"
-                  title="Valider">
+                <button *ngIf="demande.status === 'PENDING'" (click)="quickValidate(demande)"
+                  class="text-green-400 hover:text-green-600 transition-colors duration-200" title="Valider">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                 </button>
                 <!-- Reject -->
-                <button 
-                  *ngIf="demande.status === 'PENDING'"
-                  (click)="quickReject(demande)"
-                  class="text-red-400 hover:text-red-600 transition-colors duration-200"
-                  title="Rejeter">
+                <button *ngIf="demande.status === 'PENDING'" (click)="quickReject(demande)"
+                  class="text-red-400 hover:text-red-600 transition-colors duration-200" title="Rejeter">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
                 <!-- Delete -->
-                <button 
-                  (click)="openDeleteConfirmation(demande)"
-                  class="text-gray-400 hover:text-red-600 transition-colors duration-200"
-                  title="Supprimer">
+                <button (click)="openDeleteConfirmation(demande)"
+                  class="text-gray-400 hover:text-red-600 transition-colors duration-200" title="Supprimer">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
                   </svg>
                 </button>
               </div>
@@ -185,15 +186,11 @@
     <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
       <div class="flex items-center justify-between">
         <div class="flex-1 flex justify-between sm:hidden">
-          <button 
-            (click)="previousPage()"
-            [disabled]="currentPage === 0"
+          <button (click)="previousPage()" [disabled]="currentPage === 0"
             class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
             Précédent
           </button>
-          <button 
-            (click)="nextPage()"
-            [disabled]="currentPage === totalPages - 1"
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
             class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
             Suivant
           </button>
@@ -207,32 +204,23 @@
             </p>
           </div>
           <div class="flex items-center space-x-2">
-            <select 
-              (change)="changePageSize($event)"
-              class="text-sm border border-gray-300 rounded-md px-2 py-1">
+            <select (change)="changePageSize($event)" class="text-sm border border-gray-300 rounded-md px-2 py-1">
               <option [value]="10" [selected]="pageSize === 10">10</option>
               <option [value]="20" [selected]="pageSize === 20">20</option>
               <option [value]="50" [selected]="pageSize === 50">50</option>
             </select>
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <button 
-                (click)="previousPage()"
-                [disabled]="currentPage === 0"
+              <button (click)="previousPage()" [disabled]="currentPage === 0"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 Précédent
               </button>
-              <button 
-                *ngFor="let page of [].constructor(totalPages); let i = index"
-                (click)="goToPage(i)"
-                [class]="'relative inline-flex items-center px-4 py-2 border text-sm font-medium ' + 
+              <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)" [class]="'relative inline-flex items-center px-4 py-2 border text-sm font-medium ' + 
                         (i === currentPage ? 
                          'z-10 bg-orange-50 border-orange-500 text-orange-600' : 
                          'bg-white border-gray-300 text-gray-500 hover:bg-gray-50')">
                 {{ i + 1 }}
               </button>
-              <button 
-                (click)="nextPage()"
-                [disabled]="currentPage === totalPages - 1"
+              <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 Suivant
               </button>
@@ -245,37 +233,36 @@
 </div>
 
 <!-- Modal de confirmation de validation -->
-<div *ngIf="showConfirmValidateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+<div *ngIf="showConfirmValidateModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
     <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full">
       <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
     </div>
-    
+
     <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">Valider la demande ?</h3>
     <p class="text-center text-gray-600 mb-6">La demande sera marquée <span class="font-semibold">Validée</span>.</p>
-    
+
     <div *ngIf="actionError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-sm text-red-800">{{ actionError }}</p>
     </div>
-    
+
     <div class="flex space-x-3">
-      <button 
-        (click)="closeValidateConfirmation()"
-        [disabled]="isValidating"
+      <button (click)="closeValidateConfirmation()" [disabled]="isValidating"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
         Annuler
       </button>
-      <button 
-        (click)="confirmValidate()"
-        [disabled]="isValidating"
+      <button (click)="confirmValidate()" [disabled]="isValidating"
         class="flex-1 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
         <span *ngIf="!isValidating">Valider</span>
         <span *ngIf="isValidating" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
           Validation...
         </span>
@@ -285,53 +272,48 @@
 </div>
 
 <!-- Modal de confirmation de rejet avec motif -->
-<div *ngIf="showConfirmRejectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+<div *ngIf="showConfirmRejectModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-xl font-semibold text-gray-900">Motif du rejet</h3>
-      <button 
-        (click)="closeRejectConfirmation()"
-        [disabled]="isRejecting"
+      <button (click)="closeRejectConfirmation()" [disabled]="isRejecting"
         class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
     </div>
-    
-    <p class="text-gray-600 mb-4">La demande sera marquée <span class="font-semibold text-red-600">Rejetée</span>. Vous pouvez ajouter un <span class="font-semibold">motif</span></p>
-    
+
+    <p class="text-gray-600 mb-4">La demande sera marquée <span class="font-semibold text-red-600">Rejetée</span>. Vous
+      pouvez ajouter un <span class="font-semibold">motif</span></p>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700 mb-2">Commentaire</label>
-      <textarea
-        [(ngModel)]="rejectionReason"
-        placeholder="Saisir"
-        [disabled]="isRejecting"
+      <textarea [(ngModel)]="rejectionReason" placeholder="Saisir" [disabled]="isRejecting"
         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
         rows="4"></textarea>
     </div>
-    
+
     <div *ngIf="actionError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-sm text-red-800">{{ actionError }}</p>
     </div>
-    
+
     <div class="flex space-x-3">
-      <button 
-        (click)="confirmReject()"
-        [disabled]="isRejecting"
+      <button (click)="confirmReject()" [disabled]="isRejecting"
         class="flex-1 px-6 py-2 text-white bg-[#FF5722] rounded-lg hover:bg-[#F4511E] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
         <span *ngIf="!isRejecting">Soumettre</span>
         <span *ngIf="isRejecting" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
           Traitement...
         </span>
       </button>
-      <button 
-        (click)="closeRejectConfirmation()"
-        [disabled]="isRejecting"
+      <button (click)="closeRejectConfirmation()" [disabled]="isRejecting"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
         Annuler
       </button>
@@ -340,37 +322,39 @@
 </div>
 
 <!-- Modal de confirmation de suppression -->
-<div *ngIf="showConfirmDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+<div *ngIf="showConfirmDeleteModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
     <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
       <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+        </path>
       </svg>
     </div>
-    
+
     <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">Supprimer la demande ?</h3>
-    <p class="text-center text-gray-600 mb-6">Cette action est irréversible. La demande sera définitivement supprimée.</p>
-    
+    <p class="text-center text-gray-600 mb-6">Cette action est irréversible. La demande sera définitivement supprimée.
+    </p>
+
     <div *ngIf="actionError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-sm text-red-800">{{ actionError }}</p>
     </div>
-    
+
     <div class="flex space-x-3">
-      <button 
-        (click)="closeDeleteConfirmation()"
-        [disabled]="isDeleting"
+      <button (click)="closeDeleteConfirmation()" [disabled]="isDeleting"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
         Annuler
       </button>
-      <button 
-        (click)="confirmDelete()"
-        [disabled]="isDeleting"
+      <button (click)="confirmDelete()" [disabled]="isDeleting"
         class="flex-1 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
         <span *ngIf="!isDeleting">Supprimer</span>
         <span *ngIf="isDeleting" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
           Suppression...
         </span>
@@ -382,20 +366,55 @@
 <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
     <!-- Modal Header -->
-    <div class="p-6 border-b border-gray-200">
-      <div class="flex justify-between items-start mb-6">
-        <h2 class="text-xl font-semibold text-gray-900">{{ selectedDemande?.title }}</h2>
-        <div class="flex items-center space-x-2">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ getStatusClass(selectedDemande?.status || '') }}">
-            {{ mapStatusToFrench(selectedDemande?.status || '') }}
-          </span>
-          <button 
-            (click)="closeModal()"
-            class="text-gray-400 hover:text-gray-600 transition-colors duration-200 ml-4">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <div class="flex justify-between items-center px-8 py-6 border-b" style="border-color: #F7FAFC; height: 74px;">
+      <h2 class="text-xl font-semibold text-gray-900">{{ selectedDemande?.title }}</h2>
+      <div class="flex items-center space-x-3">
+        <span
+          [class]="'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(selectedDemande?.status || '')">
+          {{ mapStatusToFrench(selectedDemande?.status || '') }}
+        </span>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Stepper -->
+    <div class="px-8 py-6 bg-white">
+      <div class="flex items-center justify-between relative">
+        <ng-container
+          *ngFor="let step of getProgressSteps(selectedDemande?.status || 'PENDING'); let i = index; let last = last">
+          <!-- Circle -->
+          <div [class]="'w-10 h-10 rounded-full flex items-center justify-center font-semibold z-10 transition-all duration-300 ' + 
+                    (step.showCheck ? 'text-white' : 
+                     step.isCurrent ? 'border-2 text-xs bg-white' : 
+                     'border-2 text-xs bg-white')" [style.background-color]="step.showCheck ? '#FF5C02' : ''"
+            [style.border-color]="step.isCurrent ? '#FF5C02' : '#E2E8F0'"
+            [style.color]="step.isCurrent && !step.showCheck ? '#FF5C02' : (step.showCheck ? 'white' : '#CBD5E0')">
+            <svg *ngIf="step.showCheck" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M9.07825 15.642L18.7202 6L20.0005 7.28025L9.07825 18.2025L4 13.1257L5.28025 11.8455L9.07825 15.642Z" />
             </svg>
-          </button>
+            <span *ngIf="!step.showCheck">{{ step.step }}</span>
+          </div>
+
+          <!-- Line -->
+          <div *ngIf="!last" class="h-0.5 transition-all duration-300" [style.width.px]="254.67"
+            [style.background-color]="step.isCompleted ? '#FF5C02' : '#E2E8F0'">
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Labels -->
+      <div class="flex justify-between mt-3">
+        <div *ngFor="let step of getProgressSteps(selectedDemande?.status || 'PENDING')" class="text-center"
+          style="width: 25%;">
+          <span class="text-xs font-semibold"
+            [style.color]="step.isCurrent ? '#FF5C02' : (step.isCompleted ? '#1A202C' : '#A0AEC0')">
+            {{ step.label }}
+          </span>
         </div>
       </div>
     </div>
@@ -406,27 +425,28 @@
         <!-- Left Column - Information -->
         <div>
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
-          
+
           <div class="space-y-4">
             <div class="flex justify-between">
               <div class="text-sm font-medium text-gray-600">Titre</div>
               <div class="font-medium">{{ selectedDemande?.title }}</div>
             </div>
-            
+
             <div class="flex justify-between">
               <div class="text-sm font-medium text-gray-600">BET concerné</div>
               <div class="font-medium">{{ selectedDemande?.betName }}</div>
             </div>
-            
+
             <div class="flex justify-between">
               <div class="text-sm font-medium text-gray-600">Date de création</div>
               <div class="font-medium">{{ formatDate(selectedDemande?.createdAt || []) }}</div>
             </div>
-            
+
             <div class="flex justify-between">
               <div class="text-sm font-medium text-gray-600">État</div>
               <div class="col-span-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusClass(selectedDemande?.status || '') }}">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusClass(selectedDemande?.status || '') }}">
                   {{ mapStatusToFrench(selectedDemande?.status || '') }}
                 </span>
               </div>
@@ -442,47 +462,54 @@
             <div class="flex items-center mb-4">
               <h4 class="text-md font-semibold text-gray-900 flex items-center">
                 <svg class="w-5 h-5 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
                 </svg>
                 Rapports associés
               </h4>
-              <button 
-                (click)="openCreateReportModal()"
+              <button (click)="openCreateReportModal()"
                 class="ml-2 p-1 text-orange-500 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors duration-200"
                 title="Ajouter un rapport">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clip-rule="evenodd"></path>
                 </svg>
               </button>
             </div>
-            
+
             <div *ngIf="selectedDemande?.reports && selectedDemande?.reports!.length > 0; else noReports">
               <div class="space-y-3">
-                <div *ngFor="let report of selectedDemande?.reports" 
-                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                <div *ngFor="let report of selectedDemande?.reports"
+                  class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
                   <div class="flex items-center space-x-3">
                     <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                      <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                        clip-rule="evenodd"></path>
                     </svg>
                     <div>
                       <div class="text-sm font-medium text-gray-900">{{ report.title }}</div>
-                      <div class="text-xs text-gray-500">Version {{ report.versionNumber }} • {{ report.authorName }}</div>
+                      <div class="text-xs text-gray-500">Version {{ report.versionNumber }} • {{ report.authorName }}
+                      </div>
                     </div>
                   </div>
                   <div class="flex items-center space-x-2">
                     <span class="text-xs text-gray-400">{{ formatDate(report.submittedAt) }}</span>
-                    <a [href]="'https://wakana.online/repertoire_chantier/' + report.fileUrl" 
-                       target="_blank"
-                       class="text-orange-500 hover:text-orange-600">
+                    <a [href]="'https://wakana.online/repertoire_chantier/' + report.fileUrl" target="_blank"
+                      class="text-orange-500 hover:text-orange-600">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z">
+                        </path>
                       </svg>
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <ng-template #noReports>
               <div class="text-center py-8 text-gray-500">
                 <div class="text-sm italic">Aucun rapport</div>
@@ -494,16 +521,16 @@
         <!-- Right Column - Comments -->
         <div>
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Commentaires</h3>
-          
+
           <div class="bg-gray-50 rounded-lg p-4 mb-4 min-h-32 max-h-64 overflow-y-auto">
             <div *ngIf="loadingComments" class="text-center text-gray-500">
               <div class="text-sm italic">Chargement...</div>
             </div>
-            
+
             <div *ngIf="!loadingComments && comments.length === 0" class="text-center text-gray-500">
               <div class="text-sm italic">Aucun commentaire</div>
             </div>
-            
+
             <div *ngIf="!loadingComments && comments.length > 0" class="space-y-3">
               <div *ngFor="let c of comments" class="bg-white p-3 rounded-lg border">
                 <div class="flex justify-between items-start mb-1">
@@ -517,16 +544,12 @@
 
           <!-- Comment Input -->
           <div class="space-y-3">
-            <textarea
-              [(ngModel)]="comment"
-              placeholder="Ajouter un commentaire......."
+            <textarea [(ngModel)]="comment" placeholder="Ajouter un commentaire......."
               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows="3"></textarea>
-            
+
             <div class="flex justify-end">
-              <button 
-                (click)="sendComment()"
-                [disabled]="!comment.trim()"
+              <button (click)="sendComment()" [disabled]="!comment.trim()"
                 class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200">
                 Envoyer
               </button>
@@ -537,138 +560,155 @@
     </div>
 
     <!-- Modal Footer -->
-    <div class="border-t border-gray-200 p-6">
-      <div class="flex justify-between">
-        <button 
-          (click)="closeModal()"
-          class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
-          Fermer
+    <div class="flex justify-between items-center px-8 py-5 border-t" style="border-color: #F7FAFC;">
+      <button (click)="closeModal()" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+        Fermer
+      </button>
+
+      <!-- Boutons pour PENDING -->
+      <div class="flex gap-3" *ngIf="canAccept()">
+        <button (click)="acceptDemande()" [disabled]="isValidating"
+          class="px-8 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style="height: 47px; background-color: #1C3055; color: white;">
+          <span *ngIf="!isValidating">Accepter</span>
+          <span *ngIf="isValidating" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Acceptation...
+          </span>
         </button>
-        
-        <div class="flex space-x-3" *ngIf="canAcceptOrReject()">
-          <button 
-            (click)="openValidateConfirmation()"
-            class="bg-[#1C3056] text-white px-6 py-2 rounded-lg hover:bg-[#152544] transition-colors duration-200">
-            Valider
-          </button>
-          <button 
-            (click)="openRejectConfirmation()"
-            class="border border-red-300 text-red-600 px-6 py-2 rounded-lg hover:bg-red-50 transition-colors duration-200">
-            Rejeter
-          </button>
-        </div>
+        <button (click)="openRejectConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
+          style="height: 47px; border: 1px solid #F44336; color: #F44336; background-color: white;">
+          Rejeter
+        </button>
+      </div>
+
+      <!-- Bouton pour IN_PROGRESS -->
+      <div *ngIf="canMarkAsDelivered()">
+        <button (click)="markAsDelivered()" [disabled]="isValidating"
+          class="px-8 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style="height: 47px; background-color: #1C3055; color: white;">
+          <span *ngIf="!isValidating">Marquer comme livré</span>
+          <span *ngIf="isValidating" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Traitement...
+          </span>
+        </button>
+      </div>
+
+      <!-- Boutons pour DELIVERED -->
+      <div class="flex gap-3" *ngIf="canValidateOrReject()">
+        <button (click)="openValidateConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
+          style="height: 47px; background-color: #1C3055; color: white;">
+          Valider
+        </button>
+        <button (click)="openRejectConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
+          style="height: 47px; border: 1px solid #F44336; color: #F44336; background-color: white;">
+          Rejeter
+        </button>
       </div>
     </div>
   </div>
 </div>
 <!-- Modal de création de rapport -->
-<div *ngIf="showCreateReportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-<div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
-  <!-- Header du modal -->
-  <div class="flex justify-between items-center p-6 border-b border-gray-200">
-    <h2 class="text-xl font-semibold text-gray-900">Nouveau rapport</h2>
-    <button 
-      (click)="closeCreateReportModal()"
-      class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-  </div>
+<div *ngIf="showCreateReportModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
+    <!-- Header du modal -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Nouveau rapport</h2>
+      <button (click)="closeCreateReportModal()"
+        class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
 
-  <!-- Corps du modal -->
-  <div class="p-6">
-    <form (ngSubmit)="createReport()" #reportForm="ngForm">
-      <!-- Champ Titre -->
-      <div class="mb-4">
-        <label for="reportTitle" class="block text-sm font-medium text-gray-700 mb-2">
-          Titre
-        </label>
-        <input
-          type="text"
-          id="reportTitle"
-          [(ngModel)]="newReport.title"
-          name="title"
-          required
-          placeholder="Ex: Rapport technique"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
-      </div>
+    <!-- Corps du modal -->
+    <div class="p-6">
+      <form (ngSubmit)="createReport()" #reportForm="ngForm">
+        <!-- Champ Titre -->
+        <div class="mb-4">
+          <label for="reportTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            Titre
+          </label>
+          <input type="text" id="reportTitle" [(ngModel)]="newReport.title" name="title" required
+            placeholder="Ex: Rapport technique"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
+        </div>
 
-      <!-- Champ Version -->
-      <div class="mb-4">
-        <label for="reportVersion" class="block text-sm font-medium text-gray-700 mb-2">
-          Version
-        </label>
-        <input
-          type="text"
-          id="reportVersion"
-          [(ngModel)]="newReport.version"
-          name="version"
-          required
-          placeholder="Ex: v1.0"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
-      </div>
+        <!-- Champ Version -->
+        <div class="mb-4">
+          <label for="reportVersion" class="block text-sm font-medium text-gray-700 mb-2">
+            Version
+          </label>
+          <input type="text" id="reportVersion" [(ngModel)]="newReport.version" name="version" required
+            placeholder="Ex: v1.0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
+        </div>
 
-      <!-- Champ Document -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Document
-        </label>
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
-          <div class="text-center">
-            <input 
-              type="file" 
-              id="fileInput" 
-              (change)="onFileSelected($event)"
-              accept=".pdf,.doc,.docx,.xls,.xlsx"
-              class="hidden">
-            
-            <label 
-              for="fileInput" 
-              class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-600 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors duration-200">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
-              Choisir un fichier
-            </label>
-            
-            <div class="mt-2 text-sm text-gray-500">
-              {{ getFileName() }}
+        <!-- Champ Document -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Document
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+            <div class="text-center">
+              <input type="file" id="fileInput" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx"
+                class="hidden">
+
+              <label for="fileInput"
+                class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-600 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Choisir un fichier
+              </label>
+
+              <div class="mt-2 text-sm text-gray-500">
+                {{ getFileName() }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Message d'erreur -->
-      <div *ngIf="createReportError" class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-        {{ createReportError }}
-      </div>
+        <!-- Message d'erreur -->
+        <div *ngIf="createReportError" class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          {{ createReportError }}
+        </div>
 
-      <!-- Boutons d'action -->
-      <div class="flex justify-end space-x-3">
-        <button 
-          type="button"
-          (click)="cancelCreateReport()"
-          [disabled]="isCreatingReport"
-          class="px-6 py-2 text-gray-600 hover:text-gray-800 disabled:text-gray-400 transition-colors duration-200">
-          Annuler
-        </button>
-        
-        <button 
-          type="submit"
-          [disabled]="isCreatingReport"
-          class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center">
-          <span *ngIf="isCreatingReport" class="mr-2">
-            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </span>
-          {{ isCreatingReport ? 'Envoi en cours...' : 'Envoyer' }}
-        </button>
-      </div>
-    </form>
+        <!-- Boutons d'action -->
+        <div class="flex justify-end space-x-3">
+          <button type="button" (click)="cancelCreateReport()" [disabled]="isCreatingReport"
+            class="px-6 py-2 text-gray-600 hover:text-gray-800 disabled:text-gray-400 transition-colors duration-200">
+            Annuler
+          </button>
+
+          <button type="submit" [disabled]="isCreatingReport"
+            class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center">
+            <span *ngIf="isCreatingReport" class="mr-2">
+              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+            </span>
+            {{ isCreatingReport ? 'Envoi en cours...' : 'Envoyer' }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
-</div>
-        

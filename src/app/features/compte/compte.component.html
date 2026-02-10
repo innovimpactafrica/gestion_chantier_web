@@ -31,7 +31,7 @@
                             <!-- Bouton de modification de photo -->
                             <button type="button" (click)="triggerPhotoInput()" [disabled]="isUploadingPhoto()"
                                 class="absolute bottom-0 right-0 bg-gray-600 hover:bg-gray-700 text-white rounded-full p-2 shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                [title]="t('compte.photo.new')">
+                                [title]="t('compte.photo.reminder')">
                                 @if (isUploadingPhoto()) {
                                 <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -286,7 +286,7 @@
                                             </svg>
                                         </span>
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">{{ t('compte.form.profileReadOnly') }}</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ t('compte.profile.cantEdit') }}</p>
                                 </div>
                             </div>
 
@@ -303,7 +303,7 @@
                                     </svg>
                                     <div class="flex-1">
                                         <p class="text-sm font-medium text-blue-800">
-                                            📸 {{ t('compte.photo.newDetails') }} : {{ selectedPhotoFile()!.name }}
+                                            <!-- 📸 {{ t('compte.photo.newDetails') }} : {{ selectedPhotoFile()!.name }} -->
                                         </p>
                                         <p class="text-xs text-blue-700 mt-1">
                                             {{ t('compte.photo.reminder') }}
