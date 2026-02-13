@@ -408,9 +408,9 @@
     </div>
 
     <!-- Contenu du modal -->
-    <div class="p-6 overflow-y-auto max-h-[calc(70vh-140px)]">
+    <div class="p-4 overflow-y-auto max-h-[calc(70vh-140px)]">
       <!-- Informations de la dépense -->
-      <div *ngIf="selectedExpense" class="mb-6 bg-gray-50 rounded-lg p-4">
+      <div *ngIf="selectedExpense" class="mb-4 bg-gray-50 rounded-lg p-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <p class="text-xs text-gray-500 mb-1">{{ t('projectBudget.date') }}</p>
@@ -428,7 +428,7 @@
       </div>
 
       <!-- Affichage de la preuve -->
-      <div *ngIf="selectedExpense" class="bg-white rounded-lg border border-gray-200">
+      <div *ngIf="selectedExpense" class="bg-white rounded-lg">
         <!-- Message si pas de preuve -->
         <div *ngIf="!selectedExpense.evidence" class="text-center py-12">
           <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -450,12 +450,35 @@
 
           <!-- Si c'est un PDF -->
           <div *ngIf="isPDF(selectedExpense.evidence)" class="w-full">
-            <iframe [src]="getPDFUrl(selectedExpense.evidence)" class="w-full h-[600px] rounded-lg" frameborder="0">
+            <iframe [src]="getPDFUrl(selectedExpense.evidence)" class="w-full h-[500px] max-h-[70vh] rounded-lg"
+              frameborder="0">
             </iframe>
           </div>
 
+          <!-- Si c'est un document Word -->
+          <div *ngIf="isWord(selectedExpense.evidence)" class="w-full flex flex-col items-center py-8">
+            <svg class="w-20 h-20 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
+              </path>
+            </svg>
+            <p class="text-gray-700 font-medium mb-2">{{ t('projectBudget.wordDocument') }}</p>
+            <p class="text-sm text-gray-500">{{ selectedExpense.evidence.split('/').pop() }}</p>
+          </div>
+
+          <!-- Si c'est un autre type de fichier -->
+          <div *ngIf="isOtherFile(selectedExpense.evidence)" class="w-full flex flex-col items-center py-8">
+            <svg class="w-20 h-20 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+            <p class="text-gray-700 font-medium mb-2">{{ t('projectBudget.document') }}</p>
+            <p class="text-sm text-gray-500">{{ selectedExpense.evidence.split('/').pop() }}</p>
+          </div>
+
           <!-- Bouton de téléchargement -->
-          <div class="mt-4 w-full flex justify-center">
+          <div class="mt-3 w-full flex justify-center">
             <a [href]="getBaseFile() + selectedExpense.evidence" download target="_blank"
               class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

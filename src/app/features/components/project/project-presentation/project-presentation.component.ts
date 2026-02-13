@@ -51,7 +51,7 @@ export class ProjectPresentationComponent implements OnInit {
   // Mapping statut français -> anglais
   private statutMap: { [key: string]: string } = {
     'En cours': 'IN_PROGRESS',
-    'En pause': 'PAUSED',
+    'En pause': 'PENDING',
     'Terminé': 'COMPLETED',
     'Planifié': 'PLANNED'
   };
@@ -59,7 +59,7 @@ export class ProjectPresentationComponent implements OnInit {
   // Mapping statut anglais -> français
   private statutMapReverse: { [key: string]: string } = {
     'IN_PROGRESS': 'En cours',
-    'PAUSED': 'En pause',
+    'PENDING': 'En pause',
     'COMPLETED': 'Terminé',
     'PLANNED': 'Planifié'
   };
@@ -75,9 +75,9 @@ export class ProjectPresentationComponent implements OnInit {
     }
   }
   /**
-   * Change le statut du projet
-   * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
-   */
+ * Change le statut du projet
+ * @param nouveauStatutFr Nouveau statut en français ('En cours', 'En pause', 'Terminé')
+ */
   changeStatut(nouveauStatutFr: string): void {
     if (!this.projet || !this.projet.id) {
       console.error('Projet non chargé');
@@ -104,48 +104,46 @@ export class ProjectPresentationComponent implements OnInit {
     this.isUpdatingStatus = true;
     this.statusUpdateError = null;
 
-    // Créer une copie du projet avec le nouveau statut
-    const projetMisAJour: RealEstateProject = {
-      ...this.projet,
-      constructionStatus: nouveauStatutEn
-    };
-
     console.log('🔄 Mise à jour du statut:', {
       ancien: this.projet.constructionStatus,
       nouveau: nouveauStatutEn,
       projetId: this.projet.id
     });
 
-    // Appel de la méthode updateProject
-    this.realEstateService.updateProject(this.projet.id, projetMisAJour)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          console.log('✅ Statut mis à jour avec succès:', response);
+    // Appel de la méthode changeProjectStatus au lieu de updateProject
+    this.realEstateService.changeProjectStatus(this.projet.id, nouveauStatutEn).subscribe({
+      next: (response) => {
+        console.log('✅ Statut mis à jour avec succès:', response);
 
-          // Mettre à jour le projet local avec response.data.realEstateProperty
-          if (response && response.data && response.data.realEstateProperty) {
-            this.projet = response.data.realEstateProperty;
-          } else if (response && response.data) {
-            this.projet = response.data as RealEstateProject;
-          }
-
-          this.isUpdatingStatus = false;
-          console.log('✓ Statut changé à:', nouveauStatutFr);
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour du statut:', error);
-          this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
-          this.isUpdatingStatus = false;
-
-          // Recharger le projet pour rétablir l'état précédent
-          if (this.projet?.id) {
-            this.loadProjectDetails(this.projet.id);
-          }
+        // Mettre à jour le projet local avec response.data.realEstateProperty
+        if (response && response.data && response.data.realEstateProperty) {
+          this.projet = response.data.realEstateProperty;
+        } else if (response && response.data) {
+          this.projet = response.data as RealEstateProject;
         }
-      });
-  }
 
+        this.isUpdatingStatus = false;
+
+        // Recharger le budget pour s'assurer qu'il reste affiché
+        if (this.projet?.id) {
+          this.loadBudget(this.projet.id);
+        }
+
+        console.log('✓ Statut changé à:', nouveauStatutFr);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour du statut:', error);
+        this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
+        this.isUpdatingStatus = false;
+
+        // Recharger le projet pour rétablir l'état précédent
+        if (this.projet?.id) {
+          this.loadProjectDetails(this.projet.id);
+          this.loadBudget(this.projet.id);
+        }
+      }
+    });
+  }
   /**
    * Vérifie si un statut est sélectionné
    * @param statut Statut à vérifier
@@ -271,7 +269,7 @@ export class ProjectPresentationComponent implements OnInit {
         return 'En cours';
       case 'COMPLETED':
         return 'Terminé';
-      case 'PAUSED':
+      case 'PENDING':
         return 'En pause';
       case 'PLANNED':
         return 'Planifié';

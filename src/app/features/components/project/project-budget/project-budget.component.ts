@@ -661,6 +661,19 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
     return extension === 'pdf';
   }
 
+  // Méthode pour vérifier si c'est un document Word
+  isWord(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.toLowerCase().split('.').pop();
+    return ['doc', 'docx'].includes(extension || '');
+  }
+
+  // Méthode pour vérifier si c'est un autre type de fichier
+  isOtherFile(filename: string): boolean {
+    if (!filename) return false;
+    return !this.isImage(filename) && !this.isPDF(filename) && !this.isWord(filename);
+  }
+
   // Méthode pour obtenir l'URL du PDF (avec sanitization pour Angular)
   getPDFUrl(filename: string): any {
     // Si vous utilisez DomSanitizer, décommentez ces lignes:

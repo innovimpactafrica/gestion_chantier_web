@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectBudgetService, Document, DocumentType, CreateDocumentRequest, DocumentsResponse, DocumentTypesResponse } from '../../../services/project-details.service';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
+import { PdfIconComponent } from '../../shared/components/pdf-icon/pdf-icon.component';
 
 interface FileDisplay {
   id: number;
@@ -21,7 +22,7 @@ interface FileDisplay {
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PdfIconComponent],
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.css']
 })
@@ -351,5 +352,18 @@ export class DocumentsComponent implements OnInit {
       gif: 'assets/icons/image.svg'
     };
     return icons[ext] || 'assets/icons/file.svg';
+  }
+
+  // Helper methods for file type detection
+  isPDF(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.toLowerCase().split('.').pop();
+    return extension === 'pdf';
+  }
+
+  isImage(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.toLowerCase().split('.').pop();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension || '');
   }
 }

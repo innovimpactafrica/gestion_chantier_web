@@ -61,7 +61,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       total: 0,
       inProgress: 0,
       delayed: 0,
-      pending: 0
+      pending: 0,
+      completed: 0
     },
     etudes: {
       total: 0,
@@ -485,7 +486,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       total: projectKpi.total || 0,
       inProgress: projectKpi.inProgress || 0,
       delayed: projectKpi.delayed || 0,
-      pending: projectKpi.pending || 0
+      pending: projectKpi.pending || 0,
+      completed: projectKpi.completed || 0
     };
   }
 

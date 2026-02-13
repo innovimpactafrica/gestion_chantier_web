@@ -311,6 +311,7 @@ export class LanguageService {
             'help.hoursValue': 'Lundi - Vendredi, 08h00 - 18h00',
 
             // Compte
+            'common.completed': 'Terminé',  
             'compte.title': 'Mon compte',
             'compte.tabs.info': 'Informations personnelles',
             'compte.tabs.subscriptions': 'Abonnements',
@@ -2700,6 +2701,7 @@ export class LanguageService {
             'equipment.storageDesc': 'Individual storage spaces',
             'equipment.corridors': 'Corridors',
             'equipment.corridorsDesc': 'Circulation spaces',
+            'common.completed': 'completed',
 
             // ============ PROJECT BUDGET COMPONENT ============
             'projectBudget.title': 'Budget Management',

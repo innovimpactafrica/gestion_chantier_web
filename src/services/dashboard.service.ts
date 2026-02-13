@@ -17,6 +17,7 @@ export interface ProjectKpi {
   inProgress: number;
   delayed: number;
   pending: number;
+  completed: number;
   pendingpending: number;
 }
 export interface StudyKpi {
