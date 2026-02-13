@@ -81,7 +81,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('❌ Erreur lors du chargement des plans:', error);
           this.isLoading = false;
-          alert(error.userMessage || 'Erreur lors du chargement des plans');
+          alert(error.userMessage || this.t('admin.subscription.error.load'));
         }
       });
   }
@@ -188,7 +188,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
           console.error('❌ Erreur lors de la mise à jour du statut:', error);
           this.showToggleModal = false;
           this.isLoading = false;
-          alert(error.userMessage || 'Erreur lors de la modification du statut');
+          alert(error.userMessage || this.t('lots.error.statusChangeFailed'));
         }
       });
   }
@@ -223,12 +223,12 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
           this.showDeleteModal = false;
           this.planToDelete = null;
 
-          alert(`Plan "${planLabel}" supprimé avec succès`);
+          alert(this.t('admin.subscription.success.delete', { label: planLabel }));
         },
         error: (error) => {
           console.error('❌ Erreur lors de la suppression:', error);
           this.isDeleting = false;
-          alert(error.userMessage || 'Erreur lors de la suppression du plan');
+          alert(error.userMessage || this.t('admin.subscription.error.delete'));
         }
       });
   }
@@ -247,11 +247,11 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   }
 
   getStatutText(active: boolean): string {
-    return active ? 'Actif' : 'Inactif';
+    return active ? this.t('admin.subscription.status.active') : this.t('admin.subscription.status.inactive');
   }
 
   getProjectLimit(plan: SubscriptionPlan): string {
-    return plan.unlimitedProjects ? 'Illimité' : plan.projectLimit.toString();
+    return plan.unlimitedProjects ? this.t('admin.subscription.unlimited') : plan.projectLimit.toString();
   }
 
   get paginatedPlans(): SubscriptionPlan[] {
@@ -284,6 +284,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
 
   exportPlans(): void {
     console.log('📤 Export des plans...');
-    alert('Fonctionnalité d\'export à venir');
+    alert(this.t('admin.subscription.export') + ' - ' + this.t('lots.preview'));
   }
 }

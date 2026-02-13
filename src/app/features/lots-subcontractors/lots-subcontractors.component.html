@@ -138,8 +138,10 @@
         <div class="px-5 pb-4">
           <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 15C7.58 15 4 16.79 4 19V21H20V19C20 16.79 16.42 15 12 15ZM8 9C8 10.0609 8.42143 11.0783 9.17157 11.8284C9.92172 12.5786 10.9391 13 12 13C13.0609 13 14.0783 12.5786 14.8284 11.8284C15.5786 11.0783 16 10.0609 16 9M11.5 2C11.2 2 11 2.21 11 2.5V5.5H10V3C10 3 7.75 3.86 7.75 6.75C7.75 6.75 7 6.89 7 8H17C16.95 6.89 16.25 6.75 16.25 6.75C16.25 3.86 14 3 14 3V5.5H13V2.5C13 2.21 12.81 2 12.5 2H11.5Z" fill="#FF5C02"/>
-</svg>
+              <path
+                d="M12 15C7.58 15 4 16.79 4 19V21H20V19C20 16.79 16.42 15 12 15ZM8 9C8 10.0609 8.42143 11.0783 9.17157 11.8284C9.92172 12.5786 10.9391 13 12 13C13.0609 13 14.0783 12.5786 14.8284 11.8284C15.5786 11.0783 16 10.0609 16 9M11.5 2C11.2 2 11 2.21 11 2.5V5.5H10V3C10 3 7.75 3.86 7.75 6.75C7.75 6.75 7 6.89 7 8H17C16.95 6.89 16.25 6.75 16.25 6.75C16.25 3.86 14 3 14 3V5.5H13V2.5C13 2.21 12.81 2 12.5 2H11.5Z"
+                fill="#FF5C02" />
+            </svg>
 
             <div class="flex-1 min-w-0">
               <div class="font-semibold text-gray-900 text-sm truncate"
@@ -237,14 +239,6 @@
     <p class="text-gray-600 mb-6">
       {{ lots.length === 0 ? t('lots.createFirstLot') : t('lots.adjustFilters') }}
     </p>
-    <!-- <button 
-      (click)="openCreateModal()"
-      class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Créer un lot
-    </button> -->
   </div>
 
   <!-- Pagination -->
@@ -304,7 +298,7 @@
         <div class="space-y-5">
           <!-- Désignation du lot -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Désignation du lot</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('lots.modal.designation') }}</label>
             <input [(ngModel)]="currentLot.name"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
               placeholder="Gros œuvre">
@@ -312,21 +306,21 @@
 
           <!-- Description -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea [(ngModel)]="currentLot.description" rows="3"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
-              placeholder="Fondations, maçonnerie, béton armé, charpente"></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('lots.modal.description') }}</label>
+            <textarea [(ngModel)]="currentLot.description" [placeholder]="t('lots.modal.descriptionPlaceholder')"
+              rows="3"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"></textarea>
           </div>
 
           <!-- Dates -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Date de début prévue</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('lots.modal.startDate') }}</label>
               <input type="date" [(ngModel)]="currentLot.startDate"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin prévue</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('lots.modal.endDate') }}</label>
               <input type="date" [(ngModel)]="currentLot.endDate"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
             </div>
@@ -334,11 +328,12 @@
 
           <!-- Affecter un sous-traitant -->
           <div class="relative">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Affecter un sous-traitant</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('lots.modal.assignSubcontractor')
+              }}</label>
             <input type="text" [(ngModel)]="subcontractorSearch" (input)="filterSubcontractors()"
               (focus)="showSubcontractorDropdown = true"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none pr-10"
-              placeholder="Mme. Sarr (Électricité Pro)">
+              [placeholder]="t('lots.modal.subcontractorPlaceholder')">
 
             <svg class="absolute right-3 top-10 w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
@@ -380,13 +375,13 @@
       <div class="sticky bottom-0 bg-white border-t px-6 py-4 flex gap-3">
         <button (click)="closeModal()"
           class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
-          Annuler
+          {{ t('common.cancel') }}
         </button>
         <button (click)="saveLot()" [disabled]="isLoading"
           class="flex-1 px-6 py-3 bg-[#FF5C02] text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors font-medium">
           <div *ngIf="isLoading" class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent">
           </div>
-          Mettre à jour
+          {{ t('lots.modal.update') }}
         </button>
       </div>
     </div>
@@ -706,6 +701,7 @@
             </div>
           </div>
         </div>
+
         <!-- Documents -->
         <div class="bg-white border border-gray-200 rounded-lg p-5">
           <div class="flex justify-between items-center mb-4">
@@ -789,6 +785,7 @@
             </div>
           </div>
         </div>
+
         <!-- Propriété immobilière -->
         <div class="bg-white border border-gray-200 rounded-lg p-5">
           <h5 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -817,6 +814,7 @@
     </div>
   </div>
 </div>
+
 <!-- Modal Upload Document -->
 <div *ngIf="showDocumentUploadModal"
   class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"

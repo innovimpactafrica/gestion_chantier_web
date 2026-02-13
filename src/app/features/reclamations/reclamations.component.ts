@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { LanguageService } from '../../core/services/language.service';
 
 interface Reclamation {
   id: number;
@@ -100,7 +101,7 @@ export class ReclamationsComponent implements OnInit {
 
   filteredReclamations: Reclamation[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private languageService: LanguageService) { }
 
   ngOnInit(): void {
     this.filteredReclamations = [...this.reclamations];
@@ -119,7 +120,25 @@ export class ReclamationsComponent implements OnInit {
     }
   }
 
+  t(key: string): string {
+    return this.languageService.translate(key);
+  }
+
+  mapStatusToTranslation(status: string): string {
+    switch (status) {
+      case 'En cours':
+        return this.t('reclamations.status.inProgress');
+      case 'Résolue':
+        return this.t('reclamations.status.resolved');
+      case 'En attente':
+        return this.t('reclamations.status.pending');
+      default:
+        return status;
+    }
+  }
+
   getStatutClass(statut: string): string {
+    // ✅ Use original status value, not translated - fixes color bug when changing language
     switch (statut) {
       case 'En cours':
         return 'bg-blue-100 text-blue-700';

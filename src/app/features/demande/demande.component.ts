@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DemandeService, Demande, Report, Comment as DemandeComment } from './../../../services/demande.service';
 import { AuthService } from './../../features/auth/services/auth.service';
+import { LanguageService } from '../../core/services/language.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -75,8 +76,13 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   constructor(
     private demandeService: DemandeService,
-    private authService: AuthService
+    private authService: AuthService,
+    private languageService: LanguageService
   ) { }
+
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
+  }
 
   ngOnInit() {
     this.initializeBetId();
@@ -246,32 +252,32 @@ export class DemandeComponent implements OnInit, OnDestroy {
   mapStatusToFrench(status: string): string {
     switch (status) {
       case 'PENDING':
-        return 'En attente';
+        return this.t('demande.status.PENDING');
       case 'IN_PROGRESS':
-        return 'En cours';
+        return this.t('demande.status.IN_PROGRESS');
       case 'DELIVERED':
-        return 'Livrée';
+        return this.t('demande.status.DELIVERED');
       case 'VALIDATED':
-        return 'Validée';
+        return this.t('demande.status.VALIDATED');
       case 'REJECTED':
-        return 'Rejetée';
+        return this.t('demande.status.REJECTED');
       default:
         return status;
     }
   }
 
   getStatusClass(status: string): string {
-    const frenchStatus = this.mapStatusToFrench(status);
-    switch (frenchStatus) {
-      case 'En attente':
+    // ✅ Use original status value, not translated - fixes color bug when changing language
+    switch (status) {
+      case 'PENDING':
         return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'En cours':
+      case 'IN_PROGRESS':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Livrée':
+      case 'DELIVERED':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Validée':
+      case 'VALIDATED':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'Rejetée':
+      case 'REJECTED':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -655,10 +661,10 @@ export class DemandeComponent implements OnInit, OnDestroy {
     showCheck: boolean;
   }[] {
     const steps = [
-      { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false, showCheck: false },
-      { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false, showCheck: false },
-      { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false, showCheck: false },
-      { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false, showCheck: false }
+      { step: 1, label: this.t('demande.steps.pendingDetails'), isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 2, label: this.t('demande.steps.inProgress'), isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 3, label: this.t('demande.steps.delivered'), isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 4, label: this.t('demande.steps.validation'), isCompleted: false, isCurrent: false, showCheck: false }
     ];
 
     switch (statut) {

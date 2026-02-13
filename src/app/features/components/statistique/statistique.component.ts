@@ -7,6 +7,7 @@ import { MaterialsService } from '../../../../services/materials.service';
 import { HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface StatsData {
   materialsUsed: number;
@@ -63,15 +64,18 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
     '#4285F4', '#34A853', '#FBBC04', '#4ECDC4', '#9E9E9E',
     '#9C88FF', '#FF6B9D', '#FFD93D', '#6BCF7F', '#FF6B47'
   ];
-trackByCategory: TrackByFunction<CategoryData> | undefined;
+  trackByCategory: TrackByFunction<CategoryData> | undefined;
 
   constructor(
     private statistiqueService: StatistiqueService,
     private materialsService: MaterialsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private languageService: LanguageService
   ) { }
 
-  ngOnInit(): void { 
+  t = (key: string, params?: any) => this.languageService.translate(key, params);
+
+  ngOnInit(): void {
     this.getPropertyIdFromRoute();
   }
 
@@ -124,7 +128,7 @@ trackByCategory: TrackByFunction<CategoryData> | undefined;
 
   private loadEvolution(): void {
     if (this.propertyId === null) return;
-    
+
     this.statistiqueService.getEvolution(this.propertyId).subscribe({
       next: (data: EvolutionData[]) => {
         this.processEvolutionData(data);
@@ -140,7 +144,7 @@ trackByCategory: TrackByFunction<CategoryData> | undefined;
 
   private loadConsommation(): void {
     if (this.propertyId === null) return;
-    
+
     this.statistiqueService.getConsommation(this.propertyId).subscribe({
       next: (data: ConsommationData[]) => {
         this.processConsommationData(data);
@@ -153,7 +157,7 @@ trackByCategory: TrackByFunction<CategoryData> | undefined;
 
   private loadRepartition(): void {
     if (this.propertyId === null) return;
-    
+
     this.statistiqueService.getRepartition(this.propertyId).subscribe({
       next: (data: RepartitionData) => {
         this.processRepartitionData(data);
@@ -174,7 +178,7 @@ trackByCategory: TrackByFunction<CategoryData> | undefined;
 
   private processConsommationData(data: ConsommationData[]): void {
     const maxValue = Math.max(...data.map(item => item.totalUsedQuantity));
-    
+
     this.topMaterials = data.slice(0, 5).map((item, index) => ({
       name: item.materialLabel,
       value: item.totalUsedQuantity,
@@ -184,84 +188,84 @@ trackByCategory: TrackByFunction<CategoryData> | undefined;
   }
   // Modifications à apporter dans votre fichier TypeScript
 
-// 1. Modifier la méthode initCategoryChart() pour créer un pie chart au lieu d'un doughnut
-private initCategoryChart(): void {
-  if (!this.categoryChartRef?.nativeElement) return;
-  
-  const ctx = this.categoryChartRef.nativeElement.getContext('2d');
-  if (!ctx) return;
+  // 1. Modifier la méthode initCategoryChart() pour créer un pie chart au lieu d'un doughnut
+  private initCategoryChart(): void {
+    if (!this.categoryChartRef?.nativeElement) return;
 
-  if (this.categoryChart) {
-    this.categoryChart.destroy();
+    const ctx = this.categoryChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    if (this.categoryChart) {
+      this.categoryChart.destroy();
+    }
+
+    const config: ChartConfiguration = {
+      type: 'pie' as ChartType, // Changé de 'doughnut' à 'pie'
+      data: {
+        labels: this.categoryData.map(item => item.label),
+        datasets: [{
+          data: this.categoryData.map(item => item.percentage),
+          backgroundColor: this.categoryData.map(item => item.color),
+          borderWidth: 2,
+          borderColor: '#ffffff', // Bordure blanche entre les secteurs
+          hoverBorderWidth: 3,
+          hoverBorderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false // Garder false car vous avez votre propre légende
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.label}: ${context.parsed.toFixed(1)}%`;
+              }
+            },
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            cornerRadius: 4
+          }
+        },
+        layout: {
+          padding: 10
+        },
+        // Animation pour un effet plus fluide
+        animation: {
+          // animateRotate: true,
+          // animateScale: true
+        },
+        // Interaction au survol
+        interaction: {
+          intersect: false
+        }
+      }
+    };
+
+    this.categoryChart = new Chart(ctx, config);
   }
 
-  const config: ChartConfiguration = {
-    type: 'pie' as ChartType, // Changé de 'doughnut' à 'pie'
-    data: {
-      labels: this.categoryData.map(item => item.label),
-      datasets: [{
-        data: this.categoryData.map(item => item.percentage),
-        backgroundColor: this.categoryData.map(item => item.color),
-        borderWidth: 2,
-        borderColor: '#ffffff', // Bordure blanche entre les secteurs
-        hoverBorderWidth: 3,
-        hoverBorderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false // Garder false car vous avez votre propre légende
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => {
-              return `${context.label}: ${context.parsed.toFixed(1)}%`;
-            }
-          },
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          titleColor: '#ffffff',
-          bodyColor: '#ffffff',
-          cornerRadius: 4
-        }
-      },
-      layout: {
-        padding: 10
-      },
-      // Animation pour un effet plus fluide
-      animation: {
-        // animateRotate: true,
-        // animateScale: true
-      },
-      // Interaction au survol
-      interaction: {
-        intersect: false
-      }
-    }
-  };
-
-  this.categoryChart = new Chart(ctx, config);
-}
 
 
+  // 3. Améliorer la méthode processRepartitionData pour un meilleur formatage
+  private processRepartitionData(data: RepartitionData): void {
+    const entries = Object.entries(data);
+    const total = entries.reduce((sum, [, value]) => sum + value, 0);
 
-// 3. Améliorer la méthode processRepartitionData pour un meilleur formatage
-private processRepartitionData(data: RepartitionData): void {
-  const entries = Object.entries(data);
-  const total = entries.reduce((sum, [, value]) => sum + value, 0);
-  
-  this.categoryData = entries.map(([label, value], index) => ({
-    label,
-    percentage: total > 0 ? Math.round((value / total) * 100 * 10) / 10 : 0, // Arrondi à 1 décimale
-    color: this.colors[index % this.colors.length]
-  }));
-}
+    this.categoryData = entries.map(([label, value], index) => ({
+      label,
+      percentage: total > 0 ? Math.round((value / total) * 100 * 10) / 10 : 0, // Arrondi à 1 décimale
+      color: this.colors[index % this.colors.length]
+    }));
+  }
 
   // private processRepartitionData(data: RepartitionData): void {
   //   const entries = Object.entries(data);
-    
+
   //   this.categoryData = entries.map(([label, percentage], index) => ({
   //     label,
   //     percentage: Math.round(percentage * 100) / 100,
@@ -271,7 +275,7 @@ private processRepartitionData(data: RepartitionData): void {
 
   // private initCategoryChart(): void {
   //   if (!this.categoryChartRef?.nativeElement) return;
-    
+
   //   const ctx = this.categoryChartRef.nativeElement.getContext('2d');
   //   if (!ctx) return;
 
@@ -312,7 +316,7 @@ private processRepartitionData(data: RepartitionData): void {
 
   private initEvolutionChart(): void {
     if (!this.evolutionChartRef?.nativeElement) return;
-    
+
     const ctx = this.evolutionChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 

@@ -61,6 +61,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   showProgressModal = false;
   showCommentsModal = false;
   showDetailsModal = false;
+  showDocumentUploadModal = false;
 
   // Progression et statut
   showStatusDropdown: number | null = null;
@@ -76,6 +77,16 @@ export class LotsSubcontractorsComponent implements OnInit {
   // Fichiers
   selectedFile: File | null = null;
   selectedFileName: string = '';
+
+  // Upload de documents
+  selectedLotForDocument: number | null = null;
+  uploadingFile: File | null = null;
+  uploadingFileName: string = '';
+  documentLibelle: string = '';
+  isUploading = false;
+
+  // Documents du lot
+  lotDocuments: LotDocument[] = [];
 
   // Lot en cours d'édition
   currentLot: CurrentLot = {
@@ -138,7 +149,8 @@ export class LotsSubcontractorsComponent implements OnInit {
       this.errorMessage = this.t('lots.error.sessionExpired');
     }
   }
-  // Ouvrir la modal d'upload document
+
+  // ========== GESTION DE L'UPLOAD DE DOCUMENTS ==========
   openDocumentUpload(lotId: number): void {
     this.selectedLotForDocument = lotId;
     this.uploadingFile = null;
@@ -162,7 +174,7 @@ export class LotsSubcontractorsComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      const maxSize = 10 * 1024 * 1024; // 10MB par ex.
+      const maxSize = 10 * 1024 * 1024; // 10MB
 
       if (file.size > maxSize) {
         this.errorMessage = this.t('lots.error.fileTooBig');
@@ -200,7 +212,7 @@ export class LotsSubcontractorsComponent implements OnInit {
           this.successMessage = this.t('lots.success.documentAdded');
           this.isUploading = false;
 
-          // Optionnel : recharger les documents si on est dans la modal détails
+          // Recharger les documents si on est dans la modal détails
           if (this.showDetailsModal && this.selectedLotId === lotId) {
             this.loadLotDocuments(lotId);
           }
@@ -218,7 +230,7 @@ export class LotsSubcontractorsComponent implements OnInit {
       });
   }
 
-  // Charger les documents (à appeler dans loadLotDetails)
+  // Charger les documents d'un lot
   loadLotDocuments(lotId: number): void {
     console.log('🔍 Chargement des documents pour le lot:', lotId);
     this.lotService.getLotFiles(lotId).subscribe({
@@ -264,7 +276,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   /**
-   * Télécharge ou ouvre un document
+   * Télécharge un document
    */
   downloadDocument(filePath: string): void {
     const url = this.lotService.getDocumentDownloadUrl(filePath);
@@ -278,18 +290,7 @@ export class LotsSubcontractorsComponent implements OnInit {
     const url = this.lotService.getDocumentDownloadUrl(filePath);
     window.open(url, '_blank');
   }
-  // Dans la classe LotsSubcontractorsComponent
 
-  // Pour l'upload de document
-  showDocumentUploadModal = false;
-  selectedLotForDocument: number | null = null;
-  uploadingFile: File | null = null;
-  uploadingFileName: string = '';
-  documentLibelle: string = '';
-  isUploading = false;
-
-  // Dans la modal Détails
-  lotDocuments: LotDocument[] = [];
   // ========== CHARGEMENT DES DONNÉES ==========
   chargerSousTraitants(): void {
     this.isLoadingSubcontractors = true;
@@ -326,7 +327,7 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.filtrerLots();
-        this.loadCommentCounts(); // Charger les compteurs de commentaires
+        this.loadCommentCounts();
         this.isLoading = false;
       },
       error: (error) => {
@@ -386,14 +387,11 @@ export class LotsSubcontractorsComponent implements OnInit {
     });
   }
 
-  // IMPORTANT: Cette méthode doit être PUBLIC car elle est utilisée dans le template
   formatDateFromAPI(date: any): string {
-    // Si c'est un tableau [year, month, day]
     if (Array.isArray(date) && date.length >= 3) {
       const [year, month, day] = date;
       return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
     }
-    // Si c'est une string dd-MM-yyyy
     else if (typeof date === 'string' && date.includes('-')) {
       const parts = date.split('-');
       if (parts.length === 3) {
@@ -951,6 +949,7 @@ export class LotsSubcontractorsComponent implements OnInit {
     this.showDetailsModal = false;
     this.selectedLotId = null;
     this.selectedLotDetails = null;
+    this.lotDocuments = [];
     this.errorMessage = '';
     this.successMessage = '';
   }

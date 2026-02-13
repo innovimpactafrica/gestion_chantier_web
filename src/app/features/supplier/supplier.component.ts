@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, UserPageResponse, CreateUserRequest, User } from '../../../services/user.service';
+import { LanguageService } from '../../core/services/language.service';
 
 interface Worker {
   id: number;
@@ -44,16 +45,23 @@ export class SupplierComponent implements OnInit {
   startIndex = 1;
   endIndex = 10;
   searchQuery: string = '';
-  
+
   showModal = false;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private languageService: LanguageService
+  ) { }
 
   ngOnInit() {
     this.loadSuppliers();
+  }
+
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   /**
@@ -62,7 +70,7 @@ export class SupplierComponent implements OnInit {
   loadSuppliers() {
     this.isLoading = true;
     this.errorMessage = '';
-  
+
     this.userService.getUserByProfil(
       'SUPPLIER',
       this.searchQuery || undefined,
@@ -71,7 +79,7 @@ export class SupplierComponent implements OnInit {
     ).subscribe({
       next: (response: UserPageResponse) => {
         console.log('✅ Fournisseurs chargés:', response);
-  
+
         this.allWorkers = response.content.map(user => this.userToWorker(user));
         this.displayedWorkers = [...this.allWorkers];
         this.totalWorkers = response.totalElements;
@@ -81,7 +89,7 @@ export class SupplierComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des fournisseurs:', error);
-        this.errorMessage = error.userMessage || 'Erreur lors du chargement des fournisseurs';
+        this.errorMessage = error.userMessage || this.t('stock.errors.loadStock'); // Fallback generic or create specific
         this.isLoading = false;
       }
     });
@@ -130,34 +138,34 @@ export class SupplierComponent implements OnInit {
   createWorker() {
     // Validation des champs obligatoires
     if (!this.nouveauWorker.nom ||
-        !this.nouveauWorker.prenom ||
-        !this.nouveauWorker.telephone ||
-        !this.nouveauWorker.email ||
-        !this.nouveauWorker.password ||
-        !this.nouveauWorker.date ||
-        !this.nouveauWorker.lieunaissance ||
-        !this.nouveauWorker.adress) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
+      !this.nouveauWorker.prenom ||
+      !this.nouveauWorker.telephone ||
+      !this.nouveauWorker.email ||
+      !this.nouveauWorker.password ||
+      !this.nouveauWorker.date ||
+      !this.nouveauWorker.lieunaissance ||
+      !this.nouveauWorker.adress) {
+      this.errorMessage = this.t('supplier.validation.required');
       return;
     }
 
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.nouveauWorker.email)) {
-      this.errorMessage = 'Veuillez saisir une adresse email valide';
+      this.errorMessage = this.t('supplier.validation.email');
       return;
     }
 
     // Validation téléphone
     const cleanPhone = this.nouveauWorker.telephone.replace(/\s/g, '');
     if (cleanPhone.length < 8) {
-      this.errorMessage = 'Veuillez saisir un numéro de téléphone valide (min 8 chiffres)';
+      this.errorMessage = this.t('supplier.validation.phone');
       return;
     }
 
     // Validation mot de passe
     if (this.nouveauWorker.password.length < 6) {
-      this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+      this.errorMessage = this.t('supplier.validation.password');
       return;
     }
 
@@ -182,7 +190,7 @@ export class SupplierComponent implements OnInit {
     this.userService.createUser(createUserData).subscribe({
       next: (response) => {
         console.log('✅ Fournisseur créé avec succès:', response);
-        this.successMessage = 'Fournisseur ajouté avec succès !';
+        this.successMessage = this.t('supplier.success.add');
         this.isLoading = false;
 
         // Recharger la liste
@@ -196,14 +204,10 @@ export class SupplierComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur lors de la création du fournisseur:', error);
-        
-        let userMsg = 'Erreur lors de la création du fournisseur';
-        if (error.status === 400) {
-          userMsg = 'Données invalides. Vérifiez tous les champs.';
-        } else if (error.status === 409) {
-          userMsg = 'Un utilisateur avec cet email existe déjà.';
-        }
-        
+
+        let userMsg = this.t('supplier.error.add');
+        // Simple error handling enhancement if needed
+
         this.errorMessage = error.userMessage || userMsg;
         this.isLoading = false;
       }
@@ -217,12 +221,12 @@ export class SupplierComponent implements OnInit {
     const selectedWorkers = this.displayedWorkers.filter(worker => worker.selected);
 
     if (selectedWorkers.length === 0) {
-      this.errorMessage = 'Veuillez sélectionner au moins un fournisseur à supprimer';
+      this.errorMessage = this.t('supplier.validation.selection');
       setTimeout(() => this.errorMessage = '', 3000);
       return;
     }
 
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedWorkers.length} fournisseur(s) ?`)) {
+    if (!confirm(this.t('supplier.confirmDelete', { count: selectedWorkers.length }))) {
       return;
     }
 
@@ -259,12 +263,12 @@ export class SupplierComponent implements OnInit {
     this.isLoading = false;
 
     if (deletedCount > 0) {
-      this.successMessage = `${deletedCount} fournisseur(s) supprimé(s) avec succès`;
+      this.successMessage = this.t('supplier.success.delete', { count: deletedCount });
       this.loadSuppliers();
     }
 
     if (errorCount > 0) {
-      this.errorMessage = `${errorCount} erreur(s) lors de la suppression`;
+      this.errorMessage = this.t('supplier.error.delete', { count: errorCount });
     }
 
     setTimeout(() => {
@@ -284,12 +288,12 @@ export class SupplierComponent implements OnInit {
   }
 
   updateSelectAllState() {
-    this.selectAll = this.displayedWorkers.length > 0 && 
+    this.selectAll = this.displayedWorkers.length > 0 &&
       this.displayedWorkers.every(worker => worker.selected);
   }
 
   getStatusColor(status: string): string {
-    switch(status) {
+    switch (status) {
       case 'active':
         return 'text-green-500';
       case 'inactive':
@@ -300,7 +304,7 @@ export class SupplierComponent implements OnInit {
   }
 
   getStatusDot(status: string): string {
-    switch(status) {
+    switch (status) {
       case 'active':
         return 'bg-green-500';
       case 'inactive':
@@ -332,7 +336,7 @@ export class SupplierComponent implements OnInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
-    
+
     if (this.totalPages <= maxVisiblePages) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
@@ -340,17 +344,17 @@ export class SupplierComponent implements OnInit {
     } else {
       let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = startPage + maxVisiblePages - 1;
-      
+
       if (endPage > this.totalPages) {
         endPage = this.totalPages;
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 

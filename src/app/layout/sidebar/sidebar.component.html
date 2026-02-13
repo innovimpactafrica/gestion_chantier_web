@@ -186,28 +186,28 @@
             <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Unité de mesure</span>
+              <span>{{ t('settings.unitOfMeasure') }}</span>
             </a>
 
             <!-- Documents -->
             <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Documents</span>
+              <span>{{ t('settings.documents') }}</span>
             </a>
 
             <!-- Property Type -->
             <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Type de Bien</span>
+              <span>{{ t('settings.propertyType') }}</span>
             </a>
 
             <!-- Catégories de matériel -->
             <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Catégories de matériel</span>
+              <span>{{ t('settings.materialCategories') }}</span>
             </a>
           </div>
         </div>
@@ -330,13 +330,15 @@
         </a>
       </li>
 
+
       <!-- ========== LOGOUT (Tous les profils) ========== -->
-      <div class="mt-4">
-        <a (click)="logout()" class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
+      <li class="mt-4">
+        <a (click)="logout(); $event.stopPropagation()"
+          class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
           <img src="assets/images/logout.png" class="mr-2 transition-all duration-200" alt="">
           <span class="text-sm">{{ t('sidebar.logout') }}</span>
         </a>
-      </div>
+      </li>
     </ul>
   </nav>
 

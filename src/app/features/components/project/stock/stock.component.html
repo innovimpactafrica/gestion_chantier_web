@@ -104,7 +104,7 @@
             </svg>
 
           </span>
-          <span class="font-medium">Statistiques</span>
+          <span class="font-medium">{{ t('stock.tabs.statistics') }}</span>
         </button>
 
 
@@ -125,22 +125,22 @@
         <!-- ============================= -->
         <div class="flex gap-4 mb-6">
           <div class="relative flex-1">
-            <input type="text" placeholder="Rechercher par matériel, unité..." [(ngModel)]="searchMaterialTerm"
+            <input type="text" [placeholder]="t('stock.filters.searchPlaceholder')" [(ngModel)]="searchMaterialTerm"
               (input)="onMaterialSearchChange()" class="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-transparent">
           </div>
 
           <select [(ngModel)]="statusMaterialFilter" (change)="onMaterialStatusFilterChange()" class="px-4 py-3 border border-gray-300 rounded-lg
              focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-            <option value="">Tous les matériaux</option>
-            <option value="stock normal">Stock normal</option>
-            <option value="stock faible">Stock faible</option>
-            <option value="rupture de stock">Rupture de stock</option>
+            <option value="">{{ t('stock.filters.allMaterials') }}</option>
+            <option value="stock normal">{{ t('stock.filters.normalStock') }}</option>
+            <option value="stock faible">{{ t('stock.filters.lowStock') }}</option>
+            <option value="rupture de stock">{{ t('stock.filters.outOfStock') }}</option>
           </select>
 
           <button *ngIf="searchMaterialTerm || statusMaterialFilter" (click)="resetMaterialFilters()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg
                    hover:bg-gray-200 transition-colors">
-            Réinitialiser
+            {{ t('stock.reset') }}
           </button>
         </div>
 
@@ -150,7 +150,7 @@
         <div *ngIf="loading" class="bg-white rounded-lg p-8 text-center">
           <div class="flex items-center justify-center gap-3">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-            <span class="text-gray-600">Chargement des matériaux…</span>
+            <span class="text-gray-600">{{ t('stock.loading.materials') }}</span>
           </div>
         </div>
 
@@ -164,12 +164,13 @@
             <table class="w-full">
               <thead class="bg-[#F5F7FA]">
                 <tr>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Matériau</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Stock</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Unité</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Seuil</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">État</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.material') }}</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.stock') }}</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.unit') }}</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.threshold') }}
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.state') }}</th>
+                  <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">{{ t('stock.table.actions') }}</th>
                 </tr>
               </thead>
 
@@ -265,7 +266,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             </clipPath>
                           </defs>
                         </svg>
-                        <span class="text-sm">Gérer les mouvements</span>
+                        <span class="text-sm">{{ t('stock.actions.manageMovements') }}</span>
                       </button>
 
                       <!-- Commander -->
@@ -287,7 +288,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M10 17.5C8.08333 17.5 6.41333 16.8647 4.99 15.5942C3.56667 14.3236 2.75056 12.7367 2.54167 10.8333H4.25C4.44444 12.2778 5.08694 13.4722 6.1775 14.4167C7.26806 15.3611 8.54222 15.8333 10 15.8333C11.625 15.8333 13.0036 15.2675 14.1358 14.1358C15.2681 13.0042 15.8339 11.6256 15.8333 10C15.8328 8.37444 15.2669 6.99611 14.1358 5.865C13.0047 4.73389 11.6261 4.16778 10 4.16667C9.04167 4.16667 8.14583 4.38889 7.3125 4.83333C6.47917 5.27778 5.77778 5.88889 5.20833 6.66667H7.5V8.33333H2.5V3.33333H4.16667V5.29167C4.875 4.40278 5.73972 3.71528 6.76083 3.22917C7.78194 2.74306 8.86167 2.5 10 2.5C11.0417 2.5 12.0175 2.69806 12.9275 3.09417C13.8375 3.49028 14.6292 4.02472 15.3025 4.6975C15.9758 5.37028 16.5106 6.16194 16.9067 7.0725C17.3028 7.98306 17.5006 8.95889 17.5 10C17.4994 11.0411 17.3017 12.0169 16.9067 12.9275C16.5117 13.8381 15.9769 14.6297 15.3025 15.3025C14.6281 15.9753 13.8364 16.51 12.9275 16.9067C12.0186 17.3033 11.0428 17.5011 10 17.5ZM12.3333 13.5L9.16667 10.3333V5.83333H10.8333V9.66667L13.5 12.3333L12.3333 13.5Z"
                             fill="#9CA3AF" />
                         </svg>
-                        <span class="text-sm">Historique</span>
+                        <span class="text-sm">{{ t('stock.actions.history') }}</span>
                       </button>
 
                       <!-- Séparateur -->
@@ -301,7 +302,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M13.1401 3.80701L12.1935 2.86035L8.00011 7.06035L3.80676 2.86035L2.86011 3.80701L7.06011 8.00035L2.86011 12.1937L3.80676 13.1404L8.00011 8.94035L12.1935 13.1404L13.1401 12.1937L8.94011 8.00035L13.1401 3.80701Z"
                             fill="#FF0000" />
                         </svg>
-                        <span class="text-sm">Supprimer</span>
+                        <span class="text-sm">{{ t('stock.actions.delete') }}</span>
                       </button>
                     </div>
 
@@ -316,9 +317,10 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
               <!-- Info pagination -->
               <div class="text-sm text-gray-600">
-                Affichage de {{ materialCurrentPage * materialPageSize + 1 }} à
+                {{ t('stock.pagination.showing') }} {{ materialCurrentPage * materialPageSize + 1 }} {{ t('common.to')
+                }}
                 {{ Math.min((materialCurrentPage + 1) * materialPageSize, totalMaterialElements) }}
-                sur {{ totalMaterialElements }} matériaux
+                {{ t('common.of') }} {{ totalMaterialElements }} {{ t('stock.pagination.materials') }}
               </div>
 
               <!-- Navigation -->
@@ -370,18 +372,18 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
 
-              <input type="text" placeholder="Rechercher par commande, fournisseur" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+              <input type="text" [placeholder]="t('stock.orders.searchPlaceholder')" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
                  focus:ring-2 focus:ring-orange-500 focus:border-transparent">
             </div>
 
             <!-- Filtre statut -->
             <select class="sm:w-48 p-2 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-              <option value="">Tous les statuts</option>
-              <option value="EN_ATTENTE">En attente</option>
-              <option value="EN_LIVRAISON">En livraison</option>
-              <option value="LIVREE">Livrée</option>
-              <option value="ANNULEE">Annulée</option>
+              <option value="">{{ t('stock.orders.allStatuses') }}</option>
+              <option value="EN_ATTENTE">{{ t('stock.status.pending') }}</option>
+              <option value="EN_LIVRAISON">{{ t('stock.status.inDelivery') }}</option>
+              <option value="LIVREE">{{ t('stock.status.delivered') }}</option>
+              <option value="ANNULEE">{{ t('stock.status.cancelled') }}</option>
             </select>
 
           </div>
@@ -396,11 +398,16 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Commande</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                    t('stock.orders.orderNumber') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.date') }}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                    t('stock.orders.supplier') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('stock.table.status')
+                    }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.actions') }}
+                  </th>
                 </tr>
               </thead>
 
@@ -467,7 +474,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z"
                             stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <span class="text-sm">Voir détails</span>
+                        <span class="text-sm">{{ t('stock.actions.viewDetails') }}</span>
                       </button>
 
                       <!-- Modifier -->
@@ -481,7 +488,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M15.3125 2.18769C15.644 1.85617 16.0937 1.66992 16.5625 1.66992C17.0313 1.66992 17.481 1.85617 17.8125 2.18769C18.144 2.51921 18.3303 2.96885 18.3303 3.43769C18.3303 3.90653 18.144 4.35617 17.8125 4.68769L10.3017 12.1994C10.1038 12.3971 9.85933 12.5418 9.59083 12.6202L7.19666 13.3202C7.12496 13.3411 7.04895 13.3424 6.97659 13.3238C6.90423 13.3053 6.83819 13.2676 6.78537 13.2148C6.73255 13.162 6.6949 13.096 6.67637 13.0236C6.65783 12.9512 6.65908 12.8752 6.68 12.8035L7.38 10.4094C7.45877 10.1411 7.60378 9.8969 7.80166 9.69936L15.3125 2.18769Z"
                             stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <span class="text-sm">Modifier</span>
+                        <span class="text-sm">{{ t('stock.actions.modify') }}</span>
                       </button>
 
                       <!-- Dupliquer -->
@@ -524,7 +531,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M13.1401 3.80701L12.1935 2.86035L8.00011 7.06035L3.80676 2.86035L2.86011 3.80701L7.06011 8.00035L2.86011 12.1937L3.80676 13.1404L8.00011 8.94035L12.1935 13.1404L13.1401 12.1937L8.94011 8.00035L13.1401 3.80701Z"
                             fill="#FF0000" />
                         </svg>
-                        <span class="text-sm">Supprimer</span>
+                        <span class="text-sm">{{ t('stock.actions.delete') }}</span>
                       </button>
                     </div>
                   </td>
@@ -539,9 +546,9 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
               <!-- Info pagination -->
               <div class="text-sm text-gray-600">
-                Affichage de {{ orderCurrentPage * orderPageSize + 1 }} à
+                {{ t('stock.pagination.showing') }} {{ orderCurrentPage * orderPageSize + 1 }} {{ t('common.to') }}
                 {{ Math.min((orderCurrentPage + 1) * orderPageSize, totalOrderElements) }}
-                sur {{ totalOrderElements }} commandes
+                {{ t('common.of') }} {{ totalOrderElements }} {{ t('stock.pagination.orders') }}
               </div>
 
               <!-- Navigation -->
@@ -592,18 +599,18 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
 
-              <input type="text" placeholder="Rechercher par livraison, fournisseur" [(ngModel)]="searchDeliveryTerm"
-                (input)="onDeliverySearchChange()" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
-                 focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+              <input type="text" [placeholder]="t('stock.deliveries.searchPlaceholder')"
+                [(ngModel)]="searchDeliveryTerm" (input)="onDeliverySearchChange()" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+                  focus:ring-2 focus:ring-orange-500 focus:border-transparent">
             </div>
 
             <!-- Filtre statut -->
             <select [(ngModel)]="statusDeliveryFilter" (change)="onDeliveryStatusFilterChange()" class="sm:w-48 p-2 border border-gray-300 rounded-lg
                focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-              <option value="">Toutes les livraisons</option>
-              <option value="COMPLETE">Complète</option>
-              <option value="PARTIELLE">Partielle</option>
-              <option value="ANNULEE">Annulée</option>
+              <option value="">{{ t('stock.deliveries.allDeliveries') }}</option>
+              <option value="COMPLETE">{{ t('stock.status.complete') }}</option>
+              <option value="PARTIELLE">{{ t('stock.status.partial') }}</option>
+              <option value="ANNULEE">{{ t('stock.status.cancelled') }}</option>
             </select>
 
           </div>
@@ -618,13 +625,18 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Livraison</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commande</th> -->
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fournisseur</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preuve</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                    t('stock.deliveries.deliveryNumber') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.date') }}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                    t('stock.orders.supplier') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('stock.table.status')
+                    }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                    t('stock.deliveries.proof') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.actions') }}
+                  </th>
                 </tr>
               </thead>
 
@@ -651,7 +663,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                   </td>
 
                   <td class="px-6 py-4">
-                    {{ delivery.proof || 'Aucune' }}
+                    {{ delivery.proof || t('stock.deliveries.noProof') }}
                   </td>
 
                   <td class="px-6 py-4 relative">
@@ -763,9 +775,10 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
               <!-- Info pagination -->
               <div class="text-sm text-gray-600">
-                Affichage de {{ deliveryCurrentPage * deliveryPageSize + 1 }} à
+                {{ t('stock.pagination.showing') }} {{ deliveryCurrentPage * deliveryPageSize + 1 }} {{ t('common.to')
+                }}
                 {{ Math.min((deliveryCurrentPage + 1) * deliveryPageSize, totalDeliveryElements) }}
-                sur {{ totalDeliveryElements }} livraisons
+                {{ t('common.of') }} {{ totalDeliveryElements }} {{ t('stock.pagination.deliveries') }}
               </div>
 
               <!-- Navigation -->
@@ -824,7 +837,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
       <div *ngIf="activeTab === 'inventaires' || activeTab ==='commandes'|| activeTab ==='livraisons' "
         class="grid grid-rows-2 gap-6 h-[600px]">
 
-        <!-- ⚠️ REMPLACER la carte "Alertes stock matériaux" par : -->
+        <!-- "Alertes stock matériaux" par : -->
         <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
           <!-- HEADER -->
           <div class="flex items-center justify-between">
@@ -835,7 +848,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                   fill="#777777" />
               </svg>
               <h3 class="text-[16px] font-semibold text-[#34495E]">
-                Alertes stock matériaux
+                {{ t('stock.alerts.title') }}
               </h3>
             </div>
             <span
@@ -846,7 +859,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
           <!-- Message si aucune alerte -->
           <div *ngIf="stockAlerts.length === 0" class="text-center py-8">
-            <p class="text-sm text-[#7F8C8D]">✅ Aucune alerte de stock</p>
+            <p class="text-sm text-[#7F8C8D]">✅ {{ t('stock.alerts.none') }}</p>
           </div>
 
           <!-- Liste des alertes -->
@@ -928,7 +941,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         <!-- BAR CHART -->
         <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
           <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
-            Consommation mensuelle
+            {{ t('stock.charts.consumption') }}
           </h3>
 
           <!-- zone graphique -->
@@ -937,14 +950,14 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
           </div>
 
           <p class="text-center text-sm text-[#7F8C8D] ">
-            Top 5 matériaux les plus utilisés
+            {{ t('stock.charts.top5') }}
           </p>
         </div>
 
         <!-- LINE CHART -->
         <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
           <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
-            Évolution mensuelle
+            {{ t('stock.charts.evolution') }}
           </h3>
 
           <div class="flex-1 flex items-center justify-center">

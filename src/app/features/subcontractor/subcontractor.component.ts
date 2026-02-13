@@ -3,6 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
 
+import { LanguageService } from '../../core/services/language.service';
+
 interface SubcontractorMember {
   id: number;
   raisonSociale: string;
@@ -53,8 +55,13 @@ export class SubcontractorComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    public languageService: LanguageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
+
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
+  }
 
   ngOnInit() {
     this.loadSubcontractors();
@@ -84,7 +91,7 @@ export class SubcontractorComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des sous-traitants:', error);
-        this.errorMessage = error.userMessage || 'Erreur lors du chargement des sous-traitants';
+        this.errorMessage = error.userMessage || this.t('subcontractor.error.load');
         this.isLoading = false;
       }
     });
@@ -242,26 +249,26 @@ export class SubcontractorComponent implements OnInit {
       !this.nouveauSousTraitant.lieuNaissance ||
       !this.nouveauSousTraitant.adresse) {
 
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
+      this.errorMessage = this.t('subcontractor.validation.required');
       return;
     }
 
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.nouveauSousTraitant.email)) {
-      this.errorMessage = 'Veuillez saisir une adresse email valide';
+      this.errorMessage = this.t('subcontractor.validation.email');
       return;
     }
 
     // Validation téléphone (format simple)
     if (this.nouveauSousTraitant.telephone.length < 9) {
-      this.errorMessage = 'Veuillez saisir un numéro de téléphone valide';
+      this.errorMessage = this.t('subcontractor.validation.phone');
       return;
     }
 
     // Validation mot de passe
     if (this.nouveauSousTraitant.password.length < 6) {
-      this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+      this.errorMessage = this.t('subcontractor.validation.password');
       return;
     }
 
@@ -286,7 +293,7 @@ export class SubcontractorComponent implements OnInit {
     this.userService.createUser(createUserData).subscribe({
       next: (response) => {
         console.log('✅ Sous-traitant créé avec succès:', response);
-        this.successMessage = 'Sous-traitant ajouté avec succès !';
+        this.successMessage = this.t('subcontractor.success.add');
 
         // Recharger la liste
         this.loadSubcontractors();
@@ -298,7 +305,7 @@ export class SubcontractorComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur lors de la création du sous-traitant:', error);
-        this.errorMessage = error.userMessage || 'Erreur lors de la création du sous-traitant';
+        this.errorMessage = error.userMessage || this.t('subcontractor.error.add');
         this.isLoading = false;
       }
     });
@@ -311,11 +318,11 @@ export class SubcontractorComponent implements OnInit {
     const selectedMembers = this.displayedMembers.filter(member => member.selected);
 
     if (selectedMembers.length === 0) {
-      this.errorMessage = 'Veuillez sélectionner au moins un sous-traitant à supprimer';
+      this.errorMessage = this.t('subcontractor.validation.selection');
       return;
     }
 
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedMembers.length} sous-traitant(s) ?`)) {
+    if (!confirm(this.t('subcontractor.confirmDelete', { count: selectedMembers.length }))) {
       return;
     }
 
@@ -354,12 +361,12 @@ export class SubcontractorComponent implements OnInit {
     this.isLoading = false;
 
     if (deletedCount > 0) {
-      this.successMessage = `${deletedCount} sous-traitant(s) supprimé(s) avec succès`;
+      this.successMessage = this.t('subcontractor.success.delete', { count: deletedCount });
       this.loadSubcontractors();
     }
 
     if (errorCount > 0) {
-      this.errorMessage = `${errorCount} erreur(s) lors de la suppression`;
+      this.errorMessage = this.t('subcontractor.error.delete', { count: errorCount });
     }
 
     setTimeout(() => {
@@ -401,7 +408,7 @@ export class SubcontractorComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
 
-    this.successMessage = 'Export réussi !';
+    this.successMessage = this.t('subcontractor.export.success');
     setTimeout(() => this.successMessage = '', 3000);
   }
 }

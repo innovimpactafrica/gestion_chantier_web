@@ -75,8 +75,8 @@ export class CompteComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  t(key: string): string {
-    return this.languageService.translate(key);
+  t(key: string, params?: { [key: string]: string | number }): string {
+    return this.languageService.translate(key, params);
   }
   ngOnInit(): void {
     this.initializeForm();
@@ -618,7 +618,7 @@ export class CompteComponent implements OnInit, OnDestroy {
       // ✅ Utiliser environment.filebaseUrl au lieu de PHOTO_BASE_URL
       return `${environment.filebaseUrl}${user.photo}`;
     }
-    return 'assets/images/profil.png';
+    return '/assets/images/profil.png';
   }
 
   /**

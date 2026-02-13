@@ -1,15 +1,16 @@
 <div class="container mx-auto p-4 bg-[#F5F7FA] min-h-screen">
   <!-- En-tête -->
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-[#1E293B] mb-2">Plans d'abonnement</h1>
-    <p class="text-gray-600">Créer, modifier ou désactiver les plans d'abonnement proposés aux utilisateurs</p>
+    <h1 class="text-3xl font-bold text-[#1E293B] mb-2">{{ t('admin.subscription.title') }}</h1>
+    <p class="text-gray-600">{{ t('admin.subscription.description') }}</p>
   </div>
 
   <!-- Barre de recherche et actions -->
   <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
     <!-- Recherche -->
     <div class="relative w-full lg:w-96">
-      <input type="text" [(ngModel)]="searchTerm" (input)="searchPlans()" placeholder="Rechercher par nom..."
+      <input type="text" [(ngModel)]="searchTerm" (input)="searchPlans()"
+        [placeholder]="t('admin.subscription.searchPlaceholder')"
         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent" />
       <svg xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
@@ -28,7 +29,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
         </svg>
-        <span class="text-gray-700 font-medium">Exporter</span>
+        <span class="text-gray-700 font-medium">{{ t('admin.subscription.export') }}</span>
       </button>
 
       <button (click)="createPlan()"
@@ -37,7 +38,7 @@
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Créer un plan
+        {{ t('admin.subscription.create') }}
       </button>
     </div>
   </div>
@@ -53,13 +54,20 @@
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nom du plan</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Coût total</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Échéances</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Limite projets</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Remise annuelle</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('admin.subscription.table.name') }}
+            </th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('admin.subscription.table.cost') }}
+            </th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{
+              t('admin.subscription.table.installments') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{
+              t('admin.subscription.table.projectLimit') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{
+              t('admin.subscription.table.discount') }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('admin.subscription.table.status')
+              }}</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">{{ t('admin.subscription.table.actions')
+              }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -105,7 +113,7 @@
               <div class="flex items-center gap-3">
                 <!-- Voir -->
                 <button (click)="viewPlan(plan)" class="text-gray-600 hover:text-gray-900 transition-colors"
-                  title="Voir">
+                  [title]="t('admin.subscription.action.view')">
                   <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M11.9994 6.6884C13.808 6.68239 15.5815 7.18688 17.1162 8.14387C18.6509 9.10087 19.8843 10.4715 20.6748 12.0982C19.0518 15.413 15.7371 17.5081 11.9994 17.5081C8.26165 17.5081 4.9469 15.413 3.32395 12.0982C4.11439 10.4715 5.34785 9.10087 6.88252 8.14387C8.41719 7.18688 10.1908 6.68239 11.9994 6.6884ZM11.9994 4.72119C7.08133 4.72119 2.88133 7.78021 1.17969 12.0982C2.88133 16.4163 7.08133 19.4753 11.9994 19.4753C16.9174 19.4753 21.1174 16.4163 22.819 12.0982C21.1174 7.78021 16.9174 4.72119 11.9994 4.72119ZM11.9994 9.63922C12.6515 9.63922 13.277 9.8983 13.7381 10.3595C14.1993 10.8206 14.4584 11.4461 14.4584 12.0982C14.4584 12.7504 14.1993 13.3759 13.7381 13.837C13.277 14.2982 12.6515 14.5573 11.9994 14.5573C11.3472 14.5573 10.7217 14.2982 10.2606 13.837C9.79942 13.3759 9.54034 12.7504 9.54034 12.0982C9.54034 11.4461 9.79942 10.8206 10.2606 10.3595C10.7217 9.8983 11.3472 9.63922 11.9994 9.63922ZM11.9994 7.67201C9.56001 7.67201 7.57313 9.6589 7.57313 12.0982C7.57313 14.5376 9.56001 16.5245 11.9994 16.5245C14.4387 16.5245 16.4256 14.5376 16.4256 12.0982C16.4256 9.6589 14.4387 7.67201 11.9994 7.67201Z"
@@ -114,7 +122,7 @@
                 </button>
                 <!-- Modifier -->
                 <button (click)="editPlan(plan)" class="text-[#FF5C01] hover:text-[#E54F00] transition-colors"
-                  title="Modifier">
+                  [title]="t('admin.subscription.action.edit')">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M2.5 17.5V13.9583L13.5 2.97917C13.6667 2.82639 13.8508 2.70833 14.0525 2.625C14.2542 2.54167 14.4658 2.5 14.6875 2.5C14.9092 2.5 15.1244 2.54167 15.3333 2.625C15.5422 2.70833 15.7228 2.83333 15.875 3L17.0208 4.16667C17.1875 4.31944 17.3092 4.5 17.3858 4.70833C17.4625 4.91667 17.5006 5.125 17.5 5.33333C17.5 5.55556 17.4619 5.7675 17.3858 5.96917C17.3097 6.17083 17.1881 6.35472 17.0208 6.52083L6.04167 17.5H2.5ZM14.6667 6.5L15.8333 5.33333L14.6667 4.16667L13.5 5.33333L14.6667 6.5Z"
@@ -157,7 +165,7 @@
 
           <tr *ngIf="filteredPlans.length === 0">
             <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-              Aucun plan trouvé
+              {{ t('admin.subscription.empty') }}
             </td>
           </tr>
         </tbody>
@@ -167,14 +175,16 @@
     <!-- Pagination -->
     <div *ngIf="totalPages > 1" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
       <div class="text-sm text-gray-600">
-        Affichage de {{ (currentPage - 1) * pageSize + 1 }} à {{ Math.min(currentPage * pageSize, totalResults) }} sur
-        {{ totalResults }} résultats
+        {{ t('admin.subscription.pagination.showing') }} {{ (currentPage - 1) * pageSize + 1 }} {{
+        t('admin.subscription.pagination.to') }} {{ Math.min(currentPage * pageSize, totalResults) }} {{
+        t('admin.subscription.pagination.of') }}
+        {{ totalResults }} {{ t('admin.subscription.pagination.results') }}
       </div>
       <div class="flex items-center gap-2">
         <button (click)="previousPage()" [disabled]="currentPage === 1" [class.opacity-50]="currentPage === 1"
           [class.cursor-not-allowed]="currentPage === 1"
           class="px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium border border-gray-300">
-          Précédent
+          {{ t('admin.subscription.pagination.previous') }}
         </button>
 
         <button *ngFor="let page of [].constructor(Math.min(totalPages, 5)); let i = index" (click)="goToPage(i + 1)"
@@ -186,7 +196,7 @@
         <button (click)="nextPage()" [disabled]="currentPage === totalPages"
           [class.opacity-50]="currentPage === totalPages" [class.cursor-not-allowed]="currentPage === totalPages"
           class="px-4 py-2 bg-white text-[#FF5C01] rounded-lg hover:bg-gray-50 transition-colors font-medium border border-gray-300">
-          Suivant
+          {{ t('admin.subscription.pagination.next') }}
         </button>
       </div>
     </div>
@@ -195,19 +205,17 @@
   <!-- Modal de confirmation de suppression -->
   <div *ngIf="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-      <h3 class="text-xl font-bold text-gray-900 mb-4">Confirmer la suppression</h3>
-      <p class="text-gray-600 mb-6">
-        Êtes-vous sûr de vouloir supprimer le plan "<span class="font-semibold">{{ planToDelete?.label }}</span>" ?
-        Cette action est irréversible.
-      </p>
+      <h3 class="text-xl font-bold text-gray-900 mb-4">{{ t('admin.subscription.modal.delete.title') }}</h3>
+      {{ t('admin.subscription.modal.delete.message', { plan: planToDelete?.label }) }}
+
       <div class="flex justify-end gap-3">
         <button (click)="cancelDelete()" [disabled]="isDeleting"
           class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          Annuler
+          {{ t('stock.modals.order.cancel') }}
         </button>
         <button (click)="deletePlan()" [disabled]="isDeleting"
           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
-          <span *ngIf="!isDeleting">Supprimer</span>
+          <span *ngIf="!isDeleting">{{ t('admin.subscription.modal.delete.confirm') }}</span>
           <span *ngIf="isDeleting" class="flex items-center">
             <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none">
@@ -216,7 +224,7 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-            Suppression...
+            {{ t('admin.subscription.modal.delete.deleting') }}
           </span>
         </button>
       </div>
@@ -237,7 +245,8 @@
     </div>
     <div class="flex-1">
       <p class="text-sm text-gray-900">
-        Plan <strong>"{{ selectedPlanForAction?.label }}"</strong> a été désactivé.
+        <span
+          [innerHTML]="t('admin.subscription.notification.deactivated', { plan: selectedPlanForAction?.label })"></span>
       </p>
     </div>
   </div>
@@ -253,7 +262,8 @@
     </div>
     <div class="flex-1">
       <p class="text-sm text-gray-900">
-        Plan <strong>"{{ selectedPlanForAction?.label }}"</strong> a été activé.
+        <span
+          [innerHTML]="t('admin.subscription.notification.activated', { plan: selectedPlanForAction?.label })"></span>
       </p>
     </div>
   </div>
@@ -279,38 +289,30 @@
 
     <!-- Titre du modal -->
     <h3 class="text-center text-lg font-semibold mb-2" *ngIf="modalAction === 'deactivate'">
-      Désactiver le plan
+      {{ t('admin.subscription.modal.toggle.deactivate.title') }}
     </h3>
     <h3 class="text-center text-lg font-semibold mb-2" *ngIf="modalAction === 'activate'">
-      Activer le plan
+      {{ t('admin.subscription.modal.toggle.activate.title') }}
     </h3>
 
     <!-- Message de confirmation -->
-    <p class="text-center text-gray-600 mb-6" *ngIf="modalAction === 'deactivate'">
-      Êtes-vous sûr de vouloir <strong>désactiver</strong> le plan
-      <strong>{{ selectedPlanForAction?.label }}</strong> ?
-      <br><br>
-      Cette action est irréversible et il ne sera plus visible pour les utilisateurs.
-    </p>
-    <p class="text-center text-gray-600 mb-6" *ngIf="modalAction === 'activate'">
-      Êtes-vous sûr de vouloir <strong>activer</strong> le plan
-      <strong>{{ selectedPlanForAction?.label }}</strong> ?
-      <br><br>
-      Cette action est irréversible et il sera visible pour les utilisateurs.
-    </p>
+    {{ t('admin.subscription.modal.toggle.deactivate.message', { plan: selectedPlanForAction?.label }) }}
+
+    {{ t('admin.subscription.modal.toggle.activate.message', { plan: selectedPlanForAction?.label }) }}
+
     <!-- Boutons d'action -->
     <div class="flex gap-3">
       <!-- Bouton Désactiver/Activer -->
       <button (click)="confirmToggleAction()" [disabled]="isLoading"
         [class]="modalAction === 'deactivate' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-900 hover:bg-blue-800'"
         class="flex-1 text-white font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50">
-        {{ modalAction === 'deactivate' ? 'Désactiver' : 'Activer' }}
+        {{ modalAction === 'deactivate' ? t('admin.subscription.status.inactive') :
+        t('admin.subscription.status.active') }}
       </button>
 
       <!-- Bouton Annuler -->
       <button (click)="cancelToggleAction()" [disabled]="isLoading"
         class="flex-1 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 px-4 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50">
-        Annuler
+        {{ t('stock.modals.order.cancel') }}
       </button>
     </div>
-    

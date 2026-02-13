@@ -1,9 +1,8 @@
 <div class="p-6 bg-gray-50 min-h-screen">
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-gray-900 mb-2">Demandes d'études reçues</h1>
-    <p class="text-gray-600">Visualisez toutes les demandes d'études reçues, filtrez par période ou statut et suivez
-      leur progression en temps réel.</p>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-2">{{ t('demande.header.title') }}</h1>
+    <p class="text-gray-600">{{ t('demande.header.description') }}</p>
   </div>
 
   <!-- Filters -->
@@ -16,7 +15,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Rechercher par demande"
+        <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
+          [placeholder]="t('demande.filters.searchPlaceholder')"
           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
       </div>
     </div>
@@ -25,10 +25,10 @@
     <div class="relative">
       <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()"
         class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="Période">Période</option>
-        <option value="Cette semaine">Cette semaine</option>
-        <option value="Ce mois">Ce mois</option>
-        <option value="Ce trimestre">Ce trimestre</option>
+        <option value="Période">{{ t('demande.filters.period') }}</option>
+        <option value="Cette semaine">{{ t('demande.filters.thisWeek') }}</option>
+        <option value="Ce mois">{{ t('demande.filters.thisMonth') }}</option>
+        <option value="Ce trimestre">{{ t('demande.filters.thisQuarter') }}</option>
       </select>
       <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,10 +40,10 @@
     <div class="relative">
       <select [(ngModel)]="selectedStatus" (change)="onStatusChange()"
         class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="Statut">Statut</option>
-        <option value="En attente">En attente</option>
-        <option value="Validée">Validée</option>
-        <option value="Rejetée">Rejetée</option>
+        <option value="Statut">{{ t('demande.filters.status') }}</option>
+        <option value="En attente">{{ t('demande.status.PENDING') }}</option>
+        <option value="Validée">{{ t('demande.status.VALIDATED') }}</option>
+        <option value="Rejetée">{{ t('demande.status.REJECTED') }}</option>
       </select>
       <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-    <p class="mt-2 text-gray-600">Chargement des demandes...</p>
+    <p class="mt-2 text-gray-600">{{ t('demande.loading') }}</p>
   </div>
 
   <!-- Error State -->
@@ -69,7 +69,7 @@
       <p class="ml-3 text-sm text-red-800">{{ error }}</p>
     </div>
     <button (click)="loadDemandes()" class="mt-2 text-sm text-red-600 hover:text-red-800 underline">
-      Réessayer
+      {{ t('common.retry') }}
     </button>
   </div>
 
@@ -81,8 +81,8 @@
         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
       </path>
     </svg>
-    <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune demande trouvée</h3>
-    <p class="mt-1 text-sm text-gray-500">Aucune demande ne correspond à vos filtres.</p>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">{{ t('demande.empty.title') }}</h3>
+    <p class="mt-1 text-sm text-gray-500">{{ t('demande.empty.message') }}</p>
   </div>
 
   <!-- Table -->
@@ -92,13 +92,18 @@
       <table class="w-full">
         <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BET</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de création
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('demande.table.title') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('demande.table.description') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('demande.table.bet') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('demande.table.createdAt') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('demande.table.status') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{
+              t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -142,7 +147,8 @@
               <div class="flex items-center space-x-3">
                 <!-- View Details -->
                 <button (click)="openDetails(demande)"
-                  class="text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Voir les détails">
+                  class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  [title]="t('demande.actions.viewDetails')">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -153,14 +159,16 @@
                 </button>
                 <!-- Approve -->
                 <button *ngIf="demande.status === 'PENDING'" (click)="quickValidate(demande)"
-                  class="text-green-400 hover:text-green-600 transition-colors duration-200" title="Valider">
+                  class="text-green-400 hover:text-green-600 transition-colors duration-200"
+                  [title]="t('demande.actions.validate')">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                 </button>
                 <!-- Reject -->
                 <button *ngIf="demande.status === 'PENDING'" (click)="quickReject(demande)"
-                  class="text-red-400 hover:text-red-600 transition-colors duration-200" title="Rejeter">
+                  class="text-red-400 hover:text-red-600 transition-colors duration-200"
+                  [title]="t('demande.actions.reject')">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
@@ -168,7 +176,7 @@
                 </button>
                 <!-- Delete -->
                 <button (click)="openDeleteConfirmation(demande)"
-                  class="text-gray-400 hover:text-red-600 transition-colors duration-200" title="Supprimer">
+                  class="text-gray-400 hover:text-red-600 transition-colors duration-200" [title]="t('common.delete')">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -188,19 +196,21 @@
         <div class="flex-1 flex justify-between sm:hidden">
           <button (click)="previousPage()" [disabled]="currentPage === 0"
             class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Précédent
+            {{ t('common.previous') }}
           </button>
           <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
             class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Suivant
+            {{ t('common.next') }}
           </button>
         </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              Affichage de <span class="font-medium">{{ (currentPage * pageSize) + 1 }}</span>
-              à <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span>
-              sur <span class="font-medium">{{ totalElements }}</span> résultats
+              {{ t('demande.pagination.showing') }} <span class="font-medium">{{ (currentPage * pageSize) + 1 }}</span>
+              {{ t('demande.pagination.to') }} <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize,
+                totalElements) }}</span>
+              {{ t('demande.pagination.of') }} <span class="font-medium">{{ totalElements }}</span> {{
+              t('demande.pagination.results') }}
             </p>
           </div>
           <div class="flex items-center space-x-2">
@@ -212,7 +222,7 @@
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
               <button (click)="previousPage()" [disabled]="currentPage === 0"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                Précédent
+                {{ t('common.previous') }}
               </button>
               <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)" [class]="'relative inline-flex items-center px-4 py-2 border text-sm font-medium ' + 
                         (i === currentPage ? 
@@ -222,7 +232,7 @@
               </button>
               <button (click)="nextPage()" [disabled]="currentPage === totalPages - 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                Suivant
+                {{ t('common.next') }}
               </button>
             </nav>
           </div>
@@ -242,8 +252,8 @@
       </svg>
     </div>
 
-    <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">Valider la demande ?</h3>
-    <p class="text-center text-gray-600 mb-6">La demande sera marquée <span class="font-semibold">Validée</span>.</p>
+    <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">{{ t('demande.modals.validate.title') }}</h3>
+    <p class="text-center text-gray-600 mb-6">{{ t('demande.modals.validate.message') }}</p>
 
     <div *ngIf="actionError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-sm text-red-800">{{ actionError }}</p>
@@ -252,11 +262,11 @@
     <div class="flex space-x-3">
       <button (click)="closeValidateConfirmation()" [disabled]="isValidating"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-        Annuler
+        {{ t('common.cancel') }}
       </button>
       <button (click)="confirmValidate()" [disabled]="isValidating"
         class="flex-1 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-        <span *ngIf="!isValidating">Valider</span>
+        <span *ngIf="!isValidating">{{ t('common.validate') }}</span>
         <span *ngIf="isValidating" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -264,7 +274,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          Validation...
+          {{ t('common.validating') }}
         </span>
       </button>
     </div>
@@ -276,7 +286,7 @@
   class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-semibold text-gray-900">Motif du rejet</h3>
+      <h3 class="text-xl font-semibold text-gray-900">{{ t('demande.modals.reject.title') }}</h3>
       <button (click)="closeRejectConfirmation()" [disabled]="isRejecting"
         class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,12 +295,12 @@
       </button>
     </div>
 
-    <p class="text-gray-600 mb-4">La demande sera marquée <span class="font-semibold text-red-600">Rejetée</span>. Vous
-      pouvez ajouter un <span class="font-semibold">motif</span></p>
+    <p class="text-gray-600 mb-4">{{ t('demande.modals.reject.message') }}</p>
 
     <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-2">Commentaire</label>
-      <textarea [(ngModel)]="rejectionReason" placeholder="Saisir" [disabled]="isRejecting"
+      <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('demande.modals.reject.commentLabel') }}</label>
+      <textarea [(ngModel)]="rejectionReason" [placeholder]="t('demande.modals.reject.placeholder')"
+        [disabled]="isRejecting"
         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
         rows="4"></textarea>
     </div>
@@ -302,7 +312,7 @@
     <div class="flex space-x-3">
       <button (click)="confirmReject()" [disabled]="isRejecting"
         class="flex-1 px-6 py-2 text-white bg-[#FF5722] rounded-lg hover:bg-[#F4511E] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-        <span *ngIf="!isRejecting">Soumettre</span>
+        <span *ngIf="!isRejecting">{{ t('common.submit') }}</span>
         <span *ngIf="isRejecting" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -310,12 +320,12 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          Traitement...
+          {{ t('common.processing') }}
         </span>
       </button>
       <button (click)="closeRejectConfirmation()" [disabled]="isRejecting"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-        Annuler
+        {{ t('common.cancel') }}
       </button>
     </div>
   </div>
@@ -333,9 +343,8 @@
       </svg>
     </div>
 
-    <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">Supprimer la demande ?</h3>
-    <p class="text-center text-gray-600 mb-6">Cette action est irréversible. La demande sera définitivement supprimée.
-    </p>
+    <h3 class="text-xl font-semibold text-center text-gray-900 mb-2">{{ t('demande.modals.delete.title') }}</h3>
+    <p class="text-center text-gray-600 mb-6">{{ t('demande.modals.delete.message') }}</p>
 
     <div *ngIf="actionError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-sm text-red-800">{{ actionError }}</p>
@@ -344,11 +353,11 @@
     <div class="flex space-x-3">
       <button (click)="closeDeleteConfirmation()" [disabled]="isDeleting"
         class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-        Annuler
+        {{ t('common.cancel') }}
       </button>
       <button (click)="confirmDelete()" [disabled]="isDeleting"
         class="flex-1 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-        <span *ngIf="!isDeleting">Supprimer</span>
+        <span *ngIf="!isDeleting">{{ t('common.delete') }}</span>
         <span *ngIf="isDeleting" class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -356,7 +365,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          Suppression...
+          {{ t('common.deleting') }}
         </span>
       </button>
     </div>
@@ -424,26 +433,26 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column - Information -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('demande.details.title') }}</h3>
 
           <div class="space-y-4">
             <div class="flex justify-between">
-              <div class="text-sm font-medium text-gray-600">Titre</div>
+              <div class="text-sm font-medium text-gray-600">{{ t('demande.details.subject') }}</div>
               <div class="font-medium">{{ selectedDemande?.title }}</div>
             </div>
 
             <div class="flex justify-between">
-              <div class="text-sm font-medium text-gray-600">BET concerné</div>
+              <div class="text-sm font-medium text-gray-600">{{ t('demande.details.bet') }}</div>
               <div class="font-medium">{{ selectedDemande?.betName }}</div>
             </div>
 
             <div class="flex justify-between">
-              <div class="text-sm font-medium text-gray-600">Date de création</div>
+              <div class="text-sm font-medium text-gray-600">{{ t('demande.details.createdAt') }}</div>
               <div class="font-medium">{{ formatDate(selectedDemande?.createdAt || []) }}</div>
             </div>
 
             <div class="flex justify-between">
-              <div class="text-sm font-medium text-gray-600">État</div>
+              <div class="text-sm font-medium text-gray-600">{{ t('demande.details.status') }}</div>
               <div class="col-span-2">
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusClass(selectedDemande?.status || '') }}">
@@ -466,11 +475,11 @@
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                   </path>
                 </svg>
-                Rapports associés
+                {{ t('demande.details.reports') }}
               </h4>
               <button (click)="openCreateReportModal()"
                 class="ml-2 p-1 text-orange-500 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors duration-200"
-                title="Ajouter un rapport">
+                [title]="t('demande.details.addReport')">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd"
                     d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
@@ -512,7 +521,7 @@
 
             <ng-template #noReports>
               <div class="text-center py-8 text-gray-500">
-                <div class="text-sm italic">Aucun rapport</div>
+                <div class="text-sm italic">{{ t('demande.details.noReports') }}</div>
               </div>
             </ng-template>
           </div>
@@ -520,15 +529,15 @@
 
         <!-- Right Column - Comments -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Commentaires</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('demande.details.comments') }}</h3>
 
           <div class="bg-gray-50 rounded-lg p-4 mb-4 min-h-32 max-h-64 overflow-y-auto">
             <div *ngIf="loadingComments" class="text-center text-gray-500">
-              <div class="text-sm italic">Chargement...</div>
+              <div class="text-sm italic">{{ t('common.loading') }}</div>
             </div>
 
             <div *ngIf="!loadingComments && comments.length === 0" class="text-center text-gray-500">
-              <div class="text-sm italic">Aucun commentaire</div>
+              <div class="text-sm italic">{{ t('demande.details.noComments') }}</div>
             </div>
 
             <div *ngIf="!loadingComments && comments.length > 0" class="space-y-3">
@@ -544,14 +553,14 @@
 
           <!-- Comment Input -->
           <div class="space-y-3">
-            <textarea [(ngModel)]="comment" placeholder="Ajouter un commentaire......."
+            <textarea [(ngModel)]="comment" [placeholder]="t('demande.details.addCommentPlaceholder')"
               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows="3"></textarea>
 
             <div class="flex justify-end">
               <button (click)="sendComment()" [disabled]="!comment.trim()"
                 class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200">
-                Envoyer
+                {{ t('common.send') }}
               </button>
             </div>
           </div>
@@ -562,7 +571,7 @@
     <!-- Modal Footer -->
     <div class="flex justify-between items-center px-8 py-5 border-t" style="border-color: #F7FAFC;">
       <button (click)="closeModal()" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-        Fermer
+        {{ t('common.close') }}
       </button>
 
       <!-- Boutons pour PENDING -->
@@ -570,7 +579,7 @@
         <button (click)="acceptDemande()" [disabled]="isValidating"
           class="px-8 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style="height: 47px; background-color: #1C3055; color: white;">
-          <span *ngIf="!isValidating">Accepter</span>
+          <span *ngIf="!isValidating">{{ t('common.accept') }}</span>
           <span *ngIf="isValidating" class="flex items-center">
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -578,12 +587,12 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-            Acceptation...
+            {{ t('common.accepting') }}
           </span>
         </button>
         <button (click)="openRejectConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
           style="height: 47px; border: 1px solid #F44336; color: #F44336; background-color: white;">
-          Rejeter
+          {{ t('common.reject') }}
         </button>
       </div>
 
@@ -592,7 +601,7 @@
         <button (click)="markAsDelivered()" [disabled]="isValidating"
           class="px-8 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style="height: 47px; background-color: #1C3055; color: white;">
-          <span *ngIf="!isValidating">Marquer comme livré</span>
+          <span *ngIf="!isValidating">{{ t('demande.actions.markDelivered') }}</span>
           <span *ngIf="isValidating" class="flex items-center">
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -600,7 +609,7 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-            Traitement...
+            {{ t('common.processing') }}
           </span>
         </button>
       </div>
@@ -609,11 +618,11 @@
       <div class="flex gap-3" *ngIf="canValidateOrReject()">
         <button (click)="openValidateConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
           style="height: 47px; background-color: #1C3055; color: white;">
-          Valider
+          {{ t('common.validate') }}
         </button>
         <button (click)="openRejectConfirmation()" class="px-8 rounded-lg font-medium transition-colors"
           style="height: 47px; border: 1px solid #F44336; color: #F44336; background-color: white;">
-          Rejeter
+          {{ t('common.reject') }}
         </button>
       </div>
     </div>
@@ -625,7 +634,7 @@
   <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
     <!-- Header du modal -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-900">Nouveau rapport</h2>
+      <h2 class="text-xl font-semibold text-gray-900">{{ t('demande.modals.report.title') }}</h2>
       <button (click)="closeCreateReportModal()"
         class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -640,27 +649,27 @@
         <!-- Champ Titre -->
         <div class="mb-4">
           <label for="reportTitle" class="block text-sm font-medium text-gray-700 mb-2">
-            Titre
+            {{ t('demande.modals.report.subjectLabel') }}
           </label>
           <input type="text" id="reportTitle" [(ngModel)]="newReport.title" name="title" required
-            placeholder="Ex: Rapport technique"
+            [placeholder]="t('demande.modals.report.subjectPlaceholder')"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
         </div>
 
         <!-- Champ Version -->
         <div class="mb-4">
           <label for="reportVersion" class="block text-sm font-medium text-gray-700 mb-2">
-            Version
+            {{ t('demande.modals.report.versionLabel') }}
           </label>
           <input type="text" id="reportVersion" [(ngModel)]="newReport.version" name="version" required
-            placeholder="Ex: v1.0"
+            [placeholder]="t('demande.modals.report.versionPlaceholder')"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200">
         </div>
 
         <!-- Champ Document -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Document
+            {{ t('demande.modals.report.documentLabel') }}
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
             <div class="text-center">
@@ -673,7 +682,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                Choisir un fichier
+                {{ t('common.chooseFile') }}
               </label>
 
               <div class="mt-2 text-sm text-gray-500">
@@ -692,7 +701,7 @@
         <div class="flex justify-end space-x-3">
           <button type="button" (click)="cancelCreateReport()" [disabled]="isCreatingReport"
             class="px-6 py-2 text-gray-600 hover:text-gray-800 disabled:text-gray-400 transition-colors duration-200">
-            Annuler
+            {{ t('common.cancel') }}
           </button>
 
           <button type="submit" [disabled]="isCreatingReport"
@@ -705,7 +714,7 @@
                 </path>
               </svg>
             </span>
-            {{ isCreatingReport ? 'Envoi en cours...' : 'Envoyer' }}
+            {{ isCreatingReport ? t('common.sending') : t('common.send') }}
           </button>
         </div>
       </form>
