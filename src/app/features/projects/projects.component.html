@@ -261,18 +261,34 @@
           </div>
 
           <!-- Barre de progression -->
-          <div class="mt-auto">
-            <div class="flex justify-between items-end mb-2">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('projects.progress')
-                }}</span>
-              <span class="text-sm font-bold text-gray-900">{{ formatProgress(project.progress) }}</span>
-            </div>
-            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-              <div [style.width.%]="project.progress"
-                class="h-full rounded-full bg-gradient-to-r from-orange-400 to-[#ff5c01] transition-all duration-1000 ease-out">
+          <!-- <div class="mt-auto">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                {{ t('projects.progress') }}
+              </span>
+
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-gray-900">
+                  {{ formatProgress(getProjectProgress(project)) }}
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium" [ngClass]="{
+                  'bg-green-100 text-green-700':  getProjectProgress(project) >= 70,
+                  'bg-yellow-100 text-yellow-700': getProjectProgress(project) >= 30 && getProjectProgress(project) < 70,
+                  'bg-orange-100 text-orange-700': getProjectProgress(project) < 30
+                }">
+                  {{ getProjectStatusLabel(project) }}
+                </span>
               </div>
             </div>
-          </div>
+
+            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div [style.width.%]="getProjectProgress(project)"
+                [style.background]="getGradientBackground(getProjectProgress(project))"
+                [style.min-width]="getProjectProgress(project) > 0 ? '4px' : '0'"
+                class="h-full rounded-full transition-all duration-700 ease-out">
+              </div>
+            </div>
+          </div> -->
         </div>
       </div>
     </div>

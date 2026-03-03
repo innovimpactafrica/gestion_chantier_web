@@ -378,3 +378,61 @@ Neutral Colors:
 ---
 
 **Statut : ✅ REFONTE COMPLÉTÉE**
+
+  // ===== MÉTHODE loadOrderQuotes() - VÉRIFIER QU'ELLE EST BIEN PRÉSENTE =====
+  loadOrderQuotes(orderId: number): void {
+    console.log('🔄 Chargement des citations pour commande:', orderId);
+  
+    this.loadingQuotes = true;
+    this.quotesError = null;
+    this.orderQuotes = [];
+    this.selectedQuote = null;
+    
+    // ✅ Forcer la détection immédiate
+    this.cdr.detectChanges();
+  
+    this.commandeService.getQuotes(orderId, 0, 10)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: QuoteResponse) => {
+          console.log('✅ Réponse complète citations:', response);
+  
+          if (response && response.content && response.content.length > 0) {
+            this.orderQuotes = response.content;
+            this.selectedQuote = this.orderQuotes[0];
+            
+            console.log('📋 Citations assignées:', this.orderQuotes);
+            console.log('✓ Citation sélectionnée:', this.selectedQuote);
+            
+            this.loadingQuotes = false;
+            this.quotesError = null;
+            
+            // ✅ FORCER LA DÉTECTION DE CHANGEMENT
+            this.cdr.detectChanges();
+          } else {
+            console.warn('⚠️ Aucune citation dans la réponse');
+            this.quotesError = 'Aucune citation disponible pour cette commande';
+            this.loadingQuotes = false;
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('❌ Erreur chargement citations:', error);
+          
+          this.loadingQuotes = false;
+          this.orderQuotes = [];
+          this.selectedQuote = null;
+  
+          if (error.status === 404) {
+            this.quotesError = 'Aucune citation trouvée pour cette commande';
+          } else if (error.status === 403) {
+            this.quotesError = 'Accès refusé aux citations';
+          } else {
+            this.quotesError = 'Erreur lors du chargement des citations';
+          }
+          
+          // ✅ FORCER LA DÉTECTION DE CHANGEMENT
+          this.cdr.detectChanges();
+        }
+      });
+  }

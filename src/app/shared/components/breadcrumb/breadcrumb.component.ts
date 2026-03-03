@@ -1,22 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, Subject, takeUntil, interval } from 'rxjs';
 import { BreadcrumbItem, BreadcrumbService } from '../../../core/services/breadcrumb-service.service';
 import { RouterModule } from '@angular/router';
-
-import { LanguageService, Language } from '../../../core/services/language.service';
-import { NotificationService } from '../../../core/services/notification.service';
+import { Notification, NotificationService } from '../../../core/services/notification.service';
+import { Language, LanguageService } from '../../../core/services/language.service';
 import { AuthService } from '../../../features/auth/services/auth.service';
-import { Observable } from 'rxjs';
 
-interface Notification {
-  id: number;
-  libelle: string;
-  description: string;
-  date: string;
-  read: boolean;
-}
 
 @Component({
   selector: 'app-breadcrumb',
@@ -25,32 +16,78 @@ interface Notification {
   standalone: true,
   imports: [CommonModule, RouterModule],
 })
-export class BreadcrumbComponent implements OnInit {
+export class BreadcrumbComponent implements OnInit, OnDestroy {
   breadcrumbs: BreadcrumbItem[] = [];
+
+  // Aide & Support
   showHelpModal = false;
-  emailAddress = 'contact@btpcloud.app';
+  emailAddress = 'contact@btpconnect.app';
   phoneNumber = '+ 221 33 971 41 12';
 
-  // Notifications properties
+  // Notifications
   showNotificationDropdown = false;
-  showNotificationModal = false;
-  loadingNotifications = false;
   notifications: Notification[] = [];
+  unreadCount: number = 0;
+  loadingNotifications: boolean = false;
   selectedNotification: Notification | null = null;
-  unreadCount = 0;
-  unreadCount$!: Observable<number>;
-  notifications$!: Observable<any[]>;
+  showNotificationModal: boolean = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
-    public languageService: LanguageService,
     private notificationService: NotificationService,
+    private languageService: LanguageService,
     public authService: AuthService
-  ) {
-    this.unreadCount$ = this.notificationService.unreadCount$;
-    this.notifications$ = this.notificationService.notifications$;
+  ) { }
+
+  ngOnInit(): void {
+    // Initialisation des breadcrumbs
+    const initialBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
+    this.breadcrumbService.setBreadcrumbs(initialBreadcrumbs);
+
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        const routeBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
+        this.breadcrumbService.setBreadcrumbs(routeBreadcrumbs);
+      });
+
+    this.breadcrumbService.breadcrumbs$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(breadcrumbs => {
+        this.breadcrumbs = breadcrumbs;
+      });
+
+    // Chargement initial des notifications (Seulement pour ADMIN)
+    if (this.authService.isADMINProfile()) {
+      this.loadUnreadCount();
+
+      // Rafraîchir le compteur toutes les 30 secondes
+      interval(30000)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.loadUnreadCount();
+        });
+    }
+  }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Translate helper
+   */
+  t(key: string, params?: any): string {
+    return this.languageService.translate(key, params);
   }
 
   get currentLang() {
@@ -66,227 +103,10 @@ export class BreadcrumbComponent implements OnInit {
     const currentBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
     this.breadcrumbService.setBreadcrumbs(currentBreadcrumbs);
   }
+  // ===========================
+  // BREADCRUMBS
+  // ===========================
 
-  /**
-   * Toggle notification dropdown
-   */
-  toggleNotificationDropdown() {
-    this.showNotificationDropdown = !this.showNotificationDropdown;
-
-    if (this.showNotificationDropdown) {
-      this.loadAdminNotifications();
-      this.loadUnreadCount();
-    }
-  }
-
-  /**
-   * Close notification dropdown
-   */
-  closeNotificationDropdown() {
-    this.showNotificationDropdown = false;
-  }
-
-  /**
-   * Open notification detail modal
-   */
-  openNotificationDetail(notification: Notification) {
-    this.selectedNotification = notification;
-    this.showNotificationModal = true;
-    this.showNotificationDropdown = false;
-
-    // Mark as read when opening
-    if (!notification.read) {
-      this.markAsRead(notification.id);
-    }
-  }
-
-  /**
-   * Close notification detail modal
-   */
-  closeNotificationModal() {
-    this.showNotificationModal = false;
-    this.selectedNotification = null;
-  }
-
-  /**
-   * Mark notification as read
-   */
-  markAsRead(id: number, event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    
-    // Call the service method (assuming it returns void or doesn't return an observable)
-    this.notificationService.markAsRead(id);
-    
-    // Update local notifications array immediately
-    const notification = this.notifications.find(n => n.id === id);
-    if (notification) {
-      notification.read = true;
-    }
-    
-    // Reload unread count after a short delay to ensure API update
-    setTimeout(() => {
-      this.loadUnreadCount();
-    }, 300);
-  }
-
-  /**
-   * Format time for notification (e.g., "14:30")
-   */
-  formatTime(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleTimeString('fr-FR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    } catch (error) {
-      return '';
-    }
-  }
-
-  /**
-   * Format relative time (e.g., "Il y a 2h")
-   */
-  formatRelativeTime(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffMins < 1) return this.t('notifications.justNow') || 'À l\'instant';
-      if (diffMins < 60) return `${diffMins}min`;
-      if (diffHours < 24) return `${diffHours}h`;
-      if (diffDays < 7) return `${diffDays}j`;
-      
-      return date.toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: '2-digit' 
-      });
-    } catch (error) {
-      return '';
-    }
-  }
-
-  /**
-   * Format notification date for modal (e.g., "Lundi 9 février 2026 à 14:30")
-   */
-  formatNotificationDate(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  }
-
-  /**
-   * Translate helper
-   */
-  t(key: string, params?: any): string {
-    return this.languageService.translate(key, params);
-  }
-
-  /**
-   * Close dropdown when clicking outside
-   */
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    const clickedInside = target.closest('.relative');
-    
-    if (!clickedInside && this.showNotificationDropdown) {
-      this.showNotificationDropdown = false;
-    }
-  }
-
-  ngOnInit(): void {
-    // Cas 1 : on recharge manuellement les breadcrumbs à l'initialisation
-    const initialBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
-    this.breadcrumbService.setBreadcrumbs(initialBreadcrumbs);
-
-    // Cas 2 : on écoute aussi les changements de navigation (navigations ultérieures)
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        const routeBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
-        this.breadcrumbService.setBreadcrumbs(routeBreadcrumbs);
-      });
-
-    // S'abonne pour affichage
-    this.breadcrumbService.breadcrumbs$.subscribe(breadcrumbs => {
-      this.breadcrumbs = breadcrumbs;
-    });
-
-    // Load notifications for Admin users
-    if (this.authService.isADMINProfile()) {
-      this.loadAdminNotifications();
-      this.loadUnreadCount();
-      
-      // Subscribe to notifications$ to update local array
-      this.notifications$.subscribe(notifications => {
-        this.notifications = notifications;
-      });
-
-      // Subscribe to unreadCount$ to update local count
-      this.unreadCount$.subscribe(count => {
-        this.unreadCount = count;
-      });
-    }
-  }
-
-  /**
-   * Load admin notifications from API
-   */
-  private loadAdminNotifications(): void {
-    this.loadingNotifications = true;
-    
-    this.authService.getCurrentUser().subscribe({
-      next: (user) => {
-        if (user?.id) {
-          this.notificationService.loadNotifications(user.id, 0, 10).subscribe({
-            next: () => {
-              this.loadingNotifications = false;
-            },
-            error: (err: any) => {
-              console.error('Error loading notifications:', err);
-              this.loadingNotifications = false;
-            }
-          });
-        } else {
-          this.loadingNotifications = false;
-        }
-      },
-      error: (err: any) => {
-        console.error('Error getting current user:', err);
-        this.loadingNotifications = false;
-      }
-    });
-  }
-
-  /**
-   * Load unread count from API
-   */
-  private loadUnreadCount(): void {
-    this.notificationService.getUnreadCount().subscribe({
-      error: (err: any) => {
-        console.error('Error loading unread count:', err);
-      }
-    });
-  }
-
-  // Génère le fil d'Ariane à partir des données des routes
   private createBreadcrumbs(
     route: ActivatedRoute,
     url: string = '',
@@ -315,32 +135,158 @@ export class BreadcrumbComponent implements OnInit {
     return breadcrumbs;
   }
 
+  // ===========================
+  // NOTIFICATIONS
+  // ===========================
+
   /**
-   * Ouvre la modal Aide & Support
+   * Charge le nombre de notifications non lues
    */
+  loadUnreadCount(): void {
+    this.notificationService.getNombreDeNotificationNonLu()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (count) => {
+          this.unreadCount = count;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement du compteur:', error);
+        }
+      });
+  }
+
+  /**
+   * Toggle du dropdown de notifications
+   */
+  toggleNotificationDropdown(): void {
+    this.showNotificationDropdown = !this.showNotificationDropdown;
+
+    if (this.showNotificationDropdown) {
+      this.loadNotifications();
+      // Marquer toutes comme lues
+      if (this.unreadCount > 0) {
+        this.markAllAsRead();
+      }
+    }
+  }
+
+  /**
+   * Charge les 10 dernières notifications
+   */
+  loadNotifications(): void {
+    this.loadingNotifications = true;
+
+    this.notificationService.getNotifications(undefined, 0, 10)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.notifications = response.content || [];
+          this.loadingNotifications = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des notifications:', error);
+          this.loadingNotifications = false;
+          this.notifications = [];
+        }
+      });
+  }
+
+  /**
+   * Marque toutes les notifications comme lues
+   */
+  markAllAsRead(): void {
+    this.notificationService.readAllNotifications()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.unreadCount = 0;
+          // Mettre à jour le statut local
+          this.notifications.forEach(n => n.read = true);
+        },
+        error: (error) => {
+          console.error('Erreur lors du marquage des notifications:', error);
+        }
+      });
+  }
+
+  /**
+   * Ouvre le détail d'une notification
+   */
+  openNotificationDetail(notification: Notification): void {
+    this.loadingNotifications = true;
+
+    this.notificationService.getNotificationById(notification.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (fullNotification) => {
+          this.selectedNotification = fullNotification;
+          this.showNotificationModal = true;
+          this.showNotificationDropdown = false;
+          this.loadingNotifications = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement de la notification:', error);
+          this.loadingNotifications = false;
+        }
+      });
+  }
+
+  /**
+   * Ferme le modal de notification
+   */
+  closeNotificationModal(): void {
+    this.showNotificationModal = false;
+    this.selectedNotification = null;
+  }
+
+  /**
+   * Ferme le dropdown de notifications
+   */
+  closeNotificationDropdown(): void {
+    this.showNotificationDropdown = false;
+  }
+
+  /**
+   * Formate la date pour l'affichage
+   */
+  formatNotificationDate(dateArray: number[]): string {
+    return this.notificationService.formatDate(dateArray, 'full');
+  }
+
+  /**
+   * Formate la date pour affichage relatif
+   */
+  formatRelativeTime(dateArray: number[]): string {
+    return this.notificationService.formatDate(dateArray, 'relative');
+  }
+
+  /**
+   * Formate l'heure seule
+   */
+  formatTime(dateArray: number[]): string {
+    return this.notificationService.formatDate(dateArray, 'time');
+  }
+
+  // ===========================
+  // AIDE & SUPPORT
+  // ===========================
+
   openHelpModal(): void {
     this.showHelpModal = true;
   }
 
-  /**
-   * Ferme la modal Aide & Support
-   */
   closeHelpModal(): void {
     this.showHelpModal = false;
   }
 
-  /**
-   * Copie le texte dans le presse-papiers
-   */
   copyToClipboard(text: string): void {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         console.log('Copié dans le presse-papiers:', text);
-      }).catch((err: any) => {
+      }).catch(err => {
         console.error('Erreur lors de la copie:', err);
       });
     } else {
-      // Fallback pour les anciens navigateurs
       const textarea = document.createElement('textarea');
       textarea.value = text;
       document.body.appendChild(textarea);

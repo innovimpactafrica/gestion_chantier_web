@@ -32,7 +32,6 @@
           <th class="px-4 py-3 font-semibold">{{ t('alert.date') }}</th>
           <th class="px-4 py-3 font-semibold">{{ t('alert.alertType') }}</th>
           <th class="px-4 py-3 font-semibold">{{ t('alert.description') }}</th>
-          <th class="px-4 py-3 font-semibold">{{ t('alert.photos') }}</th>
           <th class="px-4 py-3 font-semibold">{{ t('alert.actions') }}</th>
         </tr>
       </thead>
@@ -41,31 +40,26 @@
           <td class="px-4 py-3">{{ formatDate(signalement.createdAt) }}</td>
           <td class="px-4 py-3">{{ signalement.title }}</td>
           <td class="px-4 py-3">{{ signalement.description || '--' }}</td>
-          <td class="px-4 py-3">
+
+          <td class="px-4 py-3 flex gap-2">
+            <!-- Image icon button -->
             <button *ngIf="signalement.pictures && signalement.pictures.length > 0"
-              (click)="openPhotoModal(signalement)" class="text-blue-500 hover:text-blue-700 transition"
-              title="Voir les photos">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              (click)="openPhotoModal(signalement)" class="p-1 rounded-full transition" title="Voir les photos"
+              aria-label="Voir les photos">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="#2196F3" fill-opacity="0.1" />
+                <path
+                  d="M10 10C10 9.46957 10.2107 8.96086 10.5858 8.58579C10.9609 8.21071 11.4696 8 12 8H20C20.5304 8 21.0391 8.21071 21.4142 8.58579C21.7893 8.96086 22 9.46957 22 10V20C22 20.5304 21.7893 21.0391 21.4142 21.4142C21.0391 21.7893 20.5304 22 20 22H12C11.4696 22 10.9609 21.7893 10.5858 21.4142C10.2107 21.0391 10 20.5304 10 20V10Z"
+                  stroke="#2196F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M10 17L13 14C13.3536 13.6464 13.8464 13.6464 14.2 14L17 17M16 16L17 15C17.3536 14.6464 17.8464 14.6464 18.2 15L22 19"
+                  stroke="#2196F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="14.5" cy="12.5" r="1.5" fill="#2196F3" />
               </svg>
             </button>
-            <span *ngIf="!signalement.pictures || signalement.pictures.length === 0"
-              class="text-gray-400 text-sm italic">
-              {{ t('projects.noImage') }}
-            </span>
-          </td>
-          <td class="px-4 py-3 flex gap-2">
-            <!-- <button 
-              (click)="editSignalement(signalement)"
-              class="bg-yellow-100 text-yellow-700 p-2 rounded-full hover:bg-yellow-200"
-              title="Modifier">
-              ✏️
-            </button> -->
-            <button (click)="openDeleteConfirmModal(signalement.id)" class="p-1 rounded-full  transition"
+
+            <!-- Delete icon button -->
+            <button (click)="openDeleteConfirmModal(signalement.id)" class="p-1 rounded-full transition"
               title="Supprimer" aria-label="Supprimer">
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="16" cy="16" r="16" fill="#F44336" fill-opacity="0.1" />
@@ -79,13 +73,12 @@
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
-
           </td>
         </tr>
 
         <!-- Message si aucun signalement -->
         <tr *ngIf="filteredSignalements.length === 0">
-          <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+          <td colspan="4" class="px-4 py-8 text-center text-gray-500">
             {{ t('alert.noAlerts') }}
           </td>
         </tr>

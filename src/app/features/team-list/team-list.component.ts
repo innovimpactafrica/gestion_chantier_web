@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
@@ -123,31 +123,36 @@ export class TeamListComponent implements OnInit {
     return filtered;
   }
 
-  getRoleOptions(): { value: string, label: string }[] {
+  roleOptions = computed(() => {
+    // This will automatically update when language changes because t() calls languageService.translate() which access currentLang signal
+    this.languageService.currentLang(); // Explicit dependency just in case to force tracking
     return [
-      { value: '', label: 'Tous les rôles' },
-      { value: 'Ouvrier', label: 'Ouvrier' },
-      { value: 'Chef de chantier', label: 'Chef de chantier' },
-      { value: 'Maître d\'œuvre', label: 'Maître d\'œuvre' },
-      { value: 'Maître d\'ouvrage', label: 'Maître d\'ouvrage' },
-      { value: 'Architecte', label: 'Architecte' },
-      { value: 'Ingénieur', label: 'Ingénieur' }
+      { value: '', label: this.t('team.roles.all') },
+      { value: 'WORKER', label: this.t('team.roles.worker') },
+      { value: 'SITE_MANAGER', label: this.t('team.roles.siteManager') },
+      { value: 'CHEF_CHANTIER', label: this.t('team.roles.siteManager') },
+      { value: 'SUBCONTRACTOR', label: this.t('team.roles.subcontractor') },
+      { value: 'PROMOTEUR', label: this.t('team.roles.promoter') },
+      { value: 'MAITRE_OEUVRE', label: this.t('team.roles.masterBuilder') },
+      { value: 'MAITRE_OUVRAGE', label: this.t('team.roles.projectOwner') },
+      { value: 'ARCHITECTE', label: this.t('team.roles.architect') },
+      { value: 'INGENIEUR', label: this.t('team.roles.engineer') }
     ];
-  }
+  });
 
   updateCurrentMonthYear(): void {
-  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-  this.currentMonthYear = `${months[this.currentMonth]} ${this.currentYear}`;
-}
+    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    this.currentMonthYear = `${months[this.currentMonth]} ${this.currentYear}`;
+  }
 
   ngOnInit(): void {
     this.generateCalendar();
     this.getPropertyIdAndLoadData();
     // Sélectionner la date du jour par défaut
-  this.selectedDate = new Date();
-  this.selectedDate.setHours(0, 0, 0, 0);
-  this.updateCurrentMonthYear();
+    this.selectedDate = new Date();
+    this.selectedDate.setHours(0, 0, 0, 0);
+    this.updateCurrentMonthYear();
   }
 
   private getPropertyIdAndLoadData(): void {
@@ -191,7 +196,7 @@ export class TeamListComponent implements OnInit {
     return workers.map(worker => ({
       id: worker.id,
       name: `${worker.prenom} ${worker.nom}`,
-      role: this.mapRole(worker.profil),
+      role: worker.profil, // Raw role for filtering
       telephone: worker.telephone,
       present: worker.present,
       address: worker.adress,
@@ -200,16 +205,20 @@ export class TeamListComponent implements OnInit {
     }));
   }
 
-  private mapRole(profil: string): string {
+  formatRole(profil: string): string {
     const roleMap: { [key: string]: string } = {
-      'WORKER': 'Ouvrier',
-      'CHEF_CHANTIER': 'Chef de chantier',
-      'MAITRE_OEUVRE': 'Maître d\'œuvre',
-      'MAITRE_OUVRAGE': 'Maître d\'ouvrage',
-      'ARCHITECTE': 'Architecte',
-      'INGENIEUR': 'Ingénieur'
+      'WORKER': 'team.roles.worker',
+      'SITE_MANAGER': 'team.roles.siteManager',
+      'CHEF_CHANTIER': 'team.roles.siteManager',
+      'SUBCONTRACTOR': 'team.roles.subcontractor',
+      'PROMOTEUR': 'team.roles.promoter',
+      'MAITRE_OEUVRE': 'team.roles.masterBuilder',
+      'MAITRE_OUVRAGE': 'team.roles.projectOwner',
+      'ARCHITECTE': 'team.roles.architect',
+      'INGENIEUR': 'team.roles.engineer'
     };
-    return roleMap[profil] || profil;
+    const key = roleMap[profil];
+    return key ? this.t(key) : profil;
   }
 
   private getDefaultAvatar(): string {
@@ -699,45 +708,45 @@ export class TeamListComponent implements OnInit {
     this.generateCalendar();
   }
 
-selectDate(day: number): void {
-  const date = new Date(this.currentYear, this.currentMonth, day);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
-  
-  // Ne pas permettre la sélection de dates futures
-  if (date.getTime() > today.getTime()) {
-    return;
-  }
-  
-  this.selectedDate = date;
-  this.showDatePicker = false;
-  // Appliquer le filtre ici
-  // this.applyDateFilter();
-}
+  selectDate(day: number): void {
+    const date = new Date(this.currentYear, this.currentMonth, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
 
- getDayClasses(day: number): string {
-  const date = new Date(this.currentYear, this.currentMonth, day);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
-  
-  const isToday = date.getTime() === today.getTime();
-  const isSelected = this.selectedDate && date.getTime() === this.selectedDate.getTime();
-  const isFuture = date.getTime() > today.getTime();
-  
-  let classes = '';
-  
-  if (isFuture) {
-    classes += ' text-gray-300 cursor-not-allowed pointer-events-none';
-  } else if (isSelected) {
-    classes += ' bg-orange-500 text-white font-semibold rounded-full';
-  } else if (isToday) {
-    classes += ' border border-orange-500 rounded-full';
+    // Ne pas permettre la sélection de dates futures
+    if (date.getTime() > today.getTime()) {
+      return;
+    }
+
+    this.selectedDate = date;
+    this.showDatePicker = false;
+    // Appliquer le filtre ici
+    // this.applyDateFilter();
   }
-  
-  return classes;
-}
+
+  getDayClasses(day: number): string {
+    const date = new Date(this.currentYear, this.currentMonth, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    const isToday = date.getTime() === today.getTime();
+    const isSelected = this.selectedDate && date.getTime() === this.selectedDate.getTime();
+    const isFuture = date.getTime() > today.getTime();
+
+    let classes = '';
+
+    if (isFuture) {
+      classes += ' text-gray-300 cursor-not-allowed pointer-events-none';
+    } else if (isSelected) {
+      classes += ' bg-orange-500 text-white font-semibold rounded-full';
+    } else if (isToday) {
+      classes += ' border border-orange-500 rounded-full';
+    }
+
+    return classes;
+  }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {

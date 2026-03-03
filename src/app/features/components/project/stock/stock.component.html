@@ -998,22 +998,55 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     <div class="flex-1 overflow-y-auto p-8">
       <form [formGroup]="orderForm" (ngSubmit)="onSubmitOrder()" class="space-y-8">
 
-        <!-- Fournisseur avec scroll -->
+        <!-- Fournisseur avec auto-complétion -->
         <div>
           <label class="block text-base font-medium text-gray-900 mb-3">
             Fournisseur <span class="text-red-500">*</span>
           </label>
-          <div class="relative">
-            <select formControlName="supplierId" size="1"
-              class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900 text-base cursor-pointer"
-              [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
-              style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.25rem;">
-              <option value="">Sélectionner un fournisseur</option>
-              <option *ngFor="let supplier of suppliers" [value]="supplier.id">
-                {{ supplier.prenom }} {{ supplier.nom }} — {{ supplier.telephone }}
-              </option>
-            </select>
+
+          <!-- Fournisseur sélectionné -->
+          <div *ngIf="selectedSupplier"
+            class="flex items-center gap-2 mb-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-xl">
+            <span class="flex-1 text-sm font-medium text-gray-900">{{ selectedSupplier.prenom }} {{ selectedSupplier.nom
+              }}</span>
+            <button type="button"
+              (click)="selectedSupplier = null; supplierSearchKeyword = ''; orderForm.get('supplierId')?.setValue('')"
+              class="text-orange-500 hover:text-orange-700 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
+
+          <!-- Champ de recherche -->
+          <div class="relative" *ngIf="!selectedSupplier">
+            <input type="text" [(ngModel)]="supplierSearchKeyword" [ngModelOptions]="{standalone: true}"
+              (input)="onSupplierSearch(supplierSearchKeyword)" (focus)="focusSupplierInput()"
+              placeholder="Rechercher un fournisseur..."
+              class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 text-base"
+              [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched">
+
+            <!-- Dropdown résultats -->
+            <div *ngIf="showSupplierDropdown && (suppliers.length > 0 || suppliersLoading)"
+              class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+              (scroll)="onSupplierScroll($event)">
+              <div *ngFor="let supplier of suppliers" (click)="selectSupplier(supplier)"
+                class="px-4 py-3 hover:bg-orange-50 cursor-pointer transition-colors flex items-center gap-3 border-b border-gray-100 last:border-0">
+                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                <span class="text-orange-600 text-sm font-semibold">{{ supplier.prenom.charAt(0) }}{{ supplier.nom.charAt(0) }}</span>
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-sm text-gray-900">{{ supplier.prenom }} {{ supplier.nom }}</div>
+                  <div class="text-xs text-gray-500">{{ supplier.telephone || supplier.email }}</div>
+                </div>
+              </div>
+              <div *ngIf="suppliersLoading" class="px-4 py-3 text-center text-gray-500 text-sm">
+                <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+                Chargement...
+              </div>
+            </div>
+          </div>
+
           <div *ngIf="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
             class="mt-2 text-sm text-red-600">
             Veuillez sélectionner un fournisseur
@@ -1478,275 +1511,214 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     </div>
   </div>
 </div>
-
-<!-- ============================= -->
-<!-- MODAL DÉTAILS COMMANDE -->
-<!-- ============================= -->
+<!-- Modal Détails Commande avec Citations -->
 <div *ngIf="showOrderDetailsModal && selectedOrderDetails" class="fixed inset-0 z-50 overflow-y-auto"
-  aria-labelledby="order-details-modal" role="dialog" aria-modal="true">
+  (click)="closeOrderDetailsModal()">
 
-  <!-- Backdrop -->
-  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" (click)="closeOrderDetailsModal()"></div>
+  <!-- Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
 
   <!-- Modal Content -->
-  <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all">
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+      (click)="$event.stopPropagation()">
 
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-gradient-to-r from-[#FF5C02] to-[#FF8534] px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-              </path>
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold text-gray-900">
-              Commande #CMD-{{ selectedOrderDetails.id.toString().padStart(4, '0') }}
+            <h3 class="text-xl font-bold text-white">
+              {{ t('stock.orderDetails') }} #CMD-{{ selectedOrderDetails.id.toString().padStart(4, '0') }}
             </h3>
-            <p class="text-sm text-gray-500">{{ getFormattedDate(selectedOrderDetails.orderDate) }}</p>
           </div>
-          <span [class]="getOrderStatusClass(selectedOrderDetails.status)"
-            class="ml-3 px-3 py-1 rounded-full text-xs font-medium">
-            {{ getOrderStatusText(selectedOrderDetails.status) }}
-          </span>
+          <button (click)="closeOrderDetailsModal()"
+            class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button (click)="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
       </div>
 
       <!-- Body -->
-      <div class="px-6 py-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
 
-          <!-- Left Column: Informations -->
-          <div class="space-y-6">
-            <!-- Informations générales -->
-            <div class="bg-white border border-gray-200 rounded-lg p-5">
-              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Informations
-              </h4>
-              <div class="space-y-3">
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Fournisseur</span>
-                  <span class="text-sm font-medium text-gray-900">
-                    {{ selectedOrderDetails.supplier.prenom }} {{ selectedOrderDetails.supplier.nom }}
-                  </span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-sm text-gray-600">Téléphone</span>
-                  <span class="text-sm font-medium text-gray-900">
-                    {{ selectedOrderDetails.supplier.telephone || 'N/A' }}
-                  </span>
-                </div>
-                <div class="flex justify-between py-2">
-                  <span class="text-sm text-gray-600">Matériaux</span>
-                  <span class="text-sm font-medium text-gray-900">
-                    {{ selectedOrderDetails.materials.length || 0 }} article(s)
-                  </span>
-                </div>
-              </div>
+        <!-- Informations Commande -->
+        <div class="mb-6 bg-gray-50 rounded-lg p-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">{{ t('stock.orderDate') }}</p>
+              <p class="font-semibold">{{ formatDeliveryDate(selectedOrderDetails.orderDate) }}</p>
             </div>
+            <div>
+              <p class="text-sm text-gray-600">{{ t('stock.status') }}</p>
+              <span [class]="getOrderStatusClass(selectedOrderDetails.status)"
+                class="inline-block px-3 py-1 rounded-full text-sm font-medium">
+                {{ getOrderStatusText(selectedOrderDetails.status) }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">{{ t('stock.supplier') }}</p>
+              <p class="font-semibold">{{ formatSupplierName(selectedOrderDetails.supplier) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">{{ t('stock.phone') }}</p>
+              <p class="font-semibold">{{ selectedOrderDetails.supplier.telephone || 'N/A' }}</p>
+            </div>
+          </div>
+        </div>
 
-            <!-- Matériaux commandés -->
-            <div class="bg-white border border-gray-200 rounded-lg p-5">
-              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-                Matériaux commandés
-              </h4>
+        <!-- Section Citations -->
+        <div class="mb-6">
+          <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-[#FF5C02]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {{ t('stock.quotes') || 'Citations' }}
+          </h4>
 
-              <div *ngIf="selectedOrderDetails.materials && selectedOrderDetails.materials.length > 0"
-                class="space-y-2">
-                <div *ngFor="let material of selectedOrderDetails.materials"
-                  class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                  <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-900">{{ material.material || 'Mat #' + material.id }}</p>
+          <!-- Loading State -->
+          <div *ngIf="loadingQuotes" class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C02]"></div>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="!loadingQuotes && quotesError" class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-red-700">{{ quotesError }}</p>
+          </div>
+
+          <!-- Liste des Citations -->
+          <div *ngIf="!loadingQuotes && !quotesError && orderQuotes.length > 0" class="space-y-3">
+
+            <div *ngFor="let quote of orderQuotes; let i = index" (click)="selectQuote(quote)"
+              [class.ring-2]="selectedQuote?.id === quote.id" [class.ring-[#FF5C02]]="selectedQuote?.id === quote.id"
+              [class.bg-orange-50]="selectedQuote?.id === quote.id"
+              class="border rounded-lg p-4 cursor-pointer hover:shadow-md transition-all duration-200">
+
+              <div class="flex items-start justify-between">
+                <!-- Informations Citation -->
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                      {{ t('stock.quote') || 'Citation' }} #{{ quote.id }}
+                    </span>
+                    <span *ngIf="selectedQuote?.id === quote.id"
+                      class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                      ✓ {{ t('stock.selected') || 'Sélectionnée' }}
+                    </span>
                   </div>
-                  <div class="text-right">
-                    <p class="text-sm text-gray-600">Qté: <span class="font-medium text-gray-900">{{ material.quantity
-                        }}</span></p>
+
+                  <!-- Montant -->
+                  <div class="mb-3">
+                    <p class="text-2xl font-bold text-gray-900">
+                      {{ formatAmount(quote.totalAmount) }} <span class="text-lg text-gray-600">FCFA</span>
+                    </p>
+                  </div>
+
+                  <!-- Informations Fournisseur -->
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p class="text-gray-600">{{ t('stock.supplierName') || 'Fournisseur' }}</p>
+                      <p class="font-medium text-gray-900">{{ getSupplierFullName(quote) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">{{ t('stock.phone') || 'Téléphone' }}</p>
+                      <p class="font-medium text-gray-900">{{ getSupplierPhone(quote) }}</p>
+                    </div>
+                    <div class="col-span-2">
+                      <p class="text-gray-600">{{ t('stock.uploadDate') || 'Date d\'envoi' }}</p>
+                      <p class="font-medium text-gray-900">{{ formatQuoteDate(quote.uploadedAt) }}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div *ngIf="!selectedOrderDetails.materials || selectedOrderDetails.materials.length === 0"
-                class="text-sm text-gray-500 italic py-4 text-center">
-                Aucun matériau
+                <!-- Radio Button -->
+                <div class="ml-4">
+                  <div [class.bg-[#FF5C02]]="selectedQuote?.id === quote.id"
+                    [class.border-[#FF5C02]]="selectedQuote?.id === quote.id"
+                    class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <div *ngIf="selectedQuote?.id === quote.id" class="w-3 h-3 bg-white rounded-full"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Citations -->
-          <div class="space-y-6">
-            <div class="bg-white border border-gray-200 rounded-lg p-5">
-              <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center justify-between">
-                <span class="flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                    </path>
-                  </svg>
-                  Citations reçues
-                </span>
-                <span class="text-xs font-normal bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                  {{ orderQuotes.length || 0 }}
-                </span>
-              </h4>
+          <!-- Empty State -->
+          <div *ngIf="!loadingQuotes && !quotesError && orderQuotes.length === 0"
+            class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-gray-600 text-lg">{{ t('stock.noQuotes') || 'Aucune citation disponible' }}</p>
+            <p class="text-gray-500 text-sm mt-1">
+              {{ t('stock.noQuotesDesc') || 'Les fournisseurs n\'ont pas encore envoyé de citations' }}
+            </p>
+          </div>
+        </div>
 
-              <!-- Loading State -->
-              <div *ngIf="loadingQuotes" class="flex flex-col items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mb-3"></div>
-                <p class="text-sm text-gray-600">Chargement des citations...</p>
-              </div>
-
-              <!-- Error State -->
-              <div *ngIf="quotesError && !loadingQuotes"
-                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                <svg class="w-10 h-10 text-yellow-500 mx-auto mb-2" fill="none" stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                  </path>
-                </svg>
-                <p class="text-sm text-yellow-800">{{ quotesError }}</p>
-              </div>
-
-              <!-- Citations List -->
-              <div *ngIf="!loadingQuotes && !quotesError && orderQuotes && orderQuotes.length > 0" class="space-y-3">
-
-                <div *ngFor="let quote of orderQuotes; let i = index" (click)="selectQuote(quote)"
-                  [class.border-orange-500]="selectedQuote?.id === quote.id"
-                  [class.bg-orange-50]="selectedQuote?.id === quote.id"
-                  [class.border-gray-300]="selectedQuote?.id !== quote.id"
-                  class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md hover:border-orange-400">
-
-                  <div class="flex items-start justify-between mb-3">
-                    <div class="flex items-center space-x-3">
-                      <!-- Badge numéro -->
-                      <div
-                        class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm font-bold">#{{ i + 1 }}</span>
-                      </div>
-
-                      <!-- Info fournisseur -->
-                      <div>
-                        <p class="text-xs text-gray-500">
-                          {{ quote.generedBy.prenom }} {{ quote.generedBy.nom }}
-                        </p>
-
-                        <p class="text-xs text-gray-500">
-                          {{ quote.generedBy.telephone || 'N/A' }}
-                        </p>
-                      </div>
-                    </div>
-
-                    <!-- Checkmark si sélectionné -->
-                    <div *ngIf="selectedQuote?.id === quote.id"
-                      class="flex items-center justify-center w-6 h-6 bg-orange-500 rounded-full flex-shrink-0">
-                      <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd"></path>
-                      </svg>
-                    </div>
-                  </div>
-
-                  <!-- Montant -->
-                  <div class="bg-gray-50 rounded-lg p-3 mb-2">
-                    <div class="flex items-baseline justify-between">
-                      <span class="text-xs text-gray-600 font-medium">Montant total</span>
-                      <div class="text-right">
-                        <span class="text-xl font-bold text-gray-900">
-                          {{ formatAmount(quote.totalAmount) }}
-                        </span>
-                        <span class="text-sm text-gray-600 ml-1">FCFA</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Date de soumission -->
-                  <div class="flex items-center text-xs text-gray-500">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>Soumis le {{ formatQuoteDate(quote.uploadedAt) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Empty State -->
-              <div *ngIf="!loadingQuotes && !quotesError && (!orderQuotes || orderQuotes.length === 0)"
-                class="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
-                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                    </path>
-                  </svg>
-                </div>
-                <p class="text-sm font-medium text-gray-700 mb-1">
-                  Aucune citation disponible
-                </p>
-                <p class="text-xs text-gray-500 text-center max-w-xs">
-                  Le fournisseur n'a pas encore soumis de devis pour cette commande
-                </p>
-              </div>
+        <!-- Matériaux Commandés -->
+        <div *ngIf="selectedOrderDetails.materials && selectedOrderDetails.materials.length > 0" class="mt-6">
+          <h4 class="text-lg font-bold text-gray-900 mb-3">
+            {{ t('stock.orderedMaterials') || 'Matériaux commandés' }}
+          </h4>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div *ngFor="let material of selectedOrderDetails.materials"
+              class="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+              <span class="text-gray-700">{{ material.quantity }}</span>
+              <!-- <span class="font-semibold text-gray-900">{{ material.quantity }} {{ material.unit?.code }}</span> -->
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+      <!-- Footer avec Actions -->
+      <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t">
+        <!-- Bouton Télécharger Facture -->
+        <!-- <button (click)="telechargerFacturePDF(selectedOrderDetails.id)"
+          class="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-[#FF5C02] to-[#FF8534] rounded-lg hover:from-[#e65300] hover:to-[#e67a2e] transition-all shadow-sm hover:shadow-md flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>{{ t('stock.downloadInvoice') }}</span>
+        </button> -->
+
         <button (click)="closeOrderDetailsModal()"
-          class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          Fermer
+          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium">
+          {{ t('common.close') || 'Fermer' }}
         </button>
 
-        <div class="flex items-center space-x-3">
-          <!-- Affichage citation sélectionnée -->
-          <div *ngIf="selectedQuote" class="flex items-center space-x-3">
-            <span class="text-sm text-gray-600">Citation sélectionnée:</span>
-            <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
-              {{ formatAmount(selectedQuote.totalAmount) }} FCFA
-            </span>
-          </div>
-
-          <!-- Bouton Approuver -->
-          <button *ngIf="selectedQuote && canApproveOrder(selectedOrderDetails!, orderQuotes.length > 0)"
-            (click)="confirmApproveOrder(selectedOrderDetails!, selectedQuote)" [disabled]="approvingOrder"
-            class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-            <svg *ngIf="!approvingOrder" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <div class="flex space-x-3">
+          <!-- Bouton Approuver (si applicable) -->
+          <button *ngIf="canApproveOrder(selectedOrderDetails, orderQuotes.length > 0) && selectedQuote"
+            (click)="confirmApproveOrder(selectedOrderDetails, selectedQuote!)" [disabled]="!selectedQuote"
+            class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
-            <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>{{ approvingOrder ? 'Approbation...' : 'Approuver' }}</span>
+            <span>{{ t('stock.approveOrder') || 'Approuver la commande' }}</span>
           </button>
 
-          <!-- Message si commande déjà approuvée -->
-          <div *ngIf="selectedOrderDetails?.status === 'APPROVED'"
-            class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"></path>
+          <!-- Bouton Imprimer -->
+          <button (click)="printOrder(selectedOrderDetails)"
+            class="px-6 py-2.5 bg-[#FF5C02] text-white rounded-lg hover:bg-[#E54D00] transition-colors font-medium flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            <span class="text-sm font-medium text-green-800">Commande approuvée</span>
-          </div>
+            <span>{{ t('common.print') || 'Imprimer' }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1779,10 +1751,10 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
       <!-- Content -->
       <div class="px-6 py-4 text-center">
         <h3 class="text-xl font-semibold text-gray-900 mb-2">
-          Approuver cette commande ?
+          {{ t('stock.approveOrderTitle') }}
         </h3>
         <p class="text-sm text-gray-600 mb-4">
-          Vous êtes sur le point d'approuver la commande
+          {{ t('stock.approveOrderMessage') }}
           <span class="font-semibold text-gray-900">
             #CMD-{{ orderToApprove.id.toString().padStart(4, '0') }}
           </span>
@@ -1791,13 +1763,13 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         <!-- Détails de la citation -->
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-4">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-sm text-gray-700 font-medium">Fournisseur:</span>
+            <span class="text-sm text-gray-700 font-medium">{{ t('stock.supplierName') }}:</span>
             <span class="text-sm text-gray-900 font-semibold">
               {{ selectedQuoteForApproval.generedBy.prenom }} {{ selectedQuoteForApproval.generedBy.nom }}
             </span>
           </div>
           <div class="flex items-center justify-between pt-2 border-t border-green-200">
-            <span class="text-sm text-gray-700 font-medium">Montant total:</span>
+            <span class="text-sm text-gray-700 font-medium">{{ t('stock.totalAmount') }}:</span>
             <span class="text-lg text-green-700 font-bold">
               {{ formatAmount(selectedQuoteForApproval.totalAmount) }} FCFA
             </span>
@@ -1805,7 +1777,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         </div>
 
         <p class="text-xs text-gray-500 mb-6">
-          Cette action validera la citation et permettra le traitement de la commande.
+          {{ t('stock.approveOrderWarning') }}
         </p>
       </div>
 
@@ -1818,7 +1790,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         <button (click)="approveOrderConfirmed()" [disabled]="approvingOrder"
           class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
           <div *ngIf="approvingOrder" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>{{ approvingOrder ? 'Approbation...' : 'Confirmer l\'approbation' }}</span>
+          <span>{{ approvingOrder ? t('stock.approving') : t('stock.confirmApproval') }}</span>
         </button>
       </div>
     </div>

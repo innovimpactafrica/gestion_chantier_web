@@ -351,545 +351,502 @@
                         </form>
                         }
 
-                        @if (activeTab() === 'abonnements') {
+              @if (activeTab() === 'abonnements') {
+<div>
+    @if (isCheckingSubscription()) {
+    <!-- Chargement de la vérification -->
+    <div class="flex justify-center items-center py-12">
+        <svg class="animate-spin h-8 w-8 text-[#ff5c01]" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+        </svg>
+    </div>
+    } @else {
+        @if (hasActiveSubscription()) {
+        <!-- Affichage de l'abonnement en cours -->
+        <div class="space-y-6">
+            <!-- En-tête avec badge actif -->
+            <div class="bg-gradient-to-r bg-gray-100 rounded-xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-[#ff5c01] rounded-full flex items-center justify-center">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M19.0006 18.8823H5.00003C4.44773 18.8823 4 19.3564 4 19.9412C4 20.526 4.44773 21 5.00003 21H19.0006C19.5529 21 20.0006 20.526 20.0006 19.9412C20.0006 19.3564 19.5529 18.8823 19.0006 18.8823Z" />
+                                <path
+                                    d="M20.9938 6.29224L19.9957 15.8221C19.9382 16.3588 19.511 16.7641 18.9998 16.7641H5.00012C4.49112 16.7641 4.06179 16.3588 4.00647 15.8221L3.00617 6.29224C2.9619 5.8728 3.15887 5.46508 3.5041 5.25653C3.85155 5.04798 4.28088 5.0761 4.59956 5.32917L7.82618 7.89032L11.2188 3.39601C11.4091 3.14528 11.6968 3 12 3C12.3054 3 12.5909 3.14528 12.7812 3.39601L16.176 7.89032L19.4004 5.32917C19.7191 5.0761 20.1506 5.04798 20.4959 5.25653C20.8433 5.46508 21.038 5.8728 20.9938 6.29224Z" />
+                            </svg>
+                        </div>
+
                         <div>
-                            @if (isCheckingSubscription()) {
-                            <!-- Chargement de la vérification -->
-                            <div class="flex justify-center items-center py-12">
-                                <svg class="animate-spin h-8 w-8 text-[#ff5c01]" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
+                            <h3 class="text-xl font-bold  text-black/90 ">{{ t('compte.subscription.title') }}</h3>
+                            <p class="text-black/60 mt-1">{{ t('compte.subscription.expire') }} : {{ getExpirationDate() }}</p>
+                        </div>
+                    </div>
+                    <span class="bg-gray-200 text-green-500 px-4 py-2 rounded-full text-sm font-semibold">
+                        {{ t('common.active') }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Détails de l'abonnement -->
+            @if (currentSubscription()) {
+            <div class="bg-white border-2 border-gray-100 rounded-xl p-8">
+                <h4 class="text-xl font-bold text-gray-900 mb-6">{{ t('compte.subscription.details') }}</h4>
+
+                <div class="space-y-4">
+                    <!-- Nom du plan -->
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-gray-600">{{ t('compte.subscription.planName') }}</span>
+                        <span class="text-gray-900 font-semibold">{{ getCurrentPlanName() }}</span>
+                    </div>
+
+                    <!-- Sous-titre -->
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-gray-600">{{ t('compte.subscription.subtitle') }}</span>
+                        <span class="text-gray-900 font-bold">{{ getCurrentPlanLabel() }}</span>
+                    </div>
+
+                    <!-- Statut paiement -->
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-gray-600">{{ t('compte.subscription.paymentStatus') }}</span>
+                        <span class="inline-flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span class="text-green-600 font-semibold">{{ t('common.paid') }}</span>
+                        </span>
+                    </div>
+
+                    <!-- Période -->
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-gray-600">{{ t('compte.subscription.period') }}</span>
+                        <span class="text-gray-900 font-medium">{{ getSubscriptionPeriod() }}</span>
+                    </div>
+
+                    <!-- Montant payé -->
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-gray-600">{{ t('compte.subscription.amountPaid') }}</span>
+                        <span class="text-gray-900 font-bold text-lg">{{ getCurrentPlanAmount() }}</span>
+                    </div>
+
+                    <!-- Avantages -->
+                    <div class="mt-8 p-6 bg-gray-50 rounded-lg">
+                        <h5 class="font-semibold text-gray-900 mb-4">{{ t('compte.subscription.includedBenefits') }}</h5>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
                                 </svg>
-                            </div>
-                            } @else {
-                            @if (hasActiveSubscription()) {
-                            <!-- Affichage de l'abonnement en cours -->
-                            <div class="space-y-6">
-                                <!-- En-tête avec badge actif -->
-                                <div class="bg-gradient-to-r bg-gray-100 rounded-xl p-6 text-white">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-4">
-                                            <div
-                                                class="w-16 h-16 bg-[#ff5c01] rounded-full flex items-center justify-center">
-                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="white"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M19.0006 18.8823H5.00003C4.44773 18.8823 4 19.3564 4 19.9412C4 20.526 4.44773 21 5.00003 21H19.0006C19.5529 21 20.0006 20.526 20.0006 19.9412C20.0006 19.3564 19.5529 18.8823 19.0006 18.8823Z" />
-                                                    <path
-                                                        d="M20.9938 6.29224L19.9957 15.8221C19.9382 16.3588 19.511 16.7641 18.9998 16.7641H5.00012C4.49112 16.7641 4.06179 16.3588 4.00647 15.8221L3.00617 6.29224C2.9619 5.8728 3.15887 5.46508 3.5041 5.25653C3.85155 5.04798 4.28088 5.0761 4.59956 5.32917L7.82618 7.89032L11.2188 3.39601C11.4091 3.14528 11.6968 3 12 3C12.3054 3 12.5909 3.14528 12.7812 3.39601L16.176 7.89032L19.4004 5.32917C19.7191 5.0761 20.1506 5.04798 20.4959 5.25653C20.8433 5.46508 21.038 5.8728 20.9938 6.29224Z" />
-                                                </svg>
-                                            </div>
-
-                                            <div>
-                                                <h3 class="text-xl font-bold  text-black/90 ">{{
-                                                    t('compte.subscription.title') }}</h3>
-                                                <p class="text-black/60 mt-1">{{ t('compte.subscription.expire') }} : {{
-                                                    getExpirationDate()
-                                                    }}</p>
-                                            </div>
-                                        </div>
-                                        <span
-                                            class="bg-gray-200 text-green-500 px-4 py-2 rounded-full text-sm font-semibold">
-                                            {{ t('common.active') }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Bouton pour voir tous les abonnements -->
-                                <!-- <div class="flex justify-end">
-                                    <button (click)="navigateToSubscriptions()"
-                                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                        </svg>
-                                        Voir mes offres
-                                    </button>
-                                </div> -->
-
-                                <!-- Détails de l'abonnement -->
-                                <div class="bg-white border-2 border-gray-100 rounded-xl p-8">
-                                    <h4 class="text-xl font-bold text-gray-900 mb-6">{{ t('compte.subscription.details')
-                                        }}</h4>
-
-                                    <div class="space-y-4">
-                                        <!-- Nom du plan -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.planName') }}</span>
-                                            <span class="text-gray-900 font-semibold">{{ getCurrentPlanName() }}</span>
-                                        </div>
-
-                                        <!-- Sous-titre -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.subtitle') }}</span>
-                                            <span class="text-gray-900 font-bold">{{ getCurrentPlanLabel() }}</span>
-                                        </div>
-
-                                        <!-- Statut paiement -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.paymentStatus')
-                                                }}</span>
-                                            <span class="inline-flex items-center gap-2">
-                                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                                <span class="text-green-600 font-semibold">{{ t('common.paid') }}</span>
-                                            </span>
-                                        </div>
-
-                                        <!-- Période -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.period') }}</span>
-                                            <span class="text-gray-900 font-medium">{{ getSubscriptionPeriod() }}</span>
-                                        </div>
-
-                                        <!-- Montant payé -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.amountPaid') }}</span>
-                                            <span class="text-gray-900 font-bold text-lg">{{ getCurrentPlanAmount()
-                                                }}</span>
-                                        </div>
-
-                                        <!-- Mode de paiement -->
-                                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                                            <span class="text-gray-600">{{ t('compte.subscription.paymentMethod')
-                                                }}</span>
-                                            <span class="text-gray-900 font-medium">{{ getPaymentMethod() }}</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Avantages -->
-                                    <div class="mt-8 p-6 bg-gray-50 rounded-lg">
-                                        <h5 class="font-semibold text-gray-900 mb-4">{{
-                                            t('compte.subscription.includedBenefits') }}</h5>
-                                        <ul class="space-y-3">
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0"
-                                                    fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-gray-700">
-                                                    @if (isUnlimitedProjects()) {
-                                                    {{ t('compte.subscription.unlimitedProjects') }}
-                                                    } @else {
-                                                    {{ t('compte.subscription.maxProjects', {limit: getProjectLimit()})
-                                                    }}
-                                                    }
-                                                </span>
-                                            </li>
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0"
-                                                    fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-gray-700">MOA, BET, Chef & Ouvrier</span>
-                                            </li>
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0"
-                                                    fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-gray-700">{{ t('compte.subscription.prioritySupport')
-                                                    }}</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            } @else {
-                            <!-- Affichage des plans disponibles -->
-                            @if (isLoadingPlans()) {
-                            <div class="flex justify-center items-center py-12">
-                                <svg class="animate-spin h-8 w-8 text-[#ff5c01]" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                            </div>
-                            } @else {
-                            <!-- Sélecteur de période -->
-                            <div class="flex items-center justify-center gap-4 mb-8">
-
-                                <!-- Label Mensuel -->
-                                <span class="text-sm font-medium text-gray-700"
-                                    [class.text-gray-900]="!isYearlyBilling()">
-                                    {{ t('compte.subscription.monthly') }}
-                                </span>
-
-                                <!-- TOGGLE SIMPLIFIÉ AVEC SLIDER -->
-                                <button type="button" (click)="toggleBillingPeriod()"
-                                    class="relative w-14 h-7 rounded-full transition-colors duration-300"
-                                    [ngClass]="isYearlyBilling() ? 'bg-orange-500' : 'bg-gray-200'">
-
-                                    <div class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
-                                        [class.translate-x-7]="isYearlyBilling()">
-                                    </div>
-                                </button>
-
-                                <!-- Label Annuel + Remise -->
-                                <span class="text-sm font-medium text-gray-700 flex items-center gap-2"
-                                    [class.text-gray-900]="isYearlyBilling()">
-
-                                    {{ t('compte.subscription.yearly') }}
-
-                                    @if (basicPlan() && basicPlan()!.yearlyDiscountRate > 0) {
-                                    <span
-                                        class="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded">
-                                        {{ t('compte.subscription.save', {percent: basicPlan()!.yearlyDiscountRate}) }}
-                                    </span>
+                                <span class="text-gray-700">
+                                    @if (isUnlimitedProjects()) {
+                                    {{ t('compte.subscription.unlimitedProjects') }}
+                                    } @else {
+                                    {{ t('compte.subscription.maxProjects', {limit: getProjectLimit()}) }}
                                     }
                                 </span>
-                            </div>
-
-                            <!-- Cartes d'abonnement -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                                <!-- Carte Basic -->
-                                @if (basicPlan()) {
-                                <div
-                                    class="relative border-2 border-[#ff5c01] bg-white rounded-2xl shadow-lg overflow-hidden">
-                                    <div class="p-8">
-                                        <div class="text-center mb-6">
-                                            <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                                                {{ getPlanLabel(basicPlan()!) }}
-                                            </h3>
-                                            <div class="flex items-baseline justify-center gap-1 mb-4">
-                                                <span class="text-3xl font-bold text-gray-900">
-                                                    {{ formatPrice(basicPlan()!) }}
-                                                </span>
-                                                <span class="text-gray-600">FCFA</span>
-                                                <span class="text-gray-500 text-sm">/ {{ isYearlyBilling() ?
-                                                    t('compte.subscription.perMonthYearly') :
-                                                    t('compte.subscription.perMonth') }}</span>
-                                            </div>
-
-                                            @if (isYearlyBilling() && basicPlan()!.yearlyDiscountRate > 0) {
-                                            <div class="text-sm text-gray-500">
-                                                <span class="line-through">{{ (basicPlan()!.totalCost *
-                                                    12).toLocaleString('fr-FR') }} FCFA/an</span>
-                                                <span class="ml-2 text-green-600 font-semibold">
-                                                    {{ t('compte.subscription.save', {percent:
-                                                    basicPlan()!.yearlyDiscountRate}) }}
-                                                </span>
-                                            </div>
-                                            }
-                                        </div>
-
-                                        <div class="mb-6">
-                                            <p class="text-gray-700 text-sm text-center">
-                                                {{ getPlanDescription(basicPlan()!) }}
-                                            </p>
-                                        </div>
-
-                                        <ul class="space-y-4 mb-8">
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="text-gray-700">
-                                                    @if (basicPlan()!.unlimitedProjects) {
-                                                    {{ t('compte.subscription.unlimitedProjects') }}
-                                                    } @else {
-                                                    {{ t('compte.subscription.maxProjects', {limit:
-                                                    basicPlan()!.projectLimit}) }}
-                                                    }
-                                                </span>
-                                            </li>
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="text-gray-700">
-                                                    Paiement en {{ basicPlan()!.installmentCount }} fois
-                                                </span>
-                                            </li>
-                                            @if (basicPlan()!.yearlyDiscountRate > 0) {
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="text-gray-700">
-                                                    {{ t('compte.subscription.save', {percent:
-                                                    basicPlan()!.yearlyDiscountRate}) }}
-                                                </span>
-                                            </li>
-                                            }
-                                        </ul>
-
-                                        <button (click)="subscribeToPlan('Basic')" [disabled]="isProcessingBasic()"
-                                            [class.opacity-50]="isProcessingBasic()"
-                                            [class.cursor-not-allowed]="isProcessingBasic()"
-                                            class="w-full py-3 border-2 border-[#ff5c01] text-[#ff5c01] font-semibold rounded-full hover:bg-[#ff5c01] hover:text-white transition-colors flex items-center justify-center gap-2">
-                                            @if (isProcessingBasic()) {
-                                            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                    stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                </path>
-                                            </svg>
-                                            <span>{{ t('compte.subscription.processing') }}</span>
-                                            } @else {
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                                                </path>
-                                            </svg>
-                                            <span>{{ t('compte.subscription.subscribe') }}</span>
-                                            }
-                                        </button>
-                                    </div>
-                                </div>
-                                } @else {
-                                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-2xl">
-                                    <p class="text-gray-500">Plan Basic non disponible</p>
-                                </div>
-                                }
-
-                                <!-- Carte Premium -->
-                                @if (premiumPlan()) {
-                                <div class="relative bg-gradient-to-br shadow rounded-2xl shadow-lg overflow-hidden">
-                                    <div
-                                        class="absolute top-4 right-4 bg-[#ff5c01] text-white text-xs font-bold px-3 py-1 rounded-full">
-                                        POPULAIRE
-                                    </div>
-
-                                    <div class="p-8">
-                                        <div class="text-center mb-6">
-                                            <h3 class="text-2xl font-bold mb-2">
-                                                {{ getPlanLabel(premiumPlan()!) }}
-                                            </h3>
-                                            <div class="flex items-baseline justify-center gap-1 mb-4">
-                                                <span class="text-3xl font-bold">
-                                                    {{ formatPrice(premiumPlan()!) }}
-                                                </span>
-                                                <span class="">FCFA</span>
-                                                <span class=" text-sm">/ {{ isYearlyBilling() ? 'mois (annuel)' : 'mois'
-                                                    }}</span>
-                                            </div>
-
-                                            @if (isYearlyBilling() && premiumPlan()!.yearlyDiscountRate > 0) {
-                                            <div class="text-sm ">
-                                                <span class="line-through">{{ (premiumPlan()!.totalCost *
-                                                    12).toLocaleString('fr-FR') }} FCFA/an</span>
-                                                <span class="ml-2  font-semibold">
-                                                    Économisez {{ premiumPlan()!.yearlyDiscountRate }}%
-                                                </span>
-                                            </div>
-                                            }
-                                        </div>
-
-                                        <div class="mb-6">
-                                            <p class=" text-sm text-center">
-                                                {{ getPlanDescription(premiumPlan()!) }}
-                                            </p>
-                                        </div>
-
-                                        <ul class="space-y-4 mb-8">
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="text-black">
-                                                    @if (premiumPlan()!.unlimitedProjects) {
-                                                    Projets illimités
-                                                    } @else {
-                                                    {{ premiumPlan()!.projectLimit }} projet{{
-                                                    premiumPlan()!.projectLimit
-                                                    > 1 ? 's' : '' }} maximum
-                                                    }
-                                                </span>
-                                            </li>
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="">
-                                                    Paiement en {{ premiumPlan()!.installmentCount }} fois
-                                                </span>
-                                            </li>
-                                            @if (premiumPlan()!.yearlyDiscountRate > 0) {
-                                            <li class="flex items-start gap-3">
-                                                <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span class="">
-                                                    {{ premiumPlan()!.yearlyDiscountRate }}% de réduction en paiement
-                                                    annuel
-                                                </span>
-                                            </li>
-                                            }
-                                        </ul>
-
-                                        <button (click)="subscribeToPlan('Premium')" [disabled]="isProcessingPremium()"
-                                            [class.opacity-50]="isProcessingPremium()"
-                                            [class.cursor-not-allowed]="isProcessingPremium()"
-                                            class="w-full py-3 bg-[#ff5c01] text-white font-semibold rounded-full transition-colors flex items-center justify-center gap-2">
-                                            @if (isProcessingPremium()) {
-                                            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                    stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                </path>
-                                            </svg>
-                                            <span>Traitement...</span>
-                                            } @else {
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                                                </path>
-                                            </svg>
-                                            <span>Passer à Premium</span>
-                                            }
-                                        </button>
-                                    </div>
-                                </div>
-                                } @else {
-                                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-2xl">
-                                    <p class="text-gray-500">Plan Premium non disponible</p>
-                                </div>
-                                }
-                            </div>
-                            }
-                            }
-                            }
-                        </div>
-                        }
-
-                        @if (activeTab() === 'factures') {
-                        <!-- Contenu Factures -->
-                        <!-- Barre de recherche et filtre -->
-                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                            <div class="flex-1 relative">
-                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
                                 </svg>
-                                <input type="text" [placeholder]="t('compte.invoices.searchPlaceholder')"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent" />
-                            </div>
-                            <select
-                                class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent bg-white">
-                                <option value="all">{{ t('compte.invoices.allStatus') }}</option>
-                                <option value="Actif">{{ t('compte.invoices.active') }}</option>
-                                <option value="Expiré">{{ t('compte.invoices.expired') }}</option>
-                            </select>
+                                <span class="text-gray-700">MOA, BET, Chef & Ouvrier</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-[#ff5c01] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">{{ t('compte.subscription.prioritySupport') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        } @else {
+        <!-- Affichage des plans disponibles -->
+        @if (isLoadingPlans()) {
+        <div class="flex justify-center items-center py-12">
+            <svg class="animate-spin h-8 w-8 text-[#ff5c01]" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+        </div>
+        } @else {
+        <!-- Sélecteur de période -->
+        <div class="flex items-center justify-center gap-4 mb-8">
+            <!-- Label Mensuel -->
+            <span class="text-sm font-medium text-gray-700" [class.text-gray-900]="!isYearlyBilling()">
+                {{ t('compte.subscription.monthly') }}
+            </span>
+
+            <!-- TOGGLE SIMPLIFIÉ AVEC SLIDER -->
+            <button type="button" (click)="toggleBillingPeriod()"
+                class="relative w-14 h-7 rounded-full transition-colors duration-300"
+                [ngClass]="isYearlyBilling() ? 'bg-orange-500' : 'bg-gray-200'">
+                <div class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                    [class.translate-x-7]="isYearlyBilling()">
+                </div>
+            </button>
+
+            <!-- Label Annuel + Remise -->
+            <span class="text-sm font-medium text-gray-700 flex items-center gap-2"
+                [class.text-gray-900]="isYearlyBilling()">
+                {{ t('compte.subscription.yearly') }}
+                @if (basicPlan() && basicPlan()!.yearlyDiscountRate > 0) {
+                <span class="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded">
+                    {{ t('compte.subscription.save', {percent: basicPlan()!.yearlyDiscountRate}) }}
+                </span>
+                }
+            </span>
+        </div>
+
+        <!-- Cartes d'abonnement -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <!-- Carte Basic -->
+            @if (basicPlan()) {
+            <div class="relative border-2 border-[#ff5c01] bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                            {{ getPlanLabel(basicPlan()!) }}
+                        </h3>
+                        <div class="flex items-baseline justify-center gap-1 mb-4">
+                            <span class="text-3xl font-bold text-gray-900">
+                                {{ formatPrice(basicPlan()!) }}
+                            </span>
+                            <span class="text-gray-600">FCFA</span>
+                            <span class="text-gray-500 text-sm">/ {{ isYearlyBilling() ?
+                                t('compte.subscription.perMonthYearly') :
+                                t('compte.subscription.perMonth') }}</span>
                         </div>
-                        <div>
-                            @if (isLoadingFactures()) {
-                            <div class="flex justify-center py-12">
-                                <svg class="animate-spin h-10 w-10 text-[#ff5c01]" fill="none"
-                                    viewBox="0 0 24 24">...</svg>
-                            </div>
-                            } @else {
-                            <div class="bg-gray-50 rounded-lg overflow-hidden">
-                                <table class="w-full">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('compte.invoices.reference') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('common.date') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('compte.invoices.amount') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('compte.invoices.plan') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('compte.invoices.status') }}</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                                {{ t('common.actions') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @for (facture of factures(); track facture.id) {
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{
-                                                facture.invoiceNumber }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(facture.createdAt)
-                                                }}</td>
-                                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{
-                                                formatMontant(facture.amount) }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ facture.planLabel }}</td>
-                                            <td class="px-6 py-4">
-                                                @if (facture.paid) {
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{{
-                                                    t('common.paid') }}</span>
-                                                } @else {
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">{{
-                                                    t('compte.invoices.pending') }}</span>
-                                                }
-                                            </td>
-                                            <td class="px-6 py-4 text-sm">
-                                                @if (facture.paid) {
-                                                <button (click)="telechargerFacturePDF(facture)"
-                                                    class="inline-flex items-center gap-2 text-[#ff5c01] hover:text-[#e54f00] font-medium transition-colors duration-200">
 
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                                        </path>
-                                                    </svg>
-
-
-                                                </button>
-                                                } @else {
-                                                <button (click)="payerFacture(facture.id.toString())"
-                                                    class="text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium">
-                                                    {{ t('compte.invoices.payNow') }}
-                                                </button>
-                                                }
-                                            </td>
-
-                                        </tr>
-                                        } @empty {
-                                        <tr>
-                                            <td colspan="6" class="text-center py-12 text-gray-500">{{
-                                                t('compte.invoices.noInvoices') }}</td>
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            <!-- ... inchangé ... -->
-                            }
+                        @if (isYearlyBilling() && basicPlan()!.yearlyDiscountRate > 0) {
+                        <div class="text-sm text-gray-500">
+                            <span class="line-through">{{ (basicPlan()!.totalCost * 12).toLocaleString('fr-FR') }} FCFA/an</span>
+                            <span class="ml-2 text-green-600 font-semibold">
+                                {{ t('compte.subscription.save', {percent: basicPlan()!.yearlyDiscountRate}) }}
+                            </span>
                         </div>
                         }
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-gray-700 text-sm text-center">
+                            {{ getPlanDescription(basicPlan()!) }}
+                        </p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">
+                                @if (basicPlan()!.unlimitedProjects) {
+                                {{ t('compte.subscription.unlimitedProjects') }}
+                                } @else {
+                                {{ t('compte.subscription.maxProjects', {limit: basicPlan()!.projectLimit}) }}
+                                }
+                            </span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">
+                                Paiement en {{ basicPlan()!.installmentCount }} fois
+                            </span>
+                        </li>
+                        @if (basicPlan()!.yearlyDiscountRate > 0) {
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700">
+                                {{ t('compte.subscription.save', {percent: basicPlan()!.yearlyDiscountRate}) }}
+                            </span>
+                        </li>
+                        }
+                    </ul>
+
+                    <button (click)="subscribeToPlan('Basic')" [disabled]="isProcessingBasic()"
+                        [class.opacity-50]="isProcessingBasic()"
+                        [class.cursor-not-allowed]="isProcessingBasic()"
+                        class="w-full py-3 border-2 border-[#ff5c01] text-[#ff5c01] font-semibold rounded-full hover:bg-[#ff5c01] hover:text-white transition-colors flex items-center justify-center gap-2">
+                        @if (isProcessingBasic()) {
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>{{ t('compte.subscription.processing') }}</span>
+                        } @else {
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                            </path>
+                        </svg>
+                        <span>{{ t('compte.subscription.subscribe') }}</span>
+                        }
+                    </button>
+                </div>
+            </div>
+            } @else {
+            <div class="flex items-center justify-center p-8 bg-gray-50 rounded-2xl">
+                <p class="text-gray-500">Plan Basic non disponible</p>
+            </div>
+            }
+
+            <!-- Carte Premium -->
+            @if (premiumPlan()) {
+            <div class="relative bg-gradient-to-br shadow rounded-2xl shadow-lg overflow-hidden">
+                <div class="absolute top-4 right-4 bg-[#ff5c01] text-white text-xs font-bold px-3 py-1 rounded-full">
+                    POPULAIRE
+                </div>
+
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold mb-2">
+                            {{ getPlanLabel(premiumPlan()!) }}
+                        </h3>
+                        <div class="flex items-baseline justify-center gap-1 mb-4">
+                            <span class="text-3xl font-bold">
+                                {{ formatPrice(premiumPlan()!) }}
+                            </span>
+                            <span class="">FCFA</span>
+                            <span class=" text-sm">/ {{ isYearlyBilling() ? 'mois (annuel)' : 'mois' }}</span>
+                        </div>
+
+                        @if (isYearlyBilling() && premiumPlan()!.yearlyDiscountRate > 0) {
+                        <div class="text-sm ">
+                            <span class="line-through">{{ (premiumPlan()!.totalCost * 12).toLocaleString('fr-FR') }} FCFA/an</span>
+                            <span class="ml-2  font-semibold">
+                                Économisez {{ premiumPlan()!.yearlyDiscountRate }}%
+                            </span>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="mb-6">
+                        <p class=" text-sm text-center">
+                            {{ getPlanDescription(premiumPlan()!) }}
+                        </p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-black">
+                                @if (premiumPlan()!.unlimitedProjects) {
+                                Projets illimités
+                                } @else {
+                                {{ premiumPlan()!.projectLimit }} projet{{ premiumPlan()!.projectLimit > 1 ? 's' : '' }} maximum
+                                }
+                            </span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="">
+                                Paiement en {{ premiumPlan()!.installmentCount }} fois
+                            </span>
+                        </li>
+                        @if (premiumPlan()!.yearlyDiscountRate > 0) {
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5  mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="">
+                                {{ premiumPlan()!.yearlyDiscountRate }}% de réduction en paiement annuel
+                            </span>
+                        </li>
+                        }
+                    </ul>
+
+                    <button (click)="subscribeToPlan('Premium')"
+                        [disabled]="isProcessingPremium()"
+                        [class.opacity-50]="isProcessingPremium()"
+                        [class.cursor-not-allowed]="isProcessingPremium()"
+                        class="w-full py-3 bg-[#ff5c01] text-white font-semibold rounded-full transition-colors flex items-center justify-center gap-2">
+                        @if (isProcessingPremium()) {
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>Traitement...</span>
+                        } @else {
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                            </path>
+                        </svg>
+                        <span>Passer à Premium</span>
+                        }
+                    </button>
+                </div>
+            </div>
+            } @else {
+            <div class="flex items-center justify-center p-8 bg-gray-50 rounded-2xl">
+                <p class="text-gray-500">Plan Premium non disponible</p>
+            </div>
+            }
+        </div>
+        }
+        }
+    }
+</div>
+}
+
+                            @if (activeTab() === 'factures') {
+                            <!-- Contenu Factures -->
+                            <!-- Barre de recherche et filtre -->
+                            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                                <div class="flex-1 relative">
+                                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <input type="text" [placeholder]="t('compte.invoices.searchPlaceholder')"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent" />
+                                </div>
+                                <select
+                                    class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff5c01] focus:border-transparent bg-white">
+                                    <option value="all">{{ t('compte.invoices.allStatus') }}</option>
+                                    <option value="Actif">{{ t('compte.invoices.active') }}</option>
+                                    <option value="Expiré">{{ t('compte.invoices.expired') }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                @if (isLoadingFactures()) {
+                                <div class="flex justify-center py-12">
+                                    <svg class="animate-spin h-10 w-10 text-[#ff5c01]" fill="none"
+                                        viewBox="0 0 24 24">...</svg>
+                                </div>
+                                } @else {
+                                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('compte.invoices.reference') }}</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('common.date') }}</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('compte.invoices.amount') }}</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('compte.invoices.plan') }}</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('compte.invoices.status') }}</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                    {{ t('common.actions') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @for (facture of factures(); track facture.id) {
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{
+                                                    facture.invoiceNumber }}</td>
+                                                <td class="px-6 py-4 text-sm text-gray-600">{{
+                                                    formatDate(facture.createdAt)
+                                                    }}</td>
+                                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{
+                                                    formatMontant(facture.amount) }}</td>
+                                                <td class="px-6 py-4 text-sm text-gray-600">{{ facture.planLabel }}</td>
+                                                <td class="px-6 py-4">
+                                                    @if (facture.paid) {
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{{
+                                                        t('common.paid') }}</span>
+                                                    } @else {
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">{{
+                                                        t('compte.invoices.pending') }}</span>
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 text-sm">
+                                                    @if (facture.paid) {
+                                                    <button (click)="telechargerFacturePDF(facture)"
+                                                        class="inline-flex items-center gap-2 text-[#ff5c01] hover:text-[#e54f00] font-medium transition-colors duration-200">
+
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                            </path>
+                                                        </svg>
+
+
+                                                    </button>
+                                                    } @else {
+                                                    <button (click)="payerFacture(facture.id.toString())"
+                                                        class="text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium">
+                                                        {{ t('compte.invoices.payNow') }}
+                                                    </button>
+                                                    }
+                                                </td>
+
+                                            </tr>
+                                            } @empty {
+                                            <tr>
+                                                <td colspan="6" class="text-center py-12 text-gray-500">{{
+                                                    t('compte.invoices.noInvoices') }}</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                <!-- ... inchangé ... -->
+                                }
+                            </div>
+                            }
+                        </div>
+                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>

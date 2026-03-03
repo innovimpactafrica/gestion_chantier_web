@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EtudeBetService, Etude, EtudeResponse, CreateEtudeRequest, UpdateBetRequest } from '../../../../../services/etude-bet.service';
@@ -8,6 +8,8 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { DemandeService } from '../../../../../services/demande.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { inject } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 interface EtudeBET {
   id: number;
@@ -54,7 +56,7 @@ interface UserPageResponse {
   templateUrl: './etude-bet.component.html',
   styleUrls: ['./etude-bet.component.css']
 })
-export class EtudeBetComponent implements OnInit {
+export class EtudeBetComponent implements OnInit, OnDestroy {
   private languageService = inject(LanguageService);
 
   // Translation helper
@@ -91,6 +93,7 @@ export class EtudeBetComponent implements OnInit {
   // Forms data
   selectedEtude: EtudeBET | null = null;
   selectedReport: { id: number; nom: string; taille: string; dateSubmission: string; url: string; versionNumber: number } | null = null;
+  // l'id du client doit etre recuperer et sera l'id du current user
 
   newEtude: CreateEtudeRequest = {
     title: '',
@@ -131,6 +134,23 @@ export class EtudeBetComponent implements OnInit {
   availableBETs: User[] = [];
   loadingBETs: boolean = false;
 
+  // BET Auto-completion with infinite scroll
+  betSearchKeyword = '';
+  betSearchSubject = new Subject<string>();
+  betPage = 0;
+  betPageSize = 10;
+  betHasMore = true;
+  betLoading = false;
+  showBetDropdown = false;
+  private searchSubscription?: Subscription;
+  // BET Auto-complétion pour le modal EDIT
+editBetSearchKeyword: string = '';
+showEditBetDropdown: boolean = false;
+editSelectedBET: User | null = null;
+
+  // Current user ID
+  currentUserId: number = 0;
+
   Math: any = Math;
 
   constructor(
@@ -143,21 +163,156 @@ export class EtudeBetComponent implements OnInit {
 
   ngOnInit() {
     this.getPropertyIdFromRoute();
+    this.loadCurrentUser();
+    this.setupBETSearch();
     this.loadBETUsers();
   }
-  // 4. Ajouter la méthode pour charger les utilisateurs BET
+
+  ngOnDestroy() {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Charge l'utilisateur connecté et récupère son ID
+   */
+  private loadCurrentUser(): void {
+    const currentUser = this.authService.currentUser();
+    if (currentUser && currentUser.id) {
+      this.currentUserId = currentUser.id;
+      this.newEtude.clientId = currentUser.id;
+      this.editEtude.clientId = currentUser.id;
+    } else {
+      // Si pas dans le cache, charger depuis l'API
+      this.authService.getCurrentUser().subscribe({
+        next: (user) => {
+          if (user && user.id) {
+            this.currentUserId = user.id;
+            this.newEtude.clientId = user.id;
+            this.editEtude.clientId = user.id;
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement de l\'utilisateur:', error);
+        }
+      });
+    }
+  }
+
+  /**
+   * Configure la recherche BET avec debounce
+   */
+  private setupBETSearch(): void {
+    this.searchSubscription = this.betSearchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(keyword => {
+        this.betPage = 0;
+        this.availableBETs = [];
+        this.betHasMore = true;
+        this.loadBETUsers();
+      });
+  }
+
+  /**
+   * Appelé quand l'utilisateur tape dans le champ de recherche BET
+   */
+  onBETSearchChange(): void {
+    this.betSearchSubject.next(this.betSearchKeyword);
+    this.showBetDropdown = true;
+  }
+
+  /**
+   * Sélectionne un BET depuis le dropdown
+   */
+  selectBET(bet: User): void {
+    this.newEtude.betId = bet.id;
+    this.betSearchKeyword = `${bet.prenom} ${bet.nom}`;
+    this.showBetDropdown = false;
+  }
+
+  /**
+   * Gère le scroll infini dans le dropdown BET
+   */
+  onBETScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+    const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+
+    if (atBottom && this.betHasMore && !this.betLoading) {
+      this.betPage++;
+      this.loadBETUsers();
+    }
+  }
+
+  /**
+   * Affiche le dropdown BET
+   */
+  focusBETInput(): void {
+    this.showBetDropdown = true;
+    if (this.availableBETs.length === 0) {
+      this.loadBETUsers();
+    }
+  }
+  // ─── EDIT BET auto-complétion ───────────────────────────────────────────────
+
+focusEditBETInput(): void {
+  this.showEditBetDropdown = true;
+  if (this.availableBETs.length === 0) {
+    this.betPage = 0;
+    this.loadBETUsers();
+  }
+}
+
+onEditBETSearchChange(): void {
+  this.betPage = 0;
+  this.availableBETs = [];
+  this.betHasMore = true;
+  this.betSearchSubject.next(this.editBetSearchKeyword);
+  this.showEditBetDropdown = true;
+}
+
+selectEditBET(bet: User): void {
+  this.editSelectedBET = bet;
+  this.editEtude.betId = bet.id;
+  this.editBetSearchKeyword = '';
+  this.showEditBetDropdown = false;
+}
+
+clearEditBET(): void {
+  this.editSelectedBET = null;
+  this.editEtude.betId = 0;
+  this.editBetSearchKeyword = '';
+  this.availableBETs = [];
+}
+  /**
+   * Charge les utilisateurs BET avec pagination et recherche
+   */
   private loadBETUsers(): void {
+    if (this.betLoading) return;
+
+    this.betLoading = true;
     this.loadingBETs = true;
 
-    // Assurez-vous d'injecter UserService dans le constructor
-    this.userService.getUserByProfil('BET', '', 0, 100).subscribe({
+    this.userService.getUserByProfil('BET', this.betSearchKeyword, this.betPage, this.betPageSize).subscribe({
       next: (response: UserPageResponse) => {
-        this.availableBETs = response.content;
+        if (this.betPage === 0) {
+          this.availableBETs = response.content;
+        } else {
+          this.availableBETs = [...this.availableBETs, ...response.content];
+        }
+
+        this.betHasMore = response.number < response.totalPages - 1;
+        this.betLoading = false;
         this.loadingBETs = false;
-        console.log('BETs chargés:', this.availableBETs);
+
+        console.log(`BETs chargés (page ${this.betPage}):`, response.content.length);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des BETs:', error);
+        this.betLoading = false;
         this.loadingBETs = false;
       }
     });
@@ -381,23 +536,41 @@ export class EtudeBetComponent implements OnInit {
       title: '',
       description: '',
       propertyId: this.currentPropertyId,
-      clientId: 1,
+      clientId: this.currentUserId,
       betId: 0
     };
+    this.betSearchKeyword = '';
+    this.betPage = 0;
+    this.availableBETs = [];
+    this.betHasMore = true;
     this.showCreateModal = true;
   }
 
-  openEditModal(etude: EtudeBET) {
-    this.editEtude = {
-      title: etude.titre,
-      description: etude.description,
-      propertyId: etude.propertyId,
-      clientId: 1,
-      betId: etude.betId
-    };
-    this.selectedEtude = etude;
-    this.showEditModal = true;
-  }
+openEditModal(etude: EtudeBET) {
+  this.editEtude = {
+    title: etude.titre,
+    description: etude.description,
+    propertyId: etude.propertyId,
+    clientId: this.currentUserId,
+    betId: etude.betId
+  };
+  this.selectedEtude = etude;
+
+  // Pré-remplir le BET sélectionné depuis les données de l'étude
+  this.editSelectedBET = {
+    id: etude.betId,
+    nom: etude.nomBET.split(' ').slice(1).join(' ') || etude.nomBET,
+    prenom: etude.nomBET.split(' ')[0] || '',
+    email: '',
+    profil: 'BET'
+  };
+
+  this.editBetSearchKeyword = '';
+  this.showEditBetDropdown = false;
+  this.betPage = 0;
+  this.availableBETs = [];
+  this.showEditModal = true;
+}
 
   /**
    * Ouvre le modal de détail et charge les commentaires
@@ -946,14 +1119,5 @@ export class EtudeBetComponent implements OnInit {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 
-  /**
-   * Formate une date en string
-   */
-  // private formatDate(date: Date): string {
-  //   return date.toLocaleDateString('fr-FR', {
-  //     day: '2-digit',
-  //     month: '2-digit',
-  //     year: 'numeric'
-  //   });
-  // }
+
 }

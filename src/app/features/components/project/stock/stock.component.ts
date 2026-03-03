@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -268,6 +268,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   // Dans stock.component.ts
   suppliers: User[] = []; // Liste des fournisseurs
   suppliersLoading: boolean = false;
+  supplierSearchKeyword: string = '';
+  showSupplierDropdown: boolean = false;
+  selectedSupplier: User | null = null;
+  supplierPage: number = 0;
   showMenu = false;
   // Ajouter ces propriétés dans la classe StockComponent
   consommationData: ConsommationData[] = [];
@@ -309,6 +313,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     private statistiqueService: StatistiqueService,
     private userService: UserService,
     private commandeService: CommandeService,
+    private cdr: ChangeDetectorRef, // ✅ AJOUTER ICI
     private toastService: ToastService,
 
     @Inject(PLATFORM_ID) private platformId: Object
@@ -375,42 +380,13 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadStatistiques();
       this.loadSuppliers();
 
-      // ✅ TEST MANUEL DES CITATIONS - RETIRER APRÈS DEBUG
-      setTimeout(() => {
-        console.log('🧪 TEST MANUEL - Vérification des propriétés:');
-        console.log('loadingQuotes:', this.loadingQuotes);
-        console.log('quotesError:', this.quotesError);
-        console.log('orderQuotes:', this.orderQuotes);
-        console.log('selectedQuote:', this.selectedQuote);
-        console.log('showOrderDetailsModal:', this.showOrderDetailsModal);
-
-        // Test de modification manuelle
-        this.loadingQuotes = false;
-        this.orderQuotes = [{
-          id: 999,
-          uploadedAt: [2026, 1, 29, 12, 10, 19],
-          totalAmount: 12345,
-          generedBy: {
-            id: 14,
-            nom: 'TEST',
-            prenom: 'User',
-            telephone: '777777777'
-          }
-        }];
-        this.selectedQuote = this.orderQuotes[0];
-
-        console.log('🧪 Après modification manuelle:');
-        console.log('orderQuotes:', this.orderQuotes);
-        console.log('selectedQuote:', this.selectedQuote);
-      }, 2000);
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
   printOrder(order: Order): void {
-    // console.log('Impression de la commande:', order);
-    // Logique d'impression à implémenter
-    this.showSuccessMessage('Fonctionnalité d\'impression en cours de développement');
+    // Télécharger la facture PDF
+    this.telechargerFacturePDF(order.id);
   }
   loadStatistiques(): void {
     // Charger données de consommation
@@ -519,14 +495,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.approvingOrder = true;
 
-    console.log('📝 Approbation de la commande:', this.orderToApprove.id);
-    console.log('💰 Avec la citation:', this.selectedQuoteForApproval.id);
+
 
     this.commandeService.updateStatusOrder(this.orderToApprove.id, 'APPROVED')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedOrder) => {
-          console.log('✅ Commande approuvée:', updatedOrder);
           this.approvingOrder = false;
           this.showApproveConfirmModal = false;
 
@@ -575,16 +549,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ===== MÉTHODE canApproveOrder() - CORRIGER =====
   canApproveOrder(order: Order | null, hasQuotes: boolean): boolean {
-    console.log('🔍 Vérification approbation possible:', {
-      order: order,
-      hasQuotes: hasQuotes,
-      orderQuotesLength: this.orderQuotes.length,
-      selectedQuote: this.selectedQuote,
-      orderStatus: order?.status
-    });
+
 
     if (!order || !hasQuotes || this.orderQuotes.length === 0) {
-      console.log('❌ Pas de commande ou pas de citations');
       return false;
     }
 
@@ -592,7 +559,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     const approvableStatuses = ['PENDING', 'IN_PROGRESS'];
 
     const canApprove = approvableStatuses.includes(order.status);
-    console.log('✅ Peut approuver:', canApprove);
 
     return canApprove;
   }
@@ -927,25 +893,57 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   // ✅ CORRIGER addMaterialToOrder
-  loadSuppliers(): void {
+  loadSuppliers(keyword: string = '', page: number = 0, append: boolean = false): void {
     this.suppliersLoading = true;
-    console.log('🔄 Chargement des fournisseurs...');
 
-    this.userService.getUserByProfil('SUPPLIER', '', 0, 1000)
+    this.userService.getUserByProfil('SUPPLIER', keyword, page, 10)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          this.suppliers = response.content || [];
-          // Fournisseurs chargés avec succès
+          if (append) {
+            this.suppliers = [...this.suppliers, ...(response.content || [])];
+          } else {
+            this.suppliers = response.content || [];
+          }
           this.suppliersLoading = false;
         },
         error: (error: any) => {
-          // Erreur gérée par showErrorMessage ci-dessous
           this.showErrorMessage('Erreur lors du chargement des fournisseurs');
           this.suppliersLoading = false;
-          this.suppliers = [];
+          if (!append) this.suppliers = [];
         }
       });
+  }
+
+  onSupplierSearch(keyword: string): void {
+    this.supplierSearchKeyword = keyword;
+    this.supplierPage = 0;
+    this.showSupplierDropdown = true;
+    this.loadSuppliers(keyword, 0, false);
+  }
+
+  focusSupplierInput(): void {
+    this.showSupplierDropdown = true;
+    if (this.suppliers.length === 0) {
+      this.loadSuppliers(this.supplierSearchKeyword, 0, false);
+    }
+  }
+
+  selectSupplier(supplier: User): void {
+    this.selectedSupplier = supplier;
+    this.supplierSearchKeyword = `${supplier.prenom} ${supplier.nom}`;
+    this.orderForm.get('supplierId')?.setValue(supplier.id);
+    this.showSupplierDropdown = false;
+  }
+
+  onSupplierScroll(event: any): void {
+    const element = event.target;
+    if (element.scrollHeight - element.scrollTop <= element.clientHeight + 50) {
+      if (!this.suppliersLoading) {
+        this.supplierPage++;
+        this.loadSuppliers(this.supplierSearchKeyword, this.supplierPage, true);
+      }
+    }
   }
 
   // ===== MODIFIER addMaterialToOrder =====
@@ -1807,6 +1805,130 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   Math = Math;
 
+  /**
+   * Télécharge la facture PDF pour une commande donnée
+   */
+  telechargerFacturePDF(orderId: number): void {
+    if (!orderId) {
+      this.showErrorMessage('ID de commande invalide');
+      return;
+    }
+
+    // Trouver la commande
+    const order = this.orders.find(o => o.id === orderId);
+    if (!order) {
+      this.showErrorMessage('Commande introuvable');
+      return;
+    }
+
+    try {
+      // Import dynamique de jsPDF
+      import('jspdf').then((jsPDFModule) => {
+        const jsPDF = jsPDFModule.default;
+        const doc = new jsPDF();
+
+        // Configuration
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+        let yPosition = margin;
+
+        // En-tête
+        doc.setFillColor(255, 92, 2);
+        doc.rect(0, 0, pageWidth, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('FACTURE', margin, 25);
+
+        // Numéro de commande
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        const orderNumber = `#CMD-${order.id.toString().padStart(4, '0')}`;
+        doc.text(orderNumber, pageWidth - margin - doc.getTextWidth(orderNumber), 25);
+
+        yPosition = 50;
+
+        // Informations commande
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Date de commande:', margin, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.formatDeliveryDate(order.orderDate), margin + 50, yPosition);
+
+        yPosition += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Fournisseur:', margin, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.formatSupplierName(order.supplier), margin + 50, yPosition);
+
+        yPosition += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Téléphone:', margin, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.text(order.supplier.telephone || 'N/A', margin + 50, yPosition);
+
+        yPosition += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Statut:', margin, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.getOrderStatusText(order.status), margin + 50, yPosition);
+
+        yPosition += 20;
+
+        // Tableau des matériaux
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Matériaux commandés', margin, yPosition);
+        yPosition += 10;
+
+        // En-tête du tableau
+        doc.setFillColor(240, 240, 240);
+        doc.rect(margin, yPosition - 5, pageWidth - 2 * margin, 10, 'F');
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Matériau', margin + 2, yPosition);
+        doc.text('Quantité', pageWidth - margin - 40, yPosition);
+        yPosition += 10;
+
+        // Lignes du tableau
+        doc.setFont('helvetica', 'normal');
+        if (order.materials && order.materials.length > 0) {
+          order.materials.forEach((material: any) => {
+            if (yPosition > pageHeight - 30) {
+              doc.addPage();
+              yPosition = margin;
+            }
+            doc.text(material.label || 'N/A', margin + 2, yPosition);
+            doc.text(material.quantity?.toString() || '0', pageWidth - margin - 40, yPosition);
+            yPosition += 8;
+          });
+        } else {
+          doc.setTextColor(150, 150, 150);
+          doc.text('Aucun matériau', margin + 2, yPosition);
+          yPosition += 8;
+        }
+
+        // Pied de page
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(8);
+        const footerText = `Généré le ${new Date().toLocaleDateString('fr-FR')} - BTP CLOUD`;
+        doc.text(footerText, pageWidth / 2 - doc.getTextWidth(footerText) / 2, pageHeight - 10);
+
+        // Télécharger le PDF
+        doc.save(`Facture_${orderNumber}.pdf`);
+        this.showSuccessMessage('Facture téléchargée avec succès');
+      }).catch((error) => {
+        console.error('Erreur lors du chargement de jsPDF:', error);
+        this.showErrorMessage('Erreur lors de la génération du PDF');
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      this.showErrorMessage('Erreur lors de la génération du PDF');
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -2245,70 +2367,70 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     console.log('🔍 Ouverture détails commande:', order);
+
+    // ✅ Réinitialiser AVANT d'ouvrir
+    this.orderQuotes = [];
+    this.selectedQuote = null;
+    this.loadingQuotes = false;
+    this.quotesError = null;
+
     this.selectedOrderDetails = order;
     this.showOrderDetailsModal = true;
 
-    // ✅ AJOUTER un léger délai pour s'assurer que le modal est ouvert
+    // ✅ Forcer la détection
+    this.cdr.detectChanges();
+
+    // ✅ Charger les citations après un délai
     setTimeout(() => {
       this.loadOrderQuotes(order.id);
-    }, 100);
+    }, 200); // Augmenter le délai à 200ms
   }
 
-
-  // ===== MÉTHODE loadOrderQuotes() - VÉRIFIER QU'ELLE EST BIEN PRÉSENTE =====
+  /**
+   * Charge les citations (quotes) d'une commande
+   */
   loadOrderQuotes(orderId: number): void {
-    console.log('🔄 Chargement des citations pour commande:', orderId);
+    console.log('📄 Chargement des citations pour la commande:', orderId);
 
     this.loadingQuotes = true;
     this.quotesError = null;
     this.orderQuotes = [];
-    this.selectedQuote = null; // ✅ Réinitialiser
+    this.selectedQuote = null;
 
     this.commandeService.getQuotes(orderId, 0, 10)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: QuoteResponse) => {
-          console.log('✅ Réponse complète citations:', response);
+          console.log('✅ Citations reçues:', response);
 
-          if (response && response.content) {
-            this.orderQuotes = response.content;
-            console.log('📋 Citations assignées:', this.orderQuotes);
-            console.log('🔢 Nombre de citations:', this.orderQuotes.length);
+          this.orderQuotes = response.content || [];
+          this.loadingQuotes = false;
 
-            // Sélectionner automatiquement la première citation
-            if (this.orderQuotes.length > 0) {
-              this.selectedQuote = this.orderQuotes[0];
-              console.log('✓ Citation auto-sélectionnée:', this.selectedQuote);
-            }
-          } else {
-            console.warn('⚠️ Aucune citation dans la réponse');
-            this.quotesError = 'Aucune citation disponible';
+          // Sélectionner automatiquement la première citation s'il y en a
+          if (this.orderQuotes.length > 0) {
+            this.selectedQuote = this.orderQuotes[0];
           }
 
-          this.loadingQuotes = false;
+          // Forcer la détection des changements
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('❌ Erreur chargement citations:', error);
-          console.error('❌ Détails erreur:', {
-            status: error.status,
-            message: error.message,
-            error: error.error
-          });
-
           this.loadingQuotes = false;
-          this.orderQuotes = [];
-          this.selectedQuote = null;
 
           if (error.status === 404) {
             this.quotesError = 'Aucune citation trouvée pour cette commande';
           } else if (error.status === 403) {
-            this.quotesError = 'Accès refusé aux citations';
+            this.quotesError = 'Accès refusé';
           } else {
             this.quotesError = 'Erreur lors du chargement des citations';
           }
+
+          this.cdr.detectChanges();
         }
       });
   }
+
 
   selectQuote(quote: Quote): void {
     console.log('📌 Sélection citation:', quote);

@@ -31,7 +31,6 @@
     </div>
   </div>
 
-
   <!-- Error State -->
   <div *ngIf="hasError && !isLoading" class="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
     <div class="bg-white rounded-2xl px-10 py-8 max-w-md w-full text-center shadow-md">
@@ -277,14 +276,6 @@
         </div>
       </div>
     </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -758,9 +749,8 @@
     </button>
 
     <!-- Main Image -->
-    <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
-      <img [src]="getBaseFile() + selectedPhoto.src"
-        class="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+    <div class="relative w-full flex-1 flex items-center justify-center overflow-hidden min-h-0">
+      <img [src]="getBaseFile() + selectedPhoto.src" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
         [alt]="selectedPhoto.phase || 'Photo chantier'">
 
       <!-- Navigation Buttons -->

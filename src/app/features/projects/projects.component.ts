@@ -50,6 +50,7 @@ import { SubscriptionService } from '../../../services/subscription.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
 
+
 // Types et interfaces
 interface ProjectListState {
   projects: any[];
@@ -116,6 +117,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   private languageService = inject(LanguageService);
   private exportService = inject(ExportService);
 
+
   // Translation helper
   t(key: string): string {
     return this.languageService.translate(key);
@@ -129,7 +131,6 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   readonly checkingPermission = computed(() => this.isCheckingPermission());
 
   promoterId: number = 0;
-
   @Input() project: any;
   filebaseUrl = environment.filebaseUrl;
 
@@ -358,7 +359,10 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
   }
-
+  getProjectProgress(project: any): number {
+    // Utilise la progression du projet individuel
+    return project.progress ?? 0;
+  }
   // ============ CHARGEMENT DES DONNÉES AVEC PAGINATION DYNAMIQUE ============
 
   private loadProjectsWithRetry(
@@ -448,6 +452,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       loading: false,
       error: null
     });
+
 
     console.log(`Page ${page} chargée: ${filteredProjects.length} nouveaux projets. Total: ${loadedCount}/${totalElements}. Peut charger plus: ${canLoadMore}`);
   }
@@ -589,6 +594,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   private matchesStatus(project: any, status: string): boolean {
+    project.progress = project.progress ?? 0;
     switch (status) {
       case 'active': return project.available;
       case 'inactive': return !project.available;
@@ -856,7 +862,23 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   formatProgress = (progress: number): string => `${progress}%`;
-  getGradientBackground = (progress: number): string => 'linear-gradient(90deg, #F39C12 0%, #FF5C02 100%)';
+
+
+
+  getProjectStatusLabel(project: any): string {
+    switch (project.constructionStatus) {
+      case 'IN_PROGRESS': return 'En cours';
+      case 'COMPLETED': return 'Terminé';
+      case 'PENDING': return 'En pause';
+      case 'PLANNED': return 'Planifié';
+      default: return 'En cours';
+    }
+  }
+  getGradientBackground = (progress: number): string => {
+    const p = progress ?? 0;
+    if (p <= 0) return 'transparent';
+    return 'linear-gradient(90deg, #FE6102 0%, #FF5C01 100%)';
+  };
   safeGetValue = (value: any): any => value ?? null;
   isDefined = <T>(value: T | undefined | null): value is T => value !== undefined && value !== null;
 

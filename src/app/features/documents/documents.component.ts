@@ -37,6 +37,13 @@ export class DocumentsComponent implements OnInit {
 
   searchQuery: string = '';
   selectedStatus: string = '';
+  selectedTypeFilter: number = 0; // Filter by document type
+
+  // Pagination
+  currentPage: number = 0;
+  pageSize: number = 3;
+  totalElements: number = 0;
+  totalPages: number = 0;
 
   currentPropertyId: number | null = null;
   selectedFile: File | null = null;
@@ -54,12 +61,23 @@ export class DocumentsComponent implements OnInit {
   documentToDelete: number | null = null;
   showDeleteConfirmModal = false;
 
+  // Type de document sélectionné pour affichage conditionnel des dates
+  selectedDocumentType: DocumentType | null = null;
+
+  // Pour le select personnalisé des types de documents
+  showTypeDropdown: boolean = false;
+  typeSearchQuery: string = '';
+  maxVisibleTypes: number = 4;
+
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute,
     public languageService: LanguageService
   ) { }
+
+  // Make Math available to template
+  Math = Math;
 
   t(key: string, params?: { [key: string]: string | number }): string {
     return this.languageService.translate(key, params);
@@ -101,9 +119,11 @@ export class DocumentsComponent implements OnInit {
     if (!this.currentPropertyId) return;
 
     this.isLoading = true;
-    this.projectBudgetService.getDocuments(this.currentPropertyId, 0, 50).subscribe({
+    this.projectBudgetService.getDocuments(this.currentPropertyId, this.currentPage, this.pageSize).subscribe({
       next: (response: DocumentsResponse) => {
         this.documents = response.content || [];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
         this.transformDocumentsForDisplay();
         this.isLoading = false;
       },
@@ -114,6 +134,68 @@ export class DocumentsComponent implements OnInit {
     });
   }
 
+  // Pagination methods
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadDocuments();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadDocuments();
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.loadDocuments();
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(select.value, 10);
+    this.currentPage = 0;
+    this.loadDocuments();
+  }
+
+  getDocPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(0, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible);
+    if (end - start < maxVisible) {
+      start = Math.max(0, end - maxVisible);
+    }
+    for (let i = start; i < end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  goToPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const page = parseInt(input.value, 10) - 1;
+    if (page >= 0 && page < this.totalPages) {
+      this.goToPage(page);
+    }
+  }
+
+  // Filter methods
+  onSearchChange(): void {
+    this.currentPage = 0;
+    this.loadDocuments();
+  }
+
+  onTypeFilterChange(): void {
+    this.currentPage = 0;
+    this.loadDocuments();
+  }
+
   loadDocumentTypes(): void {
     this.projectBudgetService.getDocumentsType().subscribe({
       next: (response: DocumentTypesResponse) => {
@@ -121,6 +203,104 @@ export class DocumentsComponent implements OnInit {
       },
       error: (err) => console.error('Erreur types documents', err)
     });
+  }
+
+  /**
+   * Gère le changement de type de document pour affichage conditionnel des dates
+   */
+  onDocumentTypeChange(): void {
+    // Convertir typeId en nombre si c'est une string
+    const typeId = typeof this.newDocument.typeId === 'string'
+      ? parseInt(this.newDocument.typeId, 10)
+      : this.newDocument.typeId;
+
+    console.log('🔍 onDocumentTypeChange - typeId:', typeId, 'type:', typeof typeId);
+
+    if (typeId && typeId > 0) {
+      this.selectedDocumentType = this.documentTypes.find(t => t.id === typeId) || null;
+
+      console.log('📄 Type sélectionné:', this.selectedDocumentType);
+      console.log('  - hasStartDate:', this.selectedDocumentType?.hasStartDate);
+      console.log('  - hasEndDate:', this.selectedDocumentType?.hasEndDate);
+
+      // Réinitialiser les dates si le type ne les supporte pas
+      if (this.selectedDocumentType) {
+        if (!this.selectedDocumentType.hasStartDate) {
+          this.newDocument.startDate = '';
+        }
+        if (!this.selectedDocumentType.hasEndDate) {
+          this.newDocument.endDate = '';
+        }
+      }
+    } else {
+      this.selectedDocumentType = null;
+      console.log('❌ Aucun type sélectionné');
+    }
+  }
+
+  /**
+   * Vérifie si le champ "Date début" doit être affiché
+   */
+  shouldShowStartDate(): boolean {
+    const result = this.selectedDocumentType?.hasStartDate === true;
+    console.log('📅 shouldShowStartDate:', result, 'selectedType:', this.selectedDocumentType?.label);
+    return result;
+  }
+
+  /**
+   * Vérifie si le champ "Date fin" doit être affiché
+   */
+  shouldShowEndDate(): boolean {
+    const result = this.selectedDocumentType?.hasEndDate === true;
+    console.log('📅 shouldShowEndDate:', result, 'selectedType:', this.selectedDocumentType?.label);
+    return result;
+  }
+
+  /**
+   * Filtre les types de documents selon la recherche
+   */
+  getFilteredDocumentTypes(): DocumentType[] {
+    if (!this.typeSearchQuery) {
+      return this.documentTypes;
+    }
+    return this.documentTypes.filter(t =>
+      t.label.toLowerCase().includes(this.typeSearchQuery.toLowerCase())
+    );
+  }
+
+  /**
+   * Sélectionne un type de document
+   */
+  selectDocumentType(type: DocumentType): void {
+    this.newDocument.typeId = type.id;
+    this.showTypeDropdown = false;
+    this.typeSearchQuery = '';
+    this.onDocumentTypeChange();
+  }
+
+  /**
+   * Récupère le nom du type sélectionné
+   */
+  getSelectedTypeName(): string {
+    if (!this.newDocument.typeId || this.newDocument.typeId === 0) {
+      return this.t('documents.chooseType');
+    }
+    const type = this.documentTypes.find(t => t.id === this.newDocument.typeId);
+    return type ? type.label : this.t('documents.chooseType');
+  }
+
+  /**
+   * Bascule l'affichage du dropdown
+   */
+  toggleTypeDropdown(): void {
+    this.showTypeDropdown = !this.showTypeDropdown;
+  }
+
+  /**
+   * Ferme le dropdown des types
+   */
+  closeTypeDropdown(): void {
+    this.showTypeDropdown = false;
   }
 
   // ────────────────────────────────────────────────

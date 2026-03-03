@@ -24,6 +24,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { environment } from '../../../environments/environment';
+import { UserService } from '../../../services/user.service';
 
 interface User {
   id: number;
@@ -146,11 +147,25 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   fileLibelle: string = '';
   loadingFileJoin = false;
 
+  // Worker auto-completion
+  workerSearchKeyword: string = '';
+  workerPage: number = 0;
+  workerPageSize: number = 4;
+  workerHasMore: boolean = false;
+  workerLoading: boolean = false;
+  availableWorkers: any[] = [];
+  showWorkerDropdown: boolean = false;
+  private workerSearchSubject = new Subject<string>();
+
+  // Executor pagination in detail modal
+  executorPage: number = 0;
+  executorPageSize: number = 4; // 4 per row, showing 1 row at a time
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
-    private utilisateurService: UtilisateurService,
+    private userService: UserService,
     private commentFileService: CommentFileService,
     private route: ActivatedRoute,
     private languageService: LanguageService
@@ -207,21 +222,104 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   private loadWorkers(): void {
-    console.log('🔄 Chargement des workers pour la propriété:', this.currentPropertyId);
+    console.log('🔄 Chargement des workers via getUserByProfil');
 
-    this.utilisateurService.getWorkers(0, 100, this.currentPropertyId)
+    if (this.workerLoading) return;
+
+    this.workerLoading = true;
+
+    this.userService.getUserByProfil('WORKER', this.workerSearchKeyword, this.workerPage, this.workerPageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: WorkersResponse) => {
+        next: (response) => {
           console.log('✅ Workers chargés avec succès:', response);
-          this.workers = response.content;
-          this.users = this.mapWorkersToUsers(this.workers);
+
+          if (this.workerPage === 0) {
+            this.availableWorkers = response.content;
+          } else {
+            this.availableWorkers = [...this.availableWorkers, ...response.content];
+          }
+
+          this.workerHasMore = response.number < response.totalPages - 1;
+          // Map User[] response to internal User interface
+          this.users = response.content.map((user: any) => ({
+            id: user.id,
+            avatarUrl: user.photo ? `${environment.filebaseUrl}${user.photo}` : 'assets/images/profil.png',
+            name: `${user.prenom} ${user.nom}`
+          }));
+          this.workerLoading = false;
         },
         error: (error) => {
           console.error('❌ Erreur lors du chargement des workers:', error);
           this.users = [];
+          this.workerLoading = false;
         }
       });
+  }
+
+  // Load more workers for infinite scroll
+  loadMoreWorkers(): void {
+    if (!this.workerLoading && this.workerHasMore) {
+      this.workerPage++;
+      this.loadWorkers();
+    }
+  }
+
+  // Worker auto-completion methods
+  onWorkerSearch(keyword: string): void {
+    this.workerSearchKeyword = keyword;
+    this.workerPage = 0;
+    this.availableWorkers = []; // Reset list on new search
+    this.loadWorkers();
+    this.showWorkerDropdown = true;
+  }
+
+  selectWorker(worker: any): void {
+    // Check if worker is already selected
+    const isAlreadySelected = this.currentTask.executors.some((e: any) => e.id === worker.id);
+
+    if (!isAlreadySelected) {
+      // Add worker to executors
+      this.currentTask.executors.push({
+        id: worker.id,
+        prenom: worker.prenom,
+        nom: worker.nom,
+        photo: worker.photo,
+        profil: worker.profil,
+        email: worker.email
+      });
+    }
+
+    // Keep dropdown open for multiple selections
+    // User can close it manually or by clicking outside
+  }
+
+  focusWorkerInput(): void {
+    this.showWorkerDropdown = true;
+    if (this.availableWorkers.length === 0) {
+      this.loadWorkers();
+    }
+  }
+
+  onWorkerScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+    const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+
+    if (atBottom && this.workerHasMore && !this.workerLoading) {
+      this.workerPage++;
+      this.loadWorkers();
+    }
+  }
+
+  isWorkerAlreadySelected(workerId: number): boolean {
+    return this.currentTask.executors.some((e: any) => e.id === workerId);
+  }
+
+  resetWorkerSearch(): void {
+    this.workerSearchKeyword = '';
+    this.workerPage = 0;
+    this.showWorkerDropdown = false;
+    this.availableWorkers = [];
   }
 
   private mapWorkersToUsers(workers: Worker[]): User[] {
@@ -691,6 +789,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   openDetailModal(task: TaskDisplay): void {
     this.selectedTask = task;
+    this.executorPage = 0;
     this.showDetailModal = true;
   }
 
@@ -774,6 +873,49 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           this.errorMessage = 'Erreur lors du chargement des commentaires';
         }
       });
+  }
+
+  // Comment pagination
+  get totalCommentPages(): number {
+    return Math.ceil(this.totalComments / this.commentPageSize);
+  }
+
+  nextCommentPage(): void {
+    if (this.commentPage < this.totalCommentPages - 1) {
+      this.commentPage++;
+      this.loadComments();
+    }
+  }
+
+  prevCommentPage(): void {
+    if (this.commentPage > 0) {
+      this.commentPage--;
+      this.loadComments();
+    }
+  }
+
+  // Executor pagination in detail modal
+  get totalExecutorPages(): number {
+    if (!this.selectedTask?.executors) return 0;
+    return Math.ceil(this.selectedTask.executors.length / this.executorPageSize);
+  }
+
+  get pagedExecutors(): any[] {
+    if (!this.selectedTask?.executors) return [];
+    const start = this.executorPage * this.executorPageSize;
+    return this.selectedTask.executors.slice(start, start + this.executorPageSize);
+  }
+
+  nextExecutorPage(): void {
+    if (this.executorPage < this.totalExecutorPages - 1) {
+      this.executorPage++;
+    }
+  }
+
+  prevExecutorPage(): void {
+    if (this.executorPage > 0) {
+      this.executorPage--;
+    }
   }
 
   onCommentFileSelected(event: any): void {
@@ -1085,9 +1227,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   getExecutorDetails(executor: any): string {
     if (!executor) return 'Exécuteur non défini';
 
-    const worker = this.workers.find(w => w.id === executor.id);
-    if (worker) {
-      return `${worker.prenom || ''} ${worker.nom || ''}`.trim();
+    // Utiliser directement les données de l'executor (prenom et nom sont déjà dans l'objet)
+    if (executor.prenom || executor.nom) {
+      return `${executor.prenom || ''} ${executor.nom || ''}`.trim();
     }
 
     return `Exécuteur ${executor.id}`;
@@ -1261,6 +1403,29 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   isUserSelected(userId: number): boolean {
     return this.currentTask.executors.some((exec: any) => exec.id === userId);
   }
+  toggleWorkerSelection(worker: any): void {
+  const index = this.currentTask.executors.findIndex((e: any) => e.id === worker.id);
+  if (index > -1) {
+    // Déjà sélectionné → on le retire
+    this.currentTask.executors.splice(index, 1);
+  } else {
+    // Pas encore sélectionné → on l'ajoute
+    this.currentTask.executors.push({
+      id: worker.id,
+      prenom: worker.prenom,
+      nom: worker.nom,
+      photo: worker.photo,
+      profil: worker.profil,
+      email: worker.email
+    });
+  }
+}
+closeWorkerDropdownOnOutsideClick(event: Event): void {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.worker-dropdown-container')) {
+    this.showWorkerDropdown = false;
+  }
+}
 
   toggleUserSelection(userId: number): void {
     const index = this.currentTask.executors.findIndex((exec: any) => exec.id === userId);

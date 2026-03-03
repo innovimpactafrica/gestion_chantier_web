@@ -164,11 +164,33 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('studyBet.modal.selectBET') }}</label>
-          <select [(ngModel)]="newEtude.betId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="0">{{ t('studyBet.modal.selectBETPlaceholder') }}</option>
-            <option *ngFor="let bet of availableBETs" [value]="bet.id">{{ bet.nom }}</option>
-          </select>
+          <div class="relative">
+            <input type="text" [(ngModel)]="betSearchKeyword" (input)="onBETSearchChange()" (focus)="focusBETInput()"
+              placeholder="Rechercher un BET..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <!-- Dropdown avec scroll infini -->
+            <div *ngIf="showBetDropdown && (availableBETs.length > 0 || betLoading)"
+              class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+              (scroll)="onBETScroll($event)">
+              <div *ngFor="let bet of availableBETs" (click)="selectBET(bet)"
+                class="px-3 py-2 hover:bg-gray-100 cursor-pointer transition-colors">
+                <div class="font-medium text-sm">{{ bet.prenom }} {{ bet.nom }}</div>
+                <div class="text-xs text-gray-500">{{ bet.email }}</div>
+              </div>
+
+              <!-- Loading indicator -->
+              <div *ngIf="betLoading" class="px-3 py-2 text-center text-sm text-gray-500">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mx-auto"></div>
+              </div>
+
+              <!-- No results -->
+              <div *ngIf="!betLoading && availableBETs.length === 0"
+                class="px-3 py-2 text-center text-sm text-gray-500">
+                Aucun BET trouvé
+              </div>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -219,17 +241,58 @@
       </div>
 
       <div class="space-y-4">
+
+        <!-- Champ auto-complétion BET (même logique que création) -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('studyBet.modal.selectBET') }}</label>
-          <select [(ngModel)]="newEtude.betId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="0">{{ t('studyBet.modal.selectBETPlaceholder') }}</option>
-            <option *ngFor="let bet of availableBETs" [value]="bet.id">
-              {{ bet.prenom }} {{ bet.nom }} ({{ bet.email }})
-            </option>
-          </select>
-          <div *ngIf="loadingBETs" class="text-sm text-gray-500 mt-1">
-            {{ t('studyBet.modal.loadingBETs') }}
+          <div class="relative">
+
+            <!-- BET actuellement sélectionné -->
+            <div *ngIf="editSelectedBET" class="mb-2 flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-md">
+              <div class="flex-1 text-sm font-medium text-gray-800">
+                {{ editSelectedBET.prenom }} {{ editSelectedBET.nom }}
+              </div>
+              <button type="button" (click)="clearEditBET()" class="text-gray-400 hover:text-red-500 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <input
+              type="text"
+              [(ngModel)]="editBetSearchKeyword"
+              (input)="onEditBETSearchChange()"
+              (focus)="focusEditBETInput()"
+              placeholder="Rechercher un BET..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <!-- Dropdown avec scroll infini -->
+            <div
+              *ngIf="showEditBetDropdown && (availableBETs.length > 0 || betLoading)"
+              class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+              (scroll)="onBETScroll($event)">
+
+              <div
+                *ngFor="let bet of availableBETs"
+                (click)="selectEditBET(bet)"
+                class="px-3 py-2 hover:bg-gray-100 cursor-pointer transition-colors">
+                <div class="font-medium text-sm">{{ bet.prenom }} {{ bet.nom }}</div>
+                <div class="text-xs text-gray-500">{{ bet.email }}</div>
+              </div>
+
+              <!-- Loading -->
+              <div *ngIf="betLoading" class="px-3 py-2 text-center text-sm text-gray-500">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mx-auto"></div>
+              </div>
+
+              <!-- Aucun résultat -->
+              <div *ngIf="!betLoading && availableBETs.length === 0"
+                class="px-3 py-2 text-center text-sm text-gray-500">
+                Aucun BET trouvé
+              </div>
+            </div>
+
           </div>
         </div>
 

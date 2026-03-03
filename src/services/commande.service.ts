@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { OrderMaterial } from './materials.service';
 
 // Interfaces pour le typage
 export interface OrderItem {
@@ -30,6 +31,7 @@ export interface Order {
   property: Property;
   supplier: Supplier;
   items: OrderItem[];
+  materials?: OrderMaterial[]; // ✅ Ajout
   trackingInfo: any;
 }
 

@@ -127,6 +127,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedPhoto: any = null;
   currentImageIndex: number = 0;
 
+  // Propriétés pour le carrousel de photos
+  currentPhotoCarouselIndex: number = 0;
+
   // Méthodes pour gérer le modal des photos
 
   /**
@@ -152,6 +155,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Réactiver le scroll de la page
     document.body.style.overflow = 'auto';
+  }
+
+  /**
+   * Navigue vers la photo suivante dans le carrousel principal
+   */
+  nextPhotoCarousel(): void {
+    if (this.photosRecentes && this.photosRecentes.length > 0) {
+      this.currentPhotoCarouselIndex = (this.currentPhotoCarouselIndex + 1) % this.photosRecentes.length;
+    }
+  }
+
+  /**
+   * Navigue vers la photo précédente dans le carrousel principal
+   */
+  previousPhotoCarousel(): void {
+    if (this.photosRecentes && this.photosRecentes.length > 0) {
+      this.currentPhotoCarouselIndex = this.currentPhotoCarouselIndex === 0
+        ? this.photosRecentes.length - 1
+        : this.currentPhotoCarouselIndex - 1;
+    }
+  }
+
+  /**
+   * Va directement à une photo spécifique du carrousel
+   */
+  goToPhotoCarousel(index: number): void {
+    if (this.photosRecentes && index >= 0 && index < this.photosRecentes.length) {
+      this.currentPhotoCarouselIndex = index;
+    }
   }
 
   /**
@@ -552,7 +584,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
     // Données mockées pour la répartition des études
     // const data = [40, 35, 15, 10]; 
-    const labels = ['Complétées', 'En cours', 'Initiées', 'Non initiées'];
+    const labels = [
+      this.t('dashboard.studies.completed'),
+      this.t('dashboard.metrics.delivered'),
+      this.t('dashboard.studies.initiated'),
+      this.t('dashboard.studies.notInitiated')
+    ];
     const colors = ['#10B981', '#FB923C', '#3B82F6', '#EF4444']; // Vert, Orange, Bleu, Rouge
 
     const config: ChartConfiguration<'doughnut'> = {
