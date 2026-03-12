@@ -613,6 +613,8 @@ export class LanguageService {
             // 'equipment.wasteDisposal':
             'projectPresentation.completed': 'Terminé',
             'projectPresentation.currentStatus': 'Statut actuel',
+            'projectPresentation.statusChanged': 'Statut mis à jour',
+            'projectPresentation.noSubcontractor': 'Aucun sous-traitant assigné',
             'projectPresentation.generalInfo': 'Informations générales',
             'projectPresentation.progressState': 'État d\'avancement',
             'projectPresentation.budgetTab': 'Budget',
@@ -2358,6 +2360,8 @@ export class LanguageService {
             'projectPresentation.paused': 'Paused',
             'projectPresentation.completed': 'Completed',
             'projectPresentation.currentStatus': 'Current Status',
+            'projectPresentation.statusChanged': 'Status updated',
+            'projectPresentation.noSubcontractor': 'No subcontractor assigned',
             'projectPresentation.generalInfo': 'General Information',
             'projectPresentation.progressState': 'Progress State',
             'projectPresentation.budgetTab': 'Budget',

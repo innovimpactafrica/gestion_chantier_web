@@ -234,14 +234,21 @@ export class TeamListComponent implements OnInit {
 
   // Méthode pour convertir boolean en Oui/Non
   getPresentText(present: boolean): string {
-    return present ? 'Oui' : 'Non';
+    return present ? this.t('team.yes') : this.t('team.no');
   }
 
-  // Méthode pour obtenir la classe CSS selon le statut de présence
+  // Classe CSS pour l'indicateur de présence (badge Oui/Non)
   getPresentClass(present: boolean): string {
     return present
       ? 'inline-block px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full'
       : 'inline-block px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full';
+  }
+
+  // Classe CSS pour le cercle indicateur sur les photos (liste et modal)
+  getPresentIndicatorClass(present: boolean): string {
+    return present
+      ? 'absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white'
+      : 'absolute bottom-0 right-0 w-3 h-3 rounded-full bg-red-500 border-2 border-white';
   }
 
   viewMember(member: TeamMember): void {
@@ -520,24 +527,31 @@ export class TeamListComponent implements OnInit {
   }
 
   /**
-   * Formate une date depuis un tableau de nombres [année, mois, jour, heure?, minute?]
-   * Exemple: [2024, 12, 8] → "Dim. 8 déc. 2024"
+   * Formate une date depuis un tableau de nombres.
+   * Si timeArray[0] >= 2000 → LocalDateTime [année, mois, jour, heure, minute, ...]
+   * Sinon → LocalTime [heure, minute, seconde, nano] → utilise la date du jour
    */
   private formatDateFromArray(timeArray: number[]): string {
-    if (!timeArray || timeArray.length < 3) {
-      console.error('❌ Tableau de date invalide:', timeArray);
+    if (!timeArray || timeArray.length < 2) {
       return 'Date invalide';
     }
 
-    const date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+    let date: Date;
+
+    // Détection : si timeArray[0] est une année plausible (LocalDateTime Spring Boot)
+    if (timeArray[0] >= 2000) {
+      // Format: [année, mois(1-12), jour, heure, minute, seconde?, nano?]
+      date = new Date(timeArray[0], timeArray[1] - 1, timeArray[2]);
+    } else {
+      // LocalTime uniquement [heure, min, sec, nano] → utiliser la date du jour
+      date = new Date();
+    }
+
     const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
     const months = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin',
       'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
 
-    const formattedDate = `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
-    console.log(`📅 Date formatée: ${formattedDate} depuis`, timeArray);
-
-    return formattedDate;
+    return `${days[date.getDay()]}. ${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
   }
 
   /**

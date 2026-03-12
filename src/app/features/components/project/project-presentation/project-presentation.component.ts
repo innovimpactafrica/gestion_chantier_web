@@ -47,6 +47,7 @@ export class ProjectPresentationComponent implements OnInit {
   // Ajouter ces propriétés dans la classe
   isUpdatingStatus = false;
   statusUpdateError: string | null = null;
+  statusSuccessMessage: string | null = null;
 
   // Mapping statut français -> anglais
   private statutMap: { [key: string]: string } = {
@@ -122,7 +123,18 @@ export class ProjectPresentationComponent implements OnInit {
           this.projet = response.data as RealEstateProject;
         }
 
+        // ✅ Garantie : toujours synchroniser le statut local pour éviter
+        // un désynchronisme entre le radio sélectionné et le texte "Statut actuel"
+        if (this.projet) {
+          this.projet = { ...this.projet, constructionStatus: nouveauStatutEn };
+        }
+
         this.isUpdatingStatus = false;
+        this.statusUpdateError = null;
+
+        // ✅ Message de confirmation visible
+        this.statusSuccessMessage = `${this.t('projectPresentation.statusChanged')} : "${nouveauStatutFr}"`;
+        setTimeout(() => { this.statusSuccessMessage = null; }, 3000);
 
         // Recharger le budget pour s'assurer qu'il reste affiché
         if (this.projet?.id) {
@@ -131,6 +143,7 @@ export class ProjectPresentationComponent implements OnInit {
 
         console.log('✓ Statut changé à:', nouveauStatutFr);
       },
+
       error: (error) => {
         console.error('❌ Erreur lors de la mise à jour du statut:', error);
         this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';

@@ -6,6 +6,7 @@ import { ProjectBudgetService, Document, DocumentType, CreateDocumentRequest, Do
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
 import { PdfIconComponent } from '../../shared/components/pdf-icon/pdf-icon.component';
+import { FileDownloadService } from '../../../services/file-download.service';
 
 interface FileDisplay {
   id: number;
@@ -73,7 +74,8 @@ export class DocumentsComponent implements OnInit {
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private fileDownloadService: FileDownloadService
   ) { }
 
   // Make Math available to template
@@ -515,7 +517,19 @@ export class DocumentsComponent implements OnInit {
   }
 
   getFileUrl(fileName: string): string {
-    return `${this.getBaseFile()}${fileName}`;
+    return this.fileDownloadService.buildUrl(fileName);
+  }
+
+  /**
+   * Télécharge un document directement sur l'appareil via fetch+blob.
+   * Ne redirige pas l'utilisateur et n'expose pas l'URL publique.
+   */
+  downloadDocument(doc: Document): void {
+    if (!doc?.file) return;
+    const safeName = doc.title
+      ? doc.title.replace(/[^a-z0-9_\-\.]/gi, '_') + '.' + (doc.file.split('.').pop() || 'bin')
+      : doc.file;
+    this.fileDownloadService.downloadFile(doc.file, safeName);
   }
 
   getDocumentIcon(fileName: string): string {
