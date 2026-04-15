@@ -2286,7 +2286,10 @@ loadOrderQuotes(orderId: number): void {
           this.orderQuotes = response.content;
           console.log('📋 Citations assignées:', this.orderQuotes);
           console.log('🔢 Nombre de citations:', this.orderQuotes.length);
-          
+          alert(
+            this.orderQuotes[0].uploadedAt,
+            )
+           
           // Sélectionner automatiquement la première citation
           if (this.orderQuotes.length > 0) {
             this.selectedQuote = this.orderQuotes[0];
