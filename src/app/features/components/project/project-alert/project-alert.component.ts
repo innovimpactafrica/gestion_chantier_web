@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../../../../core/services/language.service';
-import { ProjectBudgetService, Signalement, SignalementResponse, CreateSignalementRequest } from '../../../../../services/project-details.service';
+import { ProjectBudgetService, Signalement, SignalementResponse, CreateSignalementRequest, AlertIAReport } from '../../../../../services/project-details.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -44,6 +44,66 @@ export class ProjectAlertComponent implements OnInit {
   };
 
   Math: any = Math;
+
+  // Variables du modal IA alerte
+  showAlertIAModal = false;
+  alertIAReport: AlertIAReport | null = null;
+  isLoadingAlertIA = false;
+  alertIAError: string | null = null;
+  selectedAlertForIA: any | null = null;
+
+  // Ajout dropdown statut
+  showStatusDropdown: { [key: number]: boolean } = {};
+  availableIncidentStatuses = [
+    { value: 'PENDING', labelKey: 'incidents.statusPending', type: 'warning' },
+    { value: 'IN_PROGRESS', labelKey: 'incidents.statusInProgress', type: 'info' },
+    { value: 'RESOLVED', labelKey: 'incidents.statusResolved', type: 'success' },
+    { value: 'CLOSED', labelKey: 'incidents.statusClosed', type: 'neutral' }
+  ];
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.status-dropdown-container')) {
+      this.showStatusDropdown = {};
+    }
+  }
+
+  toggleStatusDropdown(incidentId: number, event: Event) {
+    event.stopPropagation();
+    if (this.showStatusDropdown[incidentId]) {
+      this.showStatusDropdown = {};
+    } else {
+      this.showStatusDropdown = {};
+      this.showStatusDropdown[incidentId] = true;
+    }
+  }
+
+  changeIncidentStatus(incident: Signalement, newStatus: string) {
+    this.showStatusDropdown = {}; // Fermer le menu
+    
+    // Optimistic UI update
+    const previousStatus = incident.status;
+    incident.status = newStatus;
+    
+    this.projectBudgetService.changeStatusIncident(incident.id, newStatus).subscribe({
+      next: () => {
+        // Succès : on peut afficher un toast ou simplement garder l'UI à jour
+      },
+      error: (err) => {
+        console.error("Erreur lors de la mise à jour du statut", err);
+        // Rollback
+        incident.status = previousStatus;
+        this.showError(this.t('incidents.statusUpdateError'));
+      }
+    });
+  }
+
+  mapIncidentStatus(status: string | null | undefined): { labelKey: string, type: string } {
+    if (!status) return { labelKey: 'incidents.statusPending', type: 'warning' };
+    const found = this.availableIncidentStatuses.find(s => s.value === status);
+    return found || { labelKey: 'incidents.statusPending', type: 'warning' };
+  }
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
@@ -296,5 +356,82 @@ export class ProjectAlertComponent implements OnInit {
 
   editSignalement(signalement: Signalement): void {
     console.log('Édition du signalement:', signalement);
+  }
+
+  // Méthode pour récupérer le texte selon la langue active
+  getAlertIAText(
+    field: { en: string; fr: string } | null | undefined): string {
+    if (!field) return 'Non disponible';
+    const lang = this.languageService.currentLang?.()?.toLowerCase() 
+      || 'fr';
+    return field[lang as 'en' | 'fr'] 
+      || field['fr'] 
+      || field['en'] 
+      || 'Non disponible';
+  }
+
+  // Méthode pour ouvrir le modal IA alerte
+  openAlertIAModal(incident: any): void {
+    console.log('🤖 Ouverture modal IA pour incident ID:', incident.id);
+
+    // Fermer tous les autres modaux
+    this.showPhotoModal = false;
+    this.showDeleteConfirmModal = false;
+    this.showAddModal = false;
+
+    this.selectedAlertForIA = incident;
+    this.showAlertIAModal = true;
+    this.alertIAReport = null;
+    this.alertIAError = null;
+    this.isLoadingAlertIA = true;
+
+    this.projectBudgetService
+      .getDetailsAlertFromIA(incident.id)
+      .subscribe({
+        next: (report) => {
+          console.log('✅ Rapport IA alerte reçu:', report);
+          this.alertIAReport = report;
+          this.isLoadingAlertIA = false;
+        },
+        error: (err) => {
+          console.error('❌ Erreur rapport IA alerte:', err);
+          this.alertIAError = 'Rapport IA non disponible pour cet incident.';
+          this.isLoadingAlertIA = false;
+        }
+      });
+  }
+
+  // Méthode pour fermer le modal IA alerte
+  closeAlertIAModal(): void {
+    this.showAlertIAModal = false;
+    this.alertIAReport = null;
+    this.alertIAError = null;
+    this.selectedAlertForIA = null;
+  }
+
+  // Méthode pour le badge sévérité
+  getAlertSeverityClass(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'CRITICAL': 
+        return 'bg-red-100 text-red-800 border border-red-200';
+      case 'HIGH':     
+        return 'bg-orange-100 text-orange-800 border border-orange-200';
+      case 'MEDIUM':   
+        return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+      case 'LOW':      
+        return 'bg-green-100 text-green-800 border border-green-200';
+      default:         
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  }
+
+  getAlertSeverityLabel(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'CRITICAL': return 'Critique';
+      case 'HIGH':     return 'Élevée';
+      case 'MEDIUM':   return 'Moyenne';
+      case 'LOW':      return 'Faible';
+      default:         return severity || 'Inconnue';
+    }
   }
 }
