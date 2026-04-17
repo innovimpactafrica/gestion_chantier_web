@@ -310,6 +310,12 @@ export const routes: Routes = [
     ]
   },
 
+  // Page de succès de paiement totalement vierge (sans layout)
+  {
+    path: 'payment-success',
+    loadComponent: () => import('./features/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
+  },
+
   // Route catch-all - redirige vers login pour toute route non trouvée
   { path: '**', redirectTo: '/login' }
 ];
