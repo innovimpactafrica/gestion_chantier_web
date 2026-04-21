@@ -1,14 +1,14 @@
 <!-- Layout responsive avec sidebar qui monte jusqu'en haut -->
 <div class="flex h-screen overflow-hidden bg-[#F5F7FA]">
   <!-- Sidebar qui prend toute la hauteur -->
-  <aside class="w-72 bg-white shadow-md h-screen flex-shrink-0 hidden md:block">
+  <aside class="w-72 bg-white shadow-md h-screen flex-shrink-0 hidden lg:block">
     <app-sidebar></app-sidebar>
   </aside>
   
   <!-- Colonne de contenu avec header et main -->
-  <div class="flex-1 flex flex-col overflow-hidden">
+  <div class="flex-1 flex flex-col overflow-hidden relative">
     <!-- Header décalé à droite -->
-    <header class="bg-white shadow z-10">
+    <header class="bg-white shadow z-10 w-full relative">
       <app-header></app-header>
     </header>
     
@@ -18,10 +18,18 @@
     </main>
   </div>
   
-  <!-- Pour les mobiles - sidebar qui apparaît comme un drawer -->
-  <div class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50" *ngIf="sidebarOpen">
-    <div class="w-64 bg-white h-full">
-      <app-sidebar></app-sidebar>
-    </div>
+  <!-- Pour les mobiles - Overlay (Fermeture au clic) -->
+  <div
+    class="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+    [ngClass]="(sidebarOpen$ | async) ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- Sidebar Mobile (Drawer sur la gauche) -->
+  <div
+    class="lg:hidden fixed inset-y-0 left-0 w-[280px] bg-white h-full z-50 transform transition-transform duration-300 shadow-xl overflow-y-auto"
+    [ngClass]="(sidebarOpen$ | async) ? 'translate-x-0' : '-translate-x-full'"
+  >
+    <app-sidebar></app-sidebar>
   </div>
 </div>

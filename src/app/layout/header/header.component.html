@@ -1,6 +1,19 @@
-<div class=" bg-[#F5F7FA]  h-[72px] p-[24px] shadow-xs  py-2">
-  <!-- Remplacez le contenu du breadcrumb statique par le composant dynamique -->
-  <app-breadcrumb></app-breadcrumb>
+<div class=" bg-[#F5F7FA] h-[72px] px-4 md:px-[24px] shadow-xs py-2">
+  <div class="flex items-center">
+    <!-- Hamburger Menu Button (Mobile & Tablette uniquement) -->
+    <button 
+      (click)="toggleSidebar()" 
+      class="lg:hidden mr-4 text-gray-700 hover:text-[#FF5C02] focus:outline-none focus:ring-2 focus:ring-[#FF5C02] rounded-md transition-colors"
+      aria-label="Ouvrir le menu"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Remplacez le contenu du breadcrumb statique par le composant dynamique -->
+    <app-breadcrumb class="w-full"></app-breadcrumb>
+  </div>
   
   <!-- Tab navigation peut rester ici si nécessaire -->
   <div class="container mx-auto px-4">

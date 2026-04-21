@@ -1,15 +1,34 @@
-<div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2">
+<div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2 relative">
+  <!-- Close Sidebar Button (Mobile Only) -->
+  <button 
+    (click)="closeSidebar()" 
+    class="md:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white shadow-sm border border-gray-200 rounded-full p-1"
+    aria-label="Fermer le menu"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+
   <!-- Profile Section -->
-  <div class="bg-white rounded-[16px] p-4 mb-4 border">
+  <div class="bg-white rounded-[16px] p-4 mb-4 border mt-2 md:mt-0">
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full overflow-hidden mr-3 relative">
           <!-- Skeleton loader while image is loading -->
           <div *ngIf="profileImageLoading()"
             class="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
-          <img [src]="getProfileImageUrl()" [alt]="'Photo de profil de ' + getUserDisplayName()" (load)="onImageLoad()"
+            
+          <img *ngIf="hasUserPhoto(); else initialsTemplate" 
+            [src]="getProfileImageUrl()" [alt]="'Photo de profil de ' + getUserDisplayName()" (load)="onImageLoad()"
             (error)="onImageError($event)" class="w-full h-full object-cover" [class.opacity-0]="profileImageLoading()"
             [class.opacity-100]="!profileImageLoading()" />
+            
+          <ng-template #initialsTemplate>
+            <div class="w-full h-full bg-[#f8f9fa] border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-600 uppercase">
+              {{ authService.getUserInitials() }}
+            </div>
+          </ng-template>
         </div>
         <div>
           <p class="font-bold text-base">{{ getUserDisplayName() }}</p>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from "../../shared/components/breadcrumb/breadcrumb.component";
+import { LayoutService } from '../../core/services/layout.service';
 
 interface Tab {
   label: string;
@@ -45,8 +46,12 @@ export class HeaderComponent implements OnInit {
     }
   ];
 
-  constructor() { }
+  constructor(private layoutService: LayoutService) { }
 
   ngOnInit(): void {
+  }
+
+  toggleSidebar() {
+    this.layoutService.toggleSidebar();
   }
 }

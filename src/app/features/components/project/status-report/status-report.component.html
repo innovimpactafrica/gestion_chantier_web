@@ -113,7 +113,7 @@
   </div>
 
   <!-- Contenu Vue Tableau indicateurs -->
-  <div *ngIf="activeTab === 'tableau'" class="bg-white p-4 rounded-lg shadow">
+  <div *ngIf="activeTab === 'tableau'">
 
     <!-- Composant progress-report caché pour récupérer les données -->
     <div style="display: none;">
@@ -121,7 +121,7 @@
       </app-progess-report>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="bg-white p-4 rounded-lg shadow-md">
       <div class="overflow-x-auto">
         <table class="min-w-full text-left text-sm">
           <thead class="bg-[#F5F7FA]">
