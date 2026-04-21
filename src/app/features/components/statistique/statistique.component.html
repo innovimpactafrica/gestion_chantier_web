@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 p-6">
+<div class="min-h-screen">
   <!-- Header -->
   <div class="mb-8">
     <h1 class="text-3xl font-semibold text-gray-900 mb-6">{{ t('stock.tabs.statistics') }}</h1>
@@ -6,28 +6,28 @@
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-4 gap-4 mb-8">
-      <div class="bg-white rounded-lg p-4 shadow-sm">
-        <div class="text-sm text-gray-600 mb-1">{{ t('stock.stats.materialsUsed') }}</div>
-        <div class="text-2xl font-bold text-gray-900">{{ statsData.materialsUsed }}</div>
+      <div class="bg-[#F5F7FA] rounded-lg p-4 shadow-sm">
+        <div class="text-xs text-gray-600 mb-1">{{ t('stock.stats.materialsUsed') }}</div>
+        <div class="text-xl font-bold text-[#34495E]">{{ statsData.materialsUsed }}</div>
       </div>
-      <div class="bg-white rounded-lg p-4 shadow-sm">
-        <div class="text-sm text-gray-600 mb-1">{{ t('stock.stats.ordersPlaced') }}</div>
-        <div class="text-2xl font-bold text-gray-900">{{ statsData.ordersPlaced }}</div>
+      <div class="bg-[#F5F7FA] rounded-lg p-4 shadow-sm">
+        <div class="text-xs text-gray-600 mb-1">{{ t('stock.stats.ordersPlaced') }}</div>
+        <div class="text-xl font-bold text-[#34495E]">{{ statsData.ordersPlaced }}</div>
       </div>
-      <div class="bg-white rounded-lg p-4 shadow-sm">
-        <div class="text-sm text-gray-600 mb-1">{{ t('stock.stats.deliveriesReceived') }}</div>
-        <div class="text-2xl font-bold text-gray-900">{{ statsData.deliveriesReceived }}</div>
+      <div class="bg-[#F5F7FA] rounded-lg p-4 shadow-sm">
+        <div class="text-xs text-gray-600 mb-1">{{ t('stock.stats.deliveriesReceived') }}</div>
+        <div class="text-xl font-bold text-[#34495E]">{{ statsData.deliveriesReceived }}</div>
       </div>
-      <div class="bg-white rounded-lg p-4 shadow-sm">
-        <div class="text-sm text-gray-600 mb-1">{{ t('stock.stats.alertsTriggered') }}</div>
-        <div class="text-2xl font-bold text-red-600">{{ statsData.alertsTriggered }}</div>
+      <div class="bg-[#F5F7FA] rounded-lg p-4 shadow-sm">
+        <div class="text-xs text-gray-600 mb-1">{{ t('stock.stats.alertsTriggered') }}</div>
+        <div class="text-xl font-bold text-[#E74C3C]">{{ statsData.alertsTriggered }}</div>
       </div>
     </div>
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 gap-8">
       <!-- Left Section - Pie Chart -->
-      <div class="bg-white rounded-lg p-6 shadow-sm">
+      <div class="bg-white rounded-lg p-6 shadow-md shadow-gray-100">
         <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ t('stock.stats.categoryDistribution') }}</h3>
 
         <div class="flex items-center gap-8">

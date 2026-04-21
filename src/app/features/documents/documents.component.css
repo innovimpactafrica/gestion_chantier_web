@@ -7,9 +7,11 @@
     box-sizing: border-box;
 }
 
-/* Card container fixes */
-.bg-white,
-.bg-gray-50 {
+/* Card container fixes - uniquement sur les conteneurs principaux */
+.card-container,
+.bg-white.rounded-xl,
+.bg-white.shadow,
+.bg-gray-50.rounded-lg {
     overflow: hidden;
 }
 
@@ -107,9 +109,10 @@ img[onerror] {
         max-width: 1600px;
     }
 
-    /* Slightly larger cards */
-    .bg-white,
-    .bg-gray-50 {
+    /* Slightly larger cards - cible uniquement les wrappers principaux, pas les inputs */
+    .bg-white.shadow-sm,
+    .bg-gray-50.shadow-sm,
+    .bg-white.shadow {
         padding: 1.5rem;
     }
 

@@ -1,4 +1,4 @@
-<div class="p-6 rounded-lg min-h-screen" (click)="closeDropdown()">
+<div class="px-1 rounded-lg min-h-screen" (click)="closeDropdown()">
 
   <!-- ===================================================== -->
   <!-- LAYOUT PRINCIPAL -->
@@ -118,7 +118,7 @@
 
 
       <!-- INVENTAIRES -->
-      <div *ngIf="activeTab === 'inventaires'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-hidden p-4">
+      <div *ngIf="activeTab === 'inventaires'" class="flex-1 h-[420px] overflow-y-hidden">
 
         <!-- ============================= -->
         <!-- FILTRES INVENTAIRES -->
@@ -356,7 +356,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
       </div>
 
 
-      <div *ngIf="activeTab === 'commandes'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
+      <div *ngIf="activeTab === 'commandes'" class="flex-1 h-[420px] overflow-y-auto">
 
         <!-- ============================= -->
         <!-- BARRE RECHERCHE & FILTRES -->
@@ -398,15 +398,15 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
                     t('stock.orders.orderNumber') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.date') }}
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.date') }}
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
                     t('stock.orders.supplier') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('stock.table.status')
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('stock.table.status')
                     }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.actions') }}
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.actions') }}
                   </th>
                 </tr>
               </thead>
@@ -583,7 +583,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         </div>
       </div>
 
-      <div *ngIf="activeTab === 'livraisons'" class="flex-1 h-[420px] bg-gray-50 rounded-lg overflow-y-auto p-4">
+      <div *ngIf="activeTab === 'livraisons'" class="flex-1 h-[420px] overflow-y-auto">
 
         <!-- ============================= -->
         <!-- BARRE RECHERCHE & FILTRES -->
@@ -625,17 +625,17 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
                     t('stock.deliveries.deliveryNumber') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.date') }}
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.date') }}
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
                     t('stock.orders.supplier') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('stock.table.status')
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('stock.table.status')
                     }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
                     t('stock.deliveries.proof') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('common.actions') }}
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.actions') }}
                   </th>
                 </tr>
               </thead>
@@ -662,7 +662,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                     </span>
                   </td>
 
-                  <td class="px-6 py-4">
+                  <td class="px-6 py-4 text-xs">
                     {{ delivery.proof || t('stock.deliveries.noProof') }}
                   </td>
 
@@ -818,7 +818,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
       <!-- ===================== -->
       <!-- STATISTIQUES : CONTENU PRINCIPAL -->
       <!-- ===================== -->
-      <div *ngIf="activeTab === 'statistiques'" class="flex-1 h-[420px] bg-white rounded-lg overflow-hidden">
+      <div *ngIf="activeTab === 'statistiques'" class="flex-1 h-[420px] overflow-hidden">
 
         <!-- Le composant gère lui-même son layout -->
         <app-statistique></app-statistique>
@@ -912,7 +912,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                 <p class="text-sm text-[#7F8C8D]">
                   {{ formatRecentMovementDate(movement.movementDate) }}
                 </p>
-                <p class="text-xl text-[#34495E] font-light">
+                <p class="text-base text-[#34495E] font-light">
                   <span [ngClass]="{
               'text-[#E74C3C]': movement.type === 'EXIT',
               'text-green-600': movement.type === 'ENTRY'
