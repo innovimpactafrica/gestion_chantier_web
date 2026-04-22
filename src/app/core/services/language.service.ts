@@ -613,6 +613,8 @@ export class LanguageService {
             // 'equipment.wasteDisposal':
             'projectPresentation.completed': 'Terminé',
             'projectPresentation.currentStatus': 'Statut actuel',
+            'projectPresentation.statusChanged': 'Statut mis à jour',
+            'projectPresentation.noSubcontractor': 'Aucun sous-traitant assigné',
             'projectPresentation.generalInfo': 'Informations générales',
             'projectPresentation.progressState': 'État d\'avancement',
             'projectPresentation.budgetTab': 'Budget',
@@ -1748,6 +1750,36 @@ export class LanguageService {
             // ============ COMPTE COMPONENT (Complement) ============
 
 
+            // Incidents / Etude-BET (Ajouts)
+            'incidents.status': 'Statut',
+            'incidents.statusUpdated': 'Statut mis à jour avec succès',
+            'incidents.statusUpdateError': 'Erreur lors du changement de statut',
+            'incidents.statusPending': 'En attente',
+            'incidents.statusOpen': 'Ouvert',
+            'incidents.statusInProgress': 'En cours',
+            'incidents.statusResolved': 'Résolu',
+            'incidents.statusClosed': 'Fermé',
+            'studyBet.modal.objective': 'Objectif',
+            'studyBet.modal.objectivePlaceholder': "Décrivez l'objectif de l'étude...",
+            'studyBet.modal.problemObserved': 'Problème observé',
+            'studyBet.modal.problemObservedPlaceholder': 'Décrivez le problème constaté...',
+            'studyBet.modal.studyType': "Type d'étude",
+            'studyBet.modal.selectType': "Sélectionner un type",
+            'studyBet.modal.attachedDocuments': "Documents joints",
+            'studyBet.modal.addDocument': "Ajouter un document",
+            'studyBet.modal.type': "Type",
+            'studyBet.modal.noDocumentAdded': "Aucun document ajouté. Cliquez sur Ajouter un document pour en joindre.",
+
+            // IA Report Modal
+            'studyBet.ia.title': 'Rapport IA',
+            'studyBet.ia.loading': 'Chargement du rapport IA...',
+            'studyBet.ia.errorRetry': 'Veuillez réessayer ultérieurement.',
+            'studyBet.ia.severity': 'Sévérité',
+            'studyBet.ia.observations': 'Observations',
+            'studyBet.ia.recommendations': 'Recommandations',
+            'studyBet.ia.conclusion': 'Conclusion',
+            'studyBet.ia.analyzedDocs': 'Documents analysés',
+            'studyBet.ia.document': 'Document IA',
         },
         EN: {
             'stock.orderDetails': 'Order Details',
@@ -2358,6 +2390,8 @@ export class LanguageService {
             'projectPresentation.paused': 'Paused',
             'projectPresentation.completed': 'Completed',
             'projectPresentation.currentStatus': 'Current Status',
+            'projectPresentation.statusChanged': 'Status updated',
+            'projectPresentation.noSubcontractor': 'No subcontractor assigned',
             'projectPresentation.generalInfo': 'General Information',
             'projectPresentation.progressState': 'Progress State',
             'projectPresentation.budgetTab': 'Budget',
@@ -3580,6 +3614,37 @@ export class LanguageService {
             'stock.error.cannotEditOrder': 'Cannot edit a delivered or cancelled order',
             'stock.error.cannotCancelOrder': 'Cannot cancel an order that is already delivered or cancelled',
             'stock.error.noProof': 'No proof available for this delivery',
+
+            // Incidents / Etude-BET (Ajouts)
+            'incidents.status': 'Status',
+            'incidents.statusUpdated': 'Status updated successfully',
+            'incidents.statusUpdateError': 'Error updating status',
+            'incidents.statusPending': 'Pending',
+            'incidents.statusOpen': 'Open',
+            'incidents.statusInProgress': 'In progress',
+            'incidents.statusResolved': 'Resolved',
+            'incidents.statusClosed': 'Closed',
+            'studyBet.modal.objective': 'Objective',
+            'studyBet.modal.objectivePlaceholder': 'Describe the study objective...',
+            'studyBet.modal.problemObserved': 'Problem observed',
+            'studyBet.modal.problemObservedPlaceholder': 'Describe the observed problem...',
+            'studyBet.modal.studyType': "Study type",
+            'studyBet.modal.selectType': "Select a type",
+            'studyBet.modal.attachedDocuments': "Attached documents",
+            'studyBet.modal.addDocument': "Add a document",
+            'studyBet.modal.type': "Type",
+            'studyBet.modal.noDocumentAdded': "No document added. Click on Add a document to attach one.",
+
+            // IA Report Modal
+            'studyBet.ia.title': 'AI Report',
+            'studyBet.ia.loading': 'Loading AI report...',
+            'studyBet.ia.errorRetry': 'Please try again later.',
+            'studyBet.ia.severity': 'Severity',
+            'studyBet.ia.observations': 'Observations',
+            'studyBet.ia.recommendations': 'Recommendations',
+            'studyBet.ia.conclusion': 'Conclusion',
+            'studyBet.ia.analyzedDocs': 'Analyzed documents',
+            'studyBet.ia.document': 'AI Document',
         }
     };
 

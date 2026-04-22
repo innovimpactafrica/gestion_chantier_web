@@ -371,6 +371,15 @@ export class LotService {
   }
 
   /**
+   * Récupère les fichiers joints à un lot — alias de getLotFiles()
+   * Endpoint : GET /api/lots/{lotId}/files
+   * Retourne : [{ id, libelle, filePath }]
+   */
+  getFileToLot(lotId: number): Observable<LotDocument[]> {
+    return this.getLotFiles(lotId);
+  }
+
+  /**
    * Upload un fichier vers un lot (multipart/form-data)
    */
   uploadLotFile(lotId: number, file: File, libelle: string): Observable<LotDocument> {

@@ -90,13 +90,14 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
-        data: { breadcrumb: 'Tableau de Bord' }
+        data: { breadcrumb: 'Tableau de Bord' },
+        canActivate: [RoleGuard]
       },
       {
         path: 'dashboardf',
         component: DashboardfComponent,
         data: { breadcrumb: 'Tableau de Bord Fournisseur' },
-        // canActivate: [RoleGuard]
+        canActivate: [RoleGuard]
       },
       {
         path: 'commandes',
@@ -110,7 +111,7 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'Tableau de Bord Etude',
         },
-        // canActivate: [RoleGuard]
+        canActivate: [RoleGuard]
       },
       {
         path: 'demande',
@@ -147,8 +148,8 @@ export const routes: Routes = [
       {
         path: 'detailprojet/:id',
         component: ProjectDetailHeaderComponent,
-        data: { breadcrumb: 'Détail Projet' }
-
+        data: { breadcrumb: 'Détail Projet' },
+        canActivate: [RoleGuard]
       },
       {
         path: 'nouveau-projet',
@@ -161,7 +162,8 @@ export const routes: Routes = [
       {
         path: 'communication',
         loadChildren: () => import('./features/communication/communication.routes')
-          .then(m => m.COMMUNICATION_ROUTES)
+          .then(m => m.COMMUNICATION_ROUTES),
+        canActivate: [RoleGuard]
       },
       {
         path: 'settings',
@@ -226,6 +228,7 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'dashboard-admin',
         },
+        canActivate: [RoleGuard]
       },
       {
         path: 'reclamations',
@@ -233,11 +236,13 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'reclamations',
         },
+        canActivate: [RoleGuard]
       },
       // Dans votre routing module
       {
         path: 'property/:id/tasks',
-        component: TaskBoardComponent
+        component: TaskBoardComponent,
+        canActivate: [RoleGuard]
       },
 
       {
@@ -246,6 +251,7 @@ export const routes: Routes = [
         data: {
           breadcrumb: 'details-abonnement',
         },
+        canActivate: [RoleGuard]
       },
 
 

@@ -2,17 +2,58 @@
   <!-- En-tête -->
   <div class="flex items-center p-4">
     <button class="text-orange-500 flex items-center mb-4" routerLink="/login">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
-      Retour
+      {{ t('common.back') }}
     </button>
     <div class="flex-grow text-center">
       <div class="flex justify-center items-center mt-10">
         <img src="assets/images/logo.png" alt="Logo BTP CLOUD" class="h-12 mr-2" />
       </div>
     </div>
-    <div class="w-20"></div> <!-- Espacement pour centrer le logo -->
+    <!-- Sélecteur de langue -->
+    <div class="relative">
+      <button (click)="showLangDropdown = !showLangDropdown"
+        class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-xl bg-white shadow-sm hover:border-orange-300 transition-colors">
+        <span class="text-lg leading-none">{{ languageService.currentLang() === 'FR' ? '🇫🇷' : '🇬🇧' }}</span>
+        <span class="text-sm font-semibold text-gray-700">{{ languageService.currentLang() }}</span>
+        <svg class="w-4 h-4 text-gray-400 transition-transform" [class.rotate-180]="showLangDropdown" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <!-- Dropdown -->
+      <div *ngIf="showLangDropdown"
+        class="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+        <button (click)="languageService.changeLanguage('FR'); showLangDropdown = false"
+          class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50 transition-colors"
+          [class.bg-orange-50]="languageService.currentLang() === 'FR'">
+          <span class="text-lg">🇫🇷</span>
+          <span class="text-sm font-medium text-gray-700">Français</span>
+          <svg *ngIf="languageService.currentLang() === 'FR'" class="w-4 h-4 text-orange-500 ml-auto"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+        <button (click)="languageService.changeLanguage('EN'); showLangDropdown = false"
+          class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50 transition-colors"
+          [class.bg-orange-50]="languageService.currentLang() === 'EN'">
+          <span class="text-lg">🇬🇧</span>
+          <span class="text-sm font-medium text-gray-700">English</span>
+          <svg *ngIf="languageService.currentLang() === 'EN'" class="w-4 h-4 text-orange-500 ml-auto"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Indicateur de progression -->
@@ -32,7 +73,7 @@
       <div *ngIf="successMessage" class="bg-green-100 text-green-800 p-3 rounded mb-4">
         {{ successMessage }}
       </div>
-      
+
       <!-- Messages d'erreur -->
       <div *ngIf="errorMessage" class="bg-red-100 text-red-800 p-3 rounded mb-4">
         {{ errorMessage }}
@@ -44,103 +85,88 @@
           <li *ngFor="let error of validationErrors">{{ error }}</li>
         </ul>
       </div>
-      
+
       <!-- Formulaire d'inscription -->
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
         <!-- Nom -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Nom <span class="text-red-500">*</span>
+            {{ t('auth.register.lastNameLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            formControlName="nom" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="Entrez votre nom" 
-          />
+          <input formControlName="nom"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.lastNamePlaceholder')" />
           <div *ngIf="f['nom'].touched && f['nom'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['nom'].errors?.['required']">Le nom est requis</span>
-            <span *ngIf="f['nom'].errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+            <span *ngIf="f['nom'].errors?.['required']">{{ t('auth.register.error.lastNameRequired') }}</span>
+            <span *ngIf="f['nom'].errors?.['minlength']">{{ t('auth.register.error.lastNameRequired') }}</span>
           </div>
         </div>
-      
+
         <!-- Prénom -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Prénom <span class="text-red-500">*</span>
+            {{ t('auth.register.firstNameLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            formControlName="prenom" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="Entrez votre prénom" 
-          />
+          <input formControlName="prenom"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.firstNamePlaceholder')" />
           <div *ngIf="f['prenom'].touched && f['prenom'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['prenom'].errors?.['required']">Le prénom est requis</span>
-            <span *ngIf="f['prenom'].errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+            <span *ngIf="f['prenom'].errors?.['required']">{{ t('auth.register.error.firstNameRequired') }}</span>
+            <span *ngIf="f['prenom'].errors?.['minlength']">{{ t('auth.register.error.firstNameRequired') }}</span>
           </div>
         </div>
-      
+
         <!-- Email -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Email <span class="text-red-500">*</span>
+            {{ t('auth.register.emailLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            type="email" 
-            formControlName="email" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="exemple@email.com" 
-          />
+          <input type="email" formControlName="email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.emailPlaceholder')" />
           <div *ngIf="f['email'].touched && f['email'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['email'].errors?.['required']">L'email est requis</span>
-            <span *ngIf="f['email'].errors?.['email']">Format d'email invalide</span>
+            <span *ngIf="f['email'].errors?.['required']">{{ t('auth.register.error.emailRequired') }}</span>
+            <span *ngIf="f['email'].errors?.['email']">{{ t('auth.register.error.emailInvalid') }}</span>
           </div>
         </div>
-      
+
         <!-- Mot de passe -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Mot de passe <span class="text-red-500">*</span>
+            {{ t('auth.register.passwordLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            type="password" 
-            formControlName="password" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="Au moins 6 caractères" 
-          />
+          <input type="password" formControlName="password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.passwordPlaceholder')" />
           <div *ngIf="f['password'].touched && f['password'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['password'].errors?.['required']">Le mot de passe est requis</span>
-            <span *ngIf="f['password'].errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+            <span *ngIf="f['password'].errors?.['required']">{{ t('auth.register.error.passwordRequired') }}</span>
+            <span *ngIf="f['password'].errors?.['minlength']">{{ t('auth.register.error.passwordMinLength') }}</span>
           </div>
         </div>
-      
+
         <!-- Téléphone -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Téléphone <span class="text-red-500">*</span>
+            {{ t('auth.register.phoneLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            formControlName="telephone" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="771234567" 
-          />
+          <input formControlName="telephone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.phonePlaceholder')" />
           <div *ngIf="f['telephone'].touched && f['telephone'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['telephone'].errors?.['required']">Le téléphone est requis</span>
-            <span *ngIf="f['telephone'].errors?.['pattern']">Format invalide (ex: 771234567)</span>
+            <span *ngIf="f['telephone'].errors?.['required']">{{ t('auth.register.error.phoneRequired') }}</span>
+            <span *ngIf="f['telephone'].errors?.['pattern']">{{ t('auth.register.error.phoneInvalid') }}</span>
           </div>
         </div>
 
         <!-- Profil utilisateur -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Profil <span class="text-red-500">*</span>
+            {{ t('auth.register.profileLabel') }} <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <select 
-              formControlName="profil"
-              (change)="onProfileChange($event)"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none"
-            >
-              <option value="" disabled selected>Sélectionnez votre profil</option>
+            <select formControlName="profil" (change)="onProfileChange($event)"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none">
+              <option value="" disabled selected>{{ t('auth.register.profilePlaceholder') }}</option>
               <option *ngFor="let profile of availableProfiles" [value]="profile.value">
                 {{ profile.displayName }}
               </option>
@@ -152,99 +178,83 @@
             </div>
           </div>
           <div *ngIf="f['profil'].touched && f['profil'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['profil'].errors?.['required']">Le profil est requis</span>
+            <span *ngIf="f['profil'].errors?.['required']">{{ t('auth.register.error.profileRequired') }}</span>
           </div>
         </div>
 
         <!-- Adresse -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2">
-            Adresse <span class="text-red-500">*</span>
+            {{ t('auth.register.addressLabel') }} <span class="text-red-500">*</span>
           </label>
-          <input 
-            formControlName="adress" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="Votre adresse complète" 
-          />
+          <input formControlName="adress"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('auth.register.addressPlaceholder')" />
           <div *ngIf="f['adress'].touched && f['adress'].invalid" class="text-red-500 text-sm mt-1">
-            <span *ngIf="f['adress'].errors?.['required']">L'adresse est requise</span>
+            <span *ngIf="f['adress'].errors?.['required']">{{ t('auth.register.error.firstNameRequired') }}</span>
           </div>
         </div>
         <!-- Photo de profil (optionnelle) -->
-<div class="mb-4">
-  <label class="block text-gray-700 font-medium mb-2">
-    Photo de profil
-  </label>
-  
-  <!-- Zone d'upload -->
-  <div class="flex items-start gap-4">
-    <!-- Aperçu de la photo -->
-    <div *ngIf="photoPreview" class="flex-shrink-0">
-      <div class="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
-        <img [src]="photoPreview" alt="Aperçu" class="w-full h-full object-cover">
-        <button 
-          type="button" 
-          (click)="removePhoto()"
-          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Input file -->
-    <div class="flex-1">
-      <input 
-        type="file" 
-        id="photo" 
-        name="photo" 
-        accept="image/*" 
-        (change)="onPhotoSelected($event)"
-        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-      />
-      <p class="mt-2 text-xs text-gray-500">
-        📸 Formats acceptés : JPG, PNG, GIF (Max 5MB)
-      </p>
-    </div>
-  </div>
-</div>
-      
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">
+            {{ t('team.profilePhoto') }}
+          </label>
+
+          <!-- Zone d'upload -->
+          <div class="flex items-start gap-4">
+            <!-- Aperçu de la photo -->
+            <div *ngIf="photoPreview" class="flex-shrink-0">
+              <div class="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
+                <img [src]="photoPreview" alt="Aperçu" class="w-full h-full object-cover">
+                <button type="button" (click)="removePhoto()"
+                  class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Input file -->
+            <div class="flex-1">
+              <input type="file" id="photo" name="photo" accept="image/*" (change)="onPhotoSelected($event)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+              <p class="mt-2 text-xs text-gray-500">
+                📸 {{ t('team.acceptedFormats') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Date de naissance (optionnel) -->
         <div class="mb-4">
-          <label class="block text-gray-700 font-medium mb-2">Date de naissance</label>
-          <input 
-            type="date" 
-            formControlName="date" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-          />
+          <label class="block text-gray-700 font-medium mb-2">{{ t('team.birthDate') }}</label>
+          <input type="date" formControlName="date"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
-      
+
         <!-- Lieu de naissance (optionnel) -->
         <div class="mb-6">
-          <label class="block text-gray-700 font-medium mb-2">Lieu de naissance</label>
-          <input 
-            formControlName="lieunaissance" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
-            placeholder="Ville de naissance" 
-          />
+          <label class="block text-gray-700 font-medium mb-2">{{ t('team.birthPlace') }}</label>
+          <input formControlName="lieunaissance"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('team.birthPlace')" />
         </div>
-      
+
         <!-- Bouton S'inscrire -->
-        <button 
-          type="submit" 
-          [disabled]="isLoading"
+        <button type="submit" [disabled]="isLoading"
           class="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed mt-6">
-          <span *ngIf="!isLoading">S'inscrire</span>
-          <span *ngIf="isLoading">Inscription en cours...</span>
+          <span *ngIf="!isLoading">{{ t('auth.register.registerButton') }}</span>
+          <span *ngIf="isLoading">{{ t('auth.register.registering') }}</span>
         </button>
 
         <!-- Lien vers la connexion -->
         <div class="text-center mt-4">
           <p class="text-gray-600">
-            Vous avez déjà un compte ? 
-            <a routerLink="/login" class="text-orange-500 hover:text-orange-600 font-medium">Se connecter</a>
+            {{ t('auth.register.alreadyHaveAccount') }}
+            <a routerLink="/login" class="text-orange-500 hover:text-orange-600 font-medium">{{
+              t('auth.register.loginLink') }}</a>
           </p>
         </div>
       </form>

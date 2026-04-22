@@ -173,13 +173,13 @@
       <!-- Action -->
       <div class="col-span-1 flex items-center gap-2">
         <!-- Bouton télécharger -->
-        <a [href]="getFileUrl(doc.file)" download class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+        <button (click)="downloadDocument(doc)" class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
           title="Télécharger">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-        </a>
+        </button>
 
         <!-- Bouton supprimer -->
         <button (click)="openDeleteConfirmModal(doc.id)" class="p-2  hover:text-red-600 transition-colors"

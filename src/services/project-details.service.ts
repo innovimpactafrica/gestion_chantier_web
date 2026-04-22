@@ -416,8 +416,24 @@ export interface Signalement {
   title: string;
   description: string;
   createdAt: number[];
+  updatedAt: number[] | null;
+  status: string | null;
+  authorId: number | null;
+  authorName: string | null;
   propertyName: string;
   pictures: string[];
+}
+
+export interface AlertIAReport {
+  id: number;
+  incidentId: number;
+  propertyId: number;
+  propertyName: string;
+  incidentType: string;
+  severity: string;
+  explanation: { en: string; fr: string };
+  recommendation: { en: string; fr: string };
+  createdAt: number[];
 }
 
 export interface SignalementResponse {
@@ -463,6 +479,13 @@ export class ProjectBudgetService {
   private baseUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) { }
+
+  getDetailsAlertFromIA(incidentId: number): Observable<AlertIAReport> {
+    return this.http.get<AlertIAReport>(
+      `${this.baseUrl}/incident-rapports/by-incident/${incidentId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
   // Méthode privée pour obtenir les headers d'authentification
   private getAuthHeaders(forFormData: boolean = false): HttpHeaders {
@@ -1024,6 +1047,12 @@ export class ProjectBudgetService {
     }
 
     return this.http.post<any>(`${this.baseUrl}/incidents/save`, data, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  changeStatusIncident(incidentId: number, status: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.patch<any>(`${this.baseUrl}/incidents/${incidentId}/status`, { status }, { headers })
       .pipe(catchError(this.handleError));
   }
 

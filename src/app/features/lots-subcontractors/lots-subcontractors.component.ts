@@ -6,6 +6,8 @@ import { LotService, Lot, LotsResponse, CreateLotRequest, Comment, LotDocument }
 import { AuthService } from '../auth/services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../core/services/language.service';
+import { environment } from '../../../environments/environment';
+import { FileDownloadService } from '../../../services/file-download.service';
 
 interface LotDisplay {
   id: number;
@@ -88,6 +90,31 @@ export class LotsSubcontractorsComponent implements OnInit {
   // Documents du lot
   lotDocuments: LotDocument[] = [];
 
+  // Pagination des documents dans le modal
+  docsPage = 0;
+  docsPageSize = 3;
+
+  get pagedDocs(): LotDocument[] {
+    const start = this.docsPage * this.docsPageSize;
+    return this.lotDocuments.slice(start, start + this.docsPageSize);
+  }
+
+  get docsTotalPages(): number {
+    return Math.ceil(this.lotDocuments.length / this.docsPageSize);
+  }
+
+  previousDocsPage(): void {
+    if (this.docsPage > 0) this.docsPage--;
+  }
+
+  nextDocsPage(): void {
+    if (this.docsPage < this.docsTotalPages - 1) this.docsPage++;
+  }
+
+  // Modal de confirmation de suppression de document
+  showDeleteDocModal = false;
+  docToDeleteId: number | null = null;
+
   // Lot en cours d'édition
   currentLot: CurrentLot = {
     name: '',
@@ -123,7 +150,8 @@ export class LotsSubcontractorsComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private userService: UserService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private fileDownloadService: FileDownloadService
   ) { }
 
   public t(key: string, params?: { [key: string]: string | number }): string {
@@ -233,6 +261,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   // Charger les documents d'un lot
   loadLotDocuments(lotId: number): void {
     console.log('🔍 Chargement des documents pour le lot:', lotId);
+    this.docsPage = 0; // reset pagination
     this.lotService.getLotFiles(lotId).subscribe({
       next: (docs) => {
         console.log('✅ Documents chargés:', docs);
@@ -247,48 +276,53 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   /**
-   * Supprime un document d'un lot
+   * Ouvre le modal de confirmation de suppression
    */
   deleteLotDocument(fileId: number): void {
-    if (!confirm(this.t('lots.confirmDeleteDocument'))) {
-      return;
-    }
+    this.docToDeleteId = fileId;
+    this.showDeleteDocModal = true;
+  }
+
+  cancelDeleteDocument(): void {
+    this.showDeleteDocModal = false;
+    this.docToDeleteId = null;
+  }
+
+  confirmDeleteDocument(): void {
+    if (this.docToDeleteId === null) return;
+    const fileId = this.docToDeleteId;
+    this.showDeleteDocModal = false;
+    this.docToDeleteId = null;
 
     this.lotService.deleteLotFile(fileId).subscribe({
       next: () => {
-        console.log('✅ Document supprimé');
+        console.log('Document supprime');
         this.successMessage = this.t('lots.success.documentDeleted');
-
-        // Recharger la liste des documents
         if (this.selectedLotId) {
           this.loadLotDocuments(this.selectedLotId);
         }
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 2000);
+        setTimeout(() => { this.successMessage = ''; }, 2000);
       },
       error: (err) => {
-        console.error('❌ Erreur suppression document:', err);
+        console.error('Erreur suppression document:', err);
         this.errorMessage = err.error?.message || this.t('lots.error.deleteDocumentFailed');
       }
     });
   }
 
-  /**
-   * Télécharge un document
-   */
-  downloadDocument(filePath: string): void {
-    const url = this.lotService.getDocumentDownloadUrl(filePath);
-    window.open(url, '_blank');
+  downloadDocument(doc: LotDocument): void {
+    if (!doc?.filePath) return;
+    const safeName = this.fileDownloadService.buildSafeName(doc.filePath, doc.libelle);
+    this.fileDownloadService.downloadFile(doc.filePath, safeName);
   }
 
   /**
    * Affiche un document dans un nouvel onglet
    */
   viewDocument(filePath: string): void {
-    const url = this.lotService.getDocumentDownloadUrl(filePath);
-    window.open(url, '_blank');
+    if (!filePath) return;
+    const fullUrl = this.fileDownloadService.buildUrl(filePath);
+    window.open(fullUrl, '_blank');
   }
 
   // ========== CHARGEMENT DES DONNÉES ==========

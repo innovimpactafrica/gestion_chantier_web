@@ -48,7 +48,8 @@ export class ProjectDetailHeaderComponent implements OnInit {
 
   // QR Code
   showQrModal: boolean = false;
-  qrCodeDataUrl: SafeUrl | null = null;
+  qrCodeDataUrl: SafeUrl | null = null;  // SafeUrl pour l'affichage dans le template
+  qrCodeRawDataUrl: string | null = null; // Data URL brute pour download/print
   qrCodeValue: string = '';
 
   constructor(
@@ -144,6 +145,9 @@ export class ProjectDetailHeaderComponent implements OnInit {
         errorCorrectionLevel: 'M'
       });
 
+      // Stocker la data URL brute pour download/print
+      this.qrCodeRawDataUrl = qrCodeUrl;
+      // SafeUrl uniquement pour l'affichage dans le template Angular
       this.qrCodeDataUrl = this.sanitizer.bypassSecurityTrustUrl(qrCodeUrl);
       this.qrCodeValue = qrCodeValue;
 
@@ -151,6 +155,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
     } catch (error) {
       console.error('❌ Erreur lors de la génération du QR code:', error);
       this.qrCodeDataUrl = null;
+      this.qrCodeRawDataUrl = null;
     }
   }
 
@@ -232,15 +237,16 @@ export class ProjectDetailHeaderComponent implements OnInit {
   * Télécharger le QR code
   */
   downloadQrCode(): void {
-    if (!this.qrCodeDataUrl || !this.projectDetails || !this.isBrowser) return;
+    if (!this.qrCodeRawDataUrl || !this.projectDetails || !this.isBrowser) return;
 
     try {
       // Créer un nom de fichier sécurisé
       const projectName = this.projectDetails.name || 'projet';
       const safeFileName = projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
+      // ✅ Utiliser qrCodeRawDataUrl (string brute) et non qrCodeDataUrl (SafeUrl wrapper)
       const link = document.createElement('a');
-      link.href = this.qrCodeDataUrl as string;
+      link.href = this.qrCodeRawDataUrl;
       link.download = `qrcode-${safeFileName}-${this.projectId}.png`;
       document.body.appendChild(link);
       link.click();
@@ -263,7 +269,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
    * Imprimer le QR code
    */
   printQrCode(): void {
-    if (!this.qrCodeDataUrl || !this.isBrowser) return;
+    if (!this.qrCodeRawDataUrl || !this.isBrowser) return;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -299,7 +305,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
             <h2>${this.projectDetails?.name || 'Projet'}</h2>
             <p>Date: ${this.getLastUpdateDate()}</p>
           </div>
-          <img src="${this.qrCodeDataUrl}" alt="QR Code" />
+          <img src="${this.qrCodeRawDataUrl}" alt="QR Code" />
           <script>
             window.onload = function() {
               window.print();

@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { EtudeBetService, Etude, EtudeResponse, CreateEtudeRequest, UpdateBetRequest } from '../../../../../services/etude-bet.service';
+import {
+  EtudeBetService, EtudeBet, EtudeBetResponse, CreateEtudeRequest,
+  UpdateBetRequest, StudyDocument, StudyIAReport
+} from '../../../../../services/etude-bet.service';
 import { UserService } from '../../../../../services/user.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { DemandeService } from '../../../../../services/demande.service';
@@ -10,11 +13,17 @@ import { LanguageService } from '../../../../core/services/language.service';
 import { inject } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { environment } from '../../../../../environments/environment';
+
+// ─── Interfaces locales ──────────────────────────────────────────────────────
 
 interface EtudeBET {
   id: number;
   titre: string;
   description: string;
+  studyType: string;
+  objective: string;
+  problemObserved: string;
   nomBET: string;
   dateCreation: string;
   statut: 'En attente' | 'En cours' | 'Livrée' | 'Validée' | 'Rejetée';
@@ -23,6 +32,7 @@ interface EtudeBET {
   moaId: number;
   moaName: string;
   betId: number;
+  documents: StudyDocument[];
   rapports?: { id: number; nom: string; taille: string; dateSubmission: string; url: string; versionNumber: number }[];
 }
 
@@ -33,7 +43,6 @@ interface Comment {
   createdAt: number[];
 }
 
-// 1. Ajouter l'interface User et UserPageResponse
 interface User {
   id: number;
   nom: string;
@@ -49,6 +58,37 @@ interface UserPageResponse {
   number: number;
 }
 
+interface DocumentEntry {
+  type: string;
+  file: File | null;
+  fileName: string;
+}
+
+// ─── Types d'études ──────────────────────────────────────────────────────────
+
+const STUDY_TYPES = [
+  { value: 'STRUCTURAL_ANALYSIS',       label: 'Analyse structurelle' },
+  { value: 'FOUNDATION_RECALCULATION',  label: 'Recalcul de fondation' },
+  { value: 'CRACK_ANALYSIS',            label: 'Analyse de fissures' },
+  { value: 'SOIL_ANALYSIS',             label: 'Analyse de sol' },
+  { value: 'LOAD_VERIFICATION',         label: 'Vérification des charges' },
+  { value: 'STRUCTURAL_REINFORCEMENT',  label: 'Renforcement structurel' },
+  { value: 'OTHER',                     label: 'Autre' },
+];
+
+const DOCUMENT_TYPES = [
+  { value: 'ARCHITECTURAL_PLAN', label: 'Plan architectural' },
+  { value: 'STRUCTURAL_PLAN', label: 'Plan structurel' },
+  { value: 'FOUNDATION_PLAN', label: 'Plan de fondations' },
+  { value: 'EXECUTION_PLAN', label: "Plan d'exécution" },
+  { value: 'SECTION', label: 'Coupe' },
+  { value: 'ELEVATION', label: 'Élévation' },
+  { value: 'GEOTECHNICAL_REPORT', label: 'Rapport géotechnique' },
+  { value: 'OTHER', label: 'Autre' },
+];
+
+// ─── Composant ────────────────────────────────────────────────────────────────
+
 @Component({
   standalone: true,
   imports: [CommonModule, FormsModule],
@@ -58,25 +98,97 @@ interface UserPageResponse {
 })
 export class EtudeBetComponent implements OnInit, OnDestroy {
   private languageService = inject(LanguageService);
-
-  // Translation helper
   t = (key: string, params?: any) => this.languageService.translate(key, params);
 
+  getIAText(field: { en: string; fr: string } | null | undefined): string {
+    if (!field) return 'Non disponible';
+    const lang = this.languageService.currentLang()?.toLowerCase() || 'fr';
+    return field[lang as 'en' | 'fr'] || field['fr'] || field['en'] || 'Non disponible';
+  }
+
+  // Constantes exposées au template
+  readonly studyTypes = STUDY_TYPES;
+  readonly documentTypes = DOCUMENT_TYPES;
+  readonly fileBaseUrl = environment.filebaseUrl;
+  readonly Math = Math;
+
+  // ── Données ──────────────────────────────────────────────────────────────
   etudes: EtudeBET[] = [];
   filteredEtudes: EtudeBET[] = [];
-  searchTerm: string = '';
+  searchTerm = '';
   isLoading = false;
 
-  // Pagination
+  // ── Pagination ───────────────────────────────────────────────────────────
   currentPage = 0;
   pageSize = 5;
   totalElements = 0;
   totalPages = 0;
-
-  // Property ID (récupéré dynamiquement depuis les paramètres de route)
   currentPropertyId!: number;
 
-  // Popups state
+  // ── Etude Status Dropdowns ──────────────────────────────────────────────────
+  showEtudeStatusDropdown: number | null = null;
+  successMessage = '';
+  errorMessage = '';
+  showErrorModal = false;
+  errorModalMessage = '';
+  errorModalTitle = 'Une erreur est survenue';
+
+  availableEtudeStatuses = [
+    { value: 'PENDING',     label: 'En attente', class: 'bg-yellow-100 text-yellow-800', cssClass: 'bg-yellow-100 text-yellow-800' },
+    { value: 'IN_PROGRESS', label: 'En cours',   class: 'bg-blue-100 text-blue-800', cssClass: 'bg-blue-100 text-blue-800' },
+    { value: 'DELIVERED',   label: 'Livrée',     class: 'bg-purple-100 text-purple-800', cssClass: 'bg-purple-100 text-purple-800' },
+    { value: 'VALIDATED',   label: 'Validée',    class: 'bg-green-100 text-green-800', cssClass: 'bg-green-100 text-green-800' },
+    { value: 'REJECTED',    label: 'Rejetée',    class: 'bg-red-100 text-red-800', cssClass: 'bg-red-100 text-red-800' },
+  ];
+
+  toggleEtudeStatusDropdown(etudeId: number, event: Event): void {
+    event.stopPropagation();
+    this.showEtudeStatusDropdown = this.showEtudeStatusDropdown === etudeId ? null : etudeId;
+  }
+
+// GARDER UNIQUEMENT CETTE VERSION — retourne le bon type union
+mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée' | 'Rejetée' {
+  const map: Record<string, any> = {
+    PENDING: 'En attente',
+    IN_PROGRESS: 'En cours',
+    DELIVERED: 'Livrée',
+    VALIDATED: 'Validée',
+    REJECTED: 'Rejetée'
+  };
+  return map[apiStatus] || 'En attente';
+}
+
+  changeEtudeStatus(etudeId: number, newStatus: string, event: Event): void {
+    event.stopPropagation();
+    this.isLoading = true;
+
+    this.etudeBetService.changeEtudeStatus(etudeId, newStatus).subscribe({
+      next: () => {
+        const etude = this.etudes.find(e => e.id === etudeId);
+        if (etude) {
+         etude.statut = this.mapStatus(newStatus);
+        }
+        this.showEtudeStatusDropdown = null;
+        this.isLoading = false;
+        this.successMessage = 'Statut mis à jour avec succès';
+        setTimeout(() => this.successMessage = '', 2500);
+      },
+      error: (err) => {
+        console.error('Erreur changement statut étude:', err);
+        this.showEtudeStatusDropdown = null;
+        this.isLoading = false;
+        this.showErrorModal = true;
+        this.errorModalMessage = err.error?.message || 'Erreur lors du changement de statut';
+      }
+    });
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showEtudeStatusDropdown = null;
+  }
+
+  // ── Modaux ───────────────────────────────────────────────────────────────
   showCreateModal = false;
   showEditModal = false;
   showDetailModal = false;
@@ -84,31 +196,53 @@ export class EtudeBetComponent implements OnInit, OnDestroy {
   showRejectModal = false;
   showEditReportModal = false;
   showCommentsModal = false;
+  showCreateReportModal = false;
 
-  // Comments
+  // ── Modal IA ─────────────────────────────────────────────────────────────
+  showIAModal = false;
+  iaReport: StudyIAReport | null = null;
+  isLoadingIA = false;
+  iaError: string | null = null;
+  selectedEtudeForIA: EtudeBET | null = null;
+
+  // ── Commentaires ─────────────────────────────────────────────────────────
   comments: Comment[] = [];
   selectedEtudeForComments: EtudeBET | null = null;
   newComment = '';
 
-  // Forms data
+  // ── Sélection ────────────────────────────────────────────────────────────
   selectedEtude: EtudeBET | null = null;
   selectedReport: { id: number; nom: string; taille: string; dateSubmission: string; url: string; versionNumber: number } | null = null;
-  // l'id du client doit etre recuperer et sera l'id du current user
 
+  // ── Formulaire de création ────────────────────────────────────────────────
   newEtude: CreateEtudeRequest = {
     title: '',
     description: '',
+    studyType: '',
+    objective: '',
+    problemObserved: '',
     propertyId: 0,
-    clientId: 1,
-    betId: 0
+    clientId: 0,
+    betId: 0,
+    documentTypes: [],
+    files: []
   };
 
+  // Paires documentType + fichier dynamiques
+  documentEntries: DocumentEntry[] = [];
+
+  // ── Formulaire d'édition ──────────────────────────────────────────────────
   editEtude: CreateEtudeRequest = {
     title: '',
     description: '',
+    studyType: '',
+    objective: '',
+    problemObserved: '',
     propertyId: 0,
-    clientId: 1,
-    betId: 0
+    clientId: 0,
+    betId: 0,
+    documentTypes: [],
+    files: []
   };
 
   editReport: UpdateBetRequest = {
@@ -119,22 +253,16 @@ export class EtudeBetComponent implements OnInit, OnDestroy {
     authorId: 0
   };
 
-  rejectReason: string = '';
+  rejectReason = '';
 
-  showCreateReportModal = false;
+  // ── Création rapport ──────────────────────────────────────────────────────
   isCreatingReport = false;
   createReportError: string | null = null;
+  newReport = { title: '', version: '', file: null as File | null };
 
-  newReport = {
-    title: '',
-    version: '',
-    file: null as File | null
-  };
-
+  // ── BET auto-complétion ───────────────────────────────────────────────────
   availableBETs: User[] = [];
-  loadingBETs: boolean = false;
-
-  // BET Auto-completion with infinite scroll
+  loadingBETs = false;
   betSearchKeyword = '';
   betSearchSubject = new Subject<string>();
   betPage = 0;
@@ -143,15 +271,14 @@ export class EtudeBetComponent implements OnInit, OnDestroy {
   betLoading = false;
   showBetDropdown = false;
   private searchSubscription?: Subscription;
-  // BET Auto-complétion pour le modal EDIT
-editBetSearchKeyword: string = '';
-showEditBetDropdown: boolean = false;
-editSelectedBET: User | null = null;
 
-  // Current user ID
-  currentUserId: number = 0;
+  // BET auto-complétion pour modal EDIT
+  editBetSearchKeyword = '';
+  showEditBetDropdown = false;
+  editSelectedBET: User | null = null;
 
-  Math: any = Math;
+  // ── Utilisateur courant ───────────────────────────────────────────────────
+  currentUserId = 0;
 
   constructor(
     private etudeBetService: EtudeBetService,
@@ -169,47 +296,37 @@ editSelectedBET: User | null = null;
   }
 
   ngOnDestroy() {
-    if (this.searchSubscription) {
-      this.searchSubscription.unsubscribe();
-    }
+    this.searchSubscription?.unsubscribe();
   }
 
-  /**
-   * Charge l'utilisateur connecté et récupère son ID
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Utilisateur / BET
+  // ═══════════════════════════════════════════════════════════════════════════
+
   private loadCurrentUser(): void {
     const currentUser = this.authService.currentUser();
-    if (currentUser && currentUser.id) {
+    if (currentUser?.id) {
       this.currentUserId = currentUser.id;
       this.newEtude.clientId = currentUser.id;
       this.editEtude.clientId = currentUser.id;
     } else {
-      // Si pas dans le cache, charger depuis l'API
       this.authService.getCurrentUser().subscribe({
         next: (user) => {
-          if (user && user.id) {
+          if (user?.id) {
             this.currentUserId = user.id;
             this.newEtude.clientId = user.id;
             this.editEtude.clientId = user.id;
           }
         },
-        error: (error) => {
-          console.error('Erreur lors du chargement de l\'utilisateur:', error);
-        }
+        error: (err) => console.error('Erreur chargement utilisateur:', err)
       });
     }
   }
 
-  /**
-   * Configure la recherche BET avec debounce
-   */
   private setupBETSearch(): void {
     this.searchSubscription = this.betSearchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(keyword => {
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
         this.betPage = 0;
         this.availableBETs = [];
         this.betHasMore = true;
@@ -217,153 +334,138 @@ editSelectedBET: User | null = null;
       });
   }
 
-  /**
-   * Appelé quand l'utilisateur tape dans le champ de recherche BET
-   */
   onBETSearchChange(): void {
     this.betSearchSubject.next(this.betSearchKeyword);
     this.showBetDropdown = true;
   }
 
-  /**
-   * Sélectionne un BET depuis le dropdown
-   */
   selectBET(bet: User): void {
     this.newEtude.betId = bet.id;
     this.betSearchKeyword = `${bet.prenom} ${bet.nom}`;
     this.showBetDropdown = false;
   }
 
-  /**
-   * Gère le scroll infini dans le dropdown BET
-   */
   onBETScroll(event: Event): void {
-    const element = event.target as HTMLElement;
-    const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
-
-    if (atBottom && this.betHasMore && !this.betLoading) {
+    const el = event.target as HTMLElement;
+    if (el.scrollHeight - el.scrollTop <= el.clientHeight + 50 && this.betHasMore && !this.betLoading) {
       this.betPage++;
       this.loadBETUsers();
     }
   }
 
-  /**
-   * Affiche le dropdown BET
-   */
   focusBETInput(): void {
     this.showBetDropdown = true;
+    if (this.availableBETs.length === 0) this.loadBETUsers();
+  }
+
+  focusEditBETInput(): void {
+    this.showEditBetDropdown = true;
     if (this.availableBETs.length === 0) {
+      this.betPage = 0;
       this.loadBETUsers();
     }
   }
-  // ─── EDIT BET auto-complétion ───────────────────────────────────────────────
 
-focusEditBETInput(): void {
-  this.showEditBetDropdown = true;
-  if (this.availableBETs.length === 0) {
+  onEditBETSearchChange(): void {
     this.betPage = 0;
-    this.loadBETUsers();
+    this.availableBETs = [];
+    this.betHasMore = true;
+    this.betSearchSubject.next(this.editBetSearchKeyword);
+    this.showEditBetDropdown = true;
   }
-}
 
-onEditBETSearchChange(): void {
-  this.betPage = 0;
-  this.availableBETs = [];
-  this.betHasMore = true;
-  this.betSearchSubject.next(this.editBetSearchKeyword);
-  this.showEditBetDropdown = true;
-}
+  selectEditBET(bet: User): void {
+    this.editSelectedBET = bet;
+    this.editEtude.betId = bet.id;
+    this.editBetSearchKeyword = '';
+    this.showEditBetDropdown = false;
+  }
 
-selectEditBET(bet: User): void {
-  this.editSelectedBET = bet;
-  this.editEtude.betId = bet.id;
-  this.editBetSearchKeyword = '';
-  this.showEditBetDropdown = false;
-}
+  clearEditBET(): void {
+    this.editSelectedBET = null;
+    this.editEtude.betId = 0;
+    this.editBetSearchKeyword = '';
+    this.availableBETs = [];
+  }
 
-clearEditBET(): void {
-  this.editSelectedBET = null;
-  this.editEtude.betId = 0;
-  this.editBetSearchKeyword = '';
-  this.availableBETs = [];
-}
-  /**
-   * Charge les utilisateurs BET avec pagination et recherche
-   */
   private loadBETUsers(): void {
     if (this.betLoading) return;
-
     this.betLoading = true;
     this.loadingBETs = true;
 
-    this.userService.getUserByProfil('BET', this.betSearchKeyword, this.betPage, this.betPageSize).subscribe({
+    const keyword = this.editBetSearchKeyword || this.betSearchKeyword;
+    this.userService.getUserByProfil('BET', keyword, this.betPage, this.betPageSize).subscribe({
       next: (response: UserPageResponse) => {
         if (this.betPage === 0) {
           this.availableBETs = response.content;
         } else {
           this.availableBETs = [...this.availableBETs, ...response.content];
         }
-
         this.betHasMore = response.number < response.totalPages - 1;
         this.betLoading = false;
         this.loadingBETs = false;
-
-        console.log(`BETs chargés (page ${this.betPage}):`, response.content.length);
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement des BETs:', error);
+      error: (err) => {
+        console.error('Erreur chargement BETs:', err);
         this.betLoading = false;
         this.loadingBETs = false;
       }
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Données / route
+  // ═══════════════════════════════════════════════════════════════════════════
+
   private getPropertyIdFromRoute(): void {
-    const idFromUrl = this.route.snapshot.paramMap.get('id');
-    if (idFromUrl) {
-      this.currentPropertyId = +idFromUrl;
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.currentPropertyId = +id;
       this.newEtude.propertyId = this.currentPropertyId;
       this.loadEtudes();
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
-      // Vous pouvez gérer l'erreur ou rediriger vers une page d'erreur
     }
   }
 
-  loadEtudes() {
+  loadEtudes(): void {
     this.isLoading = true;
-    this.etudeBetService.getEtude(this.currentPropertyId, this.currentPage, this.pageSize)
-      .subscribe({
-        next: (response: EtudeResponse) => {
-          this.etudes = this.transformEtudesFromAPI(response.content);
-          this.totalElements = response.totalElements;
-          this.totalPages = response.totalPages;
-          this.onSearch();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des études:', error);
-          this.isLoading = false;
-        }
-      });
+    this.etudeBetService.getEtude(this.currentPropertyId, this.currentPage, this.pageSize).subscribe({
+      next: (response: EtudeBetResponse) => {
+        this.etudes = this.transformEtudesFromAPI(response.content);
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.onSearch();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement études:', err);
+        this.isLoading = false;
+      }
+    });
   }
 
-  transformEtudesFromAPI(apiEtudes: Etude[]): EtudeBET[] {
+  transformEtudesFromAPI(apiEtudes: EtudeBet[]): EtudeBET[] {
     return apiEtudes.map(etude => ({
       id: etude.id,
       titre: etude.title,
       description: etude.description,
+      studyType: etude.studyType || '',
+      objective: etude.objective || '',
+      problemObserved: etude.problemObserved || '',
       nomBET: etude.betName,
       dateCreation: this.formatDate(etude.createdAt),
-      statut: this.mapStatus(etude.status),
+     statut: this.mapStatus(etude.status) as 'En attente' | 'En cours' | 'Livrée' | 'Validée' | 'Rejetée',
       propertyId: etude.propertyId,
       propertyName: etude.propertyName,
       moaId: etude.moaId,
       moaName: etude.moaName,
       betId: etude.betId,
+      documents: etude.documents || [],
       rapports: etude.reports?.map(report => ({
         id: report.id,
         nom: report.title,
-        taille: this.getRandomSize(),
+        taille: '',
         dateSubmission: this.formatDate(report.submittedAt),
         url: report.fileUrl,
         versionNumber: report.versionNumber
@@ -371,174 +473,202 @@ clearEditBET(): void {
     }));
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Gestion des paires documentType + fichier
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  addDocumentEntry(): void {
+    this.documentEntries.push({ type: '', file: null, fileName: '' });
+  }
+
+  removeDocumentEntry(index: number): void {
+    this.documentEntries.splice(index, 1);
+  }
+
+  onDocumentTypeChange(index: number, value: string): void {
+    this.documentEntries[index].type = value;
+  }
+
+  onDocumentFileChange(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.documentEntries[index].file = input.files[0];
+      this.documentEntries[index].fileName = input.files[0].name;
+    }
+  }
+
+  isDocumentEntriesValid(): boolean {
+    return this.documentEntries.every(e => e.type && e.file);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Modal IA
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  openIAModal(etude: EtudeBET): void {
+    console.log('🤖 Ouverture modal IA pour l\'étude ID:', etude.id, ' | titre:', etude.titre);
+
+    // Fermer tous les autres modaux pour éviter les conflits d'affichage
+    this.showDetailModal = false;
+    this.showCreateModal = false;
+    this.showEditModal = false;
+    this.showValidateModal = false;
+    this.showRejectModal = false;
+    this.showCreateReportModal = false;
+    this.showCommentsModal = false;
+
+    this.selectedEtudeForIA = etude;
+    this.showIAModal = true;
+    this.iaReport = null;
+    this.iaError = null;
+    this.isLoadingIA = true;
+
+    console.log('🤖 showIAModal =', this.showIAModal);
+
+    this.etudeBetService.getDetailsFromIA(etude.id).subscribe({
+      next: (report) => {
+        console.log('✅ Rapport IA reçu:', report);
+        this.iaReport = report;
+        this.isLoadingIA = false;
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement rapport IA:', err);
+        this.iaError = 'Rapport IA non disponible pour cette étude.';
+        this.isLoadingIA = false;
+      }
+    });
+  }
+
+  closeIAModal(): void {
+    this.showIAModal = false;
+    this.iaReport = null;
+    this.iaError = null;
+    this.selectedEtudeForIA = null;
+  }
+
+  getSeverityClass(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'HIGH': return 'bg-red-100 text-red-800 border border-red-200';
+      case 'MEDIUM': return 'bg-orange-100 text-orange-800 border border-orange-200';
+      case 'LOW': return 'bg-green-100 text-green-800 border border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  }
+
+  getSeverityLabel(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'HIGH': return 'Élevée';
+      case 'MEDIUM': return 'Moyenne';
+      case 'LOW': return 'Faible';
+      default: return severity || 'Inconnue';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Formatage / helpers
+  // ═══════════════════════════════════════════════════════════════════════════
+
   formatDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return '';
     const date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
-  /**
-   * Formate la date d'un commentaire avec heures et minutes
-   */
   formatCommentDate(dateArray: number[]): string {
     if (!dateArray || dateArray.length < 3) return '';
-
-    const date = new Date(
-      dateArray[0],
-      dateArray[1] - 1,
-      dateArray[2],
-      dateArray[3] || 0,
-      dateArray[4] || 0,
-      dateArray[5] || 0
-    );
-
-    return date.toLocaleString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2], dateArray[3] || 0, dateArray[4] || 0);
+    return date.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée' | 'Rejetée' {
-    const statusMap: { [key: string]: any } = {
-      'PENDING': 'En attente',
-      'IN_PROGRESS': 'En cours',
-      'DELIVERED': 'Livrée',
-      'VALIDATED': 'Validée',
-      'REJECTED': 'Rejetée'
-    };
-    return statusMap[apiStatus] || 'En attente';
+
+
+  getStudyTypeLabel(type: string): string {
+    return STUDY_TYPES.find(t => t.value === type)?.label || type;
   }
 
-  getRandomSize(): string {
-    const sizes = ['30 KB', '45 KB', '120 KB', '675 KB', '208 KB', '18 KB'];
-    return sizes[Math.floor(Math.random() * sizes.length)];
+  getDocTypeLabel(type: string): string {
+    return DOCUMENT_TYPES.find(t => t.value === type)?.label || type;
   }
 
-  // Search functionality
-  onSearch() {
+  getDocumentUrl(fileUrl: string): string {
+    if (!fileUrl) return '';
+    if (fileUrl.startsWith('http')) return fileUrl;
+    return this.fileBaseUrl + fileUrl;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Recherche / pagination
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  onSearch(): void {
     if (!this.searchTerm.trim()) {
       this.filteredEtudes = [...this.etudes];
       return;
     }
-
-    this.filteredEtudes = this.etudes.filter(etude =>
-      etude.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      etude.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      etude.nomBET.toLowerCase().includes(this.searchTerm.toLowerCase())
+    const term = this.searchTerm.toLowerCase();
+    this.filteredEtudes = this.etudes.filter(e =>
+      e.titre.toLowerCase().includes(term) ||
+      e.description.toLowerCase().includes(term) ||
+      e.nomBET.toLowerCase().includes(term)
     );
   }
 
-  // Pagination
-  goToPage(page: number) {
+  goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
       this.loadEtudes();
     }
   }
 
-  nextPage() {
-    this.goToPage(this.currentPage + 1);
-  }
-
-  previousPage() {
-    this.goToPage(this.currentPage - 1);
-  }
+  nextPage(): void { this.goToPage(this.currentPage + 1); }
+  previousPage(): void { this.goToPage(this.currentPage - 1); }
 
   getPageNumbers(): number[] {
-    const pages = [];
-    for (let i = 0; i < this.totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
+    return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 
-  // Status styling
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Statut / styles
+  // ═══════════════════════════════════════════════════════════════════════════
+
   getStatusClass(statut: string): string {
-    switch (statut) {
-      case 'En attente': return 'bg-gray-100 text-gray-800';
-      case 'En cours': return 'bg-yellow-100 text-yellow-800';
-      case 'Livrée': return 'bg-blue-100 text-blue-800';
-      case 'Validée': return 'bg-green-100 text-green-800';
-      case 'Rejetée': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    const map: Record<string, string> = {
+      'En attente': 'bg-yellow-100 text-yellow-800',
+      'En cours': 'bg-blue-100 text-blue-800',
+      'Résolu': 'bg-green-100 text-green-800',
+      'Fermé': 'bg-gray-100 text-gray-800',
+      'Livrée': 'bg-blue-100 text-blue-800',
+      'Validée': 'bg-green-100 text-green-800',
+      'Rejetée': 'bg-red-100 text-red-800',
+    };
+    return map[statut] || 'bg-gray-100 text-gray-800';
   }
 
-  // Progress bar for detail view
-  // 5. Modifier la méthode getProgressSteps pour gérer les icônes
-  getProgressSteps(statut: string): {
-    step: number;
-    isCompleted: boolean;
-    isCurrent: boolean;
-    label: string;
-    showCheck: boolean;
-  }[] {
+
+  getProgressSteps(statut: string): { step: number; isCompleted: boolean; isCurrent: boolean; label: string; showCheck: boolean }[] {
     const steps = [
       { step: 1, label: 'En attente de réponse', isCompleted: false, isCurrent: false, showCheck: false },
-      { step: 2, label: 'En cours d\'acceptation', isCompleted: false, isCurrent: false, showCheck: false },
+      { step: 2, label: "En cours d'acceptation", isCompleted: false, isCurrent: false, showCheck: false },
       { step: 3, label: 'En cours de livraison', isCompleted: false, isCurrent: false, showCheck: false },
       { step: 4, label: 'Validation/Rejet', isCompleted: false, isCurrent: false, showCheck: false }
     ];
-
-    switch (statut) {
-      case 'En attente':
-        steps[0].isCurrent = true;
-        break;
-      case 'En cours':
-        steps[0].isCompleted = true;
-        steps[0].showCheck = true;
-        steps[1].isCurrent = true;
-        break;
-      case 'Livrée':
-        steps[0].isCompleted = true;
-        steps[0].showCheck = true;
-        steps[1].isCompleted = true;
-        steps[1].showCheck = true;
-        steps[2].isCurrent = true;
-        break;
-      case 'Validée':
-        steps[0].isCompleted = true;
-        steps[0].showCheck = true;
-        steps[1].isCompleted = true;
-        steps[1].showCheck = true;
-        steps[2].isCompleted = true;
-        steps[2].showCheck = true;
-        steps[3].isCompleted = true;
-        steps[3].showCheck = true;
-        break;
-      case 'Rejetée':
-        steps[0].isCompleted = true;
-        steps[0].showCheck = true;
-        steps[1].isCompleted = true;
-        steps[1].showCheck = true;
-        steps[2].isCompleted = true;
-        steps[2].showCheck = true;
-        steps[3].isCompleted = true;
-        steps[3].showCheck = true;
-        break;
-    }
-
+    const idx = { 'En attente': 0, 'En cours': 1, 'Livrée': 2, 'Validée': 3, 'Rejetée': 3 }[statut] ?? 0;
+    for (let i = 0; i < idx; i++) { steps[i].isCompleted = true; steps[i].showCheck = true; }
+    steps[idx].isCurrent = true;
     return steps;
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Modaux — ouverture / fermeture
+  // ═══════════════════════════════════════════════════════════════════════════
 
-
-  // Modal actions
-  openCreateModal() {
+  openCreateModal(): void {
     this.newEtude = {
-      title: '',
-      description: '',
-      propertyId: this.currentPropertyId,
-      clientId: this.currentUserId,
-      betId: 0
+      title: '', description: '', studyType: '', objective: '', problemObserved: '',
+      propertyId: this.currentPropertyId, clientId: this.currentUserId, betId: 0,
+      documentTypes: [], files: []
     };
+    this.documentEntries = [];
     this.betSearchKeyword = '';
     this.betPage = 0;
     this.availableBETs = [];
@@ -546,109 +676,60 @@ clearEditBET(): void {
     this.showCreateModal = true;
   }
 
-openEditModal(etude: EtudeBET) {
-  this.editEtude = {
-    title: etude.titre,
-    description: etude.description,
-    propertyId: etude.propertyId,
-    clientId: this.currentUserId,
-    betId: etude.betId
-  };
-  this.selectedEtude = etude;
+  openEditModal(etude: EtudeBET): void {
+    this.editEtude = {
+      title: etude.titre, description: etude.description, studyType: etude.studyType,
+      objective: etude.objective, problemObserved: etude.problemObserved,
+      propertyId: etude.propertyId, clientId: this.currentUserId, betId: etude.betId,
+      documentTypes: [], files: []
+    };
+    this.documentEntries = []; // reset les documents
+    this.selectedEtude = etude;
+    this.editSelectedBET = {
+      id: etude.betId,
+      nom: etude.nomBET.split(' ').slice(1).join(' ') || etude.nomBET,
+      prenom: etude.nomBET.split(' ')[0] || '',
+      email: '', profil: 'BET'
+    };
+    this.editBetSearchKeyword = '';
+    this.showEditBetDropdown = false;
+    this.betPage = 0;
+    this.availableBETs = [];
+    this.showEditModal = true;
+  }
 
-  // Pré-remplir le BET sélectionné depuis les données de l'étude
-  this.editSelectedBET = {
-    id: etude.betId,
-    nom: etude.nomBET.split(' ').slice(1).join(' ') || etude.nomBET,
-    prenom: etude.nomBET.split(' ')[0] || '',
-    email: '',
-    profil: 'BET'
-  };
-
-  this.editBetSearchKeyword = '';
-  this.showEditBetDropdown = false;
-  this.betPage = 0;
-  this.availableBETs = [];
-  this.showEditModal = true;
-}
-
-  /**
-   * Ouvre le modal de détail et charge les commentaires
-   */
-  openDetailModal(etude: EtudeBET) {
+  openDetailModal(etude: EtudeBET): void {
     this.selectedEtude = etude;
     this.showDetailModal = true;
     this.loadCommentsForDetail(etude);
   }
 
-  /**
-   * Charge les commentaires pour l'affichage dans le modal de détail
-   */
-  private loadCommentsForDetail(etude: EtudeBET) {
-    this.isLoading = true;
-
+  private loadCommentsForDetail(etude: EtudeBET): void {
     this.etudeBetService.getComment(etude.id).subscribe({
-      next: (comments) => {
-        this.comments = comments;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des commentaires:', error);
-        this.comments = [];
-        this.isLoading = false;
-      }
+      next: (comments) => { this.comments = comments; },
+      error: (err) => { console.error('Erreur commentaires:', err); this.comments = []; }
     });
   }
 
-  /**
-   * Charge les commentaires dans le modal dédié
-   */
-  loadComments(etude: EtudeBET) {
+  loadComments(etude: EtudeBET): void {
     this.selectedEtudeForComments = etude;
-    this.isLoading = true;
-
     this.etudeBetService.getComment(etude.id).subscribe({
-      next: (comments) => {
-        this.comments = comments;
-        this.showCommentsModal = true;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des commentaires:', error);
-        this.comments = [];
-        this.showCommentsModal = true;
-        this.isLoading = false;
-      }
+      next: (comments) => { this.comments = comments; this.showCommentsModal = true; },
+      error: (err) => { console.error('Erreur commentaires:', err); this.comments = []; this.showCommentsModal = true; }
     });
   }
 
-  openValidateModal(etude: EtudeBET) {
-    this.selectedEtude = etude;
-    this.showValidateModal = true;
-  }
+  openValidateModal(etude: EtudeBET): void { this.selectedEtude = etude; this.showValidateModal = true; }
+  openRejectModal(etude: EtudeBET): void { this.selectedEtude = etude; this.rejectReason = ''; this.showRejectModal = true; }
 
-  openRejectModal(etude: EtudeBET) {
-    this.selectedEtude = etude;
-    this.rejectReason = '';
-    this.showRejectModal = true;
-  }
-
-  openEditReportModal(rapport: { id: number; nom: string; taille: string; dateSubmission: string; url: string; versionNumber: number }, etude: EtudeBET) {
+  openEditReportModal(rapport: any, etude: EtudeBET): void {
     this.selectedReport = rapport;
     this.selectedEtude = etude;
-
-    this.editReport = {
-      title: rapport.nom,
-      file: '',
-      versionNumber: rapport.versionNumber + 1,
-      studyRequestId: etude.id,
-      authorId: this.currentPropertyId
-    };
-
+    this.editReport = { title: rapport.nom, file: '', versionNumber: rapport.versionNumber + 1, studyRequestId: etude.id, authorId: this.currentPropertyId };
     this.showEditReportModal = true;
   }
 
-  closeAllModals() {
+  closeAllModals(): void {
     this.showCreateModal = false;
     this.showEditModal = false;
     this.showDetailModal = false;
@@ -662,462 +743,230 @@ openEditModal(etude: EtudeBET) {
     this.rejectReason = '';
     this.newComment = '';
     this.comments = [];
+    this.documentEntries = [];
   }
 
-  // CRUD operations
-  createEtude() {
-    if (this.newEtude.title && this.newEtude.description && this.newEtude.betId) {
-      this.isLoading = true;
-      this.etudeBetService.createEtude(this.newEtude).subscribe({
-        next: (response) => {
-          console.log('Étude créée avec succès:', response);
-          this.loadEtudes();
-          this.closeAllModals();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la création de l\'étude:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  updateEtude() {
-    if (this.selectedEtude && this.editEtude.title && this.editEtude.description && this.editEtude.betId) {
-      this.isLoading = true;
-
-      const updateRequest: CreateEtudeRequest = {
-        title: this.editEtude.title,
-        description: this.editEtude.description,
-        propertyId: this.editEtude.propertyId,
-        clientId: this.editEtude.clientId,
-        betId: this.editEtude.betId
-      };
-
-      this.etudeBetService.updateEtude(this.selectedEtude.id, updateRequest).subscribe({
-        next: (response) => {
-          console.log('Étude mise à jour avec succès:', response);
-          this.loadEtudes();
-          this.closeAllModals();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la mise à jour de l\'étude:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  updateReport() {
-    if (this.selectedReport && this.editReport.title && this.editReport.studyRequestId) {
-      this.isLoading = true;
-
-      this.editReport.authorId = this.currentPropertyId;
-
-      this.etudeBetService.updateReport(this.selectedReport.id, this.editReport).subscribe({
-        next: (response) => {
-          console.log('Rapport mis à jour avec succès:', response);
-          this.loadEtudes();
-          this.closeAllModals();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la mise à jour du rapport:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  deleteReport(rapport: { id: number; nom: string }, etude: EtudeBET) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${rapport.nom}" ?`)) {
-      this.isLoading = true;
-      this.etudeBetService.deleteReport(rapport.id).subscribe({
-        next: (response) => {
-          console.log('Rapport supprimé avec succès');
-          this.loadEtudes();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression du rapport:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  validateEtude() {
-    if (this.selectedEtude) {
-      this.isLoading = true;
-      this.etudeBetService.acceptEtude(this.selectedEtude.id).subscribe({
-        next: (response) => {
-          console.log('✅ Étude validée avec succès');
-          this.loadEtudes();
-          this.closeAllModals();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la validation:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  rejectEtude() {
-    if (this.selectedEtude) {
-      this.isLoading = true;
-      this.etudeBetService.rejectEtude(this.selectedEtude.id).subscribe({
-        next: (response) => {
-          console.log('✅ Étude rejetée avec succès');
-          this.loadEtudes();
-          this.closeAllModals();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors du rejet:', error);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
-  deleteEtude(etude: EtudeBET) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette étude ?')) {
-      console.log('Suppression d\'étude non disponible dans l\'API actuelle');
-    }
-  }
-
-  // Actions based on status
-  canEdit(statut: string): boolean {
-    return ['En attente', 'En cours'].includes(statut);
-  }
-
-  canValidateOrReject(statut: string): boolean {
-    return statut === 'Livrée';
-  }
-
-
-  // Download report
-  downloadReport(rapport: { id: number; nom: string; url: string }) {
-    if (rapport.url) {
-      window.open(rapport.url, '_blank');
-    } else {
-      console.log('URL de téléchargement non disponible pour:', rapport.nom);
-    }
-  }
-
-  /**
-   * Ajoute un commentaire depuis le modal de détail
-   */
-  addCommentDetail(content: string) {
-    // Validation du contenu
-    if (!content?.trim()) {
-      console.warn('⚠️ Contenu du commentaire vide');
-      return;
-    }
-
-    // Validation de l'étude sélectionnée
-    if (!this.selectedEtude || !this.selectedEtude.id) {
-      console.error('❌ Aucune étude sélectionnée');
-      return;
-    }
-
-    // Récupération de l'utilisateur connecté
-    const currentUser = this.authService.currentUser();
-
-    // Validation de l'utilisateur
-    if (!currentUser) {
-      console.error('❌ Utilisateur non connecté');
-      alert('Vous devez être connecté pour ajouter un commentaire');
-      return;
-    }
-
-    if (!currentUser.id) {
-      console.error('❌ ID utilisateur manquant');
-      alert('Erreur d\'authentification. Veuillez vous reconnecter.');
-      return;
-    }
-
-    this.isLoading = true;
-
-    const commentData = {
-      content: content.trim()
-    };
-
-    // ✅ CORRECTION : Utiliser demandeService avec la bonne structure d'URL
-    this.demandeService.createComment(
-      this.selectedEtude.id,
-      currentUser.id,
-      commentData
-    ).subscribe({
-      next: (response) => {
-        console.log('✅ Commentaire ajouté avec succès:', response);
-
-        // Recharger les commentaires pour afficher le nouveau
-        if (this.selectedEtude) {
-          this.loadCommentsForDetail(this.selectedEtude);
-        }
-
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
-
-        // Message d'erreur plus précis selon le type d'erreur
-        if (error.status === 401) {
-          alert('Session expirée. Veuillez vous reconnecter.');
-        } else if (error.status === 403) {
-          alert('Vous n\'avez pas les permissions pour ajouter un commentaire.');
-        } else if (error.status === 404) {
-          alert('L\'étude n\'existe plus.');
-        } else {
-          alert('Erreur lors de l\'ajout du commentaire. Veuillez réessayer.');
-        }
-
-        this.isLoading = false;
-      }
-    });
-  }
-
-  /**
-   * Ajoute un nouveau commentaire dans le modal dédié
-   */
-  // addComment() {
-  //   if (this.newComment.trim() && this.selectedEtudeForComments) {
-  //     this.isLoading = true;
-
-  //     const commentData = {
-  //       content: this.newComment
-  //     };
-
-  //     // ID utilisateur - remplacez par l'ID de l'utilisateur connecté
-  //     const userId = this.authService.getConnectedUserId();
-
-  //     this.etudeBetService.createComment(
-  //       this.selectedEtudeForComments.id, 
-  //       userId, 
-  //       commentData
-  //     ).subscribe({
-  //       next: (response) => {
-  //         console.log('Commentaire ajouté avec succès:', response);
-  //         // Recharger les commentaires pour afficher le nouveau
-  //         this.loadComments(this.selectedEtudeForComments!);
-  //         this.newComment = '';
-  //       },
-  //       error: (error) => {
-  //         console.error('Erreur lors de l\'ajout du commentaire:', error);
-  //         this.isLoading = false;
-  //       }
-  //     });
-  //   }
-  // }
-
-  // Utility method to get BET name by ID
-  getBETNameById(betId: number): string {
-    const bet = this.availableBETs.find(b => b.id === betId);
-    return bet ? bet.nom : '';
-  }
-  // 2. AJOUTER CES MÉTHODES
-
-  /**
-   * Ouvre le modal de création de rapport
-   */
   openCreateReportModal(): void {
-    if (!this.selectedEtude) {
-      console.error('❌ Aucune étude sélectionnée');
-      return;
-    }
-
-    this.newReport = {
-      title: '',
-      version: '',
-      file: null
-    };
+    if (!this.selectedEtude) return;
+    this.newReport = { title: '', version: '', file: null };
     this.createReportError = null;
     this.showCreateReportModal = true;
-
-    console.log('📄 Ouverture modal création rapport pour étude:', this.selectedEtude.titre);
   }
 
-  /**
-   * Ferme le modal de création de rapport
-   */
   closeCreateReportModal(): void {
     this.showCreateReportModal = false;
     this.isCreatingReport = false;
     this.createReportError = null;
-    this.newReport = {
-      title: '',
-      version: '1',
-      file: null
-    };
+    this.newReport = { title: '', version: '1', file: null };
   }
 
-  /**
-   * Gère la sélection du fichier
-   */
+  cancelCreateReport(): void { this.closeCreateReportModal(); }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CRUD
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  createEtude(): void {
+    const valid = this.newEtude.title && this.newEtude.description && this.newEtude.studyType &&
+      this.newEtude.objective && this.newEtude.problemObserved && this.newEtude.betId;
+    if (!valid) return;
+    if (this.documentEntries.length > 0 && !this.isDocumentEntriesValid()) {
+      alert('Veuillez remplir le type et le fichier pour chaque document.');
+      return;
+    }
+
+    this.newEtude.documentTypes = this.documentEntries.map(e => e.type);
+    this.newEtude.files = this.documentEntries.map(e => e.file!);
+
+    this.isLoading = true;
+    this.etudeBetService.createEtude(this.newEtude).subscribe({
+      next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
+      error: (err) => { console.error('Erreur création étude:', err); this.isLoading = false; }
+    });
+  }
+
+  updateEtude(): void {
+    const valid = this.editEtude.title && this.editEtude.description && this.editEtude.studyType &&
+      this.editEtude.objective && this.editEtude.problemObserved && this.editEtude.betId;
+    if (!this.selectedEtude || !valid) return;
+    
+    if (this.documentEntries.length > 0 && !this.isDocumentEntriesValid()) {
+      alert('Veuillez remplir le type et le fichier pour chaque document.');
+      return;
+    }
+
+    this.editEtude.documentTypes = this.documentEntries.map(e => e.type);
+    this.editEtude.files = this.documentEntries.map(e => e.file!);
+
+    this.isLoading = true;
+    this.etudeBetService.updateEtude(this.selectedEtude.id, this.editEtude).subscribe({
+      next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
+      error: (err) => { console.error('Erreur mise à jour étude:', err); this.isLoading = false; }
+    });
+  }
+
+  updateReport(): void {
+    if (!this.selectedReport || !this.editReport.title || !this.editReport.studyRequestId) return;
+    this.isLoading = true;
+    this.editReport.authorId = this.currentPropertyId;
+    this.etudeBetService.updateReport(this.selectedReport.id, this.editReport).subscribe({
+      next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
+      error: (err) => { console.error('Erreur mise à jour rapport:', err); this.isLoading = false; }
+    });
+  }
+
+  deleteReport(rapport: { id: number; nom: string }, etude: EtudeBET): void {
+    if (confirm(`Supprimer le rapport "${rapport.nom}" ?`)) {
+      this.isLoading = true;
+      this.etudeBetService.deleteReport(rapport.id).subscribe({
+        next: () => { this.loadEtudes(); this.isLoading = false; },
+        error: (err) => { console.error('Erreur suppression rapport:', err); this.isLoading = false; }
+      });
+    }
+  }
+
+  validateEtude(): void {
+    if (!this.selectedEtude) return;
+    this.isLoading = true;
+    this.etudeBetService.acceptEtude(this.selectedEtude.id).subscribe({
+      next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
+      error: (err) => { console.error('Erreur validation:', err); this.isLoading = false; }
+    });
+  }
+
+  rejectEtude(): void {
+    if (!this.selectedEtude) return;
+    this.isLoading = true;
+    this.etudeBetService.rejectEtude(this.selectedEtude.id).subscribe({
+      next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
+      error: (err) => { console.error('Erreur rejet:', err); this.isLoading = false; }
+    });
+  }
+
+  deleteEtude(etude: EtudeBET): void {
+    console.log('Suppression non disponible dans l\'API actuelle');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Commentaires
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  addCommentDetail(content: string): void {
+    if (!content?.trim() || !this.selectedEtude?.id) return;
+    const currentUser = this.authService.currentUser();
+    if (!currentUser?.id) { alert('Vous devez être connecté pour commenter.'); return; }
+
+    this.isLoading = true;
+    this.demandeService.createComment(this.selectedEtude.id, currentUser.id, { content: content.trim() }).subscribe({
+      next: () => { if (this.selectedEtude) this.loadCommentsForDetail(this.selectedEtude); this.isLoading = false; },
+      error: (err) => { console.error('Erreur commentaire:', err); this.isLoading = false; }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Rapport
+  // ═══════════════════════════════════════════════════════════════════════════
+
   onReportFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.newReport.file = input.files[0];
-      console.log('📎 Fichier sélectionné:', this.newReport.file.name);
-    }
+    if (input.files?.length) this.newReport.file = input.files[0];
   }
 
-  /**
-   * Valide le formulaire de création de rapport
-   */
-  private isCreateReportFormValid(): boolean {
-    return !!(
-      this.newReport.title?.trim() &&
-      this.newReport.version?.trim() &&
-      this.newReport.file
-    );
-  }
+  getReportFileName(): string { return this.newReport.file?.name || 'Aucun fichier choisi'; }
+  hasReportFileSelected(): boolean { return !!this.newReport.file; }
 
-  /**
-   * Récupère le nom du fichier sélectionné
-   */
-  getReportFileName(): string {
-    return this.newReport.file ? this.newReport.file.name : 'Aucun fichier choisi';
-  }
-
-  /**
-   * Vérifie si un fichier est sélectionné
-   */
-  hasReportFileSelected(): boolean {
-    return !!this.newReport.file;
-  }
-
-  /**
-   * Crée un nouveau rapport
-   */
   createReport(): void {
-    // Validation du formulaire
-    if (!this.isCreateReportFormValid()) {
-      this.createReportError = 'Veuillez remplir tous les champs obligatoires';
+    if (!this.newReport.title?.trim() || !this.newReport.version?.trim() || !this.newReport.file) {
+      this.createReportError = 'Veuillez remplir tous les champs obligatoires.';
       return;
     }
-
-    // Validation de l'étude sélectionnée
-    if (!this.selectedEtude) {
-      this.createReportError = 'Aucune étude sélectionnée';
-      return;
-    }
-
-    // Validation du fichier
-    if (!this.newReport.file) {
-      this.createReportError = 'Veuillez sélectionner un fichier';
-      return;
-    }
-
-    // Récupération de l'utilisateur connecté
-    const currentUser = this.authService?.currentUser();
-
-    if (!currentUser || !currentUser.id) {
-      this.createReportError = 'Utilisateur non connecté. Veuillez vous reconnecter.';
-      return;
-    }
+    if (!this.selectedEtude) { this.createReportError = 'Aucune étude sélectionnée.'; return; }
+    const currentUser = this.authService.currentUser();
+    if (!currentUser?.id) { this.createReportError = 'Utilisateur non connecté.'; return; }
 
     this.isCreatingReport = true;
     this.createReportError = null;
 
-    // Préparation des données du rapport
-    const reportData = {
+    this.demandeService.createReport({
       title: this.newReport.title.trim(),
       versionNumber: parseInt(this.newReport.version),
       studyRequestId: this.selectedEtude.id,
       authorId: currentUser.id
-    };
-
-    console.log('📤 Création du rapport:', {
-      ...reportData,
-      fileName: this.newReport.file.name,
-      fileSize: this.newReport.file.size
-    });
-
-    // Appel du service pour créer le rapport
-    const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
+    }, this.newReport.file).subscribe({
       next: (response) => {
-        console.log('✅ Rapport créé avec succès:', response);
-
-        // Mise à jour de l'étude sélectionnée avec le nouveau rapport
         if (this.selectedEtude) {
-          if (!this.selectedEtude.rapports) {
-            this.selectedEtude.rapports = [];
-          }
-
-          // Ajouter le nouveau rapport à la liste
+          if (!this.selectedEtude.rapports) this.selectedEtude.rapports = [];
           this.selectedEtude.rapports.push({
-            id: response.id,
-            nom: response.title || this.newReport.title,
+            id: response.id, nom: response.title || this.newReport.title,
             taille: this.formatFileSize(this.newReport.file!.size),
             dateSubmission: this.getCurrentDateFormatted(),
-            url: response.fileUrl || '',
-            versionNumber: response.versionNumber || parseInt(this.newReport.version)
+            url: response.fileUrl || '', versionNumber: response.versionNumber || parseInt(this.newReport.version)
           });
         }
-
-        // Recharger les études pour avoir les données à jour
         this.loadEtudes();
-
-        // Fermer le modal
         this.closeCreateReportModal();
-
         this.isCreatingReport = false;
       },
-      error: (error) => {
-        console.error('❌ Erreur lors de la création du rapport:', error);
-
-        // Gestion des erreurs spécifiques
-        if (error.status === 401) {
-          this.createReportError = 'Session expirée. Veuillez vous reconnecter.';
-        } else if (error.status === 403) {
-          this.createReportError = 'Vous n\'avez pas les permissions pour créer un rapport.';
-        } else if (error.status === 413) {
-          this.createReportError = 'Le fichier est trop volumineux.';
-        } else {
-          this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
-        }
-
+      error: (err) => {
+        console.error('Erreur création rapport:', err);
+        this.createReportError = err.status === 413 ? 'Fichier trop volumineux.' : 'Erreur lors de la création du rapport.';
         this.isCreatingReport = false;
       }
     });
   }
-  /**
-   * Retourne la date actuelle formatée en string (jj-mm-aaaa)
-   */
+
+  downloadReport(rapport: { id: number; nom: string; url: string }): void {
+    if (rapport.url) window.open(rapport.url, '_blank');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Conditions d'affichage
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  canEdit(statut: string): boolean { return ['En attente', 'En cours'].includes(statut); }
+  canValidateOrReject(statut: string): boolean { return statut === 'Livrée'; }
+  getBETNameById(betId: number): string { return this.availableBETs.find(b => b.id === betId)?.nom || ''; }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Utilitaires privés
+  // ═══════════════════════════════════════════════════════════════════════════
+
   private getCurrentDateFormatted(): string {
     const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-
-    return `${day}-${month}-${year}`;  // ✅ Format jj-mm-aaaa avec tirets
+    return `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
   }
 
-  /**
-   * Annule la création du rapport
-   */
-  cancelCreateReport(): void {
-    this.closeCreateReportModal();
-  }
-
-  /**
-   * Formate la taille du fichier
-   */
   private formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
-
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Badges studyType
+  // ═══════════════════════════════════════════════════════════════════════════
 
+  getStudyTypeBadgeClass(studyType: string): string {
+    const map: Record<string, string> = {
+      FOUNDATION_RECALCULATION: 'bg-orange-100 text-orange-800',
+      SOIL_ANALYSIS:            'bg-yellow-100 text-yellow-800',
+      STRUCTURAL_ANALYSIS:      'bg-blue-100 text-blue-800',
+      CRACK_ANALYSIS:           'bg-red-100 text-red-800',
+      LOAD_VERIFICATION:        'bg-cyan-100 text-cyan-800',
+      STRUCTURAL_REINFORCEMENT: 'bg-purple-100 text-purple-800',
+      OTHER:                    'bg-gray-100 text-gray-800',
+    };
+    return map[studyType] || 'bg-gray-100 text-gray-800';
+  }
+
+  // Alias exposés pour compatibilité avec les directives du template
+  get iaErrorMessage(): string { return this.iaError ?? ''; }
+  get selectedIAReport() { return this.iaReport; }
+
+  /** Alias pour ouvrirRapportIA(id) appelé depuis le template */
+  ouvrirRapportIA(studyId: number): void {
+    const etude = this.etudes.find(e => e.id === studyId);
+    if (etude) this.openIAModal(etude);
+  }
 }

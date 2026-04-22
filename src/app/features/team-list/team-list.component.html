@@ -93,9 +93,14 @@
 
           <!-- Colonne Nom avec avatar -->
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-              <img [src]="member.avatar" [alt]="member.name" class="w-full h-full object-cover"
-                (error)="$any($event.target).src = 'assets/images/av1.svg'">
+            <div class="relative w-10 h-10 flex-shrink-0">
+              <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                <img [src]="member.avatar" [alt]="member.name" class="w-full h-full object-cover"
+                  (error)="$any($event.target).src = 'assets/images/av1.svg'">
+              </div>
+              <!-- Indicateur vert/rouge de présence -->
+              <span [class]="getPresentIndicatorClass(member.present)"
+                title="{{ getPresentText(member.present) }}"></span>
             </div>
             <span class="font-medium text-gray-900 truncate">{{ member.name }}</span>
           </div>
@@ -385,12 +390,21 @@
             <div class="space-y-4">
               <!-- Profil -->
               <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-                <div class="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                  <img [src]="selectedMember.avatar" [alt]="selectedMember.name" class="w-full h-full object-cover">
+                <div class="relative w-14 h-14 flex-shrink-0">
+                  <div class="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+                    <img [src]="selectedMember.avatar" [alt]="selectedMember.name" class="w-full h-full object-cover">
+                  </div>
+                  <!-- Indicateur de présence sur la photo du modal -->
+                  <span [class]="getPresentIndicatorClass(selectedMember.present)"
+                    [title]="getPresentText(selectedMember.present)"></span>
                 </div>
                 <div class="flex-1">
                   <h3 class="text-base font-semibold text-gray-900">{{ selectedMember.name }}</h3>
                   <p class="text-sm text-gray-600">{{ formatRole(selectedMember.role) }}</p>
+                  <!-- Badge présence sous le nom -->
+                  <span [class]="getPresentClass(selectedMember.present)" class="mt-1 inline-block">
+                    {{ getPresentText(selectedMember.present) }}
+                  </span>
                 </div>
                 <div class="flex gap-2">
                   <button
@@ -608,15 +622,18 @@
                 </div>
               </div>
 
-              <!-- Historique des présences -->
+              <!-- Historique des présences : en-tête de date une seule fois par groupe -->
               <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2"
                 *ngIf="selectedMember.presenceHistory && selectedMember.presenceHistory.length > 0">
-                <div *ngFor="let day of getFilteredPresenceHistory()">
+                <div *ngFor="let day of getFilteredPresenceHistory()" class="mb-4">
+
+                  <!-- En-tête de date — affiché UNE SEULE FOIS par groupe -->
                   <div class="flex items-center justify-between mb-3 border-l-4 border-orange-500 pl-4 pb-1">
                     <span class="text-sm font-semibold text-gray-900">{{ day.date }}</span>
-                    <span class="text-sm text-gray-600">Total: {{ day.totalTime }}</span>
+                    <span class="text-sm text-gray-600">{{ t('team.total') }}: {{ day.totalTime }}</span>
                   </div>
 
+                  <!-- Cards d'entrée/sortie pour ce groupe de dates -->
                   <div *ngFor="let session of day.sessions" class="bg-white border border-gray-200 rounded-lg p-3 mb-2">
                     <div class="flex items-center gap-3 mb-2">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -629,10 +646,9 @@
                       <div class="flex-1">
                         <span class="text-sm text-gray-600">{{ t('team.entry') }}:</span>
                         <span class="text-sm font-semibold text-gray-900 ml-1">{{ session.entry }}</span>
-
                       </div>
                       <span class="text-xs px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">{{
-                        t('team.presentLabel') }}</span>
+                        t('team.present') }}</span>
                     </div>
                     <div class="flex items-center gap-3">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -648,6 +664,7 @@
                       </div>
                     </div>
                   </div>
+
                 </div>
               </div>
 

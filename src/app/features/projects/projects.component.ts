@@ -96,6 +96,23 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string = '';
 
+  // Modal d'erreur
+  showErrorModal = false;
+  errorModalMessage = '';
+  errorModalTitle = 'Une erreur est survenue';
+
+  openErrorModal(message: string, title?: string): void {
+    this.errorModalTitle = title || 'Une erreur est survenue';
+    this.errorModalMessage = message;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.errorModalMessage = '';
+    this.errorModalTitle = 'Une erreur est survenue';
+  }
+
   // Ajoutez Math pour le template
   readonly Math = Math;
 

@@ -25,7 +25,8 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   validationErrors: string[] = [];
   isLoading = false;
-  selectedPhoto: File | null = null; // Pour stocker le fichier sélectionné
+  showLangDropdown = false;
+  selectedPhoto: File | null = null;
   photoPreview: string | null = null; // Pour l'aperçu de l'image
   // Profils disponibles (seulement PROMOTEUR et MOA)
   availableProfiles: ProfileMapping[] = [

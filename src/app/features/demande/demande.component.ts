@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DemandeService, Demande, Report, Comment as DemandeComment } from './../../../services/demande.service';
 import { AuthService } from './../../features/auth/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
+import { EtudeBetService, StudyIAReport } from '../../../services/etude-bet.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -69,6 +70,12 @@ export class DemandeComponent implements OnInit, OnDestroy {
   // ID du BET
   betId: number | null = null;
 
+  // ========== MODAL IA ==========
+  showIAModal: boolean = false;
+  selectedIAReport: StudyIAReport | null = null;
+  isLoadingIA: boolean = false;
+  iaError: string = '';
+
   // Subscriptions
   private subscriptions: Subscription = new Subscription();
 
@@ -77,7 +84,8 @@ export class DemandeComponent implements OnInit, OnDestroy {
   constructor(
     private demandeService: DemandeService,
     private authService: AuthService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private etudeBetService: EtudeBetService
   ) { }
 
   t(key: string, params?: any): string {
@@ -755,5 +763,63 @@ export class DemandeComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.add(deliverSubscription);
+  }
+
+  // ========== MODAL IA ==========
+
+  openIAModal(demande: Demande): void {
+    this.showIAModal = true;
+    this.isLoadingIA = true;
+    this.iaError = '';
+    this.selectedIAReport = null;
+
+    this.etudeBetService.getDetailsFromIA(demande.id).subscribe({
+      next: (report) => {
+        this.selectedIAReport = report;
+        this.isLoadingIA = false;
+      },
+      error: (err) => {
+        console.error('Erreur rapport IA:', err);
+        this.iaError = 'Rapport IA non disponible pour cette étude.';
+        this.isLoadingIA = false;
+      }
+    });
+  }
+
+  closeIAModal(): void {
+    this.showIAModal = false;
+    this.selectedIAReport = null;
+    this.iaError = '';
+  }
+
+  getSeverityClass(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'HIGH': return 'bg-red-100 text-red-800 border border-red-200';
+      case 'MEDIUM': return 'bg-orange-100 text-orange-800 border border-orange-200';
+      case 'LOW': return 'bg-green-100 text-green-800 border border-green-200';
+      default: return 'bg-blue-100 text-blue-800 border border-blue-200';
+    }
+  }
+
+  getSeverityLabel(severity: string): string {
+    switch (severity?.toUpperCase()) {
+      case 'HIGH': return 'Élevée';
+      case 'MEDIUM': return 'Moyenne';
+      case 'LOW': return 'Faible';
+      default: return severity || 'Info';
+    }
+  }
+
+  getStudyTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      STRUCTURAL_ANALYSIS:      'Analyse structurelle',
+      FOUNDATION_RECALCULATION: 'Recalcul de fondation',
+      CRACK_ANALYSIS:           'Analyse de fissures',
+      SOIL_ANALYSIS:            'Analyse de sol',
+      LOAD_VERIFICATION:        'Vérification des charges',
+      STRUCTURAL_REINFORCEMENT: 'Renforcement structurel',
+      OTHER:                    'Autre',
+    };
+    return map[type] || type;
   }
 }
