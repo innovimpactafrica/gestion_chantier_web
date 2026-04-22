@@ -601,7 +601,14 @@ export class CompteComponent implements OnInit, OnDestroy {
     }
 
     const user = this.currentUser();
-    return !!(user?.photo) && !this.photoLoadError();
+    const photo = user?.photo;
+    
+    // Rejeter si la photo n'est pas définie, ou si c'est la valeur par défaut/mock 'string'/'null'
+    if (!photo || photo === 'string' || photo === 'null' || photo === 'assets/images/profil.png' || photo.includes('profil.png')) {
+      return false;
+    }
+
+    return !this.photoLoadError();
   }
 
   /**
@@ -614,11 +621,16 @@ export class CompteComponent implements OnInit, OnDestroy {
     }
 
     const user = this.currentUser();
-    if (user?.photo && !this.photoLoadError()) {
-      // ✅ Utiliser environment.filebaseUrl au lieu de PHOTO_BASE_URL
-      return `${environment.filebaseUrl}${user.photo}`;
+    const photo = user?.photo;
+    
+    if (photo && !this.photoLoadError()) {
+      // Si la photo est déjà une URL complète (ex: via un CDN externe) ou base64
+      if (photo.startsWith('http') || photo.startsWith('data:')) {
+        return photo;
+      }
+      return `${environment.filebaseUrl}${photo}?t=${new Date().getTime()}`;
     }
-    return '/assets/images/profil.png';
+    return 'assets/images/profil.png';
   }
 
   /**

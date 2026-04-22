@@ -447,7 +447,7 @@ export class DashboardService {
 
   /**
    * Taux de présence moyen des ouvriers
-   * Endpoint: api/workers/manager/{managerId}/precense-rate
+   * Endpoint: api/workers/manager/{managerId}/presence-rate
    */
   presenceMoyenne(): Observable<number> {
     const userId = this.getCurrentUserId();
@@ -455,7 +455,7 @@ export class DashboardService {
       throw new Error('Utilisateur non connecté');
     }
 
-    const url = `${this.endpoints.workers}/manager/${userId}/precense-rate`;
+    const url = `${this.endpoints.workers}/manager/${userId}/presence-rate`;
 
     console.log('📡 Appel API:', url);
 

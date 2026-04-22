@@ -1,4 +1,4 @@
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto py-6">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">
       <span class="font-bold">
@@ -25,8 +25,8 @@
   </div>
 
   <!-- Navigation Tabs - Continu avec le header -->
-  <nav class="border-t border-gray-100 bg-white rounded-b-lg shadow-sm px-4 sm:px-6 pb-4 sm:pb-6 pt-4 overflow-x-auto">
-    <ul class="flex space-x-4 sm:space-x-6 lg:space-x-10 text-sm sm:text-base lg:text-lg min-w-max">
+  <nav class="border-t border-gray-100 bg-white rounded-lg shadow-sm px-4 sm:px-6 pb-4 sm:pb-6 pt-4 overflow-x-auto">
+    <ul class="flex space-x-4 sm:space-x-6 lg:space-x-8 text-sm sm:text-base lg:text-lg min-w-max">
       <li [class.border-b-2]="activeTab === 'presentation'" [class.border-orange-500]="activeTab === 'presentation'"
         [class.text-orange-500]="activeTab === 'presentation'" class="pb-2 flex-shrink-0">
         <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer whitespace-nowrap">{{

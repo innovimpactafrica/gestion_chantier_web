@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { signal, computed, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
+import { LayoutService } from '../../core/services/layout.service';
 import { PlanSelectionPopupComponent } from '../../shared/components/plan-selection-popup/plan-selection-popup.component';
 
 @Component({
@@ -49,8 +50,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private router: Router,
     private breadcrumbService: BreadcrumbService,
     public authService: AuthService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private layoutService: LayoutService
   ) { }
+
+  closeSidebar(): void {
+    this.layoutService.closeSidebar();
+  }
 
   ngOnInit(): void {
     this.initializeActiveMenu();
@@ -258,12 +264,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { label, path }
       ]);
     }
+    
+    // Fermer le sidebar sur mobile après navigation
+    this.layoutService.closeSidebar();
   }
 
   navigateToSubSection(path: string, label: string, menuId: string): void {
     this.activeMenu = menuId;
     this.router.navigate([path]);
     this.breadcrumbService.addBreadcrumb({ label, path });
+    // Fermer le sidebar sur mobile après navigation
+    this.layoutService.closeSidebar();
   }
 
   isActive(menuId: string): boolean {
@@ -290,17 +301,39 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   getProfileImageUrl(): string {
-    return this.authService.getUserPhotoUrl();
+    const user = this.authService.currentUser();
+    const photo = user?.photo;
+    
+    if (photo && !this.profileImageError) {
+      if (photo.startsWith('http') || photo.startsWith('data:')) {
+        return photo;
+      }
+      return `${environment.filebaseUrl}${photo}?t=${new Date().getTime()}`;
+    }
+    return 'assets/images/profil.png';
   }
+
+  hasUserPhoto(): boolean {
+    const user = this.authService.currentUser();
+    const photo = user?.photo;
+    
+    if (!photo || photo === 'string' || photo === 'null' || photo === 'assets/images/profil.png' || photo.includes('profil.png')) {
+      return false;
+    }
+    return !this.profileImageError;
+  }
+
+  profileImageError = false;
 
   onImageLoad(): void {
     this.profileImageLoading.set(false);
+    this.profileImageError = false;
   }
 
   onImageError(event: any): void {
-    console.warn('Erreur lors du chargement de la photo de profil, utilisation de l\'image par défaut');
+    console.warn('Erreur lors du chargement de la photo de profil, utilisation des initiales');
     this.profileImageLoading.set(false);
-    event.target.src = 'assets/images/profil.png';
+    this.profileImageError = true;
   }
 
   /**

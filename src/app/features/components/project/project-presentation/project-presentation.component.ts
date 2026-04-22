@@ -67,6 +67,7 @@ export class ProjectPresentationComponent implements OnInit {
   // === MÉTHODE POUR DÉCLENCHER L'AJOUT D'ALBUM ===
   // ✅ SOLUTION
   @ViewChild(StatusReportComponent) statusReportComponent?: StatusReportComponent;
+  @ViewChild(ProjectBudgetComponent) projectBudgetComponent?: ProjectBudgetComponent;
 
   triggerAddAlbum(): void {
     if (this.statusReportComponent) {
@@ -314,7 +315,12 @@ export class ProjectPresentationComponent implements OnInit {
   }
 
   onModifier(): void {
-    console.log('Modification du projet:', this.projet?.id);
+    if (this.isActiveTab('budget') && this.projectBudgetComponent) {
+      // Déclenche la modale de modification de budget
+      this.projectBudgetComponent.openBudgetModal();
+    } else {
+      console.log('Modification du projet:', this.projet?.id);
+    }
   }
 
   get equipementsCommuns() {

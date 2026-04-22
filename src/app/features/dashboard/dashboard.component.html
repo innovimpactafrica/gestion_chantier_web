@@ -1,5 +1,5 @@
 <!-- Dashboard Container -->
-<div class="min-h-screen bg-[#F5F7FA] p-2">
+<div class="min-h-screen w-full overflow-x-hidden p-2 sm:p-1 pb-20">
   <!-- Loading State -->
   <div *ngIf="isLoading" class="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
     <div class="bg-white rounded-2xl px-12 py-10 flex flex-col items-center
@@ -21,7 +21,7 @@
       </div>
 
       <!-- Text -->
-      <p class="text-[20px] font-bold text-[#2C3E50]">
+      <p class="text-base md:text-lg font-bold text-[#2C3E50]">
         {{ t('dashboard.loading.title') }}
       </p>
 
@@ -44,7 +44,7 @@
       </div>
 
       <!-- Title -->
-      <h3 class="text-[20px] font-bold text-[#2C3E50] mb-2">
+      <h3 class="text-base md:text-lg font-bold text-[#2C3E50] mb-2">
         {{ t('dashboard.error.title') }}
       </h3>
 
@@ -64,18 +64,17 @@
 
 
 
-  <!-- leyout principale -->
+  <!-- layout principale -->
   <div *ngIf="!isLoading && !hasError">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <!-- Title -->
-      <h1 class="text-4xl font-bold text-[#2C3E50]">{{ t('dashboard.title') }}</h1>
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2C3E50] w-full md:w-auto">{{ t('dashboard.title') }}</h1>
 
       <!-- Right actions -->
-
-      <div class="flex items-center gap-5">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
         <!-- Search input -->
-        <div class="relative w-[360px]">
+        <div class="relative w-full md:w-auto sm:flex-1">
           <span class="absolute inset-y-0 left-4 flex items-center text-[#777777]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -84,16 +83,16 @@
             </svg>
           </span>
           <input type="text" [placeholder]="t('dashboard.searchProject')"
-            class="w-full h-[56px] pl-12 pr-4 text-[20px] text-[#777777] placeholder-[#777777] bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-0" />
+            class="w-full md:w-auto h-[52px] pl-12 pr-4 text-sm sm:text-base text-[#777777] placeholder-[#777777] bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-0" />
         </div>
 
         <!-- Year selector -->
         <div
-          class="font-semibold flex items-center justify-between h-[56px] px-7 bg-white border border-gray-100 rounded-xl cursor-pointer min-w-[180px]">
-          <span class="text-[20px] font-medium text-[#333333]">
+          class="font-semibold flex items-center justify-between h-[52px] px-7 bg-white border border-gray-100 rounded-xl cursor-pointer w-full sm:w-auto ">
+          <span class="text-sm sm:text-base font-medium text-[#333333]">
             {{ dashboardData.annee }}
           </span>
-          <span class="text-[#777777] text-base">
+          <span class="text-[#777777] text-sm pl-2">
             <svg width="16" height="9" viewBox="0 0 16 9" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1 1L8 8L15 1" stroke="#777777" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round" />
@@ -104,11 +103,11 @@
     </div>
 
     <!-- LIGNE 1 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <!-- Vue d'ensemble des chantiers -->
-      <div class="bg-white rounded-xl p-5">
+      <div class="bg-white rounded-xl p-4">
         <div class="flex items-center justify-between mb-5">
-          <h2 class="text-[24px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.overview.sites') }}
           </h2>
           <span class="text-[#7F8C8D]">
@@ -127,31 +126,31 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.inProgress') }}</span>
-            <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('status.inProgress') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-tight">
               {{ dashboardData.chantiers.inProgress }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.delayed') }}</span>
-            <p class="text-[30px] font-bold text-[#E74C3C] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('status.delayed') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#E74C3C] leading-tight">
               {{ dashboardData.chantiers.delayed }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.pending') }}</span>
-            <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('status.pending') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#F39C12] leading-tight">
               {{ dashboardData.chantiers.pending }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('status.completed') }}</span>
-            <p class="text-[30px] font-bold text-[#2ECC71] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('status.completed') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#2ECC71] leading-tight">
               {{ dashboardData.chantiers.completed }}
             </p>
           </div>
@@ -159,9 +158,9 @@
       </div>
 
       <!-- Vue d'ensemble des études -->
-      <div class="bg-white rounded-xl p-5">
+      <div class="bg-white rounded-xl p-4">
         <div class="flex items-center justify-between mb-5">
-          <h2 class="text-[24px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.overview.studies') }}
           </h2>
           <span class="text-[#7F8C8D]">
@@ -180,31 +179,31 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.notInitiated') }}</span>
-            <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('dashboard.studies.notInitiated') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-tight">
               {{ dashboardData.etudes.counts.PENDING }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.initiated') }}</span>
-            <p class="text-[30px] font-bold text-[#F39C12] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('dashboard.studies.initiated') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#F39C12] leading-tight">
               {{ dashboardData.etudes.counts.IN_PROGRESS }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.metrics.delivered') }}</span>
-            <p class="text-[30px] font-bold text-[#2C3E50] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('dashboard.metrics.delivered') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-tight">
               {{ dashboardData.etudes.counts.DELIVERED }}
             </p>
           </div>
 
           <div class="bg-gray-50 rounded-lg px-4 py-3">
-            <span class="text-[17px] font-medium text-[#7F8C8D]">{{ t('dashboard.studies.completed') }}</span>
-            <p class="text-[30px] font-bold text-[#3498DB] leading-tight">
+            <span class="text-sm md:text-base font-medium text-[#7F8C8D]">{{ t('dashboard.studies.completed') }}</span>
+            <p class="text-xl md:text-2xl font-bold text-[#3498DB] leading-tight">
               {{ dashboardData.etudes.counts.VALIDATED }}
             </p>
           </div>
@@ -212,9 +211,9 @@
       </div>
 
       <!-- Répartition des études (%) -->
-      <div class="bg-white rounded-xl p-5">
+      <div class="bg-white rounded-xl p-4">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[24px] font-semibold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-semibold text-[#2C3E50]">
             {{ t('dashboard.studies.distribution') }}
           </h2>
           <span class="text-[#7F8C8D]">
@@ -227,51 +226,53 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-6">
+        <div class="flex flex-col xl:flex-row items-center xl:items-start gap-6">
           <div class="w-40 h-40 flex-shrink-0">
             <canvas #repartitionChart></canvas>
           </div>
 
-          <div class="flex-1 space-y-4 text-sm">
-            <div class="flex items-center justify-between">
+          <div class="flex-1 w-full flex flex-wrap justify-center xl:flex-col gap-4 xl:space-y-0 text-xs mt-4 xl:mt-0 xl:pt-4">
+            
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.completed') }}</span>
+                <span class="text-[#7F8C8D] whitespace-nowrap">{{ t('dashboard.studies.completed') }}</span>
               </div>
               <span class="font-semibold text-[#2C3E50]">
                 {{ dashboardData.etudes.percentages.VALIDATED| number: '1.0-1' }}%
               </span>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-orange-400"></span>
-                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.initiated') }}</span>
+                <span class="text-[#7F8C8D] whitespace-nowrap">{{ t('dashboard.studies.initiated') }}</span>
               </div>
               <span class="font-semibold text-[#2C3E50]">
                 {{ dashboardData.etudes.percentages.IN_PROGRESS | number: '1.0-1' }}%
               </span>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-                <span class="text-[#7F8C8D]">{{ t('dashboard.metrics.delivered') }}</span>
+                <span class="text-[#7F8C8D] whitespace-nowrap">{{ t('dashboard.metrics.delivered') }}</span>
               </div>
               <span class="font-semibold text-[#2C3E50]">
                 {{ dashboardData.etudes.percentages.DELIVERED | number: '1.0-1' }}%
               </span>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="text-[#7F8C8D]">{{ t('dashboard.studies.notInitiated') }}</span>
+                <span class="text-[#7F8C8D] whitespace-nowrap">{{ t('dashboard.studies.notInitiated') }}</span>
               </div>
               <span class="font-semibold text-[#2C3E50]">
                 {{ dashboardData.etudes.percentages.PENDING| number: '1.0-1' }}%
               </span>
             </div>
+            
           </div>
         </div>
       </div>
@@ -280,14 +281,14 @@
 
 
     <!-- LIGNE 2 : Indicateurs clés -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 items-stretch">
 
       <!-- Taux moyen d'avancement -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-5">
-          <h2 class="text-[26px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.indicators.progress') }}
           </h2>
           <span class="text-[#7F8C8D]">
@@ -336,11 +337,11 @@
 
 
       <!-- Budget global -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
 
         <!-- Header -->
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-[26px] font-bold text-[#2C3E50]">
+        <div class="flex items-center justify-between lg:mb-12">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.indicators.budget') }}
           </h2>
           <span class="text-[#7F8C8D]">
@@ -357,7 +358,7 @@
         </div>
 
         <!-- Content -->
-        <div class="flex-1 flex items-center gap-6">
+        <div class="flex-1 flex flex-col xl:flex-row items-center xl:items-start gap-6">
 
           <!-- Donut -->
           <div class="relative w-40 h-40 flex-shrink-0">
@@ -365,7 +366,7 @@
 
             <!-- Center text -->
             <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span class="text-[26px] font-bold text-[#2C3E50]">
+              <span class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
                 {{ budget.pourcentageConsomme }}%
               </span>
               <span class="text-[14px] font-medium text-[#7F8C8D]">
@@ -375,23 +376,27 @@
           </div>
 
           <!-- Legend -->
-          <div class="flex-1 space-y-4 text-sm">
+          <div class="flex-1 w-full text-xs flex flex-wrap justify-center xl:flex-col gap-4 xl:space-y-0 text-sm mt-4 xl:mt-0 xl:pt-4">
 
-            <div class="flex items-center gap-3">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#FF5C02]"></span>
-              <span class="text-[#34495E] font-medium">
-                {{ t('dashboard.budget.consumed') }} :
-              </span>
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5C02]"></span>
+                <span class="text-[#34495E] font-medium whitespace-nowrap">
+                  {{ t('dashboard.budget.consumed') }} :
+                </span>
+              </div>
               <span class="font-bold text-[#2C3E50]">
                 {{ formatCurrency(budget.consomme) }}
               </span>
             </div>
 
-            <div class="flex items-center gap-3">
-              <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-              <span class="text-[#34495E] font-medium">
-                {{ t('dashboard.budget.remaining') }} :
-              </span>
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 w-full sm:w-auto xl:w-full xl:justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+                <span class="text-[#34495E] font-medium whitespace-nowrap">
+                  {{ t('dashboard.budget.remaining') }} :
+                </span>
+              </div>
               <span class="font-bold text-[#2C3E50]">
                 {{ formatCurrency(budget.restant) }}
               </span>
@@ -403,14 +408,14 @@
 
 
       <!-- Alertes stock matériaux -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-[#7F8C8D]">
             </span>
-            <h2 class="text-[26px] font-bold text-[#2C3E50]">
+            <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
               {{ t('dashboard.alerts.stock') }}
             </h2>
           </div>
@@ -464,14 +469,13 @@
 
 
 
-
     <!-- LIGNE 3: Graphiques (2 cards) -->
-    <div class="dashboard-grid-special">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
 
       <!-- État d'avancement -->
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <h2 class="text-[27px] font-bold text-gray-900">{{ t('dashboard.charts.progress') }}</h2>
+      <div class="bg-white rounded-xl shadow-sm flex flex-col p-4 lg:col-span-1">
+        <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-4">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-gray-900">{{ t('dashboard.charts.progress') }}</h2>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="text-gray-400 flex-shrink-0">
             <g clip-path="url(#clip0_3205_3606)">
@@ -486,7 +490,7 @@
             </defs>
           </svg>
         </div>
-        <div class="dashboard-card-content">
+        <div class="flex-1 flex flex-col justify-center">
           <div class="h-56">
             <canvas #progressChart></canvas>
           </div>
@@ -494,9 +498,9 @@
       </div>
 
       <!-- Incidents signalés (7 jours) -->
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <h2 class="text-[27px] font-bold text-gray-900">{{ t('dashboard.charts.incidents') }}</h2>
+      <div class="bg-white rounded-xl shadow-sm flex flex-col p-4 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-4">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-gray-900">{{ t('dashboard.charts.incidents') }}</h2>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="text-gray-400 flex-shrink-0">
             <path
@@ -504,7 +508,7 @@
               fill="currentColor" />
           </svg>
         </div>
-        <div class="dashboard-card-content">
+        <div class="flex-1 flex flex-col justify-center">
           <div class="h-56">
             <canvas #incidentsChart></canvas>
           </div>
@@ -528,13 +532,13 @@
 
 
     <!-- LIGNE 4 : Suivi & Performance -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 items-stretch">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 items-stretch">
 
       <!-- Tâches critiques -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.tasks.critical') }}
           </h2>
           <svg width="22" height="27" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -575,10 +579,10 @@
       </div>
 
       <!-- Photos récentes -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:tzxt-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.photos.recent') }}
           </h2>
           <svg width="26" height="24" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -621,10 +625,10 @@
       </div>
 
       <!-- Résumé des performances -->
-      <div class="bg-white rounded-xl p-5 min-h-[340px] flex flex-col">
+      <div class="bg-white rounded-xl p-4 min-h-[340px] flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[25px] font-bold text-[#2C3E50]">
+          <h2 class="text-base md:text-xl 2xl:text-2xl font-bold text-[#2C3E50]">
             {{ t('dashboard.performance.summary') }}
           </h2>
           <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -645,61 +649,61 @@
         <div class="flex-1 grid grid-cols-2 grid-rows-3 gap-4">
 
           <!-- Taux moyen -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.indicators.progress') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.tauxAvancement }}%
             </p>
           </div>
 
           <!-- Budget consommé -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.metrics.budgetConsumed') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.budgetConsomme }}%
             </p>
           </div>
 
           <!-- Incidents -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.metrics.incidents7d') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.incidents }}
             </p>
           </div>
 
           <!-- Présence moyenne -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.performance.avgPresence') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.presenceMoyenne }}%
             </p>
           </div>
 
           <!-- Tâches en retard -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.performance.lateTasks') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.tachesRetard }}
             </p>
           </div>
 
           <!-- Matériaux en alerte -->
-          <div class="bg-[#F9FAFB] rounded-xl px-4 py-3 flex flex-col justify-center">
+          <div class="bg-[#F9FAFB] rounded-xl px-3 py-3 flex flex-col justify-center">
             <p class="text-xs text-[#7F8C8D] mb-1">
               {{ t('dashboard.performance.alertMaterials') }}
             </p>
-            <p class="text-[28px] font-bold text-[#2C3E50] leading-none">
+            <p class="text-xl md:text-2xl font-bold text-[#2C3E50] leading-none">
               {{ performances.materiauxAlerte }}
             </p>
           </div>
