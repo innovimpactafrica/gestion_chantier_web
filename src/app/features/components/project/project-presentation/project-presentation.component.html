@@ -20,7 +20,7 @@
           class="w-full h-auto rounded-t">
 
         <div class="p-4">
-          <h2 class="text-xl font-bold text-[#1A365D] mb-2">{{ projet.name }}</h2>
+          <h2 class="text-base font-bold text-[#1A365D] mb-2">{{ projet.name }}</h2>
           <div class="flex items-center text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-orange-500" viewBox="0 0 20 20"
               fill="currentColor">
@@ -28,14 +28,17 @@
                 d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
                 clip-rule="evenodd" />
             </svg>
-            <span class="text-[#64748B]">{{ projet.address }}</span>
+            <span class="text-sm text-[#64748B]">{{ projet.address }}</span>
           </div>
         </div>
 
         <!-- Progression -->
-        <div class="bg-[#E8F0FE] rounded-lg shadow p-[15px] mb-6 mx-4">
+        <div class="bg-[#E8F0FE] rounded-lg shadow p-[14px] mb-6 mx-4">
           <div class="flex items-center mb-2">
-            <i class="fa-solid fa-chart-line mr-2"></i>
+            <svg class="mr-2" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M3.20833 8.16667C3.4404 8.16667 3.66296 8.07448 3.82705 7.91039C3.99115 7.74629 4.08333 7.52373 4.08333 7.29167C4.08552 7.26254 4.08552 7.23329 4.08333 7.20417L5.71083 5.57667H5.97917L6.91833 6.51583V6.5625C6.91833 6.79456 7.01052 7.01712 7.17461 7.18122C7.33871 7.34531 7.56127 7.4375 7.79333 7.4375C8.0254 7.4375 8.24796 7.34531 8.41205 7.18122C8.57615 7.01712 8.66833 6.79456 8.66833 6.5625V6.51583L10.7917 4.375C10.9647 4.375 11.1339 4.32368 11.2778 4.22754C11.4217 4.13139 11.5338 3.99473 11.6001 3.83485C11.6663 3.67496 11.6836 3.49903 11.6499 3.3293C11.6161 3.15956 11.5328 3.00365 11.4104 2.88128C11.288 2.75891 11.1321 2.67557 10.9624 2.64181C10.7926 2.60805 10.6167 2.62538 10.4568 2.69161C10.2969 2.75783 10.1603 2.86998 10.0641 3.01388C9.96798 3.15777 9.91667 3.32694 9.91667 3.5C9.91448 3.52913 9.91448 3.55837 9.91667 3.5875L7.81083 5.69333H7.7175L6.70833 4.66667C6.70833 4.4346 6.61615 4.21204 6.45205 4.04795C6.28796 3.88385 6.0654 3.79167 5.83333 3.79167C5.60127 3.79167 5.37871 3.88385 5.21461 4.04795C5.05052 4.21204 4.95833 4.4346 4.95833 4.66667L3.20833 6.41667C2.97627 6.41667 2.75371 6.50885 2.58961 6.67295C2.42552 6.83704 2.33333 7.0596 2.33333 7.29167C2.33333 7.52373 2.42552 7.74629 2.58961 7.91039C2.75371 8.07448 2.97627 8.16667 3.20833 8.16667ZM11.0833 10.5H1.16667V0.583333C1.16667 0.428624 1.10521 0.280251 0.995812 0.170854C0.886416 0.0614581 0.738043 0 0.583333 0C0.428624 0 0.280251 0.0614581 0.170854 0.170854C0.0614581 0.280251 0 0.428624 0 0.583333V11.0833C0 11.238 0.0614581 11.3864 0.170854 11.4958C0.280251 11.6052 0.428624 11.6667 0.583333 11.6667H11.0833C11.238 11.6667 11.3864 11.6052 11.4958 11.4958C11.6052 11.3864 11.6667 11.238 11.6667 11.0833C11.6667 10.9286 11.6052 10.7802 11.4958 10.6709C11.3864 10.5615 11.238 10.5 11.0833 10.5Z" fill="#64748B"/>
+</svg>
+
             <h3 class="text-gray-700 text-xs">{{ t('projectPresentation.progression') }}</h3>
           </div>
 
@@ -194,7 +197,7 @@
           <div class="flex gap-3">
             <!-- Bouton Ajouter pour l'onglet avancement -->
             <button *ngIf="isActiveTab('avancement')" (click)="triggerAddAlbum()"
-              class="px-5 py-2 bg-[#F36B3B] text-white rounded-[6px] flex items-center hover:bg-[#e45a1b] transition-colors shadow-sm font-medium">
+              class="px-5 py-2 bg-[#F36B3B] text-white rounded-[6px] flex items-center hover:bg-[#e45a1b] transition-colors shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
               </svg>
@@ -203,10 +206,12 @@
 
             <!-- Bouton Modifier budget pour l'onglet budget -->
             <button *ngIf="isActiveTab('budget')" (click)="onModifier()"
-              class="px-5 py-2 bg-[#F36B3B] text-white rounded-[6px] flex items-center hover:bg-[#e45a1b] transition-colors shadow-sm font-medium">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
+              class="px-5 py-2 bg-[#F36B3B] text-white rounded-[6px] flex items-center hover:bg-[#e45a1b] transition-colors shadow-sm">
+             <svg class="mr-2" width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.83301 1.16452H1.74967C1.44026 1.16452 1.14351 1.28744 0.924717 1.50623C0.705924 1.72502 0.583008 2.02177 0.583008 2.33119V10.4979C0.583008 10.8073 0.705924 11.104 0.924717 11.3228C1.14351 11.5416 1.44026 11.6645 1.74967 11.6645H9.91634C10.2258 11.6645 10.5225 11.5416 10.7413 11.3228C10.9601 11.104 11.083 10.8073 11.083 10.4979V6.41452" stroke="white" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.55149 0.94578C9.78355 0.713716 10.0983 0.583344 10.4265 0.583344C10.7547 0.583344 11.0694 0.713716 11.3015 0.94578C11.5336 1.17784 11.6639 1.49259 11.6639 1.82078C11.6639 2.14897 11.5336 2.46372 11.3015 2.69578L6.0439 7.95395C5.90539 8.09234 5.73427 8.19365 5.54632 8.24853L3.8704 8.73853C3.82021 8.75317 3.767 8.75405 3.71635 8.74107C3.6657 8.7281 3.61947 8.70174 3.5825 8.66477C3.54553 8.6278 3.51917 8.58157 3.5062 8.53092C3.49322 8.48027 3.4941 8.42706 3.50874 8.37686L3.99874 6.70095C4.05388 6.51314 4.15538 6.34223 4.2939 6.20395L9.55149 0.94578Z" stroke="white" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
               {{ t('common.edit') || 'Modifier budget' }}
             </button>
           </div>
@@ -279,26 +284,26 @@
             <h3 class="text-3xl font-bold text-orange-500 mb-8">{{ projet.price | number }} F cfa</h3>
 
             <!-- Tableau d'informations -->
-            <div class="grid grid-cols-1 md:grid-cols-2 mb-8 gap-5">
-              <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">{{ t('projectPresentation.surface') }}</span>
-                <span class="font-medium">{{ projet.area }} m²</span>
+            <div class="flex flex-col mb-8">
+              <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                <span class="text-gray-600 text-sm font-medium">{{ t('projectPresentation.surface') }}</span>
+                <span class="text-gray-900 font-semibold text-sm">{{ projet.area }} m²</span>
               </div>
-              <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">{{ t('projectPresentation.location') }}</span>
-                <span class="font-medium">{{ projet.address }}</span>
+              <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                <span class="text-gray-600 text-sm font-medium">{{ t('projectPresentation.location') }}</span>
+                <span class="text-gray-900 font-semibold text-sm text-right">{{ projet.address }}</span>
               </div>
-              <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">{{ t('projectPresentation.numberOfLots') }}</span>
-                <span class="font-medium">{{ projet.numberOfLots }}</span>
+              <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                <span class="text-gray-600 text-sm font-medium">{{ t('projectPresentation.numberOfLots') }}</span>
+                <span class="text-gray-900 font-semibold text-sm">{{ projet.numberOfLots }}</span>
               </div>
-              <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">{{ t('projectPresentation.dueDate') }}</span>
-                <span class="font-medium">{{ dateFinPrevue }}</span>
+              <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                <span class="text-gray-600 text-sm font-medium">{{ t('projectPresentation.dueDate') }}</span>
+                <span class="text-gray-900 font-semibold text-sm">{{ dateFinPrevue }}</span>
               </div>
-              <div class="flex justify-between border-b pb-2">
-                <span class="text-gray-600">{{ t('projectPresentation.numberOfRooms') }}</span>
-                <span class="font-medium">{{ projet.numberOfRooms }}</span>
+              <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                <span class="text-gray-600 text-sm font-medium">{{ t('projectPresentation.numberOfRooms') }}</span>
+                <span class="text-gray-900 font-semibold text-sm">{{ projet.numberOfRooms }}</span>
               </div>
               <div class="justify-between border-b pb-2 hidden">
                 <span class="text-gray-600">Numéro de projet</span>

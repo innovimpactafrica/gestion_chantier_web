@@ -95,7 +95,8 @@ export interface User {
 
 interface LoginResponse {
   token: string;
-  user: User;
+  refreshToken: string;
+  user?: User;
 }
 interface ResetPassword {
   email: string;
@@ -158,6 +159,7 @@ export class AuthService {
   private _currentUser = signal<User | null>(null);
   private _isAuthenticated = signal(false);
   private _token = signal<string | null>(null);
+  private _refreshToken = signal<string | null>(null);
 
   // Signaux en lecture seule pour les composants   
   currentUser = this._currentUser.asReadonly();
@@ -402,26 +404,45 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   private initializeAuthState(): void {
     if (isPlatformBrowser(this.platformId)) {
       const storedToken = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
+      const storedUser = localStorage.getItem('user');
 
       if (storedToken && this.isTokenValidFormat(storedToken)) {
         this._token.set(storedToken);
+        if (refreshToken) this._refreshToken.set(refreshToken);
+        
         this._isAuthenticated.set(true);
+
+        // Si l'utilisateur est déjà en cache, on l'utilise pour éviter la redirection par l'AuthGuard
+        if (storedUser) {
+          try {
+            this._currentUser.set(JSON.parse(storedUser));
+          } catch (e) {
+            console.error('Erreur parsing user depuis le localStorage', e);
+          }
+        }
 
         // ✅ CORRECTION: Vérifier la validité du token avant de faire l'appel API
         if (this.isTokenValid()) {
           this.getCurrentUser().subscribe({
             next: (user) => {
               this._currentUser.set(user);
-              console.log('✅ Utilisateur récupéré:', user);
+              localStorage.setItem('user', JSON.stringify(user));
+              console.log('✅ Utilisateur récupéré et mis à jour:', user);
             },
             error: (error) => {
               console.error('❌ Erreur récupération utilisateur:', error);
-              this.clearAuthData();
+              // Ne pas tout nettoyer si on a juste une iframe d'erreur, mais comme c'est sécurisé, on efface.
+              // Sauf si on a un 401, on laissera l'intercepteur rafraichir.
+              // this.clearAuthData(); // Laissons faire l'intercepteur de refresh
             }
           });
+        } else if (refreshToken) {
+          console.warn('⚠️ Token expiré, on tente un refresh');
+          this.refreshAuthToken().subscribe();
         } else {
-          console.warn('⚠️ Token expiré, nettoyage automatique');
-          this.clearAuthData();
+            console.warn('⚠️ Token expiré et pas de refreshToken, nettoyage automatique');
+            this.clearAuthData();
         }
       }
     }
@@ -473,7 +494,7 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     return this.http.post<LoginResponse>(`${this.apiUrl}/signin`, credentials)
       .pipe(
         tap(response => {
-          this.setAuthData(response.token, response.user);
+          this.setAuthData(response.token, response.refreshToken, response.user);
         })
       );
   }
@@ -482,7 +503,7 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     return this.http.post<LoginResponse>(`${this.apiUrl}/password/reset`, credentials)
       .pipe(
         tap(response => {
-          this.setAuthData(response.token, response.user);
+          this.setAuthData(response.token, response.refreshToken, response.user);
         })
       );
   }
@@ -492,14 +513,21 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     this.clearAuthData();
   }
 
-  private setAuthData(token: string, user: User): void {
+  private setAuthData(token: string, refreshToken?: string, user?: User | null): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);
-      console.log('✅ Token stocké dans localStorage');
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      console.log('✅ Tokens stockés dans localStorage');
     }
 
     this._token.set(token);
-    this._currentUser.set(user);
+    if (refreshToken) this._refreshToken.set(refreshToken);
+    if (user) this._currentUser.set(user);
     this._isAuthenticated.set(true);
 
     console.log('✅ État d\'authentification mis à jour:', {
@@ -512,10 +540,12 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   private clearAuthData(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
     }
 
     this._token.set(null);
+    this._refreshToken.set(null);
     this._currentUser.set(null);
     this._isAuthenticated.set(false);
 
@@ -531,13 +561,50 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       return null;
     }
 
-    if (!this.isTokenValid()) {
-      console.warn('⚠️ Token expiré, nettoyage automatique');
-      this.clearAuthData();
-      return null;
-    }
+    // Retrait de la suppression automatique stricte sinon l'intercepteur n'a pas le temps
+    // de déclencher le refresh token
+    // On revoie le token, c'est l'intercepteur qui va gérer le refresh si expiré ou l'API qui revoie 401.
 
     return token;
+  }
+
+  // Mettre à jour le token
+  updateToken(token: string, refreshToken?: string): void {
+    this._token.set(token);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+      if (refreshToken) {
+        this._refreshToken.set(refreshToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+    }
+  }
+
+  getRefreshToken(): string | null {
+    return this._refreshToken() || (isPlatformBrowser(this.platformId) ? localStorage.getItem('refreshToken') : null);
+  }
+
+  // Méthode de Refresh Token
+  refreshAuthToken(): Observable<any> {
+    const refreshToken = this._refreshToken() || (isPlatformBrowser(this.platformId) ? localStorage.getItem('refreshToken') : null);
+    if (!refreshToken) {
+      this.clearAuthData();
+      return of(null);
+    }
+    
+    // Remplacer "refresh" par votre route de refresh token côté back
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+      tap((tokens: any) => {
+        this.updateToken(tokens.token, tokens.refreshToken);
+        console.log('🔄 Token rafraîchi avec succès');
+      }),
+      catchError(err => {
+        console.error('❌ Erreur de rafraîchissement du token', err);
+        this.clearAuthData();
+        // Optionnel : rediriger vers /login via Router (s'il est injecté)
+        return of(null);
+      })
+    );
   }
 
   // ✅ CORRECTION MAJEURE: Méthode pour obtenir les headers d'authentification

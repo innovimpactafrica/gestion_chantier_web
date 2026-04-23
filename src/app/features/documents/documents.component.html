@@ -13,7 +13,8 @@
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <input type="text" [(ngModel)]="searchQuery" [placeholder]="t('documents.search')" class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm bg-white">
+        <input type="text" [(ngModel)]="searchQuery" [placeholder]="t('documents.search')"
+          class="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm bg-white">
       </div>
 
       <!-- Actions Droite: Filtre & Bouton -->
@@ -36,36 +37,24 @@
         </div> -->
 
         <!-- Bouton Ajouter -->
-        <button (click)="openAddDocumentModal()" class="h-11 px-6 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg
+        <button (click)="openAddDocumentModal()" class="h-11 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-lg
                flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6.85714 9.14286H1.14286C0.819051 9.14286 0.547813 9.03314 0.329147 8.81371
-               C0.11048 8.59429 0.000765845 8.32305 0 8
-               C-0.000757964 7.67695 0.108956 7.40571 0.329147 7.18629
-               C0.549337 6.96686 0.820575 6.85714 1.14286 6.85714H6.85714V1.14286
-               C6.85714 0.819051 6.96686 0.547813 7.18629 0.329147
-               C7.40571 0.11048 7.67695 0.000765845 8 0
-               C8.32305 -0.000757964 8.59467 0.108956 8.81486 0.329147
-               C9.03505 0.549337 9.14438 0.820575 9.14286 1.14286V6.85714H14.8571
-               C15.1809 6.85714 15.4526 6.96686 15.672 7.18629
-               C15.8914 7.40571 16.0008 7.67695 16 8
-               C15.9992 8.32305 15.8895 8.59467 15.6709 8.81486
-               C15.4522 9.03505 15.1809 9.14438 14.8571 9.14286H9.14286V14.8571
-               C9.14286 15.1809 9.03314 15.4526 8.81371 15.672
-               C8.59429 15.8914 8.32305 16.0008 8 16
-               C7.67695 15.9992 7.40571 15.8895 7.18629 15.6709
-               C6.96686 15.4522 6.85714 15.1809 6.85714 14.8571V9.14286Z" fill="white" />
+            <path
+              d="M6.85714 9.14286H1.14286C0.819051 9.14286 0.547813 9.03314 0.329147 8.81371C0.11048 8.59429 0.000765845 8.32305 3.94088e-06 8C-0.000757964 7.67695 0.108956 7.40571 0.329147 7.18629C0.549337 6.96686 0.820575 6.85714 1.14286 6.85714H6.85714V1.14286C6.85714 0.819051 6.96686 0.547813 7.18629 0.329147C7.40571 0.11048 7.67695 0.000765845 8 3.94088e-06C8.32305 -0.000757964 8.59467 0.108956 8.81486 0.329147C9.03505 0.549337 9.14438 0.820575 9.14286 1.14286V6.85714H14.8571C15.1809 6.85714 15.4526 6.96686 15.672 7.18629C15.8914 7.40571 16.0008 7.67695 16 8C15.9992 8.32305 15.8895 8.59467 15.6709 8.81486C15.4522 9.03505 15.1809 9.14438 14.8571 9.14286H9.14286V14.8571C9.14286 15.1809 9.03314 15.4526 8.81371 15.672C8.59429 15.8914 8.32305 16.0008 8 16C7.67695 15.9992 7.40571 15.8895 7.18629 15.6709C6.96686 15.4522 6.85714 15.1809 6.85714 14.8571V9.14286Z"
+              fill="white" />
           </svg>
+
           <span class="hidden sm:inline">{{ t('documents.newDocument') }}</span>
         </button>
       </div>
     </div>
   </div>
 
-  <h2 class="text-2xl font-bold text-gray-800">{{ t('documents.recentActivities') }}</h2>
+  <h2 class="text-lg: md:text-xl font-semibold text-[#1A1A1A] mb-2">{{ t('documents.recentActivities') }}</h2>
   <!-- Cartes de documents récents -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-    <div *ngFor="let doc of recentActivities" class="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+    <div *ngFor="let doc of recentActivities" class="bg-[#F9F9F9] rounded-lg overflow-hidden shadow-sm">
       <div class="p-4">
         <!-- Thumbnail conditionnel : PDF icon ou image -->
         <div class="w-full h-36 bg-gray-100 mb-4 flex items-center justify-center rounded-lg overflow-hidden">
@@ -81,14 +70,15 @@
 
         <div class="flex justify-between items-start">
           <div class="flex items-start">
-            <span class="text-gray-500 mr-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <span class="mr-2">
+              <svg width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.7"
+                  d="M10.5 15C10.8978 15 11.2794 14.842 11.5607 14.5607C11.842 14.2794 12 13.8978 12 13.5V4.5L7.5 0H1.5C1.10218 0 0.720644 0.158035 0.43934 0.43934C0.158035 0.720644 0 1.10218 0 1.5V13.5C0 13.8978 0.158035 14.2794 0.43934 14.5607C0.720644 14.842 1.10218 15 1.5 15H10.5ZM6.75 1.5L10.5 5.25H6.75V1.5ZM2.25 4.5H4.5V6H2.25V4.5ZM2.25 7.5H9.75V9H2.25V7.5ZM2.25 10.5H9.75V12H2.25V10.5Z"
+                  fill="#1A1A1A" />
               </svg>
+
             </span>
-            <span class="font-medium">{{ doc.name }}</span>
+            <span class="text-[#1A1A1A] text-xs">{{ doc.name }}</span>
           </div>
           <button class="text-gray-400 hover:text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -108,7 +98,7 @@
   <div class="bg-white rounded-lg shadow overflow-hidden">
     <!-- En-tête du tableau -->
     <div
-      class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
+      class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 tracking-wider">
       <div class="col-span-1">
         <input type="checkbox" class="rounded border-gray-300">
       </div>
@@ -364,7 +354,7 @@
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('documents.descriptionLabel') }}</label>
-          <textarea [(ngModel)]="newDocument.description" rows="4"
+          <textarea [(ngModel)]="newDocument.description" rows="3"
             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
         </div>
 
@@ -386,7 +376,7 @@
         </div>
       </div>
 
-      <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
+      <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3 mb-2">
         <button type="button" (click)="closeAddDocumentModal()" [disabled]="isLoading"
           class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           {{ t('common.cancel') }}
