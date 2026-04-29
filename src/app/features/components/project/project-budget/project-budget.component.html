@@ -1,5 +1,5 @@
 <!-- project-budget.component.html -->
-<div class="p-3 bg-gray-50 rounded-md min-h-screen">
+<div class="p-3 rounded-md min-h-screen">
   <!-- Header (Masqué car intégré dans le parent project-presentation) -->
   <!-- <div class="flex justify-between items-center mb-8">
     <h1 class="text-2xl font-bold text-gray-800">{{ t('projectBudget.title') }}</h1>
@@ -44,8 +44,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 2xl:gap-6">
 
     <!-- Graphique circulaire -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <div class="flex justify-center mb-4">
+    <div class="bg-white rounded-full shadow-sm">
+      <div class="flex justify-center items-center h-full">
         <div class="relative w-40 h-40">
           <canvas #budgetChart></canvas>
         </div>
@@ -55,30 +55,30 @@
     <!-- Informations budget -->
     <div class="lg:col-span-2 space-y-6">
       <!-- Budget prévu -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="rounded-lg shadow-sm p-6">
         <div class="text-right">
           <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.plannedBudget') }}</p>
-          <p class="text-3xl font-bold text-gray-800">{{ formatCurrency(budgetPrevu) }}</p>
+          <p class="text-2xl  font-bold text-gray-800">{{ formatCurrency(budgetPrevu) }}</p>
         </div>
       </div>
 
       <!-- Budget restant et utilisé -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 2xl:gap-6">
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-orange-500">
+        <div class="rounded-lg shadow-sm p-4 border-l-4 border-orange-500">
           <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.remainingBudget') }}</p>
-          <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetRestant) }}</p>
+          <p class="text-xl 2xl:text-2xl font-bold text-gray-800">{{ formatCurrency(budgetRestant) }}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
+        <div class="rounded-lg shadow-sm p-4 border-l-4 border-green-500">
           <p class="text-sm text-gray-500 mb-1">{{ t('projectBudget.consumedBudget') }}</p>
-          <p class="text-2xl font-bold text-gray-800">{{ formatCurrency(budgetUtilise) }}</p>
+          <p class="text-xl 2xl:text-2xl font-bold text-gray-800">{{ formatCurrency(budgetUtilise) }}</p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Liste des dépenses -->
-  <div class="mt-8 bg-white rounded-lg shadow-sm">
+  <div class="mt-8 rounded-lg shadow-sm">
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
       <h2 class="text-xl font-semibold text-gray-800">{{ t('projectBudget.expensesList') }}</h2>
       <button

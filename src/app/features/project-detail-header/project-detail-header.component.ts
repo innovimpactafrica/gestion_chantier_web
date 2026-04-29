@@ -5,7 +5,7 @@ import { TaskBoardComponent } from "../task-board/task-board.component";
 import { TeamListComponent } from '../team-list/team-list.component';
 import { DocumentsComponent } from '../documents/documents.component';
 import { LotsSubcontractorsComponent } from '../lots-subcontractors/lots-subcontractors.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbService } from '../../core/services/breadcrumb-service.service';
 import { StockComponent } from "../components/project/stock/stock.component";
 import { ProjectPresentationComponent } from '../components/project/project-presentation/project-presentation.component';
@@ -53,6 +53,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
   qrCodeValue: string = '';
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
     private realestateService: RealestateService,
@@ -78,6 +79,18 @@ export class ProjectDetailHeaderComponent implements OnInit {
         { label: `Détail projet ${this.projectId}`, path: `/projects/${this.projectId}` }
       ]);
     }
+
+    // Récupérer l'onglet depuis les query params ou sessionStorage
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      } else if (this.isBrowser) {
+        const savedTab = sessionStorage.getItem(`activeTab_${this.projectId}`);
+        if (savedTab) {
+          this.activeTab = savedTab;
+        }
+      }
+    });
   }
 
   loadProjectDetails(): void {
@@ -223,6 +236,19 @@ export class ProjectDetailHeaderComponent implements OnInit {
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
+    
+    // Sauvegarder l'onglet actif dans sessionStorage
+    if (this.isBrowser && this.projectId) {
+      sessionStorage.setItem(`activeTab_${this.projectId}`, tab);
+    }
+    
+    // Mettre à jour l'URL avec le paramètre tab
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true // Ne pas ajouter à l'historique de navigation
+    });
   }
 
   openQrModal(): void {

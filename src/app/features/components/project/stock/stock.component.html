@@ -3,25 +3,25 @@
   <!-- ===================================================== -->
   <!-- LAYOUT PRINCIPAL -->
   <!-- ===================================================== -->
-  <div class="grid grid-cols-12 gap-6 items-stretch">
+  <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-stretch">
 
     <!-- ===================================================== -->
     <!-- COLONNE GAUCHE : CONTENU PRINCIPAL -->
     <!-- ===================================================== -->
-    <div class="col-span-12 lg:col-span-8 bg-white p-6 rounded-xl shadow-lg flex flex-col">
+    <div class="col-span-12 lg:col-span-8 bg-white p-4 sm:p-6 rounded-xl shadow-lg flex flex-col w-full">
 
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <!-- ===================== -->
         <!-- TITRE DYNAMIQUE -->
         <!-- ===================== -->
-        <h1 class="text-2xl font-bold text-gray-900 mb-4">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-0">
           {{ activeTab | titlecase }}
         </h1>
 
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3">
 
           <button *ngIf="activeTab === 'inventaires'" (click)="openNewMaterialModal()"
-            class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            class="w-full sm:w-auto justify-center bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
@@ -30,7 +30,7 @@
             {{ t('stock.newMaterial') }}
           </button>
           <button *ngIf="activeTab === 'commandes'" (click)="openOrderModal()"
-            class="bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
+            class="w-full sm:w-auto justify-center bg-white text-[#FF5C02] px-4 py-2 rounded-lg border border-[#FF5C02] flex items-center gap-2 hover:bg-orange-50 transition-colors">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M6 8H1C0.71667 8 0.479337 7.904 0.288003 7.712C0.0966702 7.52 0.000670115 7.28267 3.44827e-06 7C-0.000663218 6.71733 0.0953369 6.48 0.288003 6.288C0.48067 6.096 0.718003 6 1 6H6V1C6 0.71667 6.096 0.479337 6.288 0.288003C6.48 0.0966702 6.71733 0.000670115 7 3.44827e-06C7.28267 -0.000663218 7.52033 0.0953369 7.713 0.288003C7.90567 0.48067 8.00133 0.718003 8 1V6H13C13.2833 6 13.521 6.096 13.713 6.288C13.905 6.48 14.0007 6.71733 14 7C13.9993 7.28267 13.9033 7.52033 13.712 7.713C13.5207 7.90567 13.2833 8.00133 13 8H8V13C8 13.2833 7.904 13.521 7.712 13.713C7.52 13.905 7.28267 14.0007 7 14C6.71733 13.9993 6.48 13.9033 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8Z"
@@ -48,55 +48,55 @@
       <!-- ===================== -->
       <!-- ONGLET -->
       <!-- ===================== -->
-      <div class="flex items-center gap-10 border-b border-gray-200 mb-6">
+      <div class="flex items-center gap-4 sm:gap-10 border-b border-gray-200 mb-6 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
 
         <button (click)="setActiveTab('inventaires')" [class]="activeTab === 'inventaires'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
-            : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
-          <span class="w-5 h-5">
-            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            ? 'flex items-center gap-2 sm:gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02] whitespace-nowrap shrink-0'
+            : 'flex items-center gap-2 sm:gap-3 pb-3 text-gray-600 hover:text-gray-800 whitespace-nowrap shrink-0'">
+          <span class="w-4 h-4 sm:w-5 sm:h-5">
+            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
               <path
                 d="M1.84051 1.31531C1.93426 1.12469 2.1405 1.01531 2.34988 1.04344L9.99988 1.99969L17.6499 1.04344C17.8593 1.01844 18.0655 1.12781 18.1593 1.31531L19.4624 3.92156C19.7436 4.48094 19.4436 5.15906 18.8436 5.33094L13.7374 6.79031C13.303 6.91531 12.8374 6.73094 12.6061 6.34344L9.99988 1.99969L7.39363 6.34344C7.16238 6.73094 6.69675 6.91531 6.26238 6.79031L1.15925 5.33094C0.55613 5.15906 0.259255 4.48094 0.540505 3.92156L1.84051 1.31531ZM10.0343 3.99969L11.7499 6.85594C12.2155 7.63094 13.1436 7.99969 14.0155 7.74969L17.9999 6.61219V11.8309C17.9999 12.5184 17.5311 13.1184 16.8624 13.2872L10.4843 14.8809C10.1655 14.9622 9.83113 14.9622 9.5155 14.8809L3.13738 13.2872C2.46863 13.1153 1.99988 12.5153 1.99988 11.8278V6.60906L5.98738 7.74969C6.85613 7.99969 7.78738 7.63094 8.25301 6.85594L9.9655 3.99969H10.0343Z"
                 [attr.fill]="activeTab === 'inventaires' ? '#FF5C02' : '#333333'" />
             </svg>
 
           </span>
-          <span class="font-medium">{{ t('stock.tabs.inventories') }}</span>
+          <span class="font-medium text-sm sm:text-base">{{ t('stock.tabs.inventories') }}</span>
         </button>
 
         <button (click)="setActiveTab('commandes')" [class]="activeTab === 'commandes'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
-            : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
-          <span class="w-5 h-5">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            ? 'flex items-center gap-2 sm:gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02] whitespace-nowrap shrink-0'
+            : 'flex items-center gap-2 sm:gap-3 pb-3 text-gray-600 hover:text-gray-800 whitespace-nowrap shrink-0'">
+          <span class="w-4 h-4 sm:w-5 sm:h-5">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
               <path
                 d="M5.83301 18.3337C5.37467 18.3337 4.98245 18.1706 4.65634 17.8445C4.33023 17.5184 4.1669 17.1259 4.16634 16.667C4.16579 16.2081 4.32912 15.8159 4.65634 15.4903C4.98356 15.1648 5.37579 15.0014 5.83301 15.0003C6.29023 14.9992 6.68273 15.1625 7.01051 15.4903C7.33829 15.8181 7.50134 16.2103 7.49967 16.667C7.49801 17.1237 7.33495 17.5162 7.01051 17.8445C6.68606 18.1728 6.29356 18.3359 5.83301 18.3337ZM14.1663 18.3337C13.708 18.3337 13.3158 18.1706 12.9897 17.8445C12.6636 17.5184 12.5002 17.1259 12.4997 16.667C12.4991 16.2081 12.6625 15.8159 12.9897 15.4903C13.3169 15.1648 13.7091 15.0014 14.1663 15.0003C14.6236 14.9992 15.0161 15.1625 15.3438 15.4903C15.6716 15.8181 15.8347 16.2103 15.833 16.667C15.8313 17.1237 15.6683 17.5162 15.3438 17.8445C15.0194 18.1728 14.6269 18.3359 14.1663 18.3337ZM4.33301 3.33366H16.6247C16.9441 3.33366 17.1872 3.47616 17.3538 3.76116C17.5205 4.04616 17.5275 4.33421 17.3747 4.62533L14.4163 9.95866C14.2636 10.2364 14.0588 10.4517 13.8022 10.6045C13.5455 10.7573 13.2641 10.8337 12.958 10.8337H6.74967L5.83301 12.5003H15.833V14.167H5.83301C5.20801 14.167 4.73579 13.8928 4.41634 13.3445C4.0969 12.7962 4.08301 12.2509 4.37467 11.7087L5.49967 9.66699L2.49967 3.33366H0.833008V1.66699H3.54134L4.33301 3.33366Z"
                 [attr.fill]="activeTab === 'commandes' ? '#FF5C02' : '#333333'" />
             </svg>
 
           </span>
-          <span class="font-medium">{{ t('stock.tabs.orders') }}</span>
+          <span class="font-medium text-sm sm:text-base">{{ t('stock.tabs.orders') }}</span>
         </button>
 
         <button (click)="setActiveTab('livraisons')" [class]="activeTab === 'livraisons'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
-            : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
-          <span class="w-5 h-5">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            ? 'flex items-center gap-2 sm:gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02] whitespace-nowrap shrink-0'
+            : 'flex items-center gap-2 sm:gap-3 pb-3 text-gray-600 hover:text-gray-800 whitespace-nowrap shrink-0'">
+          <span class="w-4 h-4 sm:w-5 sm:h-5">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
               <path
                 d="M10.8333 0C11.2754 0 11.6993 0.175595 12.0118 0.488155C12.3244 0.800716 12.5 1.22464 12.5 1.66667V2.5H13.7667C14.0165 2.50003 14.2631 2.55622 14.4882 2.6644C14.7134 2.77258 14.9114 2.93 15.0675 3.125L16.3008 4.6675C16.5376 4.96308 16.6666 5.33047 16.6667 5.70917V9.16667C16.6667 9.60869 16.4911 10.0326 16.1785 10.3452C15.8659 10.6577 15.442 10.8333 15 10.8333H14.1667C14.1667 11.4964 13.9033 12.1323 13.4344 12.6011C12.9656 13.0699 12.3297 13.3333 11.6667 13.3333C11.0036 13.3333 10.3677 13.0699 9.8989 12.6011C9.43006 12.1323 9.16667 11.4964 9.16667 10.8333H6.66667C6.66667 11.1616 6.602 11.4867 6.47637 11.79C6.35073 12.0934 6.16658 12.369 5.93443 12.6011C5.70229 12.8332 5.42669 13.0174 5.12337 13.143C4.82006 13.2687 4.49497 13.3333 4.16667 13.3333C3.83836 13.3333 3.51327 13.2687 3.20996 13.143C2.90664 13.0174 2.63105 12.8332 2.3989 12.6011C2.16675 12.369 1.9826 12.0934 1.85697 11.79C1.73133 11.4867 1.66667 11.1616 1.66667 10.8333C1.22464 10.8333 0.800716 10.6577 0.488155 10.3452C0.175595 10.0326 0 9.60869 0 9.16667V1.66667C0 1.22464 0.175595 0.800716 0.488155 0.488155C0.800716 0.175595 1.22464 0 1.66667 0H10.8333ZM4.16667 10C3.94565 10 3.73369 10.0878 3.57741 10.2441C3.42113 10.4004 3.33333 10.6123 3.33333 10.8333C3.33333 11.0543 3.42113 11.2663 3.57741 11.4226C3.73369 11.5789 3.94565 11.6667 4.16667 11.6667C4.38768 11.6667 4.59964 11.5789 4.75592 11.4226C4.9122 11.2663 5 11.0543 5 10.8333C5 10.6123 4.9122 10.4004 4.75592 10.2441C4.59964 10.0878 4.38768 10 4.16667 10ZM11.6667 10C11.4457 10 11.2337 10.0878 11.0774 10.2441C10.9211 10.4004 10.8333 10.6123 10.8333 10.8333C10.8333 11.0543 10.9211 11.2663 11.0774 11.4226C11.2337 11.5789 11.4457 11.6667 11.6667 11.6667C11.8877 11.6667 12.0996 11.5789 12.2559 11.4226C12.4122 11.2663 12.5 11.0543 12.5 10.8333C12.5 10.6123 12.4122 10.4004 12.2559 10.2441C12.0996 10.0878 11.8877 10 11.6667 10ZM13.7667 4.16667H12.5V7.5H15V5.70833L13.7667 4.16667Z"
                 [attr.fill]="activeTab === 'livraisons' ? '#FF5C02' : '#333333'" />
             </svg>
 
           </span>
-          <span class="font-medium">{{ t('stock.tabs.deliveries') }}</span>
+          <span class="font-medium text-sm sm:text-base">{{ t('stock.tabs.deliveries') }}</span>
         </button>
 
         <button (click)="setActiveTab('statistiques')" [class]="activeTab === 'statistiques'
-            ? 'flex items-center gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02]'
-            : 'flex items-center gap-3 pb-3 text-gray-600 hover:text-gray-800'">
-          <span class="w-5 h-5">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            ? 'flex items-center gap-2 sm:gap-3 pb-3 border-b-2 border-[#FF5C02] text-[#FF5C02] whitespace-nowrap shrink-0'
+            : 'flex items-center gap-2 sm:gap-3 pb-3 text-gray-600 hover:text-gray-800 whitespace-nowrap shrink-0'">
+          <span class="w-4 h-4 sm:w-5 sm:h-5">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
               <path
                 d="M2.5 12.5003V14.0003C2.5 14.9337 2.5 15.4003 2.68167 15.757C2.84145 16.0706 3.09641 16.3255 3.41 16.4853C3.76583 16.667 4.2325 16.667 5.16417 16.667H17.5M2.5 12.5003V4.16699M2.5 12.5003L5.71083 9.82533L5.71417 9.82283C6.295 9.33866 6.58583 9.09616 6.90167 8.99783C7.27428 8.88132 7.67596 8.89931 8.03667 9.04866C8.3425 9.17616 8.61 9.44366 9.14667 9.98033L9.15167 9.98533C9.69667 10.5303 9.96917 10.8037 10.28 10.9295C10.6479 11.0794 11.0572 11.093 11.4342 10.9678C11.7533 10.8612 12.045 10.6062 12.6283 10.0962L17.5 5.83366"
                 [attr.stroke]="activeTab === 'statistiques' ? '#FF5C02' : '#333333'" stroke-width="1.66667"
@@ -104,11 +104,8 @@
             </svg>
 
           </span>
-          <span class="font-medium">{{ t('stock.tabs.statistics') }}</span>
+          <span class="font-medium text-sm sm:text-base">{{ t('stock.tabs.statistics') }}</span>
         </button>
-
-
-
 
       </div>
 
@@ -123,15 +120,15 @@
         <!-- ============================= -->
         <!-- FILTRES INVENTAIRES -->
         <!-- ============================= -->
-        <div class="flex gap-4 mb-6">
-          <div class="relative flex-1">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+          <div class="relative w-full sm:flex-1">
             <input type="text" [placeholder]="t('stock.filters.searchPlaceholder')" [(ngModel)]="searchMaterialTerm"
               (input)="onMaterialSearchChange()" class="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg
-               focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+               focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm">
           </div>
 
-          <select [(ngModel)]="statusMaterialFilter" (change)="onMaterialStatusFilterChange()" class="px-4 py-3 border border-gray-300 rounded-lg
-             focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <select [(ngModel)]="statusMaterialFilter" (change)="onMaterialStatusFilterChange()" class="w-full sm:w-auto px-4 py-3 border border-gray-300 rounded-lg
+             focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white">
             <option value="">{{ t('stock.filters.allMaterials') }}</option>
             <option value="stock normal">{{ t('stock.filters.normalStock') }}</option>
             <option value="stock faible">{{ t('stock.filters.lowStock') }}</option>
@@ -175,21 +172,21 @@
               </thead>
 
               <tbody>
-                <tr *ngFor="let material of paginatedMaterials; let i = index" class="border-b hover:bg-gray-50">
+                <tr *ngFor="let material of paginatedMaterials; let i = index" class="text-sm border-b hover:bg-gray-50">
 
-                  <td class="px-6 py-4 font-medium text-gray-900">
+                  <td class="px-6 py-4 font-medium text-[#4B4848]">
                     {{ getMaterialName(material) }}
                   </td>
 
-                  <td class="px-6 py-4 font-semibold">
+                  <td class="px-6 py-4 text-[#4B4848]">
                     {{ getMaterialStock(material) }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-600">
+                  <td class="px-6 py-4 text-[#4B4848]">
                     {{ getMaterialUnit(material) }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-600">
+                  <td class="px-6 py-4 text-[#4B4848]">
                     {{ getMaterialThreshold(material) }}
                   </td>
 
@@ -396,33 +393,33 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gray-50">
+              <thead class="bg-[#F5F7FA]">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{
                     t('stock.orders.orderNumber') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.date') }}
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('common.date') }}
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{
                     t('stock.orders.supplier') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('stock.table.status')
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('stock.table.status')
                     }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.actions') }}
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('common.actions') }}
                   </th>
                 </tr>
               </thead>
 
               <tbody class="divide-y divide-gray-200">
-                <tr *ngFor="let order of paginatedOrders; let i = index" class="hover:bg-gray-50">
+                <tr *ngFor="let order of paginatedOrders; let i = index" class="text-sm hover:bg-gray-50">
 
-                  <td class="px-6 py-4 font-medium text-gray-900">
+                  <td class="px-6 py-4 font-medium text-[#4B4848]">
                     CMD-{{ order.id.toString().padStart(4, '0') }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-600">
+                  <td class="px-6 py-4 text-[#4B4848]">
                     {{ getFormattedDate(order.orderDate) }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-900">
+                  <td class="px-6 py-4 text-[#4B4848]">
                     {{ order?.supplier?.prenom }} {{ order?.supplier?.nom }}
                   </td>
 
@@ -623,50 +620,50 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gray-50">
+              <thead class="bg-[#F5F7FA]">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{
                     t('stock.deliveries.deliveryNumber') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.date') }}
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('common.date') }}
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{
                     t('stock.orders.supplier') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('stock.table.status')
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('stock.table.status')
                     }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{
                     t('stock.deliveries.proof') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">{{ t('common.actions') }}
+                  <th class="px-5 py-3 text-left text-xs font-semibold text-[#2C3E50]">{{ t('common.actions') }}
                   </th>
                 </tr>
               </thead>
 
               <tbody class="divide-y divide-gray-200">
-                <tr *ngFor="let delivery of paginatedDeliveries; let i = index" class="border-b hover:bg-gray-50">
+                <tr *ngFor="let delivery of paginatedDeliveries; let i = index" class="text-sm border-b hover:bg-gray-50">
 
-                  <td class="px-6 py-4 font-medium">
+                  <td class="px-5 py-4 text-[#4B4848]">
                     CMD-{{ delivery.id.toString().padStart(4, '0') }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-600">
+                  <td class="px-5 py-4 text-[#4B4848]">
                     {{ getFormattedDate(delivery.orderDate) }}
                   </td>
 
-                  <td class="px-6 py-4 text-gray-600">
+                  <td class="px-5 py-4 text-[#4B4848]">
                     {{ delivery.supplier.prenom }} {{ delivery.supplier.nom }}
                   </td>
 
-                  <td class="px-6 py-4">
+                  <td class="px-5 py-4">
                     <span [class]="getOrderStatusClass(delivery.status)"
                       class="px-3 py-1 rounded-full text-xs font-medium">
                       {{ getOrderStatusText(delivery.status) }}
                     </span>
                   </td>
 
-                  <td class="px-6 py-4 text-xs">
+                  <td class="px-5 py-4 text-xs">
                     {{ delivery.proof || t('stock.deliveries.noProof') }}
                   </td>
 
-                  <td class="px-6 py-4 relative">
+                  <td class="px-5 py-4 relative">
 
                     <!-- Bouton -->
                     <button (click)="toggleDeliveryDropdown(i, $event)"
@@ -831,11 +828,11 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     <!-- ===================================================== -->
     <!-- COLONNE DROITE : 2 CARTES PAR ONGLET -->
     <!-- ===================================================== -->
-    <div class="col-span-12 lg:col-span-4 hidden lg:block">
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
 
       <!-- INVENTAIRES – COLONNE DROITE -->
       <div *ngIf="activeTab === 'inventaires' || activeTab ==='commandes'|| activeTab ==='livraisons' "
-        class="grid grid-rows-2 gap-6 h-[600px]">
+        class="flex flex-col lg:grid lg:grid-rows-2 gap-6 lg:h-[600px]">
 
         <!-- "Alertes stock matériaux" par : -->
         <div class="bg-white rounded-xl p-5 shadow-lg flex flex-col gap-5">
@@ -936,32 +933,33 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
 
       <!-- STATISTIQUES -->
-      <div *ngIf="activeTab === 'statistiques'" class="grid grid-rows-2 gap-6 h-[600px]">
+      <div *ngIf="activeTab === 'statistiques'" class="flex flex-col lg:grid lg:grid-rows-2 gap-6 h-auto lg:h-full lg:min-h-[600px] w-full">
 
         <!-- BAR CHART -->
-        <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg flex flex-col w-full">
           <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
             {{ t('stock.charts.consumption') }}
           </h3>
 
           <!-- zone graphique -->
-          <div class="flex-1 flex items-center justify-center">
-            <canvas id="consumptionChart" class="w-full h-full"></canvas>
+          <div class="flex-1 w-full relative flex items-center justify-center min-h-[300px] lg:min-h-0">
+            <canvas id="consumptionChart" class="w-full h-full max-w-full max-h-full"></canvas>
           </div>
 
-          <p class="text-center text-sm text-[#7F8C8D] ">
+          <p class="text-center text-sm text-[#7F8C8D] mt-4">
             {{ t('stock.charts.top5') }}
           </p>
         </div>
 
         <!-- LINE CHART -->
-        <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col">
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg flex flex-col w-full">
           <h3 class="text-[16px] font-semibold text-[#34495E] mb-4">
             {{ t('stock.charts.evolution') }}
           </h3>
 
-          <div class="flex-1 flex items-center justify-center">
-            <canvas id="evolutionChart" class="w-full h-full"></canvas>
+          <!-- LINE CHART -->
+          <div class="flex-1 w-full relative flex items-center justify-center min-h-[300px] lg:min-h-0">
+            <canvas id="evolutionChart" class="w-full h-full max-w-full max-h-full"></canvas>
           </div>
         </div>
 
