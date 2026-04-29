@@ -484,7 +484,10 @@ export class SubscriptionService {
       amount = plan.totalCost * 12;
     }
 
-    console.log('💰 Montant calculé:', amount);
+    // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA (IHM conserve le vrai montant affiché)
+    amount = 1;
+
+    console.log('💰 Montant calculé (FORCÉ POUR TEST):', amount);
     console.log('📅 Nombre de mois:', months);
 
     // Validation des données utilisateur
@@ -529,7 +532,8 @@ export class SubscriptionService {
       amount = plan.totalCost * 12;
     }
 
-   
+    // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA
+    amount = 1;
 
     // Lancement du paiement OneTouch
     try {
