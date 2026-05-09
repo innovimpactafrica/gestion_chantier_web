@@ -110,6 +110,8 @@ export interface OneTouchConfig {
   agencyCode: string;
   secureCode: string;
   domainName: string;
+    errorUrl: string;
+  domainName: string;
 }
 
 @Injectable({
@@ -123,7 +125,9 @@ export class SubscriptionService {
   private oneTouchConfig: OneTouchConfig = {
     agencyCode: 'INIMA27104',
     secureCode: 'idZnfqdG2BZxmKsHRLnQI5ZYY5vESgsNtPcYypZy8Bm72FQcxe',
-    domainName: 'https://innovimpactafrica.com/'
+    domainName: 'https://innovimpactafrica.com/',
+     successUrl: 'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPaySuccess',
+  errorUrl:   'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPayError'
   };
 
   constructor(
