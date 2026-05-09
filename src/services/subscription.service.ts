@@ -125,7 +125,7 @@ export class SubscriptionService {
   private oneTouchConfig: OneTouchConfig = {
     agencyCode: 'INIMA27104',
     secureCode: 'idZnfqdG2BZxmKsHRLnQI5ZYY5vESgsNtPcYypZy8Bm72FQcxe',
-    domainName: 'https://innovimpactafrica.com/',
+    domainName: 'https://btp.innovimpactdev.cloud/',
     successUrl:
       'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPaySuccess',
     errorUrl:
