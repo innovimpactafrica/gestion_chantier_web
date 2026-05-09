@@ -123,7 +123,7 @@ export class SubscriptionService {
   private oneTouchConfig: OneTouchConfig = {
     agencyCode: 'INIMA27104',
     secureCode: 'idZnfqdG2BZxmKsHRLnQI5ZYY5vESgsNtPcYypZy8Bm72FQcxe',
-    domainName: 'innovimpactafrica.com'
+    domainName: 'https://innovimpactafrica.com/'
   };
 
   constructor(
