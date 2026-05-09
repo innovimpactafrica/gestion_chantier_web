@@ -121,9 +121,9 @@ export class SubscriptionService {
 
   // Configuration OneTouch
   private oneTouchConfig: OneTouchConfig = {
-    agencyCode: 'SOLI26685',
-    secureCode: 'SJeOJiLKfP2FUHWgTEzhX8Y0km36CwGkbJQTKdplZM3QORfQ6m',
-    domainName: 'solimus.net'
+    agencyCode: 'INIMA27104',
+    secureCode: 'idZnfqdG2BZxmKsHRLnQI5ZYY5vESgsNtPcYypZy8Bm72FQcxe',
+    domainName: 'innovimpactafrica.com'
   };
 
   constructor(
