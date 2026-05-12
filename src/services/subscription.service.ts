@@ -7,7 +7,7 @@ import { environment } from '../environments/environment';
 
 // Déclaration de la fonction OneTouch pour TypeScript
 declare function sendPaymentInfos(
-  orderNumber: string,
+  orderNumber: number,
   agencyCode: string,
   secureCode: string,
   domainName: string,
@@ -18,7 +18,7 @@ declare function sendPaymentInfos(
   email: string,
   clientFirstName: string,
   clientLastName: string,
-  clientPhone: string
+  clientPhone: string,
 ): void;
 
 // Interfaces pour le typage
@@ -107,13 +107,15 @@ export interface CreateSubscriptionResponse {
 }
 
 export interface OneTouchConfig {
-  agencyCode: string;
+ agencyCode: string;
   secureCode: string;
   domainName: string;
+  successUrl: string;  
+  errorUrl: string;   
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SubscriptionService {
   private baseUrl = `${environment.apiUrl}/subscriptions`;
@@ -121,14 +123,18 @@ export class SubscriptionService {
 
   // Configuration OneTouch
   private oneTouchConfig: OneTouchConfig = {
-    agencyCode: 'SOLI26685',
-    secureCode: 'SJeOJiLKfP2FUHWgTEzhX8Y0km36CwGkbJQTKdplZM3QORfQ6m',
-    domainName: 'solimus.net'
+    agencyCode: 'INIMA27104',
+    secureCode: 'idZnfqdG2BZxmKsHRLnQI5ZYY5vESgsNtPcYypZy8Bm72FQcxe',
+    domainName: 'https://btp.innovimpactdev.cloud/',
+    successUrl:
+      'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPaySuccess',
+    errorUrl:
+      'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPayError',
   };
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     console.log('🔧 SubscriptionService initialisé');
     this.checkOneTouchScript();
@@ -142,7 +148,9 @@ export class SubscriptionService {
       console.log('✅ Script OneTouch chargé avec succès');
     } else {
       console.warn('⚠️ Script OneTouch non détecté au démarrage du service');
-      console.warn('Le script sera vérifié à nouveau lors du premier appel de paiement');
+      console.warn(
+        'Le script sera vérifié à nouveau lors du premier appel de paiement',
+      );
     }
   }
 
@@ -157,11 +165,10 @@ export class SubscriptionService {
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', userId);
 
-    return this.http.get<boolean>(url, { headers })
-      .pipe(
-        tap(isActive => console.log('✅ Is Active:', isActive)),
-        catchError(error => this.handleError(error, 'seeActive'))
-      );
+    return this.http.get<boolean>(url, { headers }).pipe(
+      tap((isActive) => console.log('✅ Is Active:', isActive)),
+      catchError((error) => this.handleError(error, 'seeActive')),
+    );
   }
 
   /**
@@ -171,17 +178,20 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/can-create-project/${userId}`;
 
-    return this.http.get<boolean>(url, { headers })
-      .pipe(
-        tap(canCreate => console.log('✅ Can Create Project:', canCreate)),
-        catchError(error => this.handleError(error, 'canCreateProject'))
-      );
+    return this.http.get<boolean>(url, { headers }).pipe(
+      tap((canCreate) => console.log('✅ Can Create Project:', canCreate)),
+      catchError((error) => this.handleError(error, 'canCreateProject')),
+    );
   }
 
   /**
    * Récupère les factures de l'utilisateur avec pagination
    */
-  getFactures(userId: number, page: number = 0, size: number = 10): Observable<InvoiceResponse> {
+  getFactures(
+    userId: number,
+    page: number = 0,
+    size: number = 10,
+  ): Observable<InvoiceResponse> {
     const headers = this.getAuthHeaders();
     const params = new HttpParams()
       .set('page', page.toString())
@@ -195,17 +205,16 @@ export class SubscriptionService {
     console.log('📄 Page:', page);
     console.log('📊 Size:', size);
 
-    return this.http.get<InvoiceResponse>(url, { headers, params })
-      .pipe(
-        tap(response => {
-          console.log('✅ Factures récupérées:');
-          console.log('  - Total elements:', response.totalElements);
-          console.log('  - Total pages:', response.totalPages);
-          console.log('  - Current page:', response.number);
-          console.log('  - Items:', response.content.length);
-        }),
-        catchError(error => this.handleError(error, 'getFactures'))
-      );
+    return this.http.get<InvoiceResponse>(url, { headers, params }).pipe(
+      tap((response) => {
+        console.log('✅ Factures récupérées:');
+        console.log('  - Total elements:', response.totalElements);
+        console.log('  - Total pages:', response.totalPages);
+        console.log('  - Current page:', response.number);
+        console.log('  - Items:', response.content.length);
+      }),
+      catchError((error) => this.handleError(error, 'getFactures')),
+    );
   }
 
   /**
@@ -219,20 +228,22 @@ export class SubscriptionService {
     console.log('🔗 URL complète:', url);
     console.log('👔 Profil:', name);
 
-    return this.http.get<SubscriptionPlan[]>(url, { headers })
-      .pipe(
-        tap(plans => {
-          console.log('✅ Plans d\'abonnement récupérés:');
-          console.log('  - Nombre de plans:', plans.length);
-          console.log('  - Plans:', plans.map(p => ({
+    return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
+      tap((plans) => {
+        console.log("✅ Plans d'abonnement récupérés:");
+        console.log('  - Nombre de plans:', plans.length);
+        console.log(
+          '  - Plans:',
+          plans.map((p) => ({
             id: p.id,
             name: p.name,
             label: p.label,
-            totalCost: p.totalCost
-          })));
-        }),
-        catchError(error => this.handleError(error, 'getPlanSubscription'))
-      );
+            totalCost: p.totalCost,
+          })),
+        );
+      }),
+      catchError((error) => this.handleError(error, 'getPlanSubscription')),
+    );
   }
 
   /**
@@ -245,11 +256,10 @@ export class SubscriptionService {
     console.log('📡 API Call: getAllActivePlans');
     console.log('🔗 URL:', url);
 
-    return this.http.get<SubscriptionPlan[]>(url, { headers })
-      .pipe(
-        tap(plans => console.log('✅ Plans actifs récupérés:', plans.length)),
-        catchError(error => this.handleError(error, 'getAllActivePlans'))
-      );
+    return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
+      tap((plans) => console.log('✅ Plans actifs récupérés:', plans.length)),
+      catchError((error) => this.handleError(error, 'getAllActivePlans')),
+    );
   }
 
   /**
@@ -260,11 +270,11 @@ export class SubscriptionService {
     console.log('👤 Profil demandé:', profile);
 
     return this.getAllActivePlans().pipe(
-      map(plans => {
+      map((plans) => {
         console.log('📦 Tous les plans actifs:', plans);
 
         // Filtrer les plans par nom qui contient le profil
-        const filteredPlans = plans.filter(plan => {
+        const filteredPlans = plans.filter((plan) => {
           const planName = plan.name?.toUpperCase() || '';
           const profileUpper = profile.toUpperCase();
 
@@ -272,23 +282,32 @@ export class SubscriptionService {
           const matchesByName = planName.includes(profileUpper);
 
           // Vérifier aussi targetProfiles si disponible
-          const matchesByTargetProfiles = plan.targetProfiles && plan.targetProfiles.includes(profile);
+          const matchesByTargetProfiles =
+            plan.targetProfiles && plan.targetProfiles.includes(profile);
 
           const matches = matchesByName || matchesByTargetProfiles;
 
           if (matches) {
-            console.log(`✅ Plan "${plan.name}" (${plan.label}) correspond au profil "${profile}"`);
+            console.log(
+              `✅ Plan "${plan.name}" (${plan.label}) correspond au profil "${profile}"`,
+            );
           }
 
           return matches;
         });
 
-        console.log(`✅ Plans filtrés pour le profil "${profile}":`, filteredPlans.length);
-        console.log('📋 Plans trouvés:', filteredPlans.map(p => `${p.name} (${p.label})`));
+        console.log(
+          `✅ Plans filtrés pour le profil "${profile}":`,
+          filteredPlans.length,
+        );
+        console.log(
+          '📋 Plans trouvés:',
+          filteredPlans.map((p) => `${p.name} (${p.label})`),
+        );
 
         return filteredPlans;
       }),
-      catchError(error => this.handleError(error, 'getPlansByProfile'))
+      catchError((error) => this.handleError(error, 'getPlansByProfile')),
     );
   }
 
@@ -303,11 +322,10 @@ export class SubscriptionService {
     console.log('🔗 URL:', url);
     console.log('🆔 Plan ID:', planId);
 
-    return this.http.get<SubscriptionPlan>(url, { headers })
-      .pipe(
-        tap(plan => console.log('✅ Plan récupéré:', plan)),
-        catchError(error => this.handleError(error, 'getPlanById'))
-      );
+    return this.http.get<SubscriptionPlan>(url, { headers }).pipe(
+      tap((plan) => console.log('✅ Plan récupéré:', plan)),
+      catchError((error) => this.handleError(error, 'getPlanById')),
+    );
   }
 
   /**
@@ -321,16 +339,15 @@ export class SubscriptionService {
     console.log('🔗 URL:', url);
     console.log('👤 UserId:', userId);
 
-    return this.http.get<UserSubscription>(url, { headers })
-      .pipe(
-        tap(subscription => {
-          console.log('✅ Abonnement utilisateur récupéré:');
-          console.log('  - ID Abonnement:', subscription.id);
-          console.log('  - Plan:', subscription.subscriptionPlan?.name);
-          console.log('  - Date création:', subscription.createdAt);
-        }),
-        catchError(error => this.handleError(error, 'getSubscriptionByUser'))
-      );
+    return this.http.get<UserSubscription>(url, { headers }).pipe(
+      tap((subscription) => {
+        console.log('✅ Abonnement utilisateur récupéré:');
+        console.log('  - ID Abonnement:', subscription.id);
+        console.log('  - Plan:', subscription.subscriptionPlan?.name);
+        console.log('  - Date création:', subscription.createdAt);
+      }),
+      catchError((error) => this.handleError(error, 'getSubscriptionByUser')),
+    );
   }
 
   getSubscriptionsByProfile(profile: string): Observable<UserSubscription[]> {
@@ -341,27 +358,41 @@ export class SubscriptionService {
     console.log('🔗 URL:', url);
     console.log('👔 Profile:', profile);
 
-    return this.http.get<UserSubscription[]>(url, { headers })
-      .pipe(
-        tap(subscriptions => {
-          console.log('✅ Abonnements par profil récupérés:', subscriptions.length);
-          subscriptions.forEach((sub, index) => {
-            console.log(`  - Abonnement ${index + 1}:`, sub.subscriptionPlan?.name, 'User:', sub.user.id);
-          });
-        }),
-        catchError(error => this.handleError(error, 'getSubscriptionsByProfile'))
-      );
+    return this.http.get<UserSubscription[]>(url, { headers }).pipe(
+      tap((subscriptions) => {
+        console.log(
+          '✅ Abonnements par profil récupérés:',
+          subscriptions.length,
+        );
+        subscriptions.forEach((sub, index) => {
+          console.log(
+            `  - Abonnement ${index + 1}:`,
+            sub.subscriptionPlan?.name,
+            'User:',
+            sub.user.id,
+          );
+        });
+      }),
+      catchError((error) =>
+        this.handleError(error, 'getSubscriptionsByProfile'),
+      ),
+    );
   }
 
   /**
    * Crée un abonnement pour un utilisateur
    */
-  createSubscription(params: CreateSubscriptionParams): Observable<CreateSubscriptionResponse> {
+  createSubscription(
+    params: CreateSubscriptionParams,
+  ): Observable<CreateSubscriptionResponse> {
     const headers = this.getAuthHeaders();
 
     let httpParams = new HttpParams();
     if (params.num_transaction_from_gu) {
-      httpParams = httpParams.set('num_transaction_from_gu', params.num_transaction_from_gu);
+      httpParams = httpParams.set(
+        'num_transaction_from_gu',
+        params.num_transaction_from_gu,
+      );
     }
     if (params.num_command) {
       httpParams = httpParams.set('num_command', params.num_command);
@@ -381,19 +412,24 @@ export class SubscriptionService {
     console.log('🎫 PlanId:', params.planId);
     console.log('📅 Months:', params.months);
 
-    return this.http.get<CreateSubscriptionResponse>(url, { headers, params: httpParams })
+    return this.http
+      .get<CreateSubscriptionResponse>(url, { headers, params: httpParams })
       .pipe(
-        tap(response => {
+        tap((response) => {
           console.log('✅ Abonnement créé avec succès:', response);
         }),
-        catchError(error => this.handleError(error, 'createSubscription'))
+        catchError((error) => this.handleError(error, 'createSubscription')),
       );
   }
 
   /**
    * ✨ NOUVELLE MÉTHODE : Construit l'URL de callback après paiement
    */
-  private buildCallbackUrl(userId: number, planId: number, months: number): string {
+  private buildCallbackUrl(
+    userId: number,
+    planId: number,
+    months: number,
+  ): string {
     const baseUrl = window.location.origin;
 
     // URL de succès : redirige vers /mon-compte avec les paramètres de paiement
@@ -415,20 +451,25 @@ export class SubscriptionService {
     clientPhone: string,
     userId: number,
     planId: number,
-    months: number
+    months: number,
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       // Vérification que la fonction sendPaymentInfos existe
       if (typeof sendPaymentInfos !== 'function') {
-        const errorMsg = 'Le système de paiement OneTouch n\'est pas chargé. Veuillez rafraîchir la page et réessayer.';
-        console.error('💡 Solution: Assurez-vous que le script OneTouch est bien inclus dans index.html');
-        console.error('💡 URL du script: https://test.solinusteam.com/Scripts/form.js');
+        const errorMsg =
+          "Le système de paiement OneTouch n'est pas chargé. Veuillez rafraîchir la page et réessayer.";
+        console.error(
+          '💡 Solution: Assurez-vous que le script OneTouch est bien inclus dans index.html',
+        );
+        console.error(
+          '💡 URL du script: https://test.solinusteam.com/Scripts/form.js',
+        );
         reject(new Error(errorMsg));
         return;
       }
 
       const currentOrigin = window.location.origin;
-      const orderNumber = new Date().getTime().toString();
+      const orderNumber = new Date().getTime();
 
       // ✨ MODIFICATION : URLs de redirection vers /mon-compte
       const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}?redirect=${encodeURIComponent(`${currentOrigin}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`)}`;
@@ -448,7 +489,7 @@ export class SubscriptionService {
           email,
           clientFirstName,
           clientLastName,
-          ''
+          '',
         );
 
         resolve();
@@ -465,9 +506,9 @@ export class SubscriptionService {
   async initiateSubscriptionPayment(
     user: any,
     plan: SubscriptionPlan,
-    isYearly: boolean
+    isYearly: boolean,
   ): Promise<void> {
-    console.log('🚀 Initiation du paiement d\'abonnement');
+    console.log("🚀 Initiation du paiement d'abonnement");
     console.log('👤 Utilisateur:', user.id, user.email);
     console.log('📦 Plan:', plan.id, plan.label);
     console.log('📅 Type:', isYearly ? 'Annuel' : 'Mensuel');
@@ -485,14 +526,15 @@ export class SubscriptionService {
     }
 
     // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA (IHM conserve le vrai montant affiché)
-    amount = 1;
+   // amount = 1;
 
     console.log('💰 Montant calculé (FORCÉ POUR TEST):', amount);
     console.log('📅 Nombre de mois:', months);
 
     // Validation des données utilisateur
     if (!user.email || !user.prenom || !user.nom || !user.telephone) {
-      const errorMsg = 'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.';
+      const errorMsg =
+        'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.';
       console.error('❌', errorMsg);
       throw new Error(errorMsg);
     }
@@ -507,19 +549,18 @@ export class SubscriptionService {
         user.telephone,
         user.id,
         plan.id,
-        months
+        months,
       );
     } catch (error) {
-      console.error('❌ Erreur lors de l\'initiation du paiement:', error);
+      console.error("❌ Erreur lors de l'initiation du paiement:", error);
       throw error;
     }
   }
   async initiateSubscriptionPaymentbis(
     userId: number,
     plan: SubscriptionPlan,
-    isYearly: boolean
+    isYearly: boolean,
   ): Promise<void> {
-
     // Calcul du montant et des mois
     const months = isYearly ? 12 : 1;
     let amount = plan.totalCost;
@@ -533,22 +574,13 @@ export class SubscriptionService {
     }
 
     // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA
-    amount = 1;
+   // amount = 1;
 
     // Lancement du paiement OneTouch
     try {
-      await this.callTouchPay(
-        amount,
-        '',
-        '',
-        '',
-        '',
-        userId,
-        plan.id,
-        months
-      );
+      await this.callTouchPay(amount, '', '', '', '', userId, plan.id, months);
     } catch (error) {
-      console.error('❌ Erreur lors de l\'initiation du paiement:', error);
+      console.error("❌ Erreur lors de l'initiation du paiement:", error);
       throw error;
     }
   }
@@ -556,13 +588,19 @@ export class SubscriptionService {
    * Récupère les headers d'authentification avec validation
    */
   private getAuthHeaders(): HttpHeaders {
-    console.log('🔑 Récupération des headers d\'authentification...');
+    console.log("🔑 Récupération des headers d'authentification...");
 
-    if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
+    if (
+      this.authService &&
+      typeof this.authService.getAuthHeaders === 'function'
+    ) {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
 
-      console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
+      console.log(
+        '🔑 Headers depuis AuthService:',
+        hasAuth ? '✅ OK' : '❌ Manquant',
+      );
 
       if (!hasAuth) {
         console.warn('⚠️ Aucun header Authorization trouvé!');
@@ -571,29 +609,34 @@ export class SubscriptionService {
       return headers;
     }
 
-    console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
+    console.warn(
+      '⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback',
+    );
 
     const token = this.authService?.getToken() || localStorage.getItem('token');
 
     if (token) {
       console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       });
     }
 
-    console.error('❌ Aucun token d\'authentification trouvé!');
+    console.error("❌ Aucun token d'authentification trouvé!");
 
     return new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
   }
 
   /**
    * Gestion des erreurs HTTP avec contexte
    */
-  private handleError(error: any, context: string = 'unknown'): Observable<never> {
+  private handleError(
+    error: any,
+    context: string = 'unknown',
+  ): Observable<never> {
     console.error(`❌ Erreur dans SubscriptionService.${context}:`, error);
     console.error('❌ Status:', error.status);
     console.error('❌ Status Text:', error.statusText);
@@ -609,7 +652,8 @@ export class SubscriptionService {
 
     switch (error.status) {
       case 0:
-        errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
+        errorMessage =
+          'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
         userMessage = 'Problème de connexion au serveur';
         break;
       case 400:
@@ -621,7 +665,8 @@ export class SubscriptionService {
         userMessage = 'Session expirée. Veuillez vous reconnecter.';
         break;
       case 403:
-        errorMessage = 'Accès refusé. Vous n\'avez pas les permissions nécessaires.';
+        errorMessage =
+          "Accès refusé. Vous n'avez pas les permissions nécessaires.";
         userMessage = 'Accès non autorisé';
         break;
       case 404:
@@ -649,7 +694,7 @@ export class SubscriptionService {
       userMessage: userMessage,
       status: error.status,
       context: context,
-      originalError: error
+      originalError: error,
     }));
   }
 
@@ -662,13 +707,29 @@ export class SubscriptionService {
     console.log('Base URL Plans:', this.planBaseUrl);
     console.log('Endpoints disponibles:');
     console.log('  - seeActive: GET', `${this.baseUrl}/is-active/{userId}`);
-    console.log('  - canCreateProject: GET', `${this.baseUrl}/can-create-project/{userId}`);
-    console.log('  - getFactures: GET', `${this.baseUrl}/invoices/{userId}?page=0&size=10`);
-    console.log('  - getPlanSubscription: GET', `${this.planBaseUrl}/name/{name}`);
+    console.log(
+      '  - canCreateProject: GET',
+      `${this.baseUrl}/can-create-project/{userId}`,
+    );
+    console.log(
+      '  - getFactures: GET',
+      `${this.baseUrl}/invoices/{userId}?page=0&size=10`,
+    );
+    console.log(
+      '  - getPlanSubscription: GET',
+      `${this.planBaseUrl}/name/{name}`,
+    );
     console.log('  - getAllActivePlans: GET', `${this.planBaseUrl}/active`);
     console.log('  - getPlanById: GET', `${this.planBaseUrl}/{id}`);
-    console.log('  - createSubscription: GET', `${this.baseUrl}/create/{userId}/{planId}/{months}`);
-    console.log('OneTouch Script:', typeof sendPaymentInfos === 'function' ? '✅ Chargé' : '❌ Non chargé');
+    console.log(
+      '  - createSubscription: GET',
+      `${this.baseUrl}/create/{userId}/{planId}/{months}`,
+    );
+    console.log(
+      'OneTouch Script:',
+      typeof sendPaymentInfos === 'function' ? '✅ Chargé' : '❌ Non chargé',
+    );
     console.log('========================');
   }
 }
+
