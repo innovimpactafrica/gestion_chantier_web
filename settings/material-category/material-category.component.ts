@@ -4,12 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { UnitParameter } from '../../../../core/services/unite-parametre.service';
 import { UnitParameterService } from '../../../../core/services/unite-parametre.service';
-import { DeleteConfirmationModalComponent } from '../../../../shared/components/delete-confirmation-modal/delete-confirmation-modal.component';
 
 @Component({
   selector: 'app-material-category',
   standalone: true,
-  imports: [CommonModule, FormsModule, DeleteConfirmationModalComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './material-category.component.html',
   styleUrls: ['./material-category.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -47,10 +46,6 @@ export class MaterialCategoryComponent implements OnInit, OnDestroy {
   // Edit mode
   editingCategory: UnitParameter | null = null;
   editForm = { label: '', code: '' };
-
-  // Modal de suppression
-  showDeleteModal = false;
-  categoryToDelete: UnitParameter | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -144,34 +139,18 @@ export class MaterialCategoryComponent implements OnInit, OnDestroy {
       });
   }
 
-  supprimerCategorie(category: UnitParameter): void {
-    this.categoryToDelete = category;
-    this.showDeleteModal = true;
-  }
-
-  confirmDelete(): void {
-    if (!this.categoryToDelete?.id) return;
-    
-    this.unitParameterService.delete(this.categoryToDelete.id)
+  supprimerCategorie(id: string): void {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) return;
+    this.unitParameterService.delete(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.showSuccess('Catégorie supprimée');
           if (this.categories.length === 1 && this.currentPage > 0) this.currentPage--;
-          this.closeDeleteModal();
           this.loadCategories();
         },
-        error: () => { 
-          this.error = 'Erreur lors de la suppression'; 
-          this.closeDeleteModal();
-          this.cdr.markForCheck(); 
-        }
+        error: () => { this.error = 'Erreur lors de la suppression'; this.cdr.markForCheck(); }
       });
-  }
-
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.categoryToDelete = null;
   }
 
   modifierCategorie(category: UnitParameter): void {

@@ -256,16 +256,18 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="!isLoadingInvoices && totalPages > 1" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+    <div *ngIf="!isLoadingInvoices && totalElements > 0" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
       <div class="flex items-center justify-between">
         <div class="text-sm text-gray-700">
-          {{ t('dashboardAdmin.pagination.showing') }} <span class="font-medium">{{ currentPage * pageSize + 1 }}</span>
+          {{ t('dashboardAdmin.pagination.showing') }}
+          <span class="font-medium">{{ currentPage * pageSize + 1 }}</span>
           {{ t('dashboardAdmin.pagination.to') }}
-          <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span> {{
-          t('dashboardAdmin.pagination.of') }}
-          <span class="font-medium">{{ totalElements }}</span> {{ t('dashboardAdmin.pagination.results') }}
+          <span class="font-medium">{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</span>
+          {{ t('dashboardAdmin.pagination.of') }}
+          <span class="font-medium">{{ totalElements }}</span>
+          {{ t('dashboardAdmin.pagination.results') }}
         </div>
-        <div class="flex items-center space-x-2">
+        <div *ngIf="totalPages > 1" class="flex items-center space-x-2">
           <button (click)="previousPage()" [disabled]="currentPage === 0" [class.opacity-50]="currentPage === 0"
             [class.cursor-not-allowed]="currentPage === 0"
             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] disabled:hover:bg-white transition-colors">
@@ -274,8 +276,10 @@
 
           <div class="flex items-center space-x-1">
             <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)"
-              [class.bg-[#FF5C01]]="currentPage === i" [class.text-white]="currentPage === i"
+              [class.text-white]="currentPage === i"
               [class.bg-white]="currentPage !== i" [class.text-gray-700]="currentPage !== i"
+              [style.background-color]="currentPage === i ? '#FF5C01' : ''"
+              [style.border-color]="currentPage === i ? '#FF5C01' : ''"
               class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#FF5C01] transition-colors">
               {{ i + 1 }}
             </button>
@@ -290,5 +294,6 @@
         </div>
       </div>
     </div>
+
   </div>
 </div>

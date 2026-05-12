@@ -52,7 +52,7 @@
         <a (click)="navigateTo('/dashboard-admin', 'Dashboard-admin', 'dashboard-admin')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('dashboard-admin') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'"
               viewBox="0 0 24 24" fill="none">
               <path
                 d="M11.25 18C11.25 18.1989 11.329 18.3897 11.4697 18.5303C11.6103 18.671 11.8011 18.75 12 18.75C12.1989 18.75 12.3897 18.671 12.5303 18.5303C12.671 18.3897 12.75 18.1989 12.75 18V15C12.75 14.8011 12.671 14.6103 12.5303 14.4697C12.3897 14.329 12.1989 14.25 12 14.25C11.8011 14.25 11.6103 14.329 11.4697 14.4697C11.329 14.6103 11.25 14.8011 11.25 15V18Z"
@@ -71,7 +71,7 @@
         <a (click)="navigateTo('/utilisateurs', 'Utilisateurs', 'utilisateurs')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('utilisateurs') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'"
               viewBox="0 0 24 24" fill="none" [attr.stroke]="isActive('utilisateurs') ? '#FFFFFF' : '#1A202C'"
               stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -89,7 +89,7 @@
         <a (click)="navigateTo('/abonnements', 'Abonnements', 'abonnements')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
               (isActive('abonnements') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-2 transition-all duration-200'"
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'"
               viewBox="0 0 24 24" fill="none">
               <path
                 d="M16.5 8.25C16.5 8.05109 16.579 7.86032 16.7197 7.71967C16.8603 7.57902 17.0511 7.5 17.25 7.5H20.25C20.4489 7.5 20.6397 7.57902 20.7803 7.71967C20.921 7.86032 21 8.05109 21 8.25V9.75C21 9.94891 20.921 10.1397 20.7803 10.2803C20.6397 10.421 20.4489 10.5 20.25 10.5H17.25C17.0511 10.5 16.8603 10.421 16.7197 10.2803C16.579 10.1397 16.5 9.94891 16.5 9.75V8.25Z"
@@ -133,14 +133,11 @@
         <a (click)="navigateTo('/subcontractor', 'Sous-traitants', 'subcontractor')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
             (isActive('subcontractor') ? 'bg-[#FF5C02] text-white' : 'text-gray-700')">
 
-          <svg width="20" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" [class]="'mr-2 transition-all duration-200 ' + 
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0 ' + 
                 (isActive('subcontractor') 
                   ? 'text-white' 
-                  : 'text-black group-hver:text-[#FF5C02]')">
-
-            <path
-              d="M7.2 9.59995C9.52125 9.59995 11.4 7.7212 11.4 5.39995C11.4 3.0787 9.52125 1.19995 7.2 1.19995C4.87875 1.19995 3 3.0787 3 5.39995C3 7.7212 4.87875 9.59995 7.2 9.59995ZM10.08 10.8H9.76875C8.98875 11.175 8.1225 11.4 7.2 11.4C6.2775 11.4 5.415 11.175 4.63125 10.8H4.32C1.935 10.8 0 12.735 0 15.12V16.2C0 17.1937 0.80625 18 1.8 18H12.6C13.5938 18 14.4 17.1937 14.4 16.2V15.12C14.4 12.735 12.465 10.8 10.08 10.8ZM18 9.59995C19.9875 9.59995 21.6 7.98745 21.6 5.99995C21.6 4.01245 19.9875 2.39995 18 2.39995C16.0125 2.39995 14.4 4.01245 14.4 5.99995C14.4 7.98745 16.0125 9.59995 18 9.59995ZM19.8 10.8H19.6575C19.1363 10.98 18.585 11.1 18 11.1C17.415 11.1 16.8638 10.98 16.3425 10.8H16.2C15.435 10.8 14.73 11.0212 14.1112 11.3774C15.0262 12.3637 15.6 13.6725 15.6 15.12V16.56C15.6 16.6425 15.5813 16.7212 15.5775 16.8H22.2C23.1938 16.8 24 15.9937 24 15C24 12.6787 22.1213 10.8 19.8 10.8Z"
-              fill="currentColor" />
+                  : 'text-black group-hover:text-[#FF5C02]')">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
 
           <span class="text-sm">{{ t('sidebar.subcontractors') }}</span>
@@ -154,14 +151,11 @@
         <a (click)="navigateTo('/fournisseur', 'Fournisseurs', 'suppliers')" [class]="'flex items-center py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 group ' + 
             (isActive('suppliers') ? 'bg-[#FF5C02] text-white' : 'text-gray-700')">
 
-          <svg width="20" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" [class]="'mr-2 transition-all duration-200 ' + 
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0 ' + 
                 (isActive('suppliers') 
                   ? 'text-white' 
-                  : 'text-black group-hor:text-[#FF5C02]')">
-
-            <path
-              d="M7.2 9.59995C9.52125 9.59995 11.4 7.7212 11.4 5.39995C11.4 3.0787 9.52125 1.19995 7.2 1.19995C4.87875 1.19995 3 3.0787 3 5.39995C3 7.7212 4.87875 9.59995 7.2 9.59995ZM10.08 10.8H9.76875C8.98875 11.175 8.1225 11.4 7.2 11.4C6.2775 11.4 5.415 11.175 4.63125 10.8H4.32C1.935 10.8 0 12.735 0 15.12V16.2C0 17.1937 0.80625 18 1.8 18H12.6C13.5938 18 14.4 17.1937 14.4 16.2V15.12C14.4 12.735 12.465 10.8 10.08 10.8ZM18 9.59995C19.9875 9.59995 21.6 7.98745 21.6 5.99995C21.6 4.01245 19.9875 2.39995 18 2.39995C16.0125 2.39995 14.4 4.01245 14.4 5.99995C14.4 7.98745 16.0125 9.59995 18 9.59995ZM19.8 10.8H19.6575C19.1363 10.98 18.585 11.1 18 11.1C17.415 11.1 16.8638 10.98 16.3425 10.8H16.2C15.435 10.8 14.73 11.0212 14.1112 11.3774C15.0262 12.3637 15.6 13.6725 15.6 15.12V16.56C15.6 16.6425 15.5813 16.7212 15.5775 16.8H22.2C23.1938 16.8 24 15.9937 24 15C24 12.6787 22.1213 10.8 19.8 10.8Z"
-              fill="currentColor" />
+                  : 'text-black group-hover:text-[#FF5C02]')">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
 
           <span class="text-sm">{{ t('sidebar.suppliers') }}</span>
@@ -176,7 +170,7 @@
             [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
             <div class="flex items-center">
-              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" [class]="'mr-2 w-5 h-5 transition-all duration-200 ' + 
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" [class]="'mr-3 w-5 h-5 transition-all duration-200 flex-shrink-0 ' + 
       (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') 
         ? 'brightness-0 invert' 
         : '')">
@@ -239,7 +233,7 @@
         <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
                          (isActive('dashboard') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">{{ t('sidebar.dashboard') }}</span>
           </div>
@@ -257,7 +251,7 @@
         <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboard-etude') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
                          (isActive('dashboard-etude') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">{{ t('sidebar.dashboardStudy') }}</span>
           </div>
@@ -274,7 +268,7 @@
         <a (click)="navigateTo('/demande', 'Demandes', 'demande')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('demande') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
                          (isActive('demande') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">Demandes</span>
           </div>
@@ -292,7 +286,9 @@
         <a (click)="navigateTo('/projects', 'Projets', 'projects')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('projects') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <i class="fa-regular fa-folder mr-2"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-1.22-1.8A2 2 0 0 0 7.53 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
+            </svg>
             <span class="text-sm">{{ t('sidebar.projects') }}</span>
           </div>
         </a>
@@ -306,7 +302,7 @@
         <a (click)="navigateTo('/dashboardf', 'Tableau de bord', 'dashboardf')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboardf') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
                          (isActive('dashboardf') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">{{ t('sidebar.dashboard') }}</span>
           </div>
@@ -323,7 +319,7 @@
         <a (click)="navigateTo('/commandes', 'Commandes', 'commandes')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('commandes') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-2 transition-all duration-200 ' + 
+            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
                          (isActive('commandes') ? 'brightness-0 invert' : '')" srcset="">
             <span class="text-sm">Commandes</span>
           </div>
@@ -337,9 +333,9 @@
 
       <!-- ========== MON COMPTE (Tous sauf SUPPLIER) ========== -->
       <li>
-        <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" [class]="'flex items-center py-3 px-4 gap-2 rounded-lg cursor-pointer transition-all duration-200 ' + 
+        <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" [class]="'flex items-center py-3 px-4 gap-3 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('mon-compte') ? 'bg-[#FF5C02] text-white' : '')">
-          <svg [class]="'transition-all duration-200'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          <svg [class]="'transition-all duration-200 flex-shrink-0'" width="20" height="20" viewBox="0 0 24 24" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path
               d="M5.85 17.1C6.7 16.45 7.65 15.9377 8.7 15.563C9.75 15.1883 10.85 15.0007 12 15C13.15 14.9993 14.25 15.187 15.3 15.563C16.35 15.939 17.3 16.4513 18.15 17.1C18.7333 16.4167 19.1877 15.6417 19.513 14.775C19.8383 13.9083 20.0007 12.9833 20 12C20 9.78333 19.221 7.89567 17.663 6.337C16.105 4.77833 14.2173 3.99933 12 4C9.78267 4.00067 7.895 4.78 6.337 6.338C4.779 7.896 4 9.78333 4 12C4 12.9833 4.16267 13.9083 4.488 14.775C4.81333 15.6417 5.26733 16.4167 5.85 17.1ZM12 13C11.0167 13 10.1873 12.6627 9.512 11.988C8.83667 11.3133 8.49933 10.484 8.5 9.5C8.50067 8.516 8.83833 7.68667 9.513 7.012C10.1877 6.33733 11.0167 6 12 6C12.9833 6 13.8127 6.33767 14.488 7.013C15.1633 7.68833 15.5007 8.51733 15.5 9.5C15.4993 10.4827 15.162 11.312 14.488 11.988C13.814 12.664 12.9847 13.0013 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22ZM12 20C12.8833 20 13.7167 19.871 14.5 19.613C15.2833 19.355 16 18.984 16.65 18.5C16 18.0167 15.2833 17.646 14.5 17.388C13.7167 17.13 12.8833 17.0007 12 17C11.1167 16.9993 10.2833 17.1287 9.5 17.388C8.71667 17.6473 8 18.018 7.35 18.5C8 18.9833 8.71667 19.3543 9.5 19.613C10.2833 19.8717 11.1167 20.0007 12 20ZM12 11C12.4333 11 12.7917 10.8583 13.075 10.575C13.3583 10.2917 13.5 9.93333 13.5 9.5C13.5 9.06667 13.3583 8.70833 13.075 8.425C12.7917 8.14167 12.4333 8 12 8C11.5667 8 11.2083 8.14167 10.925 8.425C10.6417 8.70833 10.5 9.06667 10.5 9.5C10.5 9.93333 10.6417 10.2917 10.925 10.575C11.2083 10.8583 11.5667 11 12 11Z"
@@ -353,8 +349,10 @@
       <!-- ========== LOGOUT (Tous les profils) ========== -->
       <li class="mt-4">
         <a (click)="logout(); $event.stopPropagation()"
-          class="flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer">
-          <img src="assets/images/logout.png" class="mr-2 transition-all duration-200" alt="">
+          class="flex items-center py-3 px-4 gap-3 rounded-lg transition-all duration-200 cursor-pointer">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+            <path d="M2 18C1.45 18 0.979333 17.8043 0.588 17.413C0.196667 17.0217 0.000666667 16.5507 0 16V2C0 1.45 0.196 0.979333 0.588 0.588C0.98 0.196667 1.45067 0.000666667 2 0H9V2H2V16H9V18H2ZM13 14L11.625 12.55L14.175 10H6V8H14.175L11.625 5.45L13 4L18 9L13 14Z" fill="#2C3E50"/>
+          </svg>
           <span class="text-sm">{{ t('sidebar.logout') }}</span>
         </a>
       </li>

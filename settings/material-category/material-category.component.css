@@ -1,0 +1,31 @@
+/* material-category.component.css - Optimisé */
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-20px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.fade-out { animation: fadeOut 0.3s ease-in; }
+.pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* Cartes et boutons */
+.category-card { @apply transition-all duration-200 ease-in-out; }
+.category-card:hover { @apply shadow-sm; }
+.action-button { @apply transition-all duration-150 ease-in-out transform; }
+.action-button:hover { @apply scale-110; }
+.action-button:active { @apply scale-95; }
+
+/* États */
+.editing-mode { @apply bg-orange-50 border-orange-200; }
+.valid-input { @apply border-green-300 focus:border-green-500 focus:ring-green-500; }
+.invalid-input { @apply border-red-300 focus:border-red-500 focus:ring-red-500; }
+
+/* Accessibilité */
+.focus-visible { @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-item { @apply flex-col items-start space-y-2; }
+  .category-actions { @apply self-end; }
+}

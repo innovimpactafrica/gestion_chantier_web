@@ -799,7 +799,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadUnits(): void {
     console.log('🔄 Chargement des unités...');
 
-    this.unitParameterService.getByTypePaginated('UNIT', { page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
+    this.unitParameterService.getAll({ type: 'UNIT', page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: PaginatedResponse<UnitParameter>) => {
@@ -807,7 +807,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.units = response.content || [];
           // Unités chargées avec succès
         },
-        error: (err) => {
+        error: (err: any) => {
           // Erreur gérée par showErrorMessage ci-dessous
           this.showErrorMessage('Erreur lors du chargement des unités');
         }

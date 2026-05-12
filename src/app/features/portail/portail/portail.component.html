@@ -38,11 +38,13 @@
                         class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all font-medium">
                         {{ t('btn.login') }}
                     </button>
-                    <button (click)="goToLogin()"
+                <!-- Bouton Essayer gratuitement-->
+
+                   <!--  <button (click)="goToLogin()"
                         class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
                         {{ t('btn.tryFree') }}
                     </button>
-
+                -->
                     <!-- Select de langue avec drapeaux -->
                     <div class="relative">
                         <select (change)="onLanguageChange($event)" [value]="currentLang"

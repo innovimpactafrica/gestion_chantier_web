@@ -4,12 +4,11 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { PropertyType } from '../../../../models/property-type';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { DeleteConfirmationModalComponent } from '../../../../shared/components/delete-confirmation-modal/delete-confirmation-modal.component';
 
 @Component({
   selector: 'app-property-type',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DeleteConfirmationModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './property-type.component.html',
   styleUrl: './property-type.component.css'
 })
@@ -36,10 +35,6 @@ export class PropertyTypeComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   successMessage: string | null = null;
-
-  // Modal de suppression
-  showDeleteModal = false;
-  typeToDelete: PropertyType | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -139,16 +134,10 @@ export class PropertyTypeComponent implements OnInit, OnDestroy {
     this.error = null;
   }
 
-  deletePropertyType(type: PropertyType): void {
-    this.typeToDelete = type;
-    this.showDeleteModal = true;
-  }
-
-  confirmDelete(): void {
-    if (!this.typeToDelete?.id) return;
-    
+  deletePropertyType(id: number): void {
+    if (!confirm('Voulez-vous vraiment supprimer ce type ?')) return;
     this.loading = true;
-    this.propertyTypeService.delete(this.typeToDelete.id)
+    this.propertyTypeService.delete(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -156,20 +145,10 @@ export class PropertyTypeComponent implements OnInit, OnDestroy {
           this.showSuccess('Type supprimé avec succès');
           // Adjust page if needed
           if (this.propertyTypes.length === 1 && this.currentPage > 0) this.currentPage--;
-          this.closeDeleteModal();
           this.loadPropertyTypes();
         },
-        error: () => { 
-          this.loading = false; 
-          this.error = 'Erreur lors de la suppression';
-          this.closeDeleteModal();
-        }
+        error: () => { this.loading = false; this.error = 'Erreur lors de la suppression'; }
       });
-  }
-
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.typeToDelete = null;
   }
 
   resetForm(): void {

@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { UnitParameterService, UnitParameter, PaginatedResponse } from '../../../../core/services/unite-parametre.service';
-import { DeleteConfirmationModalComponent } from '../../../../shared/components/delete-confirmation-modal/delete-confirmation-modal.component';
 
 
 @Component({
   selector: 'app-document',
   standalone: true,
-  imports: [CommonModule, FormsModule, DeleteConfirmationModalComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './document.component.html',
   styleUrls: ['./document.component.css']
 })
@@ -49,10 +48,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
   isLastPage = false;
   readonly pageSizeOptions = [5, 8, 10, 20];
   readonly Math = Math;
-
-  // Modal de suppression
-  showDeleteModal = false;
-  documentToDelete: UnitParameter | null = null;
 
   constructor(private unitParameterService: UnitParameterService) {}
 
@@ -167,33 +162,21 @@ export class DocumentComponent implements OnInit, OnDestroy {
   }
 
   supprimerDocument(document: UnitParameter): void {
-    if (!document.id) return;
-    this.documentToDelete = document;
-    this.showDeleteModal = true;
-  }
-
-  confirmDelete(): void {
-    if (!this.documentToDelete?.id) return;
+    if (!document.id || !confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+      return;
+    }
 
     this.subscription.add(
-      this.unitParameterService.delete(this.documentToDelete.id).subscribe({
+      this.unitParameterService.delete(document.id).subscribe({
         next: () => {
           this.showSuccessMessage('Document supprimé avec succès');
-          this.closeDeleteModal();
-          this.refreshDocuments();
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
           this.showErrorMessage('Erreur lors de la suppression du document');
-          this.closeDeleteModal();
         }
       })
     );
-  }
-
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.documentToDelete = null;
   }
 
   // ========== SEARCH FUNCTIONALITY ==========

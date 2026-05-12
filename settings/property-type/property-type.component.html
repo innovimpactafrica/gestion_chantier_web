@@ -166,7 +166,7 @@
                 </button>
 
                 <button
-                  (click)="deletePropertyType(type)"
+                  (click)="deletePropertyType(type.id ?? 0)"
                   [disabled]="loading"
                   class="p-2.5 text-red-600 hover:bg-red-100 rounded-lg transition-all disabled:text-gray-400 disabled:cursor-not-allowed"
                   title="Supprimer"
@@ -245,15 +245,3 @@
     </div>
   </div>
 </div>
-
-<!-- Modal de confirmation de suppression -->
-<app-delete-confirmation-modal
-  [isOpen]="showDeleteModal"
-  [title]="'Supprimer le type de bien'"
-  [message]="'Êtes-vous sûr de vouloir supprimer ce type de bien ? Cette action est irréversible.'"
-  [confirmText]="'Supprimer'"
-  [cancelText]="'Annuler'"
-  [isLoading]="loading"
-  (confirm)="confirmDelete()"
-  (cancel)="closeDeleteModal()"
-></app-delete-confirmation-modal>
