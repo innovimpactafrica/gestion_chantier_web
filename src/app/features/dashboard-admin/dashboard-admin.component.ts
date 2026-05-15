@@ -51,9 +51,8 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   planDistribution: PlanDistribution[] = [];
   profilDistribution: ProfilDistribution[] = [];
 
-  // Dernières factures
   dernieresFactures: Invoice[] = [];
-  Math: any;
+  readonly Math = Math;
 
   constructor(
     private dashboardService: DashboardAdminService,
@@ -615,8 +614,13 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
    * Formatte la date
    */
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR');
+    if (!dateString) return '';
+    // Backend returns "dd-MM-yyyy HH:mm" format
+    const parts = dateString.split(' ');
+    const dateParts = parts[0].split('-');
+    if (dateParts.length !== 3) return dateString;
+    const [day, month, year] = dateParts;
+    return `${day}/${month}/${year}`;
   }
 
   /**

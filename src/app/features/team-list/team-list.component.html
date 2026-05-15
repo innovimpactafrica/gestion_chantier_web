@@ -76,7 +76,7 @@
         <div class="font-semibold text-gray-700">{{ t('team.name') }}</div>
         <div class="font-semibold text-gray-700">{{ t('team.role') }}</div>
         <div class="font-semibold text-gray-700">{{ t('team.phone') }}</div>
-        <div class="font-semibold text-gray-700">{{ t('team.present') }}</div>
+        <div class="font-semibold text-gray-700">Email</div>
         <div class="font-semibold text-gray-700 text-center">{{ t('team.action') }}</div>
       </div>
 
@@ -120,11 +120,12 @@
             </a>
           </div>
 
-          <!-- Colonne Présent (Oui/Non) -->
-          <div class="text-gray-700">
-            <span [class]="getPresentClass(member.present)">
-              {{ getPresentText(member.present) }}
-            </span>
+          <!-- Colonne Email -->
+          <div class="text-gray-700 truncate">
+            <a [href]="'mailto:' + member.email"
+              class="hover:text-orange-600 hover:underline transition-colors text-sm truncate block">
+              {{ member.email || '—' }}
+            </a>
           </div>
 
           <!-- Colonne Action -->

@@ -14,10 +14,7 @@ export interface MaterialCategory {
 })
 export class MaterialCategoryService {
   
-  constructor(private unitParameterService: UnitParameterService) {
-    // Charger les catégories de matériaux au démarrage du service
-    this.unitParameterService.getMaterialCategories();
-  }
+  constructor(private unitParameterService: UnitParameterService) {}
 
   /**
    * Récupère toutes les catégories de matériaux
@@ -39,7 +36,7 @@ export class MaterialCategoryService {
       hasEndDate: false
     };
 
-    this.unitParameterService.addMaterialCategory(unitParameter);
+    // this.unitParameterService.addMaterialCategory(unitParameter);
   }
 
   /**
@@ -53,14 +50,14 @@ export class MaterialCategoryService {
       updateData.code = this.generateCode(category.libelle);
     }
 
-    this.unitParameterService.updateMaterialCategory(id, updateData);
+    // this.unitParameterService.updateMaterialCategory(id, updateData);
   }
 
   /**
    * Supprime une catégorie de matériau
    */
   deleteCategory(id: string): void {
-    this.unitParameterService.deleteMaterialCategory(id);
+    // this.unitParameterService.deleteMaterialCategory(id);
   }
 
   /**

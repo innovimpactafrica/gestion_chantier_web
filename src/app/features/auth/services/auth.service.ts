@@ -220,9 +220,6 @@ export class AuthService {
       return false;
     }
 
-    console.log("🔍 Vérification profil ADMIN - profil du User connecté:", user.profil);
-    console.log("🔍 Vérification profil ADMIN - profils du User connecté:", user.profils);
-
     // Vérifier d'abord la propriété "profils" (string) de l'API
     if (user.profils && typeof user.profils === 'string') {
       return user.profils === 'ADMIN';
@@ -246,9 +243,6 @@ export class AuthService {
       return false;
     }
 
-    console.log("profil du User connecté", user.profil);
-    console.log("profils du User connecté", user.profils);
-
     // Vérifier d'abord la propriété "profils" (string) de l'API
     if (user.profil && typeof user.profil === 'string') {
       return user.profil === 'BET';
@@ -271,9 +265,6 @@ export class AuthService {
     if (!user) {
       return false;
     }
-
-    console.log("profil du User connecté", user.profil);
-    console.log("profils du User connecté", user.profils);
 
     // Vérifier d'abord la propriété "profils" (string) de l'API
     if (user.profil && typeof user.profil === 'string') {
@@ -318,84 +309,44 @@ export class AuthService {
     this.initializeAuthState();
   }
   updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
-    console.log('🔄 Mise à jour de l\'utilisateur ID:', userId, 'avec FormData');
-
-    // Log pour debug
-    console.log('📋 FormData contient:');
-    formData.forEach((value, key) => {
-      if (value instanceof File) {
-        console.log(`  - ${key}: [File] ${value.name} (${value.size} bytes)`);
-      } else {
-        console.log(`  - ${key}: ${value}`);
-      }
-    });
-
-    // Headers avec uniquement Authorization
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
 
     const updateUrl = `${this.userApiUrl}/update/${userId}`;
-    console.log('🌐 Endpoint:', updateUrl);
 
     return this.http.put<User>(updateUrl, formData, { headers }).pipe(
       tap(updatedUser => {
-        console.log('✅ Utilisateur mis à jour avec succès:', updatedUser);
-
-        // Mettre à jour l'utilisateur dans le state
         this._currentUser.set(updatedUser);
 
-        // Mettre à jour aussi dans localStorage
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          console.log('💾 Utilisateur mis à jour dans localStorage');
         }
       }),
       catchError(error => {
-        console.error('❌ Erreur lors de la mise à jour:', error);
         throw error;
       })
     );
   }
   // Nouvelle méthode pour mettre à jour UN utilisateur (pas le currentUser)
 updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> {
-  console.log('🔄 Mise à jour de l\'utilisateur ID:', userId, 'avec FormData');
-
-  // Log pour debug
-  console.log('📋 FormData contient:');
-  formData.forEach((value, key) => {
-    if (value instanceof File) {
-      console.log(`  - ${key}: [File] ${value.name} (${value.size} bytes)`);
-    } else {
-      console.log(`  - ${key}: ${value}`);
-    }
-  });
-
-  // Headers avec uniquement Authorization
   const headers = new HttpHeaders({
     'Authorization': `Bearer ${this.getToken()}`
   });
 
   const updateUrl = `${this.userApiUrl}/update/${userId}`;
-  console.log('🌐 Endpoint:', updateUrl);
 
   return this.http.put<User>(updateUrl, formData, { headers }).pipe(
     tap(updatedUser => {
-      console.log('✅ Utilisateur mis à jour avec succès:', updatedUser);
-      
-      // ✅ IMPORTANT: Ne PAS mettre à jour le currentUser
-      // On met à jour le currentUser UNIQUEMENT si c'est l'utilisateur connecté
       const currentUserId = this._currentUser()?.id;
       if (currentUserId === userId) {
         this._currentUser.set(updatedUser);
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          console.log('💾 Utilisateur connecté mis à jour dans localStorage');
         }
       }
     }),
     catchError(error => {
-      console.error('❌ Erreur lors de la mise à jour:', error);
       throw error;
     })
   );
@@ -403,46 +354,42 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
 
   private initializeAuthState(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const storedToken = localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const refreshToken = localStorage.getItem('refreshToken');
       const storedUser = localStorage.getItem('user');
 
       if (storedToken && this.isTokenValidFormat(storedToken)) {
         this._token.set(storedToken);
+        // Synchroniser les deux clés
+        localStorage.setItem('token', storedToken);
+        localStorage.setItem('auth_token', storedToken);
+
         if (refreshToken) this._refreshToken.set(refreshToken);
-        
         this._isAuthenticated.set(true);
 
-        // Si l'utilisateur est déjà en cache, on l'utilise pour éviter la redirection par l'AuthGuard
+        // Restaurer l'utilisateur depuis le cache pour que les guards passent immédiatement
         if (storedUser) {
           try {
             this._currentUser.set(JSON.parse(storedUser));
           } catch (e) {
-            console.error('Erreur parsing user depuis le localStorage', e);
+            // ignore parsing errors
           }
         }
 
-        // ✅ CORRECTION: Vérifier la validité du token avant de faire l'appel API
         if (this.isTokenValid()) {
           this.getCurrentUser().subscribe({
             next: (user) => {
               this._currentUser.set(user);
               localStorage.setItem('user', JSON.stringify(user));
-              console.log('✅ Utilisateur récupéré et mis à jour:', user);
             },
-            error: (error) => {
-              console.error('❌ Erreur récupération utilisateur:', error);
-              // Ne pas tout nettoyer si on a juste une iframe d'erreur, mais comme c'est sécurisé, on efface.
-              // Sauf si on a un 401, on laissera l'intercepteur rafraichir.
-              // this.clearAuthData(); // Laissons faire l'intercepteur de refresh
+            error: () => {
+              // L'intercepteur gère le refresh 401 — on ne nettoie pas ici
             }
           });
         } else if (refreshToken) {
-          console.warn('⚠️ Token expiré, on tente un refresh');
           this.refreshAuthToken().subscribe();
         } else {
-            console.warn('⚠️ Token expiré et pas de refreshToken, nettoyage automatique');
-            this.clearAuthData();
+          this.clearAuthData();
         }
       }
     }
@@ -516,30 +463,25 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   private setAuthData(token: string, refreshToken?: string, user?: User | null): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token); // alias lu par certains services
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
       }
       if (user) {
         localStorage.setItem('user', JSON.stringify(user));
       }
-      console.log('✅ Tokens stockés dans localStorage');
     }
 
     this._token.set(token);
     if (refreshToken) this._refreshToken.set(refreshToken);
     if (user) this._currentUser.set(user);
     this._isAuthenticated.set(true);
-
-    console.log('✅ État d\'authentification mis à jour:', {
-      token: !!token,
-      user: user?.email,
-      profils: user?.profil
-    });
   }
 
   private clearAuthData(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
     }
@@ -548,8 +490,6 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     this._refreshToken.set(null);
     this._currentUser.set(null);
     this._isAuthenticated.set(false);
-
-    console.log('🧹 Données d\'authentification nettoyées');
   }
 
   // ✅ CORRECTION MAJEURE: Méthode pour obtenir le token
@@ -557,7 +497,6 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     const token = this._token();
 
     if (!token) {
-      console.warn('⚠️ Aucun token dans le signal');
       return null;
     }
 
@@ -573,6 +512,7 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     this._token.set(token);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token);
       if (refreshToken) {
         this._refreshToken.set(refreshToken);
         localStorage.setItem('refreshToken', refreshToken);
@@ -596,10 +536,8 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap((tokens: any) => {
         this.updateToken(tokens.token, tokens.refreshToken);
-        console.log('🔄 Token rafraîchi avec succès');
       }),
       catchError(err => {
-        console.error('❌ Erreur de rafraîchissement du token', err);
         this.clearAuthData();
         // Optionnel : rediriger vers /login via Router (s'il est injecté)
         return of(null);
@@ -611,24 +549,15 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
 
-    console.log('=== AUTH HEADERS DEBUG ===');
-    console.log('Token récupéré:', token ? `${token.substring(0, 20)}...` : 'null');
-
     if (!token) {
-      console.error('❌ Aucun token valide disponible');
       return new HttpHeaders({
         'Content-Type': 'application/json'
       });
     }
 
-    const headers = new HttpHeaders({
+    return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-
-    console.log('✅ Headers créés avec Authorization');
-    console.log('========================');
-
-    return headers;
   }
 
   // ✅ AMÉLIORATION: Validation du token plus robuste
@@ -642,27 +571,23 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     try {
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
-        console.error('❌ Format de token invalide');
         return false;
       }
 
       const payload = JSON.parse(atob(tokenParts[1]));
 
-      // Vérifier l'expiration avec une marge de 5 minutes
       if (payload.exp) {
         const expirationTime = payload.exp * 1000;
         const currentTime = Date.now();
-        const marginTime = 5 * 60 * 1000; // 5 minutes de marge
+        const marginTime = 5 * 60 * 1000;
 
         if (expirationTime - marginTime <= currentTime) {
-          console.warn('⚠️ Token proche de l\'expiration ou expiré');
           return false;
         }
       }
 
       return true;
     } catch (error) {
-      console.error('❌ Erreur validation token:', error);
       return false;
     }
   }
@@ -673,7 +598,6 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
 
     // Vérifier si on a un token valide avant de faire l'appel
     if (!headers.get('Authorization')) {
-      console.error('❌ Impossible de récupérer l\'utilisateur: pas d\'autorisation');
       return of(null as any);
     }
 
@@ -681,19 +605,10 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       tap(user => {
         if (user) {
           this._currentUser.set(user);
-          console.log('✅ Utilisateur mis à jour:', {
-            id: user.id,
-            email: user.email,
-            profils: user.profil,
-            activated: user.activated,
-            enabled: user.enabled
-          });
         }
       }),
       catchError(error => {
-        console.error('❌ Erreur récupération utilisateur:', error);
         if (error.status === 401 || error.status === 403) {
-          console.log('🧹 Token invalide, nettoyage automatique');
           this.clearAuthData();
         }
         return of(null as any);
@@ -817,17 +732,11 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       'Authorization': `Bearer ${this.getToken()}`
     });
 
-    console.log('🔄 Mise à jour du profil utilisateur ID:', id);
-    console.log('📦 FormData contient:', Array.from((formData as any).entries()));
-
     return this.http.put<User>(`${this.userApiUrl}/${id}`, formData, { headers }).pipe(
       tap(updatedUser => {
-        // Mettre à jour l'utilisateur dans le state
         this._currentUser.set(updatedUser);
-        console.log('✅ Profil utilisateur mis à jour:', updatedUser);
       }),
       catchError(error => {
-        console.error('❌ Erreur mise à jour profil:', error);
         throw error;
       })
     );
@@ -974,16 +883,4 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     return null;
   }
 
-  // ✅ MÉTHODE DE DEBUG
-  debugAuthState(): void {
-    console.log('=== DEBUG AUTH STATE ===');
-    console.log('Token:', this._token() ? 'Present' : 'Absent');
-    console.log('Token valide:', this.isTokenValid());
-    console.log('Authentifié:', this.isAuthenticated());
-    console.log('Utilisateur:', this._currentUser());
-    console.log('Profils:', this.userProfile());
-    console.log('Permissions:', this.userPermissions());
-    console.log('Compte valide:', this.isAccountValid());
-    console.log('=======================');
-  }
 }

@@ -132,9 +132,7 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-    console.log('🔧 UserService initialisé');
-  }
+  ) {}
 
   /**
    * Récupère un utilisateur par son ID
@@ -142,21 +140,9 @@ export class UserService {
   getUserById(id: number): Observable<User> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/user/${id}`;
-    
-    console.log('📡 API Call: getUserById');
-    console.log('🔗 URL:', url);
-    console.log('👤 User ID:', id);
-    
+
     return this.http.get<User>(url, { headers })
       .pipe(
-        tap(user => {
-          console.log('✅ Utilisateur récupéré:');
-          console.log('  - Nom:', user.nom);
-          console.log('  - Prénom:', user.prenom);
-          console.log('  - Email:', user.email);
-          console.log('  - Profil:', user.profil);
-          console.log('  - Abonnement actif:', user.subscription?.active || 'Aucun');
-        }),
         catchError(error => this.handleError(error, 'getUserById'))
       );
   }
@@ -182,24 +168,9 @@ getAllUsers(keyword?: string, profil?: string, page: number = 0, size: number = 
   }
 
   const url = `${this.baseUrl}/user/search`;
-  
-  console.log('📡 API Call: getAllUsers');
-  console.log('🔗 URL:', url);
-  console.log('🔍 Keyword:', keyword || 'Aucun');
-  console.log('👔 Profil:', profil || 'Tous');
-  console.log('📄 Page:', page);
-  console.log('📊 Size:', size);
-  
+
   return this.http.get<UserPageResponse>(url, { headers, params })
     .pipe(
-      tap(response => {
-        console.log('✅ Utilisateurs récupérés:');
-        console.log('  - Total éléments:', response.totalElements);
-        console.log('  - Pages totales:', response.totalPages);
-        console.log('  - Page actuelle:', response.number);
-        console.log('  - Utilisateurs:', response.content.length);
-        console.log('  - Utilisateurs avec abonnement:', response.content.filter(u => u.subscription).length);
-      }),
       catchError(error => this.handleError(error, 'getAllUsers'))
     );
 }
@@ -234,15 +205,6 @@ putUser(id: number, userData: UpdateUserRequest): Observable<User> {
     formData.append('photo', userData.photo, userData.photo.name);
   }
   
-  console.log('📝 Données à mettre à jour:', {
-    nom: userData.nom,
-    prenom: userData.prenom,
-    email: userData.email,
-    telephone: userData.telephone,
-    profil: userData.profil,
-    hasPhoto: !!userData.photo
-  });
-  
   // Headers sans Content-Type pour FormData
   const headers = this.getAuthHeaders();
   const formDataHeaders = new HttpHeaders({
@@ -251,9 +213,6 @@ putUser(id: number, userData: UpdateUserRequest): Observable<User> {
   
   return this.http.put<User>(url, formData, { headers: formDataHeaders })
     .pipe(
-      tap(updatedUser => {
-        console.log('✅ Utilisateur mis à jour:', updatedUser);
-      }),
       catchError(error => this.handleError(error, 'putUser'))
     );
 }
@@ -293,7 +252,6 @@ updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
   const token = this.authService.getToken();
   
   if (!token) {
-    console.error('❌ Aucun token trouvé');
     return throwError(() => ({
       message: 'Non authentifié',
       userMessage: 'Vous devez être connecté',
@@ -309,22 +267,9 @@ updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
 
   const url = `${this.baseUrl}/user/${userId}`;
 
-  console.log('📡 API Call: updateUserWithFormData');
-  console.log('🔗 URL:', url);
-  console.log('🆔 User ID:', userId);
-  console.log('📦 FormData préparé avec photo');
-
   return this.http.put<User>(url, formData, { headers })
     .pipe(
-      tap(user => {
-        console.log('✅ Utilisateur modifié:', user);
-        console.log('  - ID:', user.id);
-        console.log('  - Nom complet:', user.prenom, user.nom);
-        console.log('  - Email:', user.email);
-        console.log('  - Photo:', user.photo ? 'Mise à jour' : 'Non modifiée');
-      }),
       catchError(error => {
-        console.error('❌ Erreur lors de la modification de l\'utilisateur:', error);
         
         let errorMessage = 'Une erreur est survenue lors de la modification';
         let userMessage = errorMessage;
@@ -375,16 +320,9 @@ updateUserWithFormData(userId: number, formData: FormData): Observable<User> {
   deleteUser(id: number): Observable<any> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/user/${id}`;
-    
-    console.log('📡 API Call: deleteUser');
-    console.log('🔗 URL:', url);
-    console.log('👤 User ID à supprimer:', id);
-    
+
     return this.http.delete(url, { headers })
       .pipe(
-        tap(() => {
-          console.log('✅ Utilisateur supprimé avec succès');
-        }),
         catchError(error => this.handleError(error, 'deleteUser'))
       );
   }
@@ -410,14 +348,6 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
   
   return this.http.get<UserPageResponse>(url, { headers, params })
     .pipe(
-      tap(response => {
-        console.log('✅ Utilisateurs par profil récupérés:');
-        console.log('  - Total éléments:', response.totalElements);
-        console.log('  - Pages totales:', response.totalPages);
-        console.log('  - Page actuelle:', response.number);
-        console.log('  - Utilisateurs:', response.content.length);
-        console.log('  - Utilisateurs avec abonnement:', response.content.filter(u => u.subscription).length);
-      }),
       catchError(error => this.handleError(error, 'getUserByProfil'))
     );
 }
@@ -425,58 +355,28 @@ getUserByProfil(profil: string, keyword?: string, page: number = 0, size: number
  * Crée un nouvel utilisateur (inscription)
  */
 createUser(userData: CreateUserRequest): Observable<any> {
-  const url = `${this.baseUrl}/auth/signup`;
-  
+  const url = `${environment.endpoints.auth}/signup`;
 
-  // Créer un FormData pour envoyer le fichier
   const formData = new FormData();
+  // Champs obligatoires
   formData.append('nom', userData.nom);
   formData.append('prenom', userData.prenom);
   formData.append('email', userData.email);
   formData.append('password', userData.password);
   formData.append('telephone', userData.telephone);
-  formData.append('date', userData.date);
-  formData.append('lieunaissance', userData.lieunaissance);
-  formData.append('adress', userData.adress);
   formData.append('profil', userData.profil);
-  
-  // Ajouter la photo si elle existe
-  if (userData.photo) {
-    formData.append('photo', userData.photo, userData.photo.name);
-    console.log('📸 Photo ajoutée:', userData.photo.name);
-  }
+  // Champs optionnels — n'envoyer que s'ils ont une valeur
+  if (userData.adress?.trim()) formData.append('adress', userData.adress.trim());
+  if (userData.date?.trim()) formData.append('date', userData.date.trim());
+  if (userData.lieunaissance?.trim()) formData.append('lieunaissance', userData.lieunaissance.trim());
+  if (userData.photo) formData.append('photo', userData.photo, userData.photo.name);
 
-  
-  // Vérification des champs obligatoires
-  const requiredFields = ['nom', 'prenom', 'email', 'password', 'telephone', 'adress', 'profil'];
-  const missingFields = requiredFields.filter(field => !userData[field as keyof CreateUserRequest]);
-  
-  if (missingFields.length > 0) {
-    console.error('❌ Champs obligatoires manquants:', missingFields);
-  }
-  
-  // Ne pas définir Content-Type pour FormData (le navigateur le fait automatiquement avec boundary)
-  // Pour l'inscription, on n'utilise PAS les headers d'authentification
-  return this.http.post(url, formData) // Pas de headers
+  return this.http.post(url, formData)
     .pipe(
-      tap(response => {
-        console.log('✅ Utilisateur créé avec succès:', response);
-      }),
       catchError(error => {
-        console.error('❌ Erreur createUser - Status:', error.status);
-        console.error('❌ Erreur createUser - Body:', error.error);
-        console.error('❌ Erreur createUser - Message:', error.message);
-        
-        if (error.status === 400) {
-          console.error('❌ ERREUR 400 - Données envoyées');
-          if (error.error?.message) {
-            console.error('❌ Message serveur:', error.error.message);
-          }
-          if (error.error?.errors) {
-            console.error('❌ Détails des erreurs:', error.error.errors);
-          }
+        if (error.status === 409) {
+          return throwError(() => ({ userMessage: 'Cet email ou ce numéro est déjà utilisé.' }));
         }
-        
         return this.handleError(error, 'createUser');
       })
     );
@@ -486,34 +386,19 @@ createUser(userData: CreateUserRequest): Observable<any> {
    * Récupère les headers d'authentification
    */
   private getAuthHeaders(): HttpHeaders {
-    console.log('🔑 Récupération des headers d\'authentification...');
-    
     if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
-      const headers = this.authService.getAuthHeaders();
-      const hasAuth = headers.get('Authorization') !== null;
-      
-      
-      if (!hasAuth) {
-        console.warn('⚠️ Aucun header Authorization trouvé!');
-      }
-      
-      return headers;
+      return this.authService.getAuthHeaders();
     }
-    
-    console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
-    
+
     const token = this.authService?.getToken() || localStorage.getItem('token');
-    
+
     if (token) {
-      console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       });
     }
-    
-    console.error('❌ Aucun token d\'authentification trouvé!');
-    
+
     return new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -523,16 +408,6 @@ createUser(userData: CreateUserRequest): Observable<any> {
    * Gestion des erreurs HTTP avec contexte
    */
   private handleError(error: any, context: string = 'unknown'): Observable<never> {
-    console.error(`❌ Erreur dans UserService.${context}:`, error);
-    console.error('❌ Status:', error.status);
-    console.error('❌ Status Text:', error.statusText);
-    console.error('❌ URL:', error.url);
-    console.error('❌ Message:', error.message);
-    
-    if (error.error) {
-      console.error('❌ Error body:', error.error);
-    }
-    
     let errorMessage = 'Une erreur est survenue';
     let userMessage = errorMessage;
     
@@ -575,8 +450,6 @@ createUser(userData: CreateUserRequest): Observable<any> {
         }
     }
     
-    console.error('💬 Message utilisateur:', userMessage);
-    
     return throwError(() => ({
       message: errorMessage,
       userMessage: userMessage,
@@ -615,17 +488,4 @@ createUser(userData: CreateUserRequest): Observable<any> {
 
 
 
-  /**
-   * Debug des endpoints disponibles
-   */
-  debugEndpoints(): void {
-    console.log('🔍 === USER SERVICE ENDPOINTS ===');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Endpoints disponibles:');
-    console.log('  - getUserById: GET', `${this.baseUrl}/user/{id}`);
-    console.log('  - putUser: PUT', `${this.baseUrl}/user/{id}`);
-    console.log('  - deleteUser: DELETE', `${this.baseUrl}/user/{id}`);
-    console.log('  - createUser: POST', `${this.baseUrl}/auth/signup`);
-    console.log('========================');
-  }
 }

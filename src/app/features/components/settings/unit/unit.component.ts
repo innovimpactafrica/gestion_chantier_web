@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup, FormControl } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
-import { UnitParameterService } from '../../../../core/services/unite-parametre.service';
-import { UnitParameter, PaginatedResponse, PaginationParams } from '../../../../models/unit-parameter';
+import { UnitParameterService, UnitParameter, PaginatedResponse, PaginationParams } from '../../../../core/services/unite-parametre.service';
 import { CommonModule } from '@angular/common';
+import { DeleteConfirmationModalComponent } from '../../../../shared/components/delete-confirmation-modal/delete-confirmation-modal.component';
 
 @Component({
   selector: 'app-unites-mesure',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DeleteConfirmationModalComponent],
   templateUrl: './unit.component.html',
   styleUrls: ['./unit.component.css']
 })
@@ -24,6 +24,10 @@ export class UnitComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   successMessage: string | null = null;
+  
+  // Modal de suppression
+  showDeleteModal = false;
+  uniteToDelete: string | null = null;
   
   // Recherche
   searchTerm = '';
@@ -61,9 +65,7 @@ export class UnitComponent implements OnInit, OnDestroy {
   private createForm(): FormGroup {
     return this.fb.group({
       label: new FormControl('', [Validators.required, Validators.minLength(2)]),
-      code: new FormControl('', [Validators.required, Validators.minLength(1)]),
-      hasStartDate: new FormControl(false),
-      hasEndDate: new FormControl(false)
+      code: new FormControl('', [Validators.required, Validators.minLength(1)])
     });
   }
 
@@ -81,7 +83,7 @@ export class UnitComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
-    this.unitParameterService.units$
+    this.unitParameterService.getAll({ page: this.currentPage, size: this.pageSize, type: 'UNIT' })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: PaginatedResponse<UnitParameter> | null) => {
@@ -96,8 +98,6 @@ export class UnitComponent implements OnInit, OnDestroy {
           this.handleError('Erreur lors du chargement des unités', error);
         }
       });
-    
-    this.unitParameterService.getUnits({ page: this.currentPage, size: this.pageSize });
   }
 
   onSearchChange(event: Event): void {
@@ -139,8 +139,9 @@ export class UnitComponent implements OnInit, OnDestroy {
     }
   }
 
-  private ajouterUnite(unite: Omit<UnitParameter, 'id' | 'type'>): void {
-    this.unitParameterService.addUnit(unite)
+  private ajouterUnite(unite: any): void {
+    const payload: UnitParameter = { ...unite, type: 'UNIT', hasStartDate: false, hasEndDate: false };
+    this.unitParameterService.create(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (newUnite) => {
@@ -157,9 +158,11 @@ export class UnitComponent implements OnInit, OnDestroy {
       });
   }
 
-  private modifierUnite(unite: Partial<UnitParameter>): void {
+  private modifierUnite(unite: any): void {
     if (this.uniteEnEdition?.id) {
-      this.unitParameterService.updateUnit(this.uniteEnEdition.id, unite)
+      const { id: _id, ...restOfUnit } = this.uniteEnEdition;
+      const payload: UnitParameter = { ...restOfUnit, ...unite, type: 'UNIT', hasStartDate: false, hasEndDate: false };
+      this.unitParameterService.update(this.uniteEnEdition.id, payload)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -185,9 +188,7 @@ export class UnitComponent implements OnInit, OnDestroy {
     
     this.uniteForm.patchValue({
       label: unite.label,
-      code: unite.code,
-      hasStartDate: unite.hasStartDate,
-      hasEndDate: unite.hasEndDate
+      code: unite.code
     });
 
     // Scroll vers le formulaire
@@ -195,28 +196,40 @@ export class UnitComponent implements OnInit, OnDestroy {
   }
 
   supprimerUnite(id: string): void {
-    if (this.confirmDeletion() && !this.loading) {
+    this.uniteToDelete = id;
+    this.showDeleteModal = true;
+  }
+
+  confirmDelete(): void {
+    if (this.uniteToDelete && !this.loading) {
       this.loading = true;
       this.error = null;
       
-      this.unitParameterService.deleteUnit(id)
+      this.unitParameterService.delete(this.uniteToDelete)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
             console.log('✅ Unité supprimée avec succès');
             this.loading = false;
             this.showSuccessMessage('Unité supprimée avec succès');
-            if (this.uniteEnEdition?.id === id) {
+            if (this.uniteEnEdition?.id === this.uniteToDelete) {
               this.resetForm();
             }
+            this.closeDeleteModal();
             this.chargerUnites();
           },
           error: (error) => {
             this.loading = false;
             this.handleError('Erreur lors de la suppression de l\'unité', error);
+            this.closeDeleteModal();
           }
         });
     }
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.uniteToDelete = null;
   }
 
   annulerEdition(): void {
@@ -265,9 +278,7 @@ export class UnitComponent implements OnInit, OnDestroy {
   private resetForm(): void {
     this.uniteForm.reset({
       label: '',
-      code: '',
-      hasStartDate: false,
-      hasEndDate: false
+      code: ''
     });
     this.uniteForm.markAsUntouched();
     this.uniteForm.markAsPristine();
@@ -301,9 +312,7 @@ export class UnitComponent implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  private confirmDeletion(): boolean {
-    return confirm('Êtes-vous sûr de vouloir supprimer cette unité de mesure ?');
-  }
+
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -319,8 +328,6 @@ export class UnitComponent implements OnInit, OnDestroy {
 
   get label() { return this.uniteForm.get('label'); }
   get code() { return this.uniteForm.get('code'); }
-  get hasStartDate() { return this.uniteForm.get('hasStartDate'); }
-  get hasEndDate() { return this.uniteForm.get('hasEndDate'); }
 
   get paginationInfo(): string {
     if (this.totalElements === 0) return '0 éléments';

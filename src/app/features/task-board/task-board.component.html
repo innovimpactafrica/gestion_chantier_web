@@ -439,12 +439,12 @@
             </div>
 
             <!-- Dropdown -->
-            <div *ngIf="showWorkerDropdown && (availableWorkers.length > 0 || workerLoading)"
+            <div *ngIf="showWorkerDropdown && (filteredAvailableWorkers.length > 0 || workerLoading)"
               class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden"
               (scroll)="onWorkerScroll($event)">
 
               <div class="max-h-52 overflow-y-auto">
-                <div *ngFor="let worker of availableWorkers" (click)="toggleWorkerSelection(worker)"
+                <div *ngFor="let worker of filteredAvailableWorkers" (click)="toggleWorkerSelection(worker)"
                   class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors"
                   [ngClass]="isWorkerAlreadySelected(worker.id)
                     ? 'bg-orange-50 hover:bg-orange-100'
@@ -481,7 +481,7 @@
                 </div>
 
                 <!-- Aucun résultat -->
-                <div *ngIf="!workerLoading && availableWorkers.length === 0"
+                <div *ngIf="!workerLoading && filteredAvailableWorkers.length === 0"
                   class="py-6 text-center text-sm text-gray-400">
                   Aucun ouvrier trouvé
                 </div>

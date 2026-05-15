@@ -10,10 +10,7 @@ export const FEATURES_ROUTES: Routes = [
         path: 'humanresources',
         loadChildren: () => import('./humanresources/humanresource.routes').then(m => m.HUMANRESOURCES_ROUTES)
       },
-      {
-        path: 'financial',
-        loadChildren: () => import('./sub-contractor/financial.routes').then(m => m.FINANCIAL_ROUTES)
-      },
+      // { path: 'financial', loadChildren: () => import('./sub-contractor/financial.routes').then(m => m.FINANCIAL_ROUTES) },
       {
         path: 'projects',
         loadChildren: () => import('./projects/projects.routes').then(m => m.PROJECTS_ROUTES)

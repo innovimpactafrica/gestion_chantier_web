@@ -106,41 +106,6 @@
               </div>
             </div>
 
-            <!-- Options de dates -->
-            <div class="space-y-3 pt-2">
-              <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <input
-                  id="hasStartDate"
-                  type="checkbox"
-                  formControlName="hasStartDate"
-                  class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
-                  [disabled]="loading"
-                >
-                <label for="hasStartDate" class="ml-3 block text-sm text-gray-700 cursor-pointer select-none flex items-center gap-2">
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  Possède une date de début
-                </label>
-              </div>
-              
-              <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <input
-                  id="hasEndDate"
-                  type="checkbox"
-                  formControlName="hasEndDate"
-                  class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
-                  [disabled]="loading"
-                >
-                <label for="hasEndDate" class="ml-3 block text-sm text-gray-700 cursor-pointer select-none flex items-center gap-2">
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  Possède une date de fin
-                </label>
-              </div>
-            </div>
-
             <!-- Boutons d'action -->
             <div class="flex gap-3 pt-4">
               <button
@@ -159,7 +124,7 @@
                 </svg>
                 {{ submitButtonText }}
               </button>
-              
+
               <button
                 *ngIf="modeEdition"
                 type="button"
@@ -186,11 +151,11 @@
               <h2 class="text-xl font-semibold text-gray-900">Liste des unités</h2>
               <p class="text-sm text-gray-600 mt-1">{{ paginationInfo }}</p>
             </div>
-            
+
             <!-- Sélecteur de taille de page -->
             <div class="flex items-center gap-3">
               <label class="text-sm font-medium text-gray-700">Afficher:</label>
-              <select 
+              <select
                 (change)="onPageSizeChange($event)"
                 [value]="pageSize"
                 [disabled]="loading"
@@ -225,23 +190,8 @@
                     <p class="text-sm text-gray-600 mt-0.5">Code: <span class="font-mono font-medium text-gray-800">{{ unite.code }}</span></p>
                   </div>
                 </div>
-                
-                <div *ngIf="unite.hasStartDate || unite.hasEndDate" class="flex flex-wrap gap-2 mt-3">
-                  <span *ngIf="unite.hasStartDate" class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Date début
-                  </span>
-                  <span *ngIf="unite.hasEndDate" class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Date fin
-                  </span>
-                </div>
               </div>
-              
+
               <div class="flex items-center gap-2 ml-4">
                 <!-- Bouton Modifier -->
                 <button
@@ -251,12 +201,12 @@
                   title="Modifier cette unité"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                     </path>
                   </svg>
                 </button>
-                
+
                 <!-- Bouton Supprimer -->
                 <button
                   (click)="supprimerUnite(unite.id!)"
@@ -265,18 +215,18 @@
                   title="Supprimer cette unité"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                     </path>
                   </svg>
                 </button>
               </div>
             </div>
-            
+
             <!-- Message si aucune unité -->
             <div *ngIf="unites.length === 0 && !loading" class="text-center py-16">
               <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                 </path>
               </svg>
@@ -287,9 +237,7 @@
 
           <!-- Pagination -->
           <div *ngIf="!loading && totalElements > 0" class="mt-6 border-t border-gray-200 pt-6">
-            <!-- Contrôles de navigation -->
             <div class="flex justify-center items-center gap-1.5 flex-wrap">
-              <!-- Première page -->
               <button
                 (click)="changerPage(0)"
                 [disabled]="isFirstPage || loading"
@@ -301,7 +249,6 @@
                 </svg>
               </button>
 
-              <!-- Page précédente -->
               <button
                 (click)="pagePrecedente()"
                 [disabled]="isFirstPage || loading"
@@ -313,7 +260,6 @@
                 </svg>
               </button>
 
-              <!-- Numéros de pages -->
               <div class="flex gap-1.5">
                 <button
                   *ngFor="let page of pagesDisponibles"
@@ -322,8 +268,6 @@
                   [class.bg-orange-500]="page === currentPage"
                   [class.text-white]="page === currentPage"
                   [class.border-orange-500]="page === currentPage"
-                  [class.hover:bg-orange-600]="page === currentPage && !loading"
-                  [class.hover:bg-gray-50]="page !== currentPage && !loading"
                   [class.font-bold]="page === currentPage"
                   class="min-w-[40px] h-[40px] px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg transition-all disabled:cursor-not-allowed"
                 >
@@ -331,7 +275,6 @@
                 </button>
               </div>
 
-              <!-- Page suivante -->
               <button
                 (click)="pageSuivante()"
                 [disabled]="isLastPage || loading"
@@ -343,7 +286,6 @@
                 </svg>
               </button>
 
-              <!-- Dernière page -->
               <button
                 (click)="changerPage(totalPages - 1)"
                 [disabled]="isLastPage || loading"
@@ -356,10 +298,9 @@
               </button>
             </div>
 
-            <!-- Informations de pagination (en bas) -->
             <div class="flex justify-center mt-4">
               <p class="text-sm text-gray-600 text-center">
-                Page <span class="font-semibold text-gray-900">{{ currentPage + 1 }}</span> sur 
+                Page <span class="font-semibold text-gray-900">{{ currentPage + 1 }}</span> sur
                 <span class="font-semibold text-gray-900">{{ totalPages }}</span>
               </p>
             </div>
@@ -369,3 +310,15 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de confirmation de suppression -->
+<app-delete-confirmation-modal
+  [isOpen]="showDeleteModal"
+  [title]="'Supprimer l\'unité'"
+  [message]="'Êtes-vous sûr de vouloir supprimer cette unité de mesure ? Cette action est irréversible.'"
+  [confirmText]="'Supprimer'"
+  [cancelText]="'Annuler'"
+  [isLoading]="loading"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-delete-confirmation-modal>

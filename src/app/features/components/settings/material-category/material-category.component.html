@@ -1,311 +1,278 @@
-<div class="bg-gray-50 min-h-screen p-6">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
   <div class="max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Catégories de matériaux</h1>
-    
-    <!-- Message d'erreur global -->
-    <div *ngIf="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-      <div class="flex items-center justify-between">
-        <p class="text-red-700">{{ error }}</p>
-        <button (click)="clearError()" class="text-red-500 hover:text-red-700">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Catégories de matériaux</h1>
+          <p class="text-gray-600 mt-2">Gérez les catégories de matériaux de votre système</p>
+        </div>
+        <button (click)="refreshCategories()" [disabled]="isLoading"
+          class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow">
+          <svg class="w-5 h-5" [class.animate-spin]="isLoading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
+          <span class="font-medium">Rafraîchir</span>
         </button>
       </div>
     </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Section Nouvelle catégorie -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-700 mb-6">Nouvelle catégorie</h2>
-        
-        <div class="space-y-4">
-          <!-- Libellé -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Libellé <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="nouvelleCategorie.label"
-              (input)="onFormInput('label')"
-              (keydown)="onKeyDown($event, 'add')"
-              placeholder="Ex: Équipements de sécurité"
-              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700"
-              [class.border-red-300]="hasError('label')"
-              [class.border-gray-300]="!hasError('label')"
-            />
-            <p *ngIf="hasError('label')" class="mt-1 text-sm text-red-600">{{ getError('label') }}</p>
-          </div>
-          
-          <!-- Code -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Code <span class="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              [(ngModel)]="nouvelleCategorie.code"
-              (input)="onFormInput('code')"
-              (keydown)="onKeyDown($event, 'add')"
-              placeholder="Ex: EQUIP_SEC"
-              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 uppercase"
-              [class.border-red-300]="hasError('code')"
-              [class.border-gray-300]="!hasError('code')"
-            />
-            <p *ngIf="hasError('code')" class="mt-1 text-sm text-red-600">{{ getError('code') }}</p>
-            <p class="mt-1 text-xs text-gray-500">Lettres, chiffres et underscores uniquement</p>
-          </div>
-          
-          <!-- Options de date -->
-          <div class="space-y-3">
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="hasStartDate"
-                [(ngModel)]="nouvelleCategorie.hasStartDate"
-                class="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-              />
-              <label for="hasStartDate" class="ml-2 text-sm font-medium text-gray-700">
-                Possède une date de début
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="hasEndDate"
-                [(ngModel)]="nouvelleCategorie.hasEndDate"
-                class="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-              />
-              <label for="hasEndDate" class="ml-2 text-sm font-medium text-gray-700">
-                Possède une date de fin
-              </label>
-            </div>
-          </div>
-          
-          <!-- Bouton Ajouter -->
-          <button
-            (click)="ajouterCategorie()"
-            [disabled]="isSubmitting || !nouvelleCategorie.label.trim() || !nouvelleCategorie.code.trim()"
-            class="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 flex items-center justify-center"
-          >
-            <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isSubmitting ? 'Ajout en cours...' : 'Ajouter' }}
-          </button>
+
+    <!-- Notifications -->
+    <div *ngIf="error" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+          <span class="font-medium">{{ error }}</span>
         </div>
+        <button (click)="clearError()" class="text-red-500 hover:text-red-700 ml-2">✕</button>
       </div>
-      
-      <!-- Section Liste des catégories -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-700">Liste des catégories</h2>
-          
-          <!-- Informations de pagination -->
-          <div *ngIf="getTotalElements() > 0" class="text-sm text-gray-500">
-            {{ getTotalElements() }} catégorie{{ getTotalElements() > 1 ? 's' : '' }}
-            (Page {{ getCurrentPage() }}/{{ getTotalPages() }})
-          </div>
-        </div>
-        
-        <!-- Barre de recherche -->
-        <div class="mb-4">
-          <div class="relative">
-            <input
-              type="text"
-              [(ngModel)]="searchTerm"
-              (input)="onSearchChange($event)"
-              placeholder="Rechercher une catégorie..."
-              class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
-            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            <button *ngIf="searchTerm" (click)="clearSearch()" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+    </div>
+
+    <div *ngIf="successMessage" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg shadow-sm">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span class="font-medium">{{ successMessage }}</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Formulaire -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">Nouvelle catégorie</h2>
+
+          <div class="space-y-5">
+            <!-- Libellé -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Libellé <span class="text-red-500">*</span>
+              </label>
+              <input type="text" [(ngModel)]="nouvelleCategorie.label"
+                (input)="onFormInput('label')" (keydown)="onKeyDown($event, 'add')"
+                placeholder="Ex: Équipements de sécurité"
+                class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                [class.border-red-500]="hasError('label')" [class.border-gray-300]="!hasError('label')" />
+              <p *ngIf="hasError('label')" class="mt-1.5 text-sm text-red-600">{{ getError('label') }}</p>
+            </div>
+
+            <!-- Code -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Code <span class="text-red-500">*</span>
+              </label>
+              <input type="text" [(ngModel)]="nouvelleCategorie.code"
+                (input)="onFormInput('code')" (keydown)="onKeyDown($event, 'add')"
+                placeholder="Ex: EQUIP_SEC" style="text-transform: uppercase"
+                class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono"
+                [class.border-red-500]="hasError('code')" [class.border-gray-300]="!hasError('code')" />
+              <p *ngIf="hasError('code')" class="mt-1.5 text-sm text-red-600">{{ getError('code') }}</p>
+              <p class="mt-1 text-xs text-gray-500">Lettres, chiffres et underscores uniquement</p>
+            </div>
+
+            <button (click)="ajouterCategorie()"
+              [disabled]="isSubmitting || !nouvelleCategorie.label.trim() || !nouvelleCategorie.code.trim()"
+              class="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+              <svg *ngIf="isSubmitting" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
+              <svg *ngIf="!isSubmitting" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              {{ isSubmitting ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
           </div>
         </div>
-        
-        <!-- Indicateur de chargement -->
-        <div *ngIf="isLoading" class="flex items-center justify-center py-8">
-          <svg class="animate-spin h-8 w-8 text-orange-500" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span class="ml-2 text-gray-600">Chargement...</span>
-        </div>
-        
-        <!-- Liste des catégories -->
-        <div *ngIf="!isLoading" class="space-y-3">
-          <div 
-            *ngFor="let category of categories; trackBy: trackByCategory" 
-            class="flex items-center justify-between py-3 px-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-150"
-          >
-            <!-- Contenu (mode normal) -->
-            <div *ngIf="!isEditing(category)" class="flex-1">
-              <div class="flex items-center justify-between">
-                <div>
-                  <span class="text-gray-800 font-medium">{{ category.label }}</span>
-                  <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{{ category.code }}</span>
-                </div>
-                <div class="flex items-center space-x-1 text-xs text-gray-500">
-                  <span *ngIf="category.hasStartDate" class="px-2 py-1 bg-blue-100 text-blue-700 rounded">Date début</span>
-                  <span *ngIf="category.hasEndDate" class="px-2 py-1 bg-green-100 text-green-700 rounded">Date fin</span>
-                </div>
-              </div>
+      </div>
+
+      <!-- Liste -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <!-- En-tête -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Liste des catégories</h2>
+              <p class="text-sm text-gray-600 mt-1">{{ paginationInfo }}</p>
             </div>
-            
-            <!-- Contenu (mode édition) -->
-            <div *ngIf="isEditing(category)" class="flex-1 mr-3 space-y-3">
-              <!-- Libellé -->
-              <div>
-                <input
-                  type="text"
-                  [(ngModel)]="editForm.label"
-                  (input)="onFormInput('label')"
-                  (keydown)="onKeyDown($event, 'save')"
-                  class="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700"
-                  [class.border-red-300]="hasError('label')"
-                  [class.border-gray-300]="!hasError('label')"
-                  placeholder="Libellé"
-                />
-                <p *ngIf="hasError('label')" class="mt-1 text-xs text-red-600">{{ getError('label') }}</p>
-              </div>
-              
-              <!-- Code -->
-              <div>
-                <input
-                  type="text"
-                  [(ngModel)]="editForm.code"
-                  (input)="onFormInput('code')"
-                  (keydown)="onKeyDown($event, 'save')"
-                  class="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 uppercase"
-                  [class.border-red-300]="hasError('code')"
-                  [class.border-gray-300]="!hasError('code')"
-                  placeholder="CODE"
-                />
-                <p *ngIf="hasError('code')" class="mt-1 text-xs text-red-600">{{ getError('code') }}</p>
-              </div>
-              
-              <!-- Options de date -->
-              <div class="flex space-x-4">
-                <label class="flex items-center text-sm">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="editForm.hasStartDate"
-                    class="w-3 h-3 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-                  />
-                  <span class="ml-1">Date début</span>
-                </label>
-                
-                <label class="flex items-center text-sm">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="editForm.hasEndDate"
-                    class="w-3 h-3 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-                  />
-                  <span class="ml-1">Date fin</span>
-                </label>
-              </div>
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-medium text-gray-700">Afficher:</label>
+              <select (change)="onPageSizeChange($event)" [value]="pageSize" [disabled]="isLoading"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white disabled:bg-gray-100">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} par page</option>
+              </select>
             </div>
-            
-            <!-- Actions (mode normal) -->
-            <div *ngIf="!isEditing(category)" class="flex items-center space-x-2">
-              <!-- Bouton Modifier -->
-              <button 
-                (click)="modifierCategorie(category)"
-                class="p-1.5 text-orange-400 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors duration-150"
-                title="Modifier"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                </svg>
-              </button>
-              
-              <!-- Bouton Supprimer -->
-              <button 
-                (click)="supprimerCategorie(category.id!)"
-                class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors duration-150"
-                title="Supprimer"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- Actions (mode édition) -->
-            <div *ngIf="isEditing(category)" class="flex items-center space-x-2">
-              <!-- Bouton Sauvegarder -->
-              <button 
-                (click)="sauvegarderModification()"
-                [disabled]="!editForm.label.trim() || !editForm.code.trim()"
-                class="p-1.5 text-green-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-150 disabled:text-gray-400 disabled:cursor-not-allowed"
-                title="Sauvegarder"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-              
-              <!-- Bouton Annuler -->
-              <button 
-                (click)="annulerModification()"
-                (keydown)="onKeyDown($event, 'cancel')"
-                class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-colors duration-150"
-                title="Annuler"
-              >
+          </div>
+
+          <!-- Recherche -->
+          <div class="mb-4">
+            <div class="relative">
+              <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange($event)"
+                placeholder="Rechercher une catégorie..."
+                class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+              <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <button *ngIf="searchTerm" (click)="clearSearch()" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                 </svg>
               </button>
             </div>
           </div>
-          
-          <!-- Bouton Charger plus -->
-          <div *ngIf="canLoadMore()" class="text-center pt-4">
-            <button
-              (click)="loadMoreCategories()"
-              [disabled]="isLoadingMore"
-              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors duration-200 disabled:opacity-50"
-            >
-              <svg *ngIf="isLoadingMore" class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700 inline" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isLoadingMore ? 'Chargement...' : 'Charger plus' }}
-            </button>
-          </div>
-          
-          <!-- Message si aucune catégorie -->
-          <div *ngIf="categories.length === 0 && !isLoading" class="text-center py-8 text-gray-500">
-            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            <p>{{ searchTerm ? 'Aucune catégorie trouvée pour cette recherche' : 'Aucune catégorie trouvée' }}</p>
-            <p class="text-sm">{{ searchTerm ? 'Essayez avec d\'autres mots-clés' : 'Ajoutez votre première catégorie de matériaux' }}</p>
-          </div>
-        </div>
-        
-        <!-- Bouton Actualiser -->
-        <div class="mt-6 text-center">
-          <button
-            (click)="refreshCategories()"
-            class="inline-flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
-          >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <!-- Chargement -->
+          <div *ngIf="isLoading" class="flex flex-col justify-center items-center py-16">
+            <svg class="w-12 h-12 animate-spin text-orange-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
-            Actualiser
-          </button>
+            <p class="text-gray-600 font-medium">Chargement...</p>
+          </div>
+
+          <!-- Liste -->
+          <div *ngIf="!isLoading" class="space-y-3">
+            <div *ngFor="let category of categories; trackBy: trackByCategory"
+              class="group flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:shadow-md transition-all duration-200"
+              [class.bg-orange-50]="isEditing(category)" [class.border-orange-400]="isEditing(category)">
+
+              <!-- Mode lecture -->
+              <div *ngIf="!isEditing(category)" class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900">{{ category.label }}</h3>
+                <p class="text-sm text-gray-500 mt-0.5">Code: <span class="font-mono font-medium text-gray-700">{{ category.code }}</span></p>
+              </div>
+
+              <!-- Mode édition -->
+              <div *ngIf="isEditing(category)" class="flex-1 mr-3 space-y-2">
+                <div>
+                  <input type="text" [(ngModel)]="editForm.label" (input)="onFormInput('label')"
+                    (keydown)="onKeyDown($event, 'save')" placeholder="Libellé"
+                    class="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    [class.border-red-300]="hasError('label')" [class.border-gray-300]="!hasError('label')" />
+                  <p *ngIf="hasError('label')" class="text-xs text-red-600 mt-0.5">{{ getError('label') }}</p>
+                </div>
+                <div>
+                  <input type="text" [(ngModel)]="editForm.code" (input)="onFormInput('code')"
+                    (keydown)="onKeyDown($event, 'save')" placeholder="CODE" style="text-transform: uppercase"
+                    class="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
+                    [class.border-red-300]="hasError('code')" [class.border-gray-300]="!hasError('code')" />
+                  <p *ngIf="hasError('code')" class="text-xs text-red-600 mt-0.5">{{ getError('code') }}</p>
+                </div>
+              </div>
+
+              <!-- Actions mode lecture -->
+              <div *ngIf="!isEditing(category)" class="flex items-center gap-2 ml-4">
+                <button (click)="modifierCategorie(category)"
+                  class="p-2.5 text-orange-600 hover:bg-orange-100 rounded-lg transition-all" title="Modifier">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button (click)="supprimerCategorie(category)"
+                  class="p-2.5 text-red-600 hover:bg-red-100 rounded-lg transition-all" title="Supprimer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Actions mode édition -->
+              <div *ngIf="isEditing(category)" class="flex items-center gap-2">
+                <button (click)="sauvegarderModification()" [disabled]="!editForm.label.trim() || !editForm.code.trim()"
+                  class="p-2.5 text-green-600 hover:bg-green-100 rounded-lg transition-all disabled:text-gray-400 disabled:cursor-not-allowed" title="Sauvegarder">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </button>
+                <button (click)="annulerModification()" class="p-2.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-all" title="Annuler">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Vide -->
+            <div *ngIf="categories.length === 0 && !isLoading" class="text-center py-16">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+              <p class="text-gray-600 font-medium text-lg mb-1">
+                {{ searchTerm ? 'Aucune catégorie trouvée' : 'Aucune catégorie de matériaux' }}
+              </p>
+              <p class="text-gray-500 text-sm">
+                {{ searchTerm ? 'Essayez avec d\'autres mots-clés' : 'Commencez par ajouter votre première catégorie' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="!isLoading && totalElements > 0" class="mt-6 border-t border-gray-200 pt-6">
+            <div class="flex justify-center items-center gap-1.5 flex-wrap">
+              <button (click)="changerPage(0)" [disabled]="isFirstPage || isLoading"
+                class="p-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 transition-all" title="Première page">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+              </button>
+
+              <button (click)="pagePrecedente()" [disabled]="isFirstPage || isLoading"
+                class="p-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 transition-all" title="Page précédente">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+
+              <div class="flex gap-1.5">
+                <button *ngFor="let page of pagesDisponibles" (click)="changerPage(page)" [disabled]="isLoading"
+                  [class.bg-orange-500]="page === currentPage" [class.text-white]="page === currentPage"
+                  [class.border-orange-500]="page === currentPage" [class.font-bold]="page === currentPage"
+                  class="min-w-[40px] h-[40px] px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg transition-all disabled:cursor-not-allowed">
+                  {{ page + 1 }}
+                </button>
+              </div>
+
+              <button (click)="pageSuivante()" [disabled]="isLastPage || isLoading"
+                class="p-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 transition-all" title="Page suivante">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+
+              <button (click)="changerPage(totalPages - 1)" [disabled]="isLastPage || isLoading"
+                class="p-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 transition-all" title="Dernière page">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex justify-center mt-4">
+              <p class="text-sm text-gray-600 text-center">
+                Page <span class="font-semibold text-gray-900">{{ currentPage + 1 }}</span> sur
+                <span class="font-semibold text-gray-900">{{ totalPages }}</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Modal de confirmation de suppression -->
+<app-delete-confirmation-modal
+  [isOpen]="showDeleteModal"
+  [title]="'Supprimer la catégorie'"
+  [message]="'Êtes-vous sûr de vouloir supprimer cette catégorie de matériaux ? Cette action est irréversible.'"
+  [confirmText]="'Supprimer'"
+  [cancelText]="'Annuler'"
+  [isLoading]="isLoading"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-delete-confirmation-modal>

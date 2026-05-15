@@ -53,7 +53,7 @@ export interface StockMovementsResponse {
   empty: boolean;
 }
 
-interface CreateStockMovement {
+export interface CreateStockMovement {
   materialId: number;
   quantity: number;
   type: 'ENTRY' | 'EXIT';
@@ -116,7 +116,7 @@ export interface MaterialsResponse {
 }
 
 interface CreateMaterial {
-  label: string;
+  materialTypeId: number;
   quantity: number;
   criticalThreshold: number;
   unitId: number;
@@ -234,8 +234,6 @@ export class MaterialsService {
                  sessionStorage.getItem('auth_token') ||
                  sessionStorage.getItem('token');
     
-    console.log('Token utilisé:', token ? 'Token présent' : 'Aucun token trouvé');
-    
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -250,8 +248,6 @@ export class MaterialsService {
 
   private handleError = (error: HttpErrorResponse) => {
     let errorMessage = 'Une erreur est survenue';
-    
-    console.error('Erreur HTTP complète:', error);
     
     if (error.error instanceof ErrorEvent) {
       // Erreur côté client
@@ -293,20 +289,16 @@ export class MaterialsService {
                  sessionStorage.getItem('token');
     
     if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
-      return throwError(() => ({ 
-        message: 'Token d\'authentification manquant', 
-        status: 401 
+      return throwError(() => ({
+        message: 'Token d\'authentification manquant',
+        status: 401
       }));
     }
 
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
-    console.log(`Requête GET vers: ${this.apiUrl}/property/${propertyId}`);
-    console.log('Paramètres:', { page, size });
-    
+
     return this.http.get<MaterialsResponse>(
       `${this.apiUrl}/property/${propertyId}`, 
       { 
@@ -467,31 +459,28 @@ getStockMove(propertyId: number, page: number = 0, size: number = 10): Observabl
 }
 
 /**
- * Crée un nouveau mouvement de stock
- * @param movement Les données du mouvement à créer
- * @returns Observable du mouvement créé
+ * Crée un nouveau mouvement de stock avec un bon (slip) obligatoire
  */
-createStockMove(movement: CreateStockMovement): Observable<StockMovement> {
-  const token = localStorage.getItem('auth_token') || 
-               localStorage.getItem('token') || 
+createStockMove(movement: CreateStockMovement, slip: File): Observable<StockMovement> {
+  const token = localStorage.getItem('auth_token') ||
+               localStorage.getItem('token') ||
                sessionStorage.getItem('auth_token') ||
                sessionStorage.getItem('token');
-  
+
   if (!token) {
-    console.warn('Aucun token d\'authentification trouvé');
-    return throwError(() => ({ 
-      message: 'Token d\'authentification manquant', 
-      status: 401 
-    }));
+    return throwError(() => ({ message: 'Token d\'authentification manquant', status: 401 }));
   }
 
-  console.log('Création d\'un nouveau mouvement de stock:', movement);
-  
-  return this.http.post<StockMovement>(
-    `${this.apiUrl}/movements`, 
-    movement,
-    { headers: this.getHeaders() }
-  ).pipe(
+  const formData = new FormData();
+  formData.append('materialId', movement.materialId.toString());
+  formData.append('quantity', movement.quantity.toString());
+  formData.append('type', movement.type);
+  if (movement.comment) formData.append('comment', movement.comment);
+  formData.append('slip', slip, slip.name);
+
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  return this.http.post<StockMovement>(`${this.apiUrl}/movements`, formData, { headers }).pipe(
     catchError(this.handleError)
   );
 }

@@ -67,12 +67,12 @@ export class RegisterComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       telephone: ['', [Validators.required, Validators.pattern(/^7[05678]\d{7}$/)]],
 
-      // Adresse
-      adress: ['', Validators.required],
+      // Adresse (optionnel - champ masqué dans le formulaire)
+      adress: [''],
 
       // Informations optionnelles
-      date: [''], // Date de naissance (optionnel)
-      lieunaissance: [''], // Lieu de naissance (optionnel)
+      date: [''],
+      lieunaissance: [''],
 
       // Profil utilisateur - REQUIS
       profil: ['', Validators.required]
