@@ -23,6 +23,14 @@ interface Translations {
   EN: { [key: string]: string };
 }
 
+interface AiCategory {
+  id: string;
+  title: string;
+  svgPath: string;
+  iconImage: string;
+  features: string[];
+}
+
 @Component({
   selector: 'app-portail',
   standalone: true,
@@ -100,6 +108,189 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   showHelpModal = false;
   emailAddress = 'contact@btpcloud.app';
   phoneNumber = '+ 221 33 971 41 12';
+
+  // AI Features Section
+  activeAiCategoryIndex = 0;
+  aiAnimKey = 0;
+  private aiIntervalId: ReturnType<typeof setInterval> | null = null;
+
+  aiCategories: AiCategory[] = [
+    {
+      id: 'pointage-rh', title: 'Pointage & RH',
+      svgPath: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+      iconImage: 'assets/images/ICONE POINTAGE & RH.png',
+      features: [
+        'Détection de fraude au pointage (GPS, anomalies)',
+        'Reconnaissance faciale pour pointage automatique',
+        'Prédiction d\'absentéisme',
+        'Optimisation des plannings d\'équipes',
+        'Analyse de productivité par ouvrier / équipe',
+        'Détection de fatigue (heures excessives, alertes)',
+        'Suggestion de rotation des équipes',
+        'Calcul automatique des salaires et primes selon pointage'
+      ]
+    },
+    {
+      id: 'budget-finance', title: 'Budget & Finance',
+      svgPath: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      iconImage: 'assets/images/ICONE BUDGET & FINANCE.png',
+      features: [
+        'Prévision du coût final du projet',
+        'Détection d\'anomalies de dépenses',
+        'Alertes dépassement budgétaire prédictif',
+        'Analyse des écarts budget prévu vs réel',
+        'Optimisation des achats groupés entre chantiers',
+        'Scoring de rentabilité par lot / sous-traitant',
+        'Génération automatique de situations de travaux',
+        'Prévision de trésorerie chantier'
+      ]
+    },
+    {
+      id: 'avancement-planning', title: 'Avancement & Planning',
+      svgPath: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+      iconImage: 'assets/images/ICONE AVANCEMENT & PLANNING.png',
+      features: [
+        'Prédiction de retard chantier',
+        'Analyse des photos pour détecter le % d\'avancement',
+        'Détection de malfaçons sur les photos',
+        'Suggestion de réorganisation des tâches critiques',
+        'Analyse du chemin critique automatique (CPM)',
+        'Comparaison avancement prévu vs réel avec alertes',
+        'Génération automatique du planning à partir des tâches',
+        'Prévision de la date de livraison'
+      ]
+    },
+    {
+      id: 'gestion-taches', title: 'Gestion des Tâches',
+      svgPath: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+      iconImage: 'assets/images/ICONE GESTION DES TACHES.png',
+      features: [
+        'Priorisation automatique des tâches selon criticité',
+        'Détection de blocages et dépendances',
+        'Suggestion d\'affectation ouvrier → tâche selon compétences',
+        'Estimation automatique de la durée des tâches',
+        'Alerte tâches en retard avec impact sur le planning',
+        'Génération de tâches automatique depuis un plan BET',
+        'Suivi intelligent des tâches récurrentes'
+      ]
+    },
+    {
+      id: 'stocks', title: 'Stocks & Approvisionnement',
+      svgPath: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+      iconImage: 'assets/images/ICONESTOCKS & APPROVISIONNEMENT.png',
+      features: [
+        'Prévision des besoins en matériaux',
+        'Alerte rupture de stock anticipée',
+        'Optimisation des commandes fournisseurs',
+        'Détection de surconsommation anormale',
+        'Traçabilité intelligente des matériaux',
+        'Suggestion de substitution de matériaux',
+        'Analyse des pertes et gaspillages',
+        'Comparaison prix fournisseurs automatique'
+      ]
+    },
+    {
+      id: 'sous-traitants', title: 'Sous-traitants & Lots',
+      svgPath: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+      iconImage: 'assets/images/ICONE SOUS-TRAITANTS& LOTS.png',
+      features: [
+        'Scoring automatique des sous-traitants',
+        'Analyse des performances par lot',
+        'Détection de risques contractuels (délais, pénalités)',
+        'Recommandation de sous-traitants selon profil chantier',
+        'Suivi intelligent des situations de paiement',
+        'Alertes dépassement de plafond sous-traitance',
+        'Analyse des litiges récurrents par sous-traitant'
+      ]
+    },
+    {
+      id: 'qualite-securite', title: 'Qualité & Sécurité',
+      svgPath: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+      iconImage: "assets/images/ICONE BUREAU D'ETUDES & ETUDES TECHNIQUES.png",
+      features: [
+        'Détection automatique de non-conformités sur photos',
+        'Analyse prédictive des incidents de sécurité',
+        'Reconnaissance d\'EPI sur les photos (casque, gilet...)',
+        'Génération automatique de fiches incident',
+        'Analyse des causes racines d\'incidents',
+        'Score de risque chantier en temps réel',
+        'Suivi des visites de sécurité avec IA',
+        'Détection de zones dangereuses sur plans'
+      ]
+    },
+    {
+      id: 'documents', title: 'Documents & Rapports',
+      svgPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+      iconImage: 'assets/images/ICONE DOCUMENTS & RAPPORTS.png',
+      features: [
+        'Génération automatique de rapports de chantier',
+        'Analyse et extraction de données depuis des plans PDF',
+        'Résumé automatique des réunions de chantier',
+        'Génération de PPSPS assistée par IA',
+        'Analyse automatique des appels d\'offres',
+        'Rédaction assistée de courriers / mises en demeure',
+        'Classification automatique des documents',
+        'Extraction automatique des métrés depuis les plans'
+      ]
+    },
+    {
+      id: 'environnement', title: 'Environnement & Logistique',
+      svgPath: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      iconImage: 'assets/images/ICONE ENVIRONNEMENT & LOGISTIQUE.png',
+      features: [
+        'Intégration météo + réorganisation automatique des tâches',
+        'Optimisation des tournées d\'engins et camions',
+        'Prévision de consommation énergétique du chantier',
+        'Détection d\'impact environnemental (bruit, poussière)',
+        'Optimisation de l\'utilisation des engins',
+        'Planification intelligente des livraisons'
+      ]
+    },
+    {
+      id: 'chatbot', title: 'Assistance & Chatbot',
+      svgPath: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',
+      iconImage: 'assets/images/ICONE ASSISTANCE & CHATBOT.png',
+      features: [
+        'Chatbot chantier en langage naturel',
+        'Assistant devis / métré intelligent',
+        'Assistant réglementaire BTP (normes, DTU)',
+        'Recherche intelligente dans les documents du projet',
+        'Suggestions contextuelles selon l\'état du chantier',
+        'Assistant onboarding nouveaux ouvriers'
+      ]
+    }
+  ];
+
+  get activeAiCategory(): AiCategory {
+    return this.aiCategories[this.activeAiCategoryIndex];
+  }
+
+  selectAiCategory(index: number): void {
+    this.activeAiCategoryIndex = index;
+    this.aiAnimKey++;
+    this.resetAiRotation();
+  }
+
+  private resetAiRotation(): void {
+    if (this.aiIntervalId !== null) {
+      clearInterval(this.aiIntervalId);
+      this.aiIntervalId = null;
+    }
+    if (isPlatformBrowser(this.platformId)) {
+      this.aiIntervalId = setInterval(() => {
+        this.activeAiCategoryIndex = (this.activeAiCategoryIndex + 1) % this.aiCategories.length;
+        this.aiAnimKey++;
+      }, 4000);
+    }
+  }
+
+  getIconPosition(index: number): { [key: string]: string } {
+    const angle = (360 / this.aiCategories.length) * index - 90;
+    const rad = (angle * Math.PI) / 180;
+    const x = 230 + 175 * Math.cos(rad) - 88; // halfButton = 88 (176px / 2)
+    const y = 230 + 175 * Math.sin(rad) - 88;
+    return { left: `${x}px`, top: `${y}px` };
+  }
 
   // Traductions statiques
   private translations: Translations = {
@@ -457,11 +648,15 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadPlans();
     this.loadPartners();
+    this.resetAiRotation();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.aiIntervalId !== null) {
+      clearInterval(this.aiIntervalId);
+    }
   }
 
   toggleDescription(index: number): void {

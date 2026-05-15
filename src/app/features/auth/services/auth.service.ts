@@ -403,17 +403,20 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
 
   private initializeAuthState(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const storedToken = localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const refreshToken = localStorage.getItem('refreshToken');
       const storedUser = localStorage.getItem('user');
 
       if (storedToken && this.isTokenValidFormat(storedToken)) {
         this._token.set(storedToken);
+        // Synchroniser les deux clés
+        localStorage.setItem('token', storedToken);
+        localStorage.setItem('auth_token', storedToken);
+
         if (refreshToken) this._refreshToken.set(refreshToken);
-        
         this._isAuthenticated.set(true);
 
-        // Si l'utilisateur est déjà en cache, on l'utilise pour éviter la redirection par l'AuthGuard
+        // Restaurer l'utilisateur depuis le cache pour que les guards passent immédiatement
         if (storedUser) {
           try {
             this._currentUser.set(JSON.parse(storedUser));
@@ -422,27 +425,20 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
           }
         }
 
-        // ✅ CORRECTION: Vérifier la validité du token avant de faire l'appel API
         if (this.isTokenValid()) {
           this.getCurrentUser().subscribe({
             next: (user) => {
               this._currentUser.set(user);
               localStorage.setItem('user', JSON.stringify(user));
-              console.log('✅ Utilisateur récupéré et mis à jour:', user);
             },
-            error: (error) => {
-              console.error('❌ Erreur récupération utilisateur:', error);
-              // Ne pas tout nettoyer si on a juste une iframe d'erreur, mais comme c'est sécurisé, on efface.
-              // Sauf si on a un 401, on laissera l'intercepteur rafraichir.
-              // this.clearAuthData(); // Laissons faire l'intercepteur de refresh
+            error: () => {
+              // L'intercepteur gère le refresh 401 — on ne nettoie pas ici
             }
           });
         } else if (refreshToken) {
-          console.warn('⚠️ Token expiré, on tente un refresh');
           this.refreshAuthToken().subscribe();
         } else {
-            console.warn('⚠️ Token expiré et pas de refreshToken, nettoyage automatique');
-            this.clearAuthData();
+          this.clearAuthData();
         }
       }
     }
@@ -516,13 +512,13 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   private setAuthData(token: string, refreshToken?: string, user?: User | null): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token); // alias lu par certains services
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
       }
       if (user) {
         localStorage.setItem('user', JSON.stringify(user));
       }
-      console.log('✅ Tokens stockés dans localStorage');
     }
 
     this._token.set(token);
@@ -540,6 +536,7 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   private clearAuthData(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
     }
@@ -573,6 +570,7 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     this._token.set(token);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token);
       if (refreshToken) {
         this._refreshToken.set(refreshToken);
         localStorage.setItem('refreshToken', refreshToken);

@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
-import { MaterialsService, MaterialsResponse, Order, CreateOrder } from '../../../../../services/materials.service';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { MaterialsService, MaterialsResponse, Order, CreateOrder, CreateStockMovement } from '../../../../../services/materials.service';
+import { MaterialTypeService, MaterialType } from '../../../../../services/material-type.service';
 import { CommonModule } from '@angular/common';
 import { UnitParameterService } from '../../../../core/services/unite-parametre.service';
 import { UnitParameter, PaginatedResponse } from '../../../../models/unit-parameter';
@@ -68,10 +69,11 @@ interface Material {
   createdAt: number[];
   unit: Unit;
   property: Property;
+  materialType?: MaterialType;
 }
 
 interface CreateMaterial {
-  label: string;
+  materialTypeId: number;
   quantity: number;
   criticalThreshold: number;
   unitId: number;
@@ -151,13 +153,6 @@ interface StockMovementsResponse {
   };
   first: boolean;
   empty: boolean;
-}
-
-interface CreateStockMovement {
-  materialId: number;
-  quantity: number;
-  type: 'ENTRY' | 'EXIT';
-  comment: string;
 }
 
 // Nouvelle interface pour la réponse de getLivraison
@@ -265,6 +260,18 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   materialPageSize: number = 5;
   totalMaterialElements: number = 0;
   totalMaterialPages: number = 0;
+
+  // Material type autocomplete
+  materialTypes: MaterialType[] = [];
+  materialTypeSearchTerm: string = '';
+  showMaterialTypeDropdown: boolean = false;
+  selectedMaterialType: MaterialType | null = null;
+  materialTypeLoading: boolean = false;
+  private materialTypeSearchSubject = new Subject<string>();
+
+  // Slip upload (movement)
+  slipFile: File | null = null;
+  slipFileError: boolean = false;
   // Dans stock.component.ts
   suppliers: User[] = []; // Liste des fournisseurs
   suppliersLoading: boolean = false;
@@ -306,6 +313,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
+    private materialTypeService: MaterialTypeService,
     private unitParameterService: UnitParameterService,
     private propertyService: PropertyTypeService,
     private dashboardService: DashboardService,
@@ -313,13 +321,13 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     private statistiqueService: StatistiqueService,
     private userService: UserService,
     private commandeService: CommandeService,
-    private cdr: ChangeDetectorRef, // ✅ AJOUTER ICI
+    private cdr: ChangeDetectorRef,
     private toastService: ToastService,
 
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.materialForm = this.fb.group({
-      label: ['', [Validators.required, Validators.minLength(2)]],
+      materialTypeId: [null, [Validators.required]],
       quantity: [0, [Validators.required, Validators.min(0)]],
       criticalThreshold: [0, [Validators.required, Validators.min(0)]],
       unitId: ['', [Validators.required]],
@@ -362,6 +370,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     return mat ? mat.quantity : 0;
   }
   ngOnInit(): void {
+    this.materialTypeSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(term => this.searchMaterialTypes(term));
+
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
       this.propertyId = +idFromUrl;
@@ -379,6 +393,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadCriticalMaterials();
       this.loadStatistiques();
       this.loadSuppliers();
+      this.loadMaterialTypes();
 
     } else {
       console.error("ID de propriété non trouvé dans l'URL.");
@@ -915,6 +930,63 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  // ─── Material type autocomplete ───────────────────────────────────────────
+
+  loadMaterialTypes(): void {
+    this.materialTypeService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
+      next: types => (this.materialTypes = types),
+      error: () => { /* silent */ }
+    });
+  }
+
+  onMaterialTypeInput(value: string): void {
+    this.materialTypeSearchTerm = value;
+    this.showMaterialTypeDropdown = true;
+    this.selectedMaterialType = null;
+    this.materialForm.patchValue({ materialTypeId: null });
+    this.materialTypeSearchSubject.next(value);
+  }
+
+  searchMaterialTypes(query: string): void {
+    if (!query.trim()) {
+      this.materialTypes = [];
+      this.materialTypeLoading = false;
+      this.materialTypeService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
+        next: types => (this.materialTypes = types),
+        error: () => { /* silent */ }
+      });
+      return;
+    }
+    this.materialTypeLoading = true;
+    this.materialTypeService.search(query).pipe(takeUntil(this.destroy$)).subscribe({
+      next: types => { this.materialTypes = types; this.materialTypeLoading = false; },
+      error: () => { this.materialTypeLoading = false; }
+    });
+  }
+
+  selectMaterialType(type: MaterialType): void {
+    this.selectedMaterialType = type;
+    this.materialTypeSearchTerm = type.nameFr;
+    this.materialForm.patchValue({ materialTypeId: type.id });
+    this.showMaterialTypeDropdown = false;
+  }
+
+  closeMaterialTypeDropdown(): void {
+    setTimeout(() => { this.showMaterialTypeDropdown = false; }, 200);
+  }
+
+  // ─── Slip upload (movement) ──────────────────────────────────────────────
+
+  onSlipFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.slipFile = input.files[0];
+      this.slipFileError = false;
+    } else {
+      this.slipFile = null;
+    }
+  }
+
   onSupplierSearch(keyword: string): void {
     this.supplierSearchKeyword = keyword;
     this.supplierPage = 0;
@@ -1061,9 +1133,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.materials.forEach(material => {
       const status = this.getMaterialStatus(material);
       if (status === 'CRITICAL' || status === 'LOW') {
+        const name = material.materialType?.nameFr || material.label;
         const alert: StockAlert = {
           id: material.id,
-          message: `${material.label} - ${material.quantity} ${material.unit.code} restant${material.quantity > 1 ? 's' : ''}`,
+          message: `${name} - ${material.quantity} ${material.unit.code} restant${material.quantity > 1 ? 's' : ''}`,
           createdAt: new Date(),
           materialId: material.id
         };
@@ -1080,7 +1153,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Autres méthodes utilitaires et d'interaction (non modifiées)
   getMaterialName(material: Material): string {
-    return material.label || 'N/A';
+    return material.materialType?.nameFr || material.label || 'N/A';
   }
 
   getMaterialStock(material: Material): number {
@@ -1255,15 +1328,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   openNewMaterialModal(): void {
     this.showNewMaterialModal = true;
+    this.selectedMaterialType = null;
+    this.materialTypeSearchTerm = '';
+    this.showMaterialTypeDropdown = false;
     this.materialForm.reset({
-      label: '',
+      materialTypeId: null,
       quantity: 0,
       criticalThreshold: 0,
-      unitId: '', // ⚠️ Vide pour forcer la sélection
+      unitId: '',
       propertyId: this.propertyId
     });
-
-    // Marquer tous les champs comme non touchés
     Object.keys(this.materialForm.controls).forEach(key => {
       this.materialForm.get(key)?.markAsUntouched();
       this.materialForm.get(key)?.markAsPristine();
@@ -1422,6 +1496,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onCreateMovement(): void {
+    if (!this.slipFile) {
+      this.slipFileError = true;
+      return;
+    }
     if (this.movementForm.valid && this.selectedMaterial && !this.loading) {
       this.loading = true;
       const newMovement: CreateStockMovement = {
@@ -1430,7 +1508,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         type: this.movementForm.value.type,
         comment: this.movementForm.value.comment || ''
       };
-      this.materialsService.createStockMove(newMovement)
+      this.materialsService.createStockMove(newMovement, this.slipFile)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (createdMovement) => {
@@ -1482,15 +1560,20 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   closeMovementModal(): void {
     this.showMovementModal = false;
     this.selectedMaterial = null;
+    this.slipFile = null;
+    this.slipFileError = false;
     this.resetMovementForm();
   }
 
   resetMaterialForm(): void {
+    this.selectedMaterialType = null;
+    this.materialTypeSearchTerm = '';
+    this.showMaterialTypeDropdown = false;
     this.materialForm.reset({
-      label: '',
+      materialTypeId: null,
       quantity: 0,
       criticalThreshold: 0,
-      unitId: 1,
+      unitId: '',
       propertyId: this.propertyId
     });
   }
@@ -1508,17 +1591,13 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.materialForm.valid;
   }
 
-  // ⚠️ AJOUTER cette méthode dans stock.component.ts
   isFieldInvalid(fieldName: string): boolean {
     const field = this.materialForm.get(fieldName);
-
-    // Pour les selects (unitId, propertyId), vérifier aussi si la valeur est vide ou null
-    if (fieldName === 'unitId' || fieldName === 'propertyId') {
+    if (fieldName === 'unitId' || fieldName === 'propertyId' || fieldName === 'materialTypeId') {
       const value = field?.value;
       const isEmpty = !value || value === '' || value === null;
       return !!(field && (field.invalid || isEmpty) && (field.dirty || field.touched));
     }
-
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
   getFieldError(fieldName: string): string {
@@ -1554,10 +1633,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSaveNewStock(): void {
+    if (!this.selectedMaterialType) {
+      this.showErrorMessage('Veuillez sélectionner un type de matériau');
+      return;
+    }
     if (this.materialForm.valid && !this.loading) {
       this.loading = true;
       const newMaterial: CreateMaterial = {
-        label: this.materialForm.value.label,
+        materialTypeId: this.selectedMaterialType.id,
         quantity: this.materialForm.value.quantity,
         criticalThreshold: this.materialForm.value.criticalThreshold,
         unitId: this.materialForm.value.unitId,

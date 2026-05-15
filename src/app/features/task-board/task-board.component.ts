@@ -14,6 +14,7 @@ import {
   Worker,
   WorkersResponse
 } from './../../../services/utilisateur.service';
+
 import {
   CommentFileService,
   Document,
@@ -24,7 +25,6 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { environment } from '../../../environments/environment';
-import { UserService } from '../../../services/user.service';
 
 interface User {
   id: number;
@@ -165,7 +165,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
-    private userService: UserService,
+    private utilisateurService: UtilisateurService,
     private commentFileService: CommentFileService,
     private route: ActivatedRoute,
     private languageService: LanguageService
@@ -222,39 +222,43 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   private loadWorkers(): void {
-    console.log('🔄 Chargement des workers via getUserByProfil');
-
-    if (this.workerLoading) return;
+    if (this.workerLoading || !this.currentPropertyId) return;
 
     this.workerLoading = true;
+    const apiPage = this.workerPage;
 
-    this.userService.getUserByProfil('WORKER', this.workerSearchKeyword, this.workerPage, this.workerPageSize)
+    this.utilisateurService.getWorkers(apiPage, this.workerPageSize, this.currentPropertyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('✅ Workers chargés avec succès:', response);
-
-          if (this.workerPage === 0) {
+        next: (response: WorkersResponse) => {
+          if (apiPage === 0) {
             this.availableWorkers = response.content;
           } else {
             this.availableWorkers = [...this.availableWorkers, ...response.content];
           }
-
           this.workerHasMore = response.number < response.totalPages - 1;
-          // Map User[] response to internal User interface
-          this.users = response.content.map((user: any) => ({
-            id: user.id,
-            avatarUrl: user.photo ? `${environment.filebaseUrl}${user.photo}` : 'assets/images/profil.png',
-            name: `${user.prenom} ${user.nom}`
+          this.users = this.availableWorkers.map((worker: Worker) => ({
+            id: worker.id,
+            avatarUrl: worker.photo ? `${environment.filebaseUrl}${worker.photo}` : 'assets/images/profil.png',
+            name: `${worker.prenom} ${worker.nom}`
           }));
           this.workerLoading = false;
         },
-        error: (error) => {
-          console.error('❌ Erreur lors du chargement des workers:', error);
+        error: (err: unknown) => {
+          console.error('❌ Erreur lors du chargement des workers:', err);
           this.users = [];
           this.workerLoading = false;
         }
       });
+  }
+
+  get filteredAvailableWorkers(): Worker[] {
+    if (!this.workerSearchKeyword.trim()) return this.availableWorkers;
+    const kw = this.workerSearchKeyword.toLowerCase();
+    return this.availableWorkers.filter((w: Worker) =>
+      `${w.prenom} ${w.nom}`.toLowerCase().includes(kw) ||
+      (w.email?.toLowerCase().includes(kw) ?? false)
+    );
   }
 
   // Load more workers for infinite scroll
@@ -268,9 +272,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   // Worker auto-completion methods
   onWorkerSearch(keyword: string): void {
     this.workerSearchKeyword = keyword;
-    this.workerPage = 0;
-    this.availableWorkers = []; // Reset list on new search
-    this.loadWorkers();
     this.showWorkerDropdown = true;
   }
 
