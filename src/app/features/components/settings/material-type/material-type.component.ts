@@ -44,14 +44,10 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
-    ).subscribe(term => {
-      this.applyFilter(term);
-    });
+    ).subscribe(term => this.applyFilter(term));
   }
 
-  ngOnInit(): void {
-    this.loadTypes();
-  }
+  ngOnInit(): void { this.loadTypes(); }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -61,21 +57,19 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
   loadTypes(): void {
     this.isLoading = true;
     this.error = null;
-    this.materialTypeService.getAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.types = data;
-          this.applyFilter(this.searchTerm);
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.error = 'Erreur lors du chargement des types de matériaux';
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        }
-      });
+    this.materialTypeService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (data) => {
+        this.types = data;
+        this.applyFilter(this.searchTerm);
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.error = 'Erreur lors du chargement des types de matériaux';
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private applyFilter(term: string): void {
@@ -91,17 +85,13 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
     this.searchSubject.next(this.searchTerm);
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.searchSubject.next('');
-  }
+  clearSearch(): void { this.searchTerm = ''; this.searchSubject.next(''); }
 
   ajouterType(): void {
     if (!this.validateForm(this.newType)) return;
     this.isSubmitting = true;
     this.materialTypeService.create({ nameFr: this.newType.nameFr.trim(), nameEn: this.newType.nameEn.trim() })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+      .pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.newType = { nameFr: '', nameEn: '' };
           this.formErrors = {};
@@ -126,13 +116,8 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
   sauvegarderModification(): void {
     if (!this.editingType || !this.validateForm(this.editForm)) return;
     this.materialTypeService.update(this.editingType.id, { nameFr: this.editForm.nameFr.trim(), nameEn: this.editForm.nameEn.trim() })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.annulerModification();
-          this.showSuccess('Type mis à jour avec succès');
-          this.loadTypes();
-        },
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => { this.annulerModification(); this.showSuccess('Type mis à jour'); this.loadTypes(); },
         error: () => { this.error = 'Erreur lors de la mise à jour'; this.cdr.markForCheck(); }
       });
   }
@@ -143,46 +128,25 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
     this.formErrors = {};
   }
 
-  supprimerType(type: MaterialType): void {
-    this.typeToDelete = type;
-    this.showDeleteModal = true;
-  }
+  supprimerType(type: MaterialType): void { this.typeToDelete = type; this.showDeleteModal = true; }
 
   confirmDelete(): void {
     if (!this.typeToDelete) return;
-    this.materialTypeService.deleteType(this.typeToDelete.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.showSuccess('Type supprimé');
-          this.closeDeleteModal();
-          this.loadTypes();
-        },
-        error: () => {
-          this.error = 'Erreur lors de la suppression';
-          this.closeDeleteModal();
-          this.cdr.markForCheck();
-        }
-      });
+    this.materialTypeService.deleteType(this.typeToDelete.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => { this.showSuccess('Type supprimé'); this.closeDeleteModal(); this.loadTypes(); },
+      error: () => { this.error = 'Erreur lors de la suppression'; this.closeDeleteModal(); this.cdr.markForCheck(); }
+    });
   }
 
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.typeToDelete = null;
-  }
+  closeDeleteModal(): void { this.showDeleteModal = false; this.typeToDelete = null; }
 
-  isEditing(type: MaterialType): boolean {
-    return this.editingType?.id === type.id;
-  }
-
+  isEditing(type: MaterialType): boolean { return this.editingType?.id === type.id; }
   hasError(field: string): boolean { return !!this.formErrors[field]; }
   getError(field: string): string { return this.formErrors[field] || ''; }
-
-  onFormInput(field: string): void {
-    if (this.formErrors[field]) { delete this.formErrors[field]; this.cdr.markForCheck(); }
-  }
-
+  onFormInput(field: string): void { if (this.formErrors[field]) { delete this.formErrors[field]; this.cdr.markForCheck(); } }
   clearError(): void { this.error = null; this.cdr.markForCheck(); }
+  trackByType(_: number, type: MaterialType): number { return type.id; }
+  refreshTypes(): void { this.loadTypes(); }
 
   private showSuccess(msg: string): void {
     this.successMessage = msg;
@@ -200,7 +164,4 @@ export class MaterialTypeComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
     return valid;
   }
-
-  trackByType(_: number, type: MaterialType): number { return type.id; }
-  refreshTypes(): void { this.loadTypes(); }
 }

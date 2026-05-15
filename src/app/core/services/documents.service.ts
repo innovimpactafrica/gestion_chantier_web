@@ -17,10 +17,7 @@ export interface DocumentModel {
 })
 export class DocumentService {
   
-  constructor(private unitParameterService: UnitParameterService) {
-    // Charger les documents au démarrage du service
-    this.unitParameterService.getDocuments();
-  }
+  constructor(private unitParameterService: UnitParameterService) {}
 
   /**
    * Récupère tous les documents
@@ -42,7 +39,7 @@ export class DocumentService {
       hasEndDate: document.exigeDateFin
     };
 
-    this.unitParameterService.addDocument(unitParameter);
+    // this.unitParameterService.addDocument(unitParameter);
   }
 
   /**
@@ -64,14 +61,14 @@ export class DocumentService {
       updateData.hasEndDate = document.exigeDateFin;
     }
 
-    this.unitParameterService.updateDocument(id, updateData);
+    // this.unitParameterService.updateDocument(id, updateData);
   }
 
   /**
    * Supprime un document
    */
   deleteDocument(id: string): void {
-    this.unitParameterService.deleteDocument(id);
+    // this.unitParameterService.deleteDocument(id);
   }
 
   /**
