@@ -234,8 +234,6 @@ export class MaterialsService {
                  sessionStorage.getItem('auth_token') ||
                  sessionStorage.getItem('token');
     
-    console.log('Token utilisé:', token ? 'Token présent' : 'Aucun token trouvé');
-    
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -250,8 +248,6 @@ export class MaterialsService {
 
   private handleError = (error: HttpErrorResponse) => {
     let errorMessage = 'Une erreur est survenue';
-    
-    console.error('Erreur HTTP complète:', error);
     
     if (error.error instanceof ErrorEvent) {
       // Erreur côté client
@@ -293,20 +289,16 @@ export class MaterialsService {
                  sessionStorage.getItem('token');
     
     if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
-      return throwError(() => ({ 
-        message: 'Token d\'authentification manquant', 
-        status: 401 
+      return throwError(() => ({
+        message: 'Token d\'authentification manquant',
+        status: 401
       }));
     }
 
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
-    console.log(`Requête GET vers: ${this.apiUrl}/property/${propertyId}`);
-    console.log('Paramètres:', { page, size });
-    
+
     return this.http.get<MaterialsResponse>(
       `${this.apiUrl}/property/${propertyId}`, 
       { 
