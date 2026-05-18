@@ -4,8 +4,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { authInterceptor } from './core/components/auth/interceptors/auth.interceptor';
 
 import { provideAnimations } from '@angular/platform-browser/animations';
 
@@ -15,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withFetch(),
-      // withInterceptors([HttpErrorInterceptor])
+      withInterceptors([authInterceptor])
     ),
     provideAnimations(),
     provideClientHydration()

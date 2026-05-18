@@ -46,7 +46,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let mat of criticalMaterials">
-        <td class="p-2">{{ mat.label }}</td>
+        <td class="p-2">{{ mat.labelFr || mat.label }}</td>
         <td class="p-2">{{ mat.quantity }}</td>
         <td class="p-2">{{ mat.criticalThreshold }}</td>
         <td class="p-2">{{ mat.unitName }}</td>

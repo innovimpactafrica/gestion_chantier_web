@@ -167,12 +167,12 @@
       <li *ngIf="isADMINProfile()">
         <div>
           <a (click)="toggleParametres()"
-            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
-                 (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
+            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                 (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') || isActive('types-materiaux') ? 'bg-[#FF5C02] text-white' : '')">
             <div class="flex items-center">
               <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" [class]="'mr-3 w-5 h-5 transition-all duration-200 flex-shrink-0 ' + 
-      (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') 
-        ? 'brightness-0 invert' 
+      (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') || isActive('types-materiaux')
+        ? 'brightness-0 invert'
         : '')">
 
                 <path
@@ -195,6 +195,12 @@
 
           <!-- Sous-menu Paramètres -->
           <div *ngIf="showParametres" class="mt-2 ml-6 space-y-1 border-l-2 border-gray-200 pl-4">
+            <!-- Vue d'ensemble -->
+            <a (click)="navigateToSubSection('/settings', 'Paramètres', 'settings')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
+                   (isActive('settings') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Vue d'ensemble</span>
+            </a>
             <!-- Unité de mesure -->
             <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
@@ -217,10 +223,17 @@
             </a>
 
             <!-- Catégories de matériel -->
-            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
+            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
                    (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>{{ t('settings.materialCategories') }}</span>
+            </a>
+
+            <!-- Types de matériaux -->
+            <a (click)="navigateToSubSection('/parametres/types-materiaux', 'Types de matériaux', 'types-materiaux')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
+                   (isActive('types-materiaux') ? 'bg-[#FF5C02] text-white' : '')">
+              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <span>Types de matériaux</span>
             </a>
           </div>
         </div>
@@ -281,6 +294,8 @@
       </li>
 
 
+     
+
       <!-- Projects Section (Standard uniquement) -->
       <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
         <a (click)="navigateTo('/projects', 'Projets', 'projects')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
@@ -293,7 +308,18 @@
           </div>
         </a>
       </li>
-
+ <!-- Devis (Promoteur uniquement) -->
+      <li *ngIf="isPromoterProfile()">
+        <a (click)="navigateTo('/devis', 'Devis', 'devis')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('devis') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-sm">{{ t('sidebar.devis') }}</span>
+          </div>
+        </a>
+      </li>
 
 
       <!-- ========== MENU SUPPLIER ========== -->

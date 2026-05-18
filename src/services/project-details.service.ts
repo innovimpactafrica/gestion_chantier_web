@@ -489,7 +489,9 @@ export class ProjectBudgetService {
 
   // Méthode privée pour obtenir les headers d'authentification
   private getAuthHeaders(forFormData: boolean = false): HttpHeaders {
-    const token = localStorage.getItem('token') ||
+    const token = localStorage.getItem('auth_token') ||
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('auth_token') ||
       sessionStorage.getItem('token') ||
       localStorage.getItem('authToken') ||
       sessionStorage.getItem('authToken') ||
@@ -498,10 +500,7 @@ export class ProjectBudgetService {
       localStorage.getItem('jwt') ||
       sessionStorage.getItem('jwt');
 
-    console.log('Token récupéré pour headers:', token ? token.substring(0, 20) + '...' : 'null');
-
     if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
       return new HttpHeaders();
     }
 
@@ -519,7 +518,6 @@ export class ProjectBudgetService {
 
   // Méthode pour gérer les erreurs HTTP
   private handleError(error: HttpErrorResponse) {
-    console.error('Erreur HTTP détaillée:', error);
 
     let errorMessage = 'Une erreur est survenue';
 
@@ -539,7 +537,7 @@ export class ProjectBudgetService {
       }
     }
 
-    return throwError(errorMessage);
+    return throwError(() => ({ message: errorMessage, status: error.status }));
   }
   createTask(taskData: CreateTaskRequest): Observable<any> {
     const headers = this.getAuthHeaders(true);
@@ -1001,23 +999,8 @@ export class ProjectBudgetService {
       formData.append('file', '');
     }
 
-    // Log des clés et valeurs du FormData avec assertion de type
-    console.log('Envoi FormData pour document avec champs:');
-    for (const [key, value] of (formData as any).entries()) {
-      console.log(`${key}: ${value instanceof File ? value.name : value}`);
-    }
-
-    // Vérifier le token
-    const token = headers.get('Authorization')?.replace('Bearer ', '');
-    console.log('Token envoyé:', token ? token.substring(0, 20) + '...' : 'Aucun token');
-
     return this.http.post<any>(`${this.baseUrl}/documents/add`, formData, { headers })
-      .pipe(
-        catchError((error) => {
-          console.error('Erreur détaillée lors de la création du document:', error);
-          return this.handleError(error);
-        })
-      );
+      .pipe(catchError(this.handleError));
   }
   deleteDocument(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
@@ -1051,9 +1034,12 @@ export class ProjectBudgetService {
   }
 
   changeStatusIncident(incidentId: number, status: string): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.patch<any>(`${this.baseUrl}/incidents/${incidentId}/status`, { status }, { headers })
-      .pipe(catchError(this.handleError));
+    const params = new HttpParams().set('status', status);
+    return this.http.patch<any>(
+      `/btpconnect/api/incidents/${incidentId}/status`,
+      null,
+      { headers: this.getAuthHeaders(true), params }
+    ).pipe(catchError(this.handleError));
   }
 
   deleteSignalement(id: number): Observable<void> {

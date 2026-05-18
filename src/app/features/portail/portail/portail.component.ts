@@ -284,10 +284,16 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  get orbitRotationDeg(): number {
+    return this.activeAiCategoryIndex * (360 / this.aiCategories.length);
+  }
+
   getIconPosition(index: number): { [key: string]: string } {
-    const angle = (360 / this.aiCategories.length) * index - 90;
+    const total = this.aiCategories.length;
+    const baseAngle = (360 / total) * index - 90;
+    const angle = baseAngle + this.orbitRotationDeg;
     const rad = (angle * Math.PI) / 180;
-    const x = 230 + 175 * Math.cos(rad) - 88; // halfButton = 88 (176px / 2)
+    const x = 230 + 175 * Math.cos(rad) - 88;
     const y = 230 + 175 * Math.sin(rad) - 88;
     return { left: `${x}px`, top: `${y}px` };
   }

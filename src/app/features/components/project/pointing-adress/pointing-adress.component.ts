@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../../../../core/services/language.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import {
   PointingAddressService,
   PointingAddressResponse,
@@ -50,7 +51,8 @@ export class PointingAddressComponent implements OnInit {
   constructor(
     private pointingAddressService: PointingAddressService,
     private route: ActivatedRoute,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private toastService: ToastService
   ) { }
 
   t(key: string): string {
@@ -116,6 +118,10 @@ export class PointingAddressComponent implements OnInit {
         addr.longitude.toString().includes(search)
       );
     }
+  }
+
+  showMobileOnlyNotice(): void {
+    this.toastService.showInfo('Cette fonctionnalité est gérée sur l\'application mobile.');
   }
 
   openCreateModal() {

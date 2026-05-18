@@ -702,7 +702,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M12.4995 9.99902C12.4995 9.33598 12.2361 8.7001 11.7673 8.23126C11.2984 7.76242 10.6626 7.49902 9.99951 7.49902C9.33647 7.49902 8.70059 7.76242 8.23174 8.23126C7.7629 8.7001 7.49951 9.33598 7.49951 9.99902C7.49951 10.6621 7.7629 11.2979 8.23174 11.7668C8.70059 12.2356 9.33647 12.499 9.99951 12.499C10.6626 12.499 11.2984 12.2356 11.7673 11.7668C12.2361 11.2979 12.4995 10.6621 12.4995 9.99902Z"
                             stroke="#9CA3AF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <span class="text-sm">Voir détails</span>
+                        <span class="text-sm">{{ t('stock.deliveries.viewDetails') }}</span>
                       </button>
 
                       <!-- Modifier -->
@@ -716,7 +716,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M15.3125 2.18769C15.644 1.85617 16.0937 1.66992 16.5625 1.66992C17.0313 1.66992 17.481 1.85617 17.8125 2.18769C18.144 2.51921 18.3303 2.96885 18.3303 3.43769C18.3303 3.90653 18.144 4.35617 17.8125 4.68769L10.3017 12.1994C10.1038 12.3971 9.85933 12.5418 9.59083 12.6202L7.19666 13.3202C7.12496 13.3411 7.04895 13.3424 6.97659 13.3238C6.90423 13.3053 6.83819 13.2676 6.78537 13.2148C6.73255 13.162 6.6949 13.096 6.67637 13.0236C6.65783 12.9512 6.65908 12.8752 6.68 12.8035L7.38 10.4094C7.45877 10.1411 7.60378 9.8969 7.80166 9.69936L15.3125 2.18769Z"
                             stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <span class="text-sm">Modifier</span>
+                        <span class="text-sm">{{ t('stock.deliveries.modify') }}</span>
                       </button>
 
                       <!-- Télécharger preuve -->
@@ -731,7 +731,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                           <path d="M10 12.5V2.5" stroke="#9CA3AF" stroke-width="1.66667" stroke-linecap="round"
                             stroke-linejoin="round" />
                         </svg>
-                        <span class="text-sm">Télécharger preuve</span>
+                        <span class="text-sm">{{ t('stock.deliveries.downloadProofAction') }}</span>
                       </button>
 
                       <!-- Historique -->
@@ -742,7 +742,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M10 17.5C8.08333 17.5 6.41333 16.8647 4.99 15.5942C3.56667 14.3236 2.75056 12.7367 2.54167 10.8333H4.25C4.44444 12.2778 5.08694 13.4722 6.1775 14.4167C7.26806 15.3611 8.54222 15.8333 10 15.8333C11.625 15.8333 13.0036 15.2675 14.1358 14.1358C15.2681 13.0042 15.8339 11.6256 15.8333 10C15.8328 8.37444 15.2669 6.99611 14.1358 5.865C13.0047 4.73389 11.6261 4.16778 10 4.16667C9.04167 4.16667 8.14583 4.38889 7.3125 4.83333C6.47917 5.27778 5.77778 5.88889 5.20833 6.66667H7.5V8.33333H2.5V3.33333H4.16667V5.29167C4.875 4.40278 5.73972 3.71528 6.76083 3.22917C7.78194 2.74306 8.86167 2.5 10 2.5C11.0417 2.5 12.0175 2.69806 12.9275 3.09417C13.8375 3.49028 14.6292 4.02472 15.3025 4.6975C15.9758 5.37028 16.5106 6.16194 16.9067 7.0725C17.3028 7.98306 17.5006 8.95889 17.5 10C17.4994 11.0411 17.3017 12.0169 16.9067 12.9275C16.5117 13.8381 15.9769 14.6297 15.3025 15.3025C14.6281 15.9753 13.8364 16.51 12.9275 16.9067C12.0186 17.3033 11.0428 17.5011 10 17.5ZM12.3333 13.5L9.16667 10.3333V5.83333H10.8333V9.66667L13.5 12.3333L12.3333 13.5Z"
                             fill="#9CA3AF" />
                         </svg>
-                        <span class="text-sm">Historique</span>
+                        <span class="text-sm">{{ t('stock.deliveries.history') }}</span>
                       </button>
 
                       <!-- Séparateur -->
@@ -756,7 +756,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                             d="M13.1401 3.80701L12.1935 2.86035L8.00011 7.06035L3.80676 2.86035L2.86011 3.80701L7.06011 8.00035L2.86011 12.1937L3.80676 13.1404L8.00011 8.94035L12.1935 13.1404L13.1401 12.1937L8.94011 8.00035L13.1401 3.80701Z"
                             fill="#FF0000" />
                         </svg>
-                        <span class="text-sm">Supprimer</span>
+                        <span class="text-sm">{{ t('stock.deliveries.delete') }}</span>
                       </button>
                     </div>
                   </td>
@@ -888,7 +888,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
           <!-- HEADER -->
           <div class="flex items-center justify-between">
             <h3 class="text-[16px] font-semibold text-[#34495E]">
-              Mouvements récents
+              {{ t('stock.recentMovements') }}
             </h3>
             <svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd"
@@ -897,34 +897,68 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             </svg>
           </div>
 
+          <!-- Chargement -->
+          <div *ngIf="loading" class="text-center py-4">
+            <span class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></span>
+          </div>
+
           <!-- Message si aucun mouvement -->
           <div *ngIf="movements.length === 0 && !loading" class="text-center py-8">
-            <p class="text-sm text-[#7F8C8D]">Aucun mouvement récent</p>
+            <p class="text-sm text-[#7F8C8D]">{{ t('stock.noRecentMovements') }}</p>
           </div>
 
           <!-- Liste des mouvements -->
-          <ng-container *ngFor="let movement of movements.slice(0, 3); let last = last">
-            <div class="flex justify-between items-start">
-              <div>
+          <ng-container *ngFor="let movement of movements; let last = last">
+            <div class="flex justify-between items-start gap-2">
+              <div class="flex-1 min-w-0">
                 <p class="text-sm text-[#7F8C8D]">
                   {{ formatRecentMovementDate(movement.movementDate) }}
                 </p>
-                <p class="text-base text-[#34495E] font-light">
+                <p class="text-base text-[#34495E] font-light truncate">
                   <span [ngClass]="{
-              'text-[#E74C3C]': movement.type === 'EXIT',
-              'text-green-600': movement.type === 'ENTRY'
-            }" class="font-medium">
-                    {{ movement.type === 'ENTRY' ? 'Entrée' : 'Sortie' }}
+                    'text-[#E74C3C]': movement.type === 'EXIT',
+                    'text-green-600': movement.type === 'ENTRY'
+                  }" class="font-medium">
+                    {{ movement.type === 'ENTRY' ? t('stock.movement.entry') : t('stock.movement.exit') }}
                   </span>
-                  – {{ movement.quantity }} {{ movement.material.unit.code }} {{ movement.material.label }}
+                  – {{ movement.quantity }} {{ movement.material.unit.code }}
+                  {{ getMovementMaterialName(movement) }}
                 </p>
+                <p *ngIf="movement.comment" class="text-xs text-gray-400 truncate mt-0.5">{{ movement.comment }}</p>
               </div>
-              <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-[#34495E]">
-                {{ getMovementBadge(movement) }}
-              </span>
+              <!-- Voir bon / Télécharger slip -->
+              <div class="flex-shrink-0">
+                <button *ngIf="movement.slip" (click)="downloadSlip(movement.slip)"
+                  class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                  [title]="t('stock.viewSlip')">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {{ t('stock.viewSlip') }}
+                </button>
+                <span *ngIf="!movement.slip" class="text-xs text-gray-300">—</span>
+              </div>
             </div>
-            <hr *ngIf="!last">
+            <hr *ngIf="!last" class="border-gray-100">
           </ng-container>
+
+          <!-- Pagination mouvements récents -->
+          <div *ngIf="totalMovementPages > 1" class="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">
+            <button (click)="previousMovementPage()" [disabled]="movementCurrentPage === 0"
+              class="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <span class="text-xs text-gray-400">{{ movementCurrentPage + 1 }} / {{ totalMovementPages }}</span>
+            <button (click)="nextMovementPage()" [disabled]="movementCurrentPage >= totalMovementPages - 1"
+              class="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
 
 
@@ -984,7 +1018,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
     <!-- En-tête -->
     <div class="flex items-center justify-between p-8 border-b border-gray-200">
-      <h2 class="text-2xl font-bold text-gray-900">Nouvelle commande de matériaux</h2>
+      <h2 class="text-2xl font-bold text-gray-900">{{ t('stock.modals.order.title') }}</h2>
       <button (click)="closeOrderModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -999,7 +1033,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         <!-- Fournisseur avec auto-complétion -->
         <div>
           <label class="block text-base font-medium text-gray-900 mb-3">
-            Fournisseur <span class="text-red-500">*</span>
+            {{ t('stock.modals.order.supplier') }} <span class="text-red-500">*</span>
           </label>
 
           <!-- Fournisseur sélectionné -->
@@ -1020,7 +1054,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
           <div class="relative" *ngIf="!selectedSupplier">
             <input type="text" [(ngModel)]="supplierSearchKeyword" [ngModelOptions]="{standalone: true}"
               (input)="onSupplierSearch(supplierSearchKeyword)" (focus)="focusSupplierInput()"
-              placeholder="Rechercher un fournisseur..."
+              [placeholder]="t('stock.modals.order.searchSupplier')"
               class="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 text-base"
               [class.border-red-500]="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched">
 
@@ -1040,36 +1074,36 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
               </div>
               <div *ngIf="suppliersLoading" class="px-4 py-3 text-center text-gray-500 text-sm">
                 <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
-                Chargement...
+                {{ t('stock.modals.order.loading') }}
               </div>
             </div>
           </div>
 
           <div *ngIf="orderForm.get('supplierId')?.invalid && orderForm.get('supplierId')?.touched"
             class="mt-2 text-sm text-red-600">
-            Veuillez sélectionner un fournisseur
+            {{ t('stock.modals.order.supplierRequired') }}
           </div>
         </div>
 
         <!-- Tableau matériaux -->
         <div>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Matériaux commandés</h3>
+            <h3 class="text-lg font-semibold text-gray-900">{{ t('stock.modals.order.materialsOrdered') }}</h3>
             <button type="button" (click)="addMaterialLine()"
               class="flex items-center gap-2 px-5 py-2.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors font-medium">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              Ajouter un matériau
+              {{ t('stock.modals.order.addMaterial') }}
             </button>
           </div>
 
           <!-- En-têtes -->
           <div
             class="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-t-xl border-b border-gray-200 font-medium text-gray-700 text-sm">
-            <div class="col-span-5">Matériau</div>
-            <div class="col-span-3">Stock actuel</div>
-            <div class="col-span-3">Quantité</div>
+            <div class="col-span-5">{{ t('stock.modals.order.material') }}</div>
+            <div class="col-span-3">{{ t('stock.modals.order.currentStock') }}</div>
+            <div class="col-span-3">{{ t('stock.modals.order.quantity') }}</div>
             <div class="col-span-1"></div>
           </div>
 
@@ -1084,7 +1118,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                   class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white text-sm cursor-pointer"
                   [class.border-red-500]="material.get('materialId')?.invalid && material.get('materialId')?.touched"
                   style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
-                  <option value="">Sélectionner un matériau</option>
+                  <option value="">{{ t('stock.modals.order.selectMaterial') }}</option>
                   <option *ngFor="let mat of materials" [value]="mat.id">
                     {{ mat.label }} ({{ mat?.unit?.code || '—' }})
                   </option>
@@ -1123,7 +1157,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     <div class="flex justify-end gap-4 p-8 border-t border-gray-200">
       <button type="button" (click)="closeOrderModal()"
         class="px-8 py-3.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium">
-        Annuler
+        {{ t('stock.modals.order.cancel') }}
       </button>
 
       <button type="button" (click)="onSubmitOrder()" [disabled]="orderForm.invalid || loading"
@@ -1135,7 +1169,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
           </path>
         </svg>
-        Enregistrer
+        {{ t('stock.modals.order.save') }}
       </button>
     </div>
 
@@ -1152,7 +1186,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
     <!-- Modal Header -->
     <div class="flex items-center justify-between p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-900">Ajouter un nouveau matériau</h2>
+      <h2 class="text-xl font-semibold text-gray-900">{{ t('stock.modals.material.title') }}</h2>
       <button (click)="closeNewMaterialModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1168,10 +1202,10 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
           <!-- Type de matériau (autocomplete) -->
           <div class="relative">
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Type de matériau <span class="text-red-500">*</span>
+              {{ t('stock.modals.material.materialType') }} <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <input type="text" placeholder="Rechercher un type (ex: Ciment)..."
+              <input type="text" [placeholder]="t('stock.modals.material.searchPlaceholder')"
                 [(ngModel)]="materialTypeSearchTerm"
                 [ngModelOptions]="{standalone: true}"
                 (input)="onMaterialTypeInput($any($event.target).value)"
@@ -1201,89 +1235,67 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
               </div>
             </div>
             <div *ngIf="isFieldInvalid('materialTypeId')" class="mt-1 text-sm text-red-600">
-              Veuillez sélectionner un type de matériau
+              {{ t('stock.modals.material.required') }}
             </div>
             <div *ngIf="selectedMaterialType" class="mt-1 text-xs text-green-600">
-              Sélectionné : {{ selectedMaterialType.nameFr }}
+              {{ t('stock.modals.material.selected') }} {{ selectedMaterialType.nameFr }}
             </div>
           </div>
 
           <!-- Quantité actuelle et Seuil critique -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Quantité actuelle -->
+          <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Quantité actuelle <span class="text-red-500">*</span>
               </label>
               <input type="number" placeholder="Ex: 100" formControlName="quantity" min="0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                [class.border-red-500]="isFieldInvalid('quantity')"
-                [class.focus:ring-red-500]="isFieldInvalid('quantity')">
-              <div *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
-                {{ getFieldError('quantity') }}
-              </div>
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
             </div>
-
-            <!-- Seuil critique -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Seuil critique <span class="text-red-500">*</span>
               </label>
               <input type="number" placeholder="Ex: 10" formControlName="criticalThreshold" min="0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                [class.border-red-500]="isFieldInvalid('criticalThreshold')"
-                [class.focus:ring-red-500]="isFieldInvalid('criticalThreshold')">
-              <div *ngIf="isFieldInvalid('criticalThreshold')" class="mt-1 text-sm text-red-600">
-                {{ getFieldError('criticalThreshold') }}
-              </div>
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
             </div>
-          </div>
+          </div> -->
 
           <!-- Unité et Propriété -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Unité <span class="text-red-500">*</span>
+                {{ t('stock.modals.material.unit') }} <span class="text-red-500">*</span>
               </label>
               <select formControlName="unitId"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
                 [class.border-red-500]="isFieldInvalid('unitId')" [class.focus:ring-red-500]="isFieldInvalid('unitId')">
-                <option value="">Sélectionnez une unité</option>
+                <option value="">{{ t('stock.modals.material.selectUnit') }}</option>
                 <option *ngFor="let unit of units" [value]="unit.id">
                   {{ unit.label }} ({{ unit.code }})
                 </option>
               </select>
               <!-- ⚠️ Message de debug (à retirer en production) -->
               <div *ngIf="units.length === 0" class="mt-1 text-xs text-gray-500">
-                ℹ️ Chargement des unités en cours...
+                {{ t('stock.modals.material.loadingUnits') }}
               </div>
               <div *ngIf="isFieldInvalid('unitId')" class="mt-1 text-sm text-red-600">
-                Ce champ est requis
+                {{ t('stock.modals.material.required') }}
               </div>
             </div>
 
-            <!-- Propriété -->
-            <div>
+            <!-- Propriété (commenté : la propriété est déjà liée au chantier) -->
+            <!-- <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Propriété <span class="text-red-500">*</span>
               </label>
               <select formControlName="propertyId"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white"
-                [class.border-red-500]="isFieldInvalid('propertyId')"
-                [class.focus:ring-red-500]="isFieldInvalid('propertyId')">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none bg-white">
                 <option value="">Sélectionnez une propriété</option>
                 <option *ngFor="let property of properties" [value]="property.id">
                   {{ property.typeName }}
                 </option>
               </select>
-              <!-- ⚠️ Message de debug (à retirer en production) -->
-              <div *ngIf="properties.length === 0" class="mt-1 text-xs text-gray-500">
-                ℹ️ Chargement des propriétés en cours...
-              </div>
-              <div *ngIf="isFieldInvalid('propertyId')" class="mt-1 text-sm text-red-600">
-                Ce champ est requis
-              </div>
-            </div>
+            </div> -->
           </div>
 
         </div>
@@ -1294,14 +1306,14 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     <div class="flex items-center justify-end gap-4 p-6 border-t border-gray-200">
       <button type="button" (click)="closeNewMaterialModal()"
         class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
-        Annuler
+        {{ t('stock.modals.material.cancel') }}
       </button>
       <button type="submit" (click)="onSaveNewStock()" [disabled]="!isFormValid() || loading"
         class="text-white rounded-lg font-medium transition-all flex items-center gap-2"
         style="background-color: #fe8441; border-radius: 10px; padding: 14px 20px; min-width: 160px; height: 46px;"
         [class.opacity-50]="!isFormValid() || loading" [class.cursor-not-allowed]="!isFormValid() || loading">
         <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-        {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        {{ loading ? t('stock.modals.material.saving') : t('stock.movement.save') }}
       </button>
     </div>
   </div>
@@ -1317,7 +1329,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-[#2C3E50]">
-        Mouvement de stock
+        {{ t('stock.modals.movement.title') }}
       </h2>
       <button class="text-gray-400 hover:text-gray-600" (click)="closeMovementModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1346,7 +1358,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
       <p class="text-sm text-gray-500">
         {{ selectedMaterial.quantity }} {{ selectedMaterial.unit.code }} /
-        seuil : {{ selectedMaterial.criticalThreshold }} {{ selectedMaterial.unit.code }}
+        {{ t('stock.modals.movement.threshold') }} : {{ selectedMaterial.criticalThreshold }} {{ selectedMaterial.unit.code }}
       </p>
     </div>
 
@@ -1356,62 +1368,49 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
       <!-- Type de mouvement -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-3">
-          Type de mouvement <span class="text-red-500">*</span>
+          {{ t('stock.modals.movement.type') }} <span class="text-red-500">*</span>
         </label>
 
         <div class="flex gap-4">
           <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input type="radio" formControlName="type" value="ENTRY" class="accent-[#FF5C02] w-4 h-4" />
-            <span>Entrée</span>
+            <span>{{ t('stock.modals.movement.entry') }}</span>
           </label>
 
           <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input type="radio" formControlName="type" value="EXIT" class="accent-[#FF5C02] w-4 h-4" />
-            <span>Sortie</span>
+            <span>{{ t('stock.modals.movement.exit') }}</span>
           </label>
 
           <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input type="radio" formControlName="type" value="ADJUSTMENT" class="accent-[#FF5C02] w-4 h-4" />
-            <span>Ajustement</span>
+            <span>{{ t('stock.modals.movement.adjustment') }}</span>
           </label>
         </div>
         <div *ngIf="movementForm.get('type')?.invalid && movementForm.get('type')?.touched"
           class="mt-1 text-sm text-red-600">
-          Veuillez sélectionner un type
+          {{ t('stock.modals.movement.selectType') }}
         </div>
       </div>
 
       <!-- Quantité -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          Quantité ({{ selectedMaterial?.unit?.code }}) <span class="text-red-500">*</span>
+          {{ t('stock.modals.order.quantity') }} ({{ selectedMaterial?.unit?.code }}) <span class="text-red-500">*</span>
         </label>
-        <input type="number" formControlName="quantity" min="1" placeholder="Saisir la quantité" class="w-full rounded-xl border border-gray-300 px-4 py-2.5
+        <input type="number" formControlName="quantity" min="1" [placeholder]="t('stock.modals.movement.enterQuantity')" class="w-full rounded-xl border border-gray-300 px-4 py-2.5
                  focus:outline-none focus:ring-2 focus:ring-[#FF5C02]/40"
           [class.border-red-500]="movementForm.get('quantity')?.invalid && movementForm.get('quantity')?.touched" />
         <div *ngIf="movementForm.get('quantity')?.invalid && movementForm.get('quantity')?.touched"
           class="mt-1 text-sm text-red-600">
-          La quantité doit être supérieure à 0
+          {{ t('stock.modals.movement.quantityError') }}
         </div>
       </div>
 
-      <!-- Référence -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Référence <span class="text-red-500">*</span>
-        </label>
-        <input type="text" formControlName="reference" placeholder="Ex: BON-2024-001" class="w-full rounded-xl border border-gray-300 px-4 py-2.5
-                 focus:outline-none focus:ring-2 focus:ring-[#FF5C02]/40"
-          [class.border-red-500]="movementForm.get('reference')?.invalid && movementForm.get('reference')?.touched" />
-        <div *ngIf="movementForm.get('reference')?.invalid && movementForm.get('reference')?.touched"
-          class="mt-1 text-sm text-red-600">
-          La référence est requise
-        </div>
-      </div>
       <!-- Bon de livraison (slip) obligatoire -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          Bon de livraison <span class="text-red-500">*</span>
+          {{ t('stock.modals.movement.slip') }} <span class="text-red-500">*</span>
         </label>
         <input type="file" accept=".pdf,.jpg,.jpeg,.png"
           (change)="onSlipFileChange($event)"
@@ -1419,7 +1418,7 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
           [class.border-red-500]="slipFileError"
           [class.border-gray-300]="!slipFileError" />
         <div *ngIf="slipFileError" class="mt-1 text-sm text-red-600">
-          Le bon de livraison est obligatoire
+          {{ t('stock.modals.movement.slipRequired') }}
         </div>
         <div *ngIf="slipFile" class="mt-1 text-xs text-green-600 flex items-center gap-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1435,12 +1434,12 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
              hover:bg-[#e65300] transition disabled:opacity-50 disabled:cursor-not-allowed
              flex items-center justify-center gap-2">
           <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          {{ loading ? t('stock.modals.movement.saving') : t('stock.movement.save') }}
         </button>
 
         <button type="button" (click)="closeMovementModal()" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-semibold
              hover:bg-gray-200 transition">
-          Annuler
+          {{ t('stock.movement.cancel') }}
         </button>
       </div>
 
@@ -1448,6 +1447,106 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
   </div>
 </div>
 
+
+<!-- MODAL HISTORIQUE MOUVEMENTS -->
+<div *ngIf="showHistoryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+  (click)="closeHistoryModal()">
+  <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[85vh]"
+    (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div>
+        <h3 class="text-lg font-bold text-gray-900">{{ t('stock.history.title') }}</h3>
+        <p class="text-sm text-gray-500 mt-0.5">
+          {{ getMaterialName(historyMaterial!) }} · {{ historyTotalElements }} {{ t('stock.history.movements') }}
+        </p>
+      </div>
+      <button (click)="closeHistoryModal()"
+        class="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="overflow-y-auto flex-1 p-6">
+
+      <!-- Chargement -->
+      <div *ngIf="historyLoading" class="flex justify-center py-12">
+        <span class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></span>
+      </div>
+
+      <!-- Aucun mouvement -->
+      <div *ngIf="!historyLoading && historyMovements.length === 0"
+        class="text-center py-12 text-gray-400">
+        <svg class="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <p class="text-sm">{{ t('stock.history.noMovements') }}</p>
+      </div>
+
+      <!-- Liste des mouvements -->
+      <div *ngIf="!historyLoading && historyMovements.length > 0" class="space-y-3">
+        <div *ngFor="let mvt of historyMovements"
+          class="border border-gray-100 rounded-xl p-4 hover:border-orange-200 hover:bg-orange-50/30 transition-colors">
+          <div class="flex items-start justify-between gap-4">
+
+            <!-- Info principale -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <!-- Badge type -->
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': mvt.type === 'ENTRY',
+                    'bg-red-100 text-red-700': mvt.type === 'EXIT'
+                  }">
+                  {{ mvt.type === 'ENTRY' ? t('stock.history.entry') : t('stock.history.exit') }}
+                </span>
+                <!-- Quantité -->
+                <span class="text-sm font-medium text-gray-900">
+                  {{ mvt.quantity }} {{ mvt.material.unit.code }}
+                </span>
+              </div>
+              <!-- Date -->
+              <p class="text-xs text-gray-500">
+                {{ formatDeliveryDate(mvt.movementDate) }}
+              </p>
+              <!-- Commentaire -->
+              <p *ngIf="mvt.comment" class="text-sm text-gray-600 mt-1 italic">
+                "{{ mvt.comment }}"
+              </p>
+            </div>
+
+            <!-- Slip download -->
+            <div class="flex-shrink-0">
+              <a *ngIf="mvt.slip && getSlipUrl(mvt.slip)"
+                [href]="getSlipUrl(mvt.slip)!" target="_blank" rel="noopener"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs font-medium hover:bg-orange-600 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V19a2 2 0 002 2h14a2 2 0 002-2v-2" />
+                </svg>
+                {{ t('stock.history.viewSlip') }}
+              </a>
+              <span *ngIf="!mvt.slip" class="text-xs text-gray-300 italic">{{ t('stock.history.noSlipLabel') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+      <button (click)="closeHistoryModal()"
+        class="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm">
+        {{ t('stock.history.close') }}
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL CONFIRMATION SUPPRESSION MATÉRIEL -->
 <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -1463,23 +1562,23 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         </svg>
       </div>
 
-      <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la suppression</h3>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">{{ t('stock.delete.confirm.title') }}</h3>
       <p class="text-gray-600 mb-2">
-        Êtes-vous sûr de vouloir supprimer <strong>{{ materialToDelete?.label }}</strong> ?
+        {{ t('stock.delete.material.message') }} <strong>{{ materialToDelete?.label }}</strong> ?
       </p>
       <p class="text-sm text-gray-500 mb-6">
-        Cette action est irréversible et supprimera également l'historique des mouvements associés.
+        {{ t('stock.delete.material.warning') }}
       </p>
 
       <div class="flex gap-3">
         <button (click)="cancelDeleteMaterial()" [disabled]="loading"
           class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50">
-          Annuler
+          {{ t('stock.delete.cancel') }}
         </button>
         <button (click)="deleteMaterialConfirmed()" [disabled]="loading"
           class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
           <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ loading ? 'Suppression...' : 'Supprimer' }}
+          {{ loading ? t('stock.delete.deleting') : t('stock.delete.delete') }}
         </button>
       </div>
     </div>
@@ -1500,21 +1599,21 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
         </svg>
       </div>
 
-      <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmer la suppression</h3>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">{{ t('stock.delete.confirm.title') }}</h3>
       <p class="text-gray-600 mb-6">
-        Êtes-vous sûr de vouloir supprimer la commande
+        {{ t('stock.delete.order.message') }}
         <strong>CMD-{{ orderToDelete?.id!.toString().padStart(4, '0') }}</strong> ?
       </p>
 
       <div class="flex gap-3">
         <button (click)="cancelDeleteOrder()" [disabled]="loading"
           class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50">
-          Annuler
+          {{ t('stock.delete.cancel') }}
         </button>
         <button (click)="deleteOrderConfirmed()" [disabled]="loading"
           class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
           <span *ngIf="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ loading ? 'Suppression...' : 'Supprimer' }}
+          {{ loading ? t('stock.delete.deleting') : t('stock.delete.delete') }}
         </button>
       </div>
     </div>

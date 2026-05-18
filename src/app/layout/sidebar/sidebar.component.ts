@@ -166,6 +166,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  isPromoterProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+    if (typeof user.profil === 'string') return user.profil === 'PROMOTEUR';
+    if (Array.isArray(user.profil)) return user.profil.includes('PROMOTEUR' as any);
+    return false;
+  }
+
   isBETProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {

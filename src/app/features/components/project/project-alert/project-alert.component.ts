@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../../../../core/services/language.service';
 import { ProjectBudgetService, Signalement, SignalementResponse, CreateSignalementRequest, AlertIAReport } from '../../../../../services/project-details.service';
 import { environment } from '../../../../../environments/environment';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-project-alert',
@@ -55,11 +56,19 @@ export class ProjectAlertComponent implements OnInit {
   // Ajout dropdown statut
   showStatusDropdown: { [key: number]: boolean } = {};
   availableIncidentStatuses = [
-    { value: 'PENDING', labelKey: 'incidents.statusPending', type: 'warning' },
-    { value: 'IN_PROGRESS', labelKey: 'incidents.statusInProgress', type: 'info' },
-    { value: 'RESOLVED', labelKey: 'incidents.statusResolved', type: 'success' },
-    { value: 'CLOSED', labelKey: 'incidents.statusClosed', type: 'neutral' }
+    { value: 'OPEN',        label: 'Ouvert',   labelKey: 'incidents.statusOpen',        type: 'warning' },
+    { value: 'IN_PROGRESS', label: 'En cours', labelKey: 'incidents.statusInProgress',  type: 'info' },
+    { value: 'RESOLVED',    label: 'Résolu',   labelKey: 'incidents.statusResolved',    type: 'success' },
+    { value: 'CLOSED',      label: 'Fermé',    labelKey: 'incidents.statusClosed',      type: 'neutral' }
   ];
+
+  // Map les valeurs françaises retournées par l'API vers les enum anglais
+  private readonly frenchToEnum: Record<string, string> = {
+    'Ouvert':   'OPEN',
+    'En cours': 'IN_PROGRESS',
+    'Résolu':   'RESOLVED',
+    'Fermé':    'CLOSED'
+  };
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -80,35 +89,38 @@ export class ProjectAlertComponent implements OnInit {
   }
 
   changeIncidentStatus(incident: Signalement, newStatus: string) {
-    this.showStatusDropdown = {}; // Fermer le menu
-    
-    // Optimistic UI update
+    this.showStatusDropdown = {};
     const previousStatus = incident.status;
-    incident.status = newStatus;
-    
+    // Mise à jour optimiste avec le label français correspondant
+    const statusDef = this.availableIncidentStatuses.find(s => s.value === newStatus);
+    incident.status = statusDef?.label ?? newStatus;
     this.projectBudgetService.changeStatusIncident(incident.id, newStatus).subscribe({
-      next: () => {
-        // Succès : on peut afficher un toast ou simplement garder l'UI à jour
+      next: (response) => {
+        // Synchronise avec la valeur réelle renvoyée par l'API
+        if (response?.status != null) incident.status = response.status;
+        this.toastService.showSuccess('Statut mis à jour avec succès');
       },
-      error: (err) => {
-        console.error("Erreur lors de la mise à jour du statut", err);
-        // Rollback
+      error: (err: any) => {
         incident.status = previousStatus;
-        this.showError(this.t('incidents.statusUpdateError'));
+        const msg = err?.error?.message || err?.message || 'Erreur lors de la mise à jour du statut';
+        this.showError(msg);
       }
     });
   }
 
-  mapIncidentStatus(status: string | null | undefined): { labelKey: string, type: string } {
-    if (!status) return { labelKey: 'incidents.statusPending', type: 'warning' };
-    const found = this.availableIncidentStatuses.find(s => s.value === status);
-    return found || { labelKey: 'incidents.statusPending', type: 'warning' };
+  mapIncidentStatus(status: string | null | undefined): { label: string, labelKey: string, type: string } {
+    if (!status) return { label: 'Ouvert', labelKey: 'incidents.statusOpen', type: 'warning' };
+    // Normalise les valeurs françaises de l'API vers les enum anglais
+    const normalized = this.frenchToEnum[status] ?? status;
+    const found = this.availableIncidentStatuses.find(s => s.value === normalized);
+    return found ?? { label: status, labelKey: 'incidents.statusOpen', type: 'warning' };
   }
 
   constructor(
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private toastService: ToastService
   ) { }
 
   t(key: string): string {
@@ -137,9 +149,6 @@ export class ProjectAlertComponent implements OnInit {
       this.propertyId = +idFromUrl;
       this.newSignalement.propertyId = this.propertyId;
       this.loadSignalements();
-    } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
-      // Gérer l'erreur ou rediriger
     }
   }
 
@@ -154,8 +163,7 @@ export class ProjectAlertComponent implements OnInit {
           this.totalPages = response.totalPages;
           this.loading = false;
         },
-        error: (error) => {
-          console.error('Erreur lors du chargement des signalements:', error);
+        error: () => {
           this.loading = false;
         }
       });
@@ -247,8 +255,7 @@ export class ProjectAlertComponent implements OnInit {
             });
 
             formData.append('pictures', file);
-          } catch (error) {
-            console.error('Erreur conversion image:', error);
+          } catch {
             formData.append('pictures', picture);
           }
         } else {
@@ -266,8 +273,7 @@ export class ProjectAlertComponent implements OnInit {
           this.closeAddModal();
           this.loading = false;
         },
-        error: (error) => {
-          console.error('Erreur:', error);
+        error: () => {
           this.loading = false;
           this.showError('Erreur lors de l\'ajout du signalement');
         }
@@ -275,8 +281,7 @@ export class ProjectAlertComponent implements OnInit {
   }
 
   showError(message: string): void {
-    // Implémentez votre système de notification
-    alert(message);
+    this.toastService.showError(message);
   }
 
   // Méthodes de pagination améliorées
@@ -345,8 +350,7 @@ export class ProjectAlertComponent implements OnInit {
           this.signalementIdToDelete = null;
           this.loading = false;
         },
-        error: (error) => {
-          console.error('Erreur lors de la suppression :', error);
+        error: () => {
           this.loading = false;
           this.showDeleteConfirmModal = false;
         }
@@ -354,9 +358,7 @@ export class ProjectAlertComponent implements OnInit {
     }
   }
 
-  editSignalement(signalement: Signalement): void {
-    console.log('Édition du signalement:', signalement);
-  }
+  editSignalement(_signalement: Signalement): void { }
 
   // Méthode pour récupérer le texte selon la langue active
   getAlertIAText(
@@ -372,9 +374,6 @@ export class ProjectAlertComponent implements OnInit {
 
   // Méthode pour ouvrir le modal IA alerte
   openAlertIAModal(incident: any): void {
-    console.log('🤖 Ouverture modal IA pour incident ID:', incident.id);
-
-    // Fermer tous les autres modaux
     this.showPhotoModal = false;
     this.showDeleteConfirmModal = false;
     this.showAddModal = false;
@@ -389,12 +388,10 @@ export class ProjectAlertComponent implements OnInit {
       .getDetailsAlertFromIA(incident.id)
       .subscribe({
         next: (report) => {
-          console.log('✅ Rapport IA alerte reçu:', report);
           this.alertIAReport = report;
           this.isLoadingAlertIA = false;
         },
-        error: (err) => {
-          console.error('❌ Erreur rapport IA alerte:', err);
+        error: () => {
           this.alertIAError = 'Rapport IA non disponible pour cet incident.';
           this.isLoadingAlertIA = false;
         }

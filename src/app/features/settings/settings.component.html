@@ -1,1 +1,69 @@
-<p>settings works!</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Paramètres</h1>
+          <p class="text-gray-500 text-sm mt-0.5">Administration et configuration du système</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille des paramètres -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <a *ngFor="let param of parametres" [routerLink]="param.lien"
+        class="group bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-orange-300 transition-all duration-200 cursor-pointer block">
+
+        <div class="flex items-start gap-4">
+          <!-- Icône -->
+          <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200"
+            [ngClass]="{
+              'bg-orange-100 group-hover:bg-orange-500': param.couleur === 'orange',
+              'bg-blue-100 group-hover:bg-blue-500': param.couleur === 'blue',
+              'bg-green-100 group-hover:bg-green-500': param.couleur === 'green',
+              'bg-purple-100 group-hover:bg-purple-500': param.couleur === 'purple',
+              'bg-yellow-100 group-hover:bg-yellow-500': param.couleur === 'yellow'
+            }">
+            <svg class="w-6 h-6 transition-colors duration-200"
+              [ngClass]="{
+                'text-orange-600 group-hover:text-white': param.couleur === 'orange',
+                'text-blue-600 group-hover:text-white': param.couleur === 'blue',
+                'text-green-600 group-hover:text-white': param.couleur === 'green',
+                'text-purple-600 group-hover:text-white': param.couleur === 'purple',
+                'text-yellow-600 group-hover:text-white': param.couleur === 'yellow'
+              }"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="param.icone"/>
+            </svg>
+          </div>
+
+          <!-- Texte -->
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-200 text-base">
+              {{ param.titre }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1 leading-relaxed">{{ param.description }}</p>
+          </div>
+        </div>
+
+        <!-- Flèche -->
+        <div class="flex justify-end mt-4">
+          <svg class="w-5 h-5 text-gray-300 group-hover:text-orange-500 transition-all duration-200 group-hover:translate-x-1 transform"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>

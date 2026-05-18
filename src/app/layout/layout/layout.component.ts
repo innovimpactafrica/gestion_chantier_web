@@ -5,11 +5,12 @@ import { HeaderComponent } from '../header/header.component';
 import { CommonModule } from '@angular/common';
 import { LayoutService } from '../../core/services/layout.service';
 import { Observable } from 'rxjs';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [HeaderComponent, SidebarComponent, RouterOutlet, CommonModule],
+  imports: [HeaderComponent, SidebarComponent, RouterOutlet, CommonModule, ToastComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })

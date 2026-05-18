@@ -7,13 +7,32 @@ export interface MaterialType {
   id: number;
   nameFr: string;
   nameEn: string;
+  iconPath?: string;
+  iconFile?: string;
+}
+
+export interface MaterialTypePayload {
+  id: number;
+  nameFr: string;
+  nameEn: string;
+  iconPath: string | null;
+  iconFile: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MaterialTypeService {
   private apiUrl = `${environment.apiBaseUrl}/api/material-types`;
+  private fileBaseUrl = environment.filebaseUrl;
 
   constructor(private http: HttpClient) {}
+
+  /** Construit l'URL complète d'affichage d'une icône depuis le chemin retourné par le backend */
+  getIconUrl(iconPath: string | undefined | null): string | null {
+    if (!iconPath) return null;
+    if (iconPath.startsWith('http')) return iconPath;
+    // Utilise filebaseUrl comme les autres images du projet
+    return `${this.fileBaseUrl}${iconPath}`;
+  }
 
   private getHeaders(): HttpHeaders {
     const token =
@@ -35,15 +54,29 @@ export class MaterialTypeService {
     return this.http.get<MaterialType[]>(`${this.apiUrl}/search`, { params, headers: this.getHeaders() });
   }
 
-  create(data: { nameFr: string; nameEn: string }): Observable<MaterialType> {
-    return this.http.post<MaterialType>(this.apiUrl, data, { headers: this.getHeaders() });
+  create(data: { nameFr: string; nameEn: string; iconFile?: string }): Observable<MaterialType> {
+    const payload: MaterialTypePayload = {
+      id: 0,
+      nameFr: data.nameFr,
+      nameEn: data.nameEn,
+      iconPath: null,
+      iconFile: data.iconFile || null
+    };
+    return this.http.post<MaterialType>(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 
-  update(id: number, data: { nameFr: string; nameEn: string }): Observable<MaterialType> {
-    return this.http.put<MaterialType>(`${this.apiUrl}/${id}`, { id, ...data }, { headers: this.getHeaders() });
+  update(id: number, data: { nameFr: string; nameEn: string; existingIconPath?: string; iconFile?: string }): Observable<MaterialType> {
+    const payload: MaterialTypePayload = {
+      id,
+      nameFr: data.nameFr,
+      nameEn: data.nameEn,
+      iconPath: data.iconFile ? null : (data.existingIconPath ?? null),
+      iconFile: data.iconFile || null
+    };
+    return this.http.put<MaterialType>(`${this.apiUrl}/${id}`, payload, { headers: this.getHeaders() });
   }
 
-  deleteType(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  deleteType(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders(), responseType: 'text' as 'json' });
   }
 }

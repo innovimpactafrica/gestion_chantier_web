@@ -1,27 +1,34 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { catchError, retry, tap } from 'rxjs/operators';
+import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthService } from '../app/features/auth/services/auth.service';
 
 
-// Ajoutez cette interface au début du fichier avec les autres interfaces
 export interface StockMovement {
   id: number;
   material: {
     id: number;
-    label: string;
+    materialType: {
+      id: number;
+      nameFr: string;
+      nameEn: string;
+      createdAt: number[];
+      icon: string | null;
+    } | null;
     quantity: number;
     criticalThreshold: number;
     createdAt: number[];
     unit: Unit;
-    property: Property;
+    labelFr: string | null;
+    labelEn: string | null;
   };
   quantity: number;
   type: 'ENTRY' | 'EXIT';
   movementDate: number[];
-  comment: string;
+  comment: string | null;
+  slip: string | null;
 }
 
 export interface StockMovementsResponse {
@@ -322,15 +329,12 @@ createStock(material: CreateMaterial): Observable<Material> {
                sessionStorage.getItem('token');
   
   if (!token) {
-    console.warn('Aucun token d\'authentification trouvé');
-    return throwError(() => ({ 
-      message: 'Token d\'authentification manquant', 
-      status: 401 
+    return throwError(() => ({
+      message: 'Token d\'authentification manquant',
+      status: 401
     }));
   }
 
-  console.log('Création d\'un nouveau matériau:', material);
-  
   return this.http.post<Material>(
     this.apiUrl, 
     material,
@@ -344,14 +348,11 @@ createStock(material: CreateMaterial): Observable<Material> {
 createCommand(order: CreateOrder): Observable<Order> {
   const headers = this.authService.getAuthHeaders();
 
-  console.log('Création d\'une nouvelle commande:', order);
-  
   return this.http.post<Order>(
     `${environment.apiUrl}/orders`,
     order,
     { headers }
   ).pipe(
-    tap(response => console.log('Commande créée avec succès:', response)),
     catchError(this.handleError)
   );
 }
@@ -433,10 +434,9 @@ getStockMove(propertyId: number, page: number = 0, size: number = 10): Observabl
                sessionStorage.getItem('token');
   
   if (!token) {
-    console.warn('Aucun token d\'authentification trouvé');
-    return throwError(() => ({ 
-      message: 'Token d\'authentification manquant', 
-      status: 401 
+    return throwError(() => ({
+      message: 'Token d\'authentification manquant',
+      status: 401
     }));
   }
 
@@ -444,8 +444,7 @@ getStockMove(propertyId: number, page: number = 0, size: number = 10): Observabl
     .set('propertyId', propertyId.toString())
     .set('page', page.toString())
     .set('size', size.toString());
-  
-  
+
   return this.http.get<StockMovementsResponse>(
     `${this.apiUrl}/movements`, 
     { 
@@ -476,11 +475,22 @@ createStockMove(movement: CreateStockMovement, slip: File): Observable<StockMove
   formData.append('quantity', movement.quantity.toString());
   formData.append('type', movement.type);
   if (movement.comment) formData.append('comment', movement.comment);
-  formData.append('slip', slip, slip.name);
+  formData.append('slipFile', slip, slip.name);
 
   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-  return this.http.post<StockMovement>(`${this.apiUrl}/movements`, formData, { headers }).pipe(
+  return this.http.post<StockMovement>(`${this.apiUrl}/movement`, formData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+getSlipDownloadUrl(slip: string | null): string | null {
+  if (!slip) return null;
+  return `${environment.filebaseUrl}${slip}`;
+}
+
+downloadSlip(slip: string): Observable<Blob> {
+  return this.http.get(`${environment.filebaseUrl}${slip}`, { responseType: 'blob' }).pipe(
     catchError(this.handleError)
   );
 }
@@ -516,26 +526,11 @@ getLivraison(propertyId: number, page: number = 0, size: number = 10): Observabl
     .set('page', page.toString())
     .set('size', size.toString());
 
-  console.log('Requête livraison - URL:', url);
-  console.log('Requête livraison - Params:', { page, size });
-
-  return this.http.get<OrdersResponse>(url, { 
+  return this.http.get<OrdersResponse>(url, {
     params,
-    headers: this.getHeaders() 
+    headers: this.getHeaders()
   }).pipe(
-    tap((response: any) => {
-      console.log('Réponse livraison reçue:', response);
-    }),
-    catchError(error => {
-      console.error('Erreur détaillée dans getLivraison:', {
-        status: error.status,
-        statusText: error.statusText,
-        url: error.url,
-        message: error.message,
-        error: error.error
-      });
-      return this.handleError(error);
-    })
+    catchError(this.handleError)
   );
 }
 

@@ -1,15 +1,14 @@
 {
-    "/repertoire_samater/*": {
-      "target": "https://wakana.online",
-      "secure": true,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    },
-    "/api/*": {
-      "target": "https://wakana.online",
-      
-      "secure": true,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    }
+  "/btpconnect": {
+    "target": "https://btpconnect.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/repertoire_chantier": {
+    "target": "https://btpconnect.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
+}

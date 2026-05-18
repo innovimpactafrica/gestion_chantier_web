@@ -1,0 +1,274 @@
+import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
+import { DevisService, GenerateQuoteRequest } from '../../../../services/devis.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+
+interface StepForm {
+  // Step 1 — Localisation & projet
+  projectName: string;
+  projectType: string;
+  country: string;
+  city: string;
+  neighborhood: string;
+  address: string;
+  latitude: string;
+  longitude: string;
+  // Step 2 — Caractéristiques techniques
+  totalArea: number | null;
+  numberOfFloors: number | null;
+  numberOfRooms: number | null;
+  numberOfApartments: number | null;
+  finishingLevel: string;
+  soilType: string;
+  accessDifficulty: string;
+  existingStructure: boolean;
+  hasBasement: boolean;
+  hasParking: boolean;
+  hasPool: boolean;
+  hasGarden: boolean;
+  hasElevator: boolean;
+  // Step 3 — Planification
+  desiredStartDate: string;
+  estimatedDurationMonths: number | null;
+  additionalNotes: string;
+}
+
+@Component({
+  selector: 'app-nouveau-devis',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './nouveau-devis.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class NouveauDevisComponent implements OnDestroy {
+  currentStep = 1;
+  readonly totalSteps = 3;
+  isSubmitting = false;
+  isLocating = false;
+  formErrors: Record<string, string> = {};
+
+  form: StepForm = {
+    projectName: '',
+    projectType: '',
+    country: 'Senegal',
+    city: '',
+    neighborhood: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+    totalArea: null,
+    numberOfFloors: null,
+    numberOfRooms: null,
+    numberOfApartments: null,
+    finishingLevel: '',
+    soilType: '',
+    accessDifficulty: '',
+    existingStructure: false,
+    hasBasement: false,
+    hasParking: false,
+    hasPool: false,
+    hasGarden: false,
+    hasElevator: false,
+    desiredStartDate: '',
+    estimatedDurationMonths: null,
+    additionalNotes: ''
+  };
+
+  readonly projectTypes = [
+    { value: 'VILLA',    label: 'Villa',     icon: '🏡' },
+    { value: 'IMMEUBLE', label: 'Immeuble',  icon: '🏢' },
+    { value: 'COMMERCE', label: 'Commerce',  icon: '🏪' },
+    { value: 'BUREAU',   label: 'Bureau',    icon: '🏬' },
+    { value: 'ENTREPOT', label: 'Entrepôt',  icon: '🏭' },
+    { value: 'AUTRE',    label: 'Autre',     icon: '🏗️' }
+  ];
+
+  readonly finishingLevels = [
+    { value: 'ECONOMIQUE',   label: 'Économique',   desc: 'Finitions de base' },
+    { value: 'STANDARD',     label: 'Standard',     desc: 'Finitions classiques' },
+    { value: 'HAUT_STANDING',label: 'Haut standing',desc: 'Finitions premium' },
+    { value: 'LUXE',         label: 'Luxe',         desc: 'Finitions exceptionnelles' }
+  ];
+
+  readonly soilTypes = [
+    { value: 'NORMAL',   label: 'Normal' },
+    { value: 'ROCHEUX',  label: 'Rocheux' },
+    { value: 'SABLEUX',  label: 'Sableux' },
+    { value: 'ARGILEUX', label: 'Argileux' }
+  ];
+
+  readonly accessDifficulties = [
+    { value: 'FACILE',    label: 'Facile' },
+    { value: 'MOYEN',     label: 'Moyen' },
+    { value: 'DIFFICILE', label: 'Difficile' }
+  ];
+
+  readonly options: Array<{ field: keyof StepForm; label: string; icon: string }> = [
+    { field: 'hasBasement', label: 'Sous-sol',          icon: '⬇️' },
+    { field: 'hasParking',  label: 'Parking',            icon: '🚗' },
+    { field: 'hasPool',     label: 'Piscine',            icon: '🏊' },
+    { field: 'hasGarden',   label: 'Jardin',             icon: '🌿' },
+    { field: 'hasElevator', label: 'Ascenseur',          icon: '🛗' }
+  ];
+
+  private destroy$ = new Subject<void>();
+  private languageService = inject(LanguageService);
+
+  constructor(
+    private devisService: DevisService,
+    private authService: AuthService,
+    private toastService: ToastService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  t(key: string): string { return this.languageService.translate(key); }
+
+  get stepProgress(): number { return (this.currentStep / this.totalSteps) * 100; }
+  get showApartments(): boolean { return this.form.projectType === 'IMMEUBLE'; }
+
+  nextStep(): void {
+    if (!this.validateCurrentStep()) return;
+    if (this.currentStep < this.totalSteps) { this.currentStep++; this.cdr.markForCheck(); }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) { this.currentStep--; this.formErrors = {}; this.cdr.markForCheck(); }
+  }
+
+  goToStep(step: number): void {
+    if (step < this.currentStep) { this.currentStep = step; this.formErrors = {}; this.cdr.markForCheck(); }
+  }
+
+  private validateCurrentStep(): boolean {
+    this.formErrors = {};
+    let valid = true;
+
+    if (this.currentStep === 1) {
+      if (!this.form.projectName.trim()) { this.formErrors['projectName'] = 'Le nom du projet est requis'; valid = false; }
+      else if (this.form.projectName.trim().length < 3) { this.formErrors['projectName'] = 'Au moins 3 caractères'; valid = false; }
+      if (!this.form.projectType) { this.formErrors['projectType'] = 'Le type de projet est requis'; valid = false; }
+      if (!this.form.city.trim()) { this.formErrors['city'] = 'La ville est requise'; valid = false; }
+      if (!this.form.country.trim()) { this.formErrors['country'] = 'Le pays est requis'; valid = false; }
+    } else if (this.currentStep === 2) {
+      if (!this.form.totalArea || this.form.totalArea <= 0) { this.formErrors['totalArea'] = 'La superficie doit être > 0'; valid = false; }
+      if (!this.form.finishingLevel) { this.formErrors['finishingLevel'] = 'Le niveau de finition est requis'; valid = false; }
+      if (!this.form.soilType) { this.formErrors['soilType'] = 'Le type de sol est requis'; valid = false; }
+      if (!this.form.accessDifficulty) { this.formErrors['accessDifficulty'] = 'La difficulté d\'accès est requise'; valid = false; }
+    }
+
+    this.cdr.markForCheck();
+    return valid;
+  }
+
+  geolocate(): void {
+    if (!navigator.geolocation) {
+      this.toastService.showWarning('Géolocalisation non supportée par ce navigateur');
+      return;
+    }
+    this.isLocating = true;
+    this.cdr.markForCheck();
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.form.latitude  = pos.coords.latitude.toFixed(6);
+        this.form.longitude = pos.coords.longitude.toFixed(6);
+        this.isLocating = false;
+        this.toastService.showSuccess('Position GPS capturée');
+        this.cdr.markForCheck();
+      },
+      () => {
+        this.isLocating = false;
+        this.toastService.showError('Impossible d\'obtenir votre position');
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  toggleOption(field: 'hasBasement' | 'hasParking' | 'hasPool' | 'hasGarden' | 'hasElevator'): void {
+    (this.form[field] as boolean) = !(this.form[field] as boolean);
+    this.cdr.markForCheck();
+  }
+
+  hasError(f: string): boolean { return !!this.formErrors[f]; }
+  getError(f: string): string { return this.formErrors[f] || ''; }
+  onInput(f: string): void { if (this.formErrors[f]) { delete this.formErrors[f]; this.cdr.markForCheck(); } }
+
+  submit(): void {
+    if (!this.validateCurrentStep()) return;
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) { this.toastService.showError('Utilisateur non authentifié'); return; }
+
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
+
+    const payload: GenerateQuoteRequest = {
+      userId,
+      projectName:            this.form.projectName.trim(),
+      projectType:            this.form.projectType as any,
+      country:                this.form.country.trim(),
+      city:                   this.form.city.trim(),
+      neighborhood:           this.form.neighborhood.trim() || null,
+      address:                this.form.address.trim() || null,
+      latitude:               this.form.latitude || null,
+      longitude:              this.form.longitude || null,
+      totalArea:              this.form.totalArea!,
+      numberOfFloors:         this.form.numberOfFloors,
+      numberOfRooms:          this.form.numberOfRooms,
+      numberOfApartments:     this.showApartments ? this.form.numberOfApartments : null,
+      finishingLevel:         this.form.finishingLevel as any,
+      soilType:               this.form.soilType as any,
+      accessDifficulty:       this.form.accessDifficulty as any,
+      existingStructure:      this.form.existingStructure,
+      hasBasement:            this.form.hasBasement,
+      hasParking:             this.form.hasParking,
+      hasPool:                this.form.hasPool,
+      hasGarden:              this.form.hasGarden,
+      hasElevator:            this.form.hasElevator,
+      desiredStartDate:       this.form.desiredStartDate || null,
+      estimatedDurationMonths:this.form.estimatedDurationMonths,
+      additionalNotes:        this.form.additionalNotes.trim() || null
+    };
+
+    this.devisService.generate(payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (quote) => {
+        this.isSubmitting = false;
+        this.toastService.showSuccess('Devis généré avec succès !');
+        this.router.navigate(['/devis']);
+      },
+      error: (err: any) => {
+        this.isSubmitting = false;
+        const msg = this.extractError(err);
+        this.toastService.showError(msg);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  cancel(): void { this.router.navigate(['/devis']); }
+
+  getFinishingLabel(v: string): string { return this.finishingLevels.find(f => f.value === v)?.label || v; }
+  getSoilLabel(v: string): string      { return this.soilTypes.find(s => s.value === v)?.label || v; }
+  getAccessLabel(v: string): string    { return this.accessDifficulties.find(a => a.value === v)?.label || v; }
+  getTypeLabel(v: string): string      { return this.projectTypes.find(p => p.value === v)?.label || v; }
+
+  getSelectedOptions(): string[] {
+    return this.options.filter(o => (this.form[o.field] as boolean)).map(o => `${o.icon} ${o.label}`);
+  }
+
+  private extractError(err: any): string {
+    if (err?.status === 400) return 'Données invalides — vérifiez le formulaire';
+    if (err?.status === 401) return 'Utilisateur non authentifié';
+    if (err?.status === 403) return 'Accès refusé';
+    if (err?.status === 404) return 'Ressource introuvable';
+    if (err?.status === 500) return 'Erreur serveur — veuillez réessayer';
+    const msg = err?.error?.message || err?.error || err?.message;
+    return typeof msg === 'string' ? msg : 'Erreur lors de la génération du devis';
+  }
+}

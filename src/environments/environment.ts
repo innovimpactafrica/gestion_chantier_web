@@ -1,4 +1,3 @@
-// 📁 Fichier 1 : src/environments/environment.ts
 export const environment = {
   production: false,
   apiBaseUrl: 'https://btpconnect.app/btpconnect',
@@ -9,7 +8,6 @@ export const environment = {
     // Dashboard Admin & Subscriptions
     subscriptions: 'https://btpconnect.app/btpconnect/api/subscriptions',
     users: 'https://btpconnect.app/btpconnect/api/v1/user',
-
 
     // Pharma Delivery Auth (ancien système)
     pharmaAuth: 'https://btpconnect.app/btpconnect/pharma-delivery/api/auth',

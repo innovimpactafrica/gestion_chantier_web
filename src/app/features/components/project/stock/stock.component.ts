@@ -117,13 +117,25 @@ interface Delivery {
   proof: string;
 }
 
+interface MovementMaterial {
+  id: number;
+  materialType: { id: number; nameFr: string; nameEn: string; icon: string | null; } | null;
+  quantity: number;
+  criticalThreshold: number;
+  createdAt: number[];
+  unit: Unit;
+  labelFr: string | null;
+  labelEn: string | null;
+}
+
 interface StockMovement {
   id: number;
-  material: Material;
+  material: MovementMaterial;
   quantity: number;
   type: 'ENTRY' | 'EXIT';
   movementDate: number[];
-  comment: string;
+  comment: string | null;
+  slip: string | null;
 }
 
 interface StockMovementsResponse {
@@ -240,7 +252,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedCategory: string = '';
   selectedStockStatus: string = '';
   currentPage: number = 0;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 3;
   totalPages: number = 0;
   totalElements: number = 0;
   materialForm: FormGroup;
@@ -310,6 +322,13 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedQuoteForApproval: Quote | null = null;
   deliveryPageSize: number = 10;
   orderPageSize: number = 10;
+
+  // History modal
+  showHistoryModal: boolean = false;
+  historyMaterial: Material | null = null;
+  historyMovements: StockMovement[] = [];
+  historyLoading: boolean = false;
+  historyTotalElements: number = 0;
   constructor(
     private fb: FormBuilder,
     private materialsService: MaterialsService,
@@ -343,7 +362,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.movementForm = this.fb.group({
       type: ['ENTRY', Validators.required],
       quantity: [0, [Validators.required, Validators.min(1)]],
-      reference: ['', Validators.required],
       comment: ['']
     });
   }
@@ -396,7 +414,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadMaterialTypes();
 
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
+      this.showErrorMessage("ID de propriété non trouvé dans l'URL.");
     }
   }
   printOrder(order: Order): void {
@@ -414,9 +432,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
             setTimeout(() => this.initConsumptionChart(), 100);
           }
         },
-        error: (err) => {
-          console.error('Erreur chargement consommation:', err);
-        }
+        error: () => { /* silent */ }
       });
 
     // Charger données d'évolution
@@ -429,9 +445,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
             setTimeout(() => this.initEvolutionChart(), 100);
           }
         },
-        error: (err) => {
-          console.error('Erreur chargement évolution:', err);
-        }
+        error: () => { /* silent */ }
       });
   }
   getMaterialStockByIndex(index: number): string {
@@ -579,15 +593,15 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   // Obtenir le texte du statut de livraison
   getDeliveryStatusText(status: string): string {
-    const texts = {
-      'IN_DELIVERY': 'En cours',
-      'DELIVERY': 'Livré',
-      'DELIVERED': 'Livré',
-      'CANCELLED': 'Annulé',
-      'PENDING': 'En attente',
-      'APPROVED': 'Approuvée'
+    const map: { [k: string]: string } = {
+      'IN_DELIVERY': 'stock.status.inDelivery',
+      'DELIVERY': 'stock.status.delivered',
+      'DELIVERED': 'stock.status.delivered',
+      'CANCELLED': 'stock.status.cancelled',
+      'PENDING': 'stock.status.pending',
+      'APPROVED': 'stock.status.approved'
     };
-    return texts[status as keyof typeof texts] || status;
+    return map[status] ? this.t(map[status]) : status;
   }
 
   // Mettre à jour les méthode  existante
@@ -623,7 +637,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadStock(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
@@ -680,7 +693,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loading = true;
 
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
@@ -739,12 +751,18 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
   }
   getMovementBadge(movement: StockMovement): string {
-    if (movement.type === 'ENTRY') {
-      return 'Livraison';
-    } else if (movement.type === 'EXIT') {
-      return movement.material?.property?.name || 'Chantier';
+    return movement.type === 'ENTRY' ? this.t('stock.movement.entry') : this.t('stock.movement.exit');
+  }
+
+  getMovementMaterialName(movement: StockMovement): string {
+    const mat = movement.material;
+    const isEN = this.languageService.currentLang() === 'EN';
+    if (isEN && mat.labelEn) return mat.labelEn;
+    if (mat.labelFr) return mat.labelFr;
+    if (mat.materialType) {
+      return isEN ? (mat.materialType.nameEn || mat.materialType.nameFr) : mat.materialType.nameFr;
     }
-    return 'Ajustement';
+    return 'N/A';
   }
   getAlertPercentage(alert: StockAlert): number {
     const material = this.materials.find(m => m.id === alert.materialId);
@@ -764,56 +782,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.getMaterialStatus(material);
   }
   loadRecentMovements(): void {
-    this.loading = true;
-    if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
-      this.showErrorMessage('ID de propriété invalide');
-      this.loading = false;
-      return;
-    }
-    console.log(`Chargement des mouvements récents pour la propriété ${this.propertyId}`);
-    this.materialsService.getStockMove(this.propertyId, 0, 5)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: StockMovementsResponse) => {
-          console.log('Mouvements récents reçus:', response);
-          if (response.content && response.content.length > 0) {
-            this.recentMovements = response.content.map(movement => ({
-              id: movement.id,
-              type: movement.type === 'ENTRY' ? 'ENTRY' : 'OUT' as 'ENTRY' | 'OUT' | 'ADJUSTMENT',
-              quantity: movement.quantity,
-              reference: `MVT-${movement.id.toString().padStart(4, '0')}`,
-              comment: movement.comment,
-              date: this.formatMovementDate(movement.movementDate),
-              time: this.getTimeFromDateArray(movement.movementDate),
-              description: `${movement.quantity} ${movement.material.unit.code} de ${movement.material.label}`,
-              location: movement.material.property.name,
-              materialId: movement.material.id
-            }));
-          } else {
-            this.recentMovements = [];
-          }
-          this.loading = false;
-        },
-        error: (error) => {
-          // Erreur lors du chargement des mouvements récents
-          this.loading = false;
-          this.recentMovements = [];
-          if (error.status === 403) {
-            this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
-          } else if (error.status === 401) {
-            this.showErrorMessage('Session expirée - Veuillez vous reconnecter');
-          } else if (error.status === 404) {
-          } else {
-            this.showErrorMessage('Erreur lors du chargement des mouvements récents');
-          }
-        }
-      });
+    this.loadStockMovements();
   }
 
   loadUnits(): void {
-    console.log('🔄 Chargement des unités...');
-
     this.unitParameterService.getAll({ type: 'UNIT', page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -830,8 +802,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadProperties(): void {
-    console.log('🔄 Chargement des propriétés...');
-
     // ✅ Utiliser getAll() qui retourne PropertyType[] directement
     this.propertyService.getAll()
       .pipe(takeUntil(this.destroy$))
@@ -1088,20 +1058,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       }))
     };
 
-    console.log('📦 Données envoyées (format swagger):', orderData);
-
     this.materialsService.createCommand(orderData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (created) => {
-          console.log('✅ Commande créée:', created);
+        next: () => {
           this.loading = false;
           this.closeOrderModal();
           this.loadOrders();
           this.showSuccessMessage('Commande créée avec succès !');
         },
         error: (error) => {
-          console.error('❌ Erreur:', error);
           this.loading = false;
           this.showErrorMessage(error.message || 'Erreur lors de la création');
         }
@@ -1110,15 +1076,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
-  onMaterialSelect(index: number): void {
-    const materials = this.orderForm.get('materials') as FormArray;
-    const materialId = materials.at(index).get('materialId')?.value;
-
-    if (materialId) {
-      console.log('Matériau sélectionné:', materialId);
-      // Vous pouvez pré-remplir le prix si disponible
-    }
-  }
+  onMaterialSelect(_index: number): void { }
 
   // ===== MODIFIER closeOrderModal =====
   closeOrderModal(): void {
@@ -1191,12 +1149,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getStatusText(status: string): string {
-    const texts = {
-      'NORMAL': 'Stock normal',
-      'LOW': 'Stock faible',
-      'CRITICAL': 'Rupture de stock'
+    const map: { [k: string]: string } = {
+      'NORMAL': 'stock.status.normal',
+      'LOW': 'stock.status.low',
+      'CRITICAL': 'stock.status.critical'
     };
-    return texts[status as keyof typeof texts] || 'Inconnu';
+    return map[status] ? this.t(map[status]) : status;
   }
 
   getMovementTypeClass(type: string): string {
@@ -1209,12 +1167,13 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getMovementTypeText(type: string): string {
-    const texts = {
-      'ENTRY': 'Entrée',
-      'OUT': 'Sortie',
-      'ADJUSTMENT': 'Ajustement'
+    const map: { [k: string]: string } = {
+      'ENTRY': 'stock.movement.entry',
+      'EXIT': 'stock.movement.exit',
+      'OUT': 'stock.movement.exit',
+      'ADJUSTMENT': 'stock.modals.movement.adjustment'
     };
-    return texts[type as keyof typeof texts] || type;
+    return map[type] ? this.t(map[type]) : type;
   }
 
   getDeliveryStatusClass(status: string): string {
@@ -1226,33 +1185,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     return classes[status as keyof typeof classes] || 'bg-gray-100 text-gray-800';
   }
 
-  checkAuthStatus(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      console.log('=== DEBUG AUTHENTIFICATION ===');
-      console.log('localStorage auth_token:', localStorage.getItem('auth_token'));
-      console.log('localStorage token:', localStorage.getItem('token'));
-      console.log('sessionStorage auth_token:', sessionStorage.getItem('auth_token'));
-      console.log('sessionStorage token:', sessionStorage.getItem('token'));
-      console.log('Property ID:', this.propertyId);
-      console.log('Current page:', this.currentPage);
-      console.log('Page size:', this.pageSize);
-      console.log('================================');
-    }
-  }
+  checkAuthStatus(): void { }
 
   testApiConnection(): void {
-    console.log('Test de connexion à l\'API...');
     this.materialsService.checkTokenValidity()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('Token valide:', response);
-          this.showSuccessMessage('Connexion API réussie');
-        },
-        error: (error) => {
-          console.error('Erreur de connexion API:', error);
-          this.showErrorMessage('Erreur de connexion à l\'API');
-        }
+        next: () => { this.showSuccessMessage('Connexion API réussie'); },
+        error: () => { this.showErrorMessage('Erreur de connexion à l\'API'); }
       });
   }
   // Méthode pour filtrer les matériaux
@@ -1383,17 +1323,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadStockMovements(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
     }
-    console.log(`Chargement des mouvements pour la propriété ${this.propertyId}`);
     this.materialsService.getStockMove(this.propertyId, this.movementCurrentPage, this.itemsPerPage)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: StockMovementsResponse) => {
-          console.log('Mouvements reçus:', response);
           this.movements = response.content || [];
           this.totalMovementElements = response.totalElements || 0;
           this.totalMovementPages = response.totalPages || 0;
@@ -1402,7 +1339,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.updateRecentMovements();
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des mouvements:', error);
           this.loading = false;
           if (error.status === 403) {
             this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
@@ -1416,18 +1352,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateRecentMovements(): void {
-    const recent = this.movements.slice(0, 3).map(movement => ({
-      id: movement.id,
-      type: movement.type === 'ENTRY' ? 'ENTRY' : 'OUT' as 'ENTRY' | 'OUT' | 'ADJUSTMENT',
-      quantity: movement.quantity,
-      reference: `MVT-${movement.id}`,
-      date: this.formatMovementDate(movement.movementDate),
-      time: this.getTimeFromDateArray(movement.movementDate),
-      description: `${movement.quantity} ${movement.material.unit.code} de ${movement.material.label}`,
-      location: movement.material.property.name,
-      materialId: movement.material.id
-    }));
-    this.recentMovements = [...recent, ...this.recentMovements.slice(0, 3 - recent.length)] as Movement[];
+    // movements card uses the `movements` array directly
   }
 
   formatMovementDate(dateArray: number[]): string {
@@ -1536,25 +1461,8 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private addToRecentMovements(createdMovement: any, material: Material): void {
-    const now = new Date();
-    const newRecentMovement: Movement = {
-      id: createdMovement.id || Date.now(),
-      type: createdMovement.type,
-      quantity: createdMovement.quantity,
-      reference: `MVT-${(createdMovement.id || Date.now()).toString().padStart(4, '0')}`,
-      comment: createdMovement.comment,
-      date: 'À l\'instant',
-      time: now.toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      description: `${createdMovement.quantity} ${material.unit.code} de ${material.label}`,
-      location: material.property.name,
-      materialId: material.id
-    };
-    this.recentMovements.unshift(newRecentMovement);
-    this.recentMovements = this.recentMovements.slice(0, 5);
+  private addToRecentMovements(_createdMovement: any, _material: Material): void {
+    // movements card is refreshed via loadStockMovements() after creation
   }
 
   closeMovementModal(): void {
@@ -1582,7 +1490,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.movementForm.reset({
       type: 'ENTRY',
       quantity: 0,
-      reference: '',
       comment: ''
     });
   }
@@ -1657,7 +1564,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           error: (error) => {
             this.loading = false;
-            console.error('Erreur lors de l\'ajout:', error);
             if (error.status === 403) {
               this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
             } else if (error.status === 401) {
@@ -1670,23 +1576,39 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  editMaterial(material: Material): void {
-    console.log('Modifier', material);
-  }
+  editMaterial(_material: Material): void { }
 
-  orderMaterial(material: Material): void {
-    console.log('Commander', material);
-  }
+  orderMaterial(_material: Material): void { }
 
   showMaterialHistory(material: Material): void {
-    console.log('Historique', material);
+    this.historyMaterial = material;
+    this.historyMovements = [];
+    this.historyTotalElements = 0;
+    this.historyLoading = true;
+    this.showHistoryModal = true;
+    this.materialsService.getStockMove(this.propertyId, 0, 100)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.historyMovements = (response.content || []).filter(m => m.material.id === material.id);
+          this.historyTotalElements = this.historyMovements.length;
+          this.historyLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.historyLoading = false;
+          this.showErrorMessage('Erreur lors du chargement de l\'historique');
+        }
+      });
   }
 
-  deleteMaterial(material: Material): void {
-    if (confirm(`Supprimer "${material.label}" ?`)) {
-      console.log('Supprimer', material);
-    }
+  closeHistoryModal(): void {
+    this.showHistoryModal = false;
+    this.historyMaterial = null;
+    this.historyMovements = [];
   }
+
+  deleteMaterial(_material: Material): void { }
 
   goToMaterialPage(page: number): void {
     if (page >= 0 && page < this.totalMaterialPages && page !== this.materialCurrentPage) {
@@ -1709,6 +1631,30 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  previousMovementPage(): void {
+    if (this.movementCurrentPage > 0) {
+      this.movementCurrentPage--;
+      this.loadStockMovements();
+    }
+  }
+
+  nextMovementPage(): void {
+    if (this.movementCurrentPage < this.totalMovementPages - 1) {
+      this.movementCurrentPage++;
+      this.loadStockMovements();
+    }
+  }
+
+  getSlipUrl(slip: string | null): string | null {
+    return this.materialsService.getSlipDownloadUrl(slip);
+  }
+
+  downloadSlip(slip: string | null): void {
+    const url = this.materialsService.getSlipDownloadUrl(slip);
+    if (!url) return;
+    window.open(url, '_blank');
   }
 
   showSuccessMessage(message: string): void {
@@ -1783,17 +1729,17 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getOrderStatusText(status: string): string {
-    const texts = {
-      'PENDING': 'En attente',
-      'CONFIRMED': 'Confirmée',
-      'IN_PROGRESS': 'En cours',
-      'DELIVERY': 'Livrée',
-      'DELIVERED': 'Livrée',
-      'CANCELLED': 'Annulée',
-      'APPROVED': 'Approuvée',
-      'PARTIALLY_DELIVERED': 'Partiellement livrée'
+    const map: { [k: string]: string } = {
+      'PENDING': 'stock.orderStatus.pending',
+      'CONFIRMED': 'stock.orderStatus.confirmed',
+      'IN_PROGRESS': 'stock.orderStatus.inProgress',
+      'DELIVERY': 'stock.orderStatus.delivery',
+      'DELIVERED': 'stock.orderStatus.delivered',
+      'CANCELLED': 'stock.orderStatus.cancelled',
+      'APPROVED': 'stock.orderStatus.approved',
+      'PARTIALLY_DELIVERED': 'stock.orderStatus.partiallyDelivered'
     };
-    return texts[status as keyof typeof texts] || status;
+    return map[status] ? this.t(map[status]) : status;
   }
 
   onOrderAction(action: string, order: Order, event: Event): void {
@@ -1822,11 +1768,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrorMessage('Impossible de modifier une commande livrée ou annulée');
       return;
     }
-    console.log('Modifier la commande:', order);
   }
 
   duplicateOrder(order: Order): void {
-    console.log('Dupliquer la commande:', order);
     if (order.materials && order.materials.length > 0) {
       const materialsArray = this.orderForm.get('materials') as FormArray;
       while (materialsArray.length !== 0) {
@@ -2089,36 +2033,21 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // Méthodes d'action pour les livraisons
-  viewDeliveryDetails(delivery: Delivery): void {
-    console.log('Voir détails de la livraison:', delivery);
-    // Logique pour afficher les détails
-  }
+  viewDeliveryDetails(_delivery: Delivery): void { }
 
   editDelivery(delivery: Delivery): void {
     if (delivery.status === 'Annulée') {
       this.showErrorMessage('Impossible de modifier une livraison annulée');
-      return;
     }
-    console.log('Modifier la livraison:', delivery);
-    // Logique pour modifier la livraison
   }
 
   downloadDeliveryProof(delivery: Delivery): void {
     if (delivery.proof === 'Aucune') {
       this.showErrorMessage('Aucune preuve disponible pour cette livraison');
-      return;
     }
-    console.log('Télécharger la preuve:', delivery.proof);
-    // Logique pour télécharger la preuve
   }
 
-  deleteDelivery(delivery: Delivery): void {
-    const confirmMessage = `Êtes-vous sûr de vouloir supprimer la livraison ${delivery.number} ?`;
-    if (confirm(confirmMessage)) {
-      console.log('Supprimer la livraison:', delivery);
-      // Logique pour supprimer la livraison
-    }
-  }
+  deleteDelivery(_delivery: Delivery): void { }
 
   // Méthode pour obtenir l'icône selon le type de preuve
   getDeliveryProofIcon(proof: string): string {
@@ -2449,8 +2378,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    console.log('🔍 Ouverture détails commande:', order);
-
     // ✅ Réinitialiser AVANT d'ouvrir
     this.orderQuotes = [];
     this.selectedQuote = null;
@@ -2473,8 +2400,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
    * Charge les citations (quotes) d'une commande
    */
   loadOrderQuotes(orderId: number): void {
-    console.log('📄 Chargement des citations pour la commande:', orderId);
-
     this.loadingQuotes = true;
     this.quotesError = null;
     this.orderQuotes = [];
@@ -2484,8 +2409,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: QuoteResponse) => {
-          console.log('✅ Citations reçues:', response);
-
           this.orderQuotes = response.content || [];
           this.loadingQuotes = false;
 
@@ -2498,7 +2421,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('❌ Erreur chargement citations:', error);
           this.loadingQuotes = false;
 
           if (error.status === 404) {
@@ -2516,13 +2438,11 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   selectQuote(quote: Quote): void {
-    console.log('📌 Sélection citation:', quote);
     this.selectedQuote = quote;
   }
 
   // ===== MÉTHODE closeOrderDetailsModal() - VÉRIFIER =====
   closeOrderDetailsModal(): void {
-    console.log('🚪 Fermeture modal détails');
     this.showOrderDetailsModal = false;
     this.selectedOrderDetails = null;
     this.orderQuotes = [];

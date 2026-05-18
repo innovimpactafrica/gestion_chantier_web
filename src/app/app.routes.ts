@@ -12,6 +12,7 @@ import { UnitComponent } from './features/components/settings/unit/unit.componen
 import { DocumentComponent } from './features/components/settings/document/document.component';
 import { MaterialCategoryComponent } from './features/components/settings/material-category/material-category.component';
 import { PropertyTypeComponent } from './features/components/settings/property-type/property-type.component';
+import { MaterialTypeComponent } from './features/components/settings/material-type/material-type.component';
 import { NewProjectComponent } from './features/components/project/new-project/new-project.component';
 import { DashboardEtudeComponent } from './features/dashboard-etude/dashboard-etude.component';
 import { DemandeComponent } from './features/demande/demande.component';
@@ -206,6 +207,14 @@ export const routes: Routes = [
         canActivate: [RoleGuard]
       },
       {
+        path: 'parametres/types-materiaux',
+        component: MaterialTypeComponent,
+        data: {
+          breadcrumb: 'Types de Matériaux',
+        },
+        canActivate: [RoleGuard]
+      },
+      {
         path: 'fournisseur',
         component: SupplierComponent,
         data: {
@@ -312,6 +321,24 @@ export const routes: Routes = [
           breadcrumb: 'Mes Abonnements',
         },
         canActivate: [AuthGuard]
+      },
+      {
+        path: 'devis',
+        loadComponent: () => import('./features/devis/devis.component').then(m => m.DevisComponent),
+        data: { breadcrumb: 'Mes Devis' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'devis/nouveau',
+        loadComponent: () => import('./features/devis/nouveau-devis/nouveau-devis.component').then(m => m.NouveauDevisComponent),
+        data: { breadcrumb: 'Nouveau Devis' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'devis/:id',
+        loadComponent: () => import('./features/devis/detail-devis/detail-devis.component').then(m => m.DetailDevisComponent),
+        data: { breadcrumb: 'Détail Devis' },
+        canActivate: [RoleGuard]
       }
     ]
   },

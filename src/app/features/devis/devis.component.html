@@ -1,0 +1,321 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-md">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Mes Devis</h1>
+          <p class="text-gray-500 text-sm">{{ totalElements }} devis au total</p>
+        </div>
+      </div>
+      <button (click)="navigateToNew()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold shadow-md transition-all duration-200 hover:shadow-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nouveau devis IA
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-gray-500 font-medium">Total</span>
+          <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ totalCount }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-gray-500 font-medium">Brouillons</span>
+          <div class="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ draftCount }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-gray-500 font-medium">Acceptés</span>
+          <div class="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ acceptedCount }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-gray-500 font-medium">Ce mois</span>
+          <div class="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ thisMonthCount }}</p>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <!-- Filter Tabs -->
+      <div class="flex gap-1 bg-gray-100 p-1 rounded-xl flex-shrink-0 overflow-x-auto">
+        <button (click)="setFilter('all')"
+          [class]="'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ' + (activeFilter === 'all' ? 'bg-white shadow text-orange-600' : 'text-gray-600 hover:text-gray-800')">
+          Tous
+        </button>
+        <button (click)="setFilter('DRAFT')"
+          [class]="'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ' + (activeFilter === 'DRAFT' ? 'bg-white shadow text-orange-600' : 'text-gray-600 hover:text-gray-800')">
+          Brouillons
+        </button>
+        <button (click)="setFilter('SENT')"
+          [class]="'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ' + (activeFilter === 'SENT' ? 'bg-white shadow text-orange-600' : 'text-gray-600 hover:text-gray-800')">
+          Envoyés
+        </button>
+        <button (click)="setFilter('ACCEPTED')"
+          [class]="'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ' + (activeFilter === 'ACCEPTED' ? 'bg-white shadow text-orange-600' : 'text-gray-600 hover:text-gray-800')">
+          Acceptés
+        </button>
+        <button (click)="setFilter('REJECTED')"
+          [class]="'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ' + (activeFilter === 'REJECTED' ? 'bg-white shadow text-orange-600' : 'text-gray-600 hover:text-gray-800')">
+          Rejetés
+        </button>
+      </div>
+
+      <!-- Live Search -->
+      <div class="flex-1 relative min-w-0 w-full sm:w-auto">
+        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" type="text"
+          placeholder="Rechercher par nom, ville... (min 2 caractères)"
+          class="w-full pl-9 pr-9 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"/>
+        <button *ngIf="searchTerm" (click)="clearSearch()"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <button (click)="loadQuotes()" [disabled]="isLoading"
+        class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors flex-shrink-0 disabled:opacity-50">
+        <svg [class]="'w-4 h-4 ' + (isLoading ? 'animate-spin' : '')" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+
+    <!-- Skeletons -->
+    <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-pulse">
+        <div class="flex justify-between items-start mb-4">
+          <div class="h-5 bg-gray-200 rounded w-2/3"></div>
+          <div class="h-6 bg-gray-200 rounded-full w-20"></div>
+        </div>
+        <div class="space-y-2.5">
+          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-14 bg-gray-200 rounded-xl w-full"></div>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <div class="h-8 bg-gray-200 rounded-lg flex-1"></div>
+          <div class="h-8 bg-gray-200 rounded-lg w-16"></div>
+          <div class="h-8 bg-gray-200 rounded-lg w-8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredQuotes.length === 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+      <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-1">
+        {{ searchTerm || activeFilter !== 'all' ? 'Aucun devis trouvé' : 'Aucun devis pour l\'instant' }}
+      </h3>
+      <p class="text-gray-500 text-sm mb-6">
+        {{ searchTerm ? 'Essayez un autre terme de recherche.' : activeFilter !== 'all' ? 'Aucun devis avec ce statut.' : 'Générez votre premier devis de construction avec l\'IA.' }}
+      </p>
+      <button *ngIf="!searchTerm && activeFilter === 'all'" (click)="navigateToNew()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Générer mon premier devis
+      </button>
+    </div>
+
+    <!-- Quotes Grid -->
+    <div *ngIf="!isLoading && filteredQuotes.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div *ngFor="let quote of filteredQuotes; trackBy: trackByQuote"
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-200 group flex flex-col">
+
+        <!-- Header -->
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-start gap-2 flex-1 min-w-0">
+            <span class="text-2xl flex-shrink-0 mt-0.5">{{ getProjectTypeIcon(quote.projectType) }}</span>
+            <div class="min-w-0">
+              <h3 class="font-semibold text-gray-900 text-sm leading-tight truncate group-hover:text-orange-600 transition-colors">
+                {{ quote.projectName }}
+              </h3>
+              <p class="text-xs text-gray-400 mt-0.5">{{ formatDate(quote.createdAt) }}</p>
+            </div>
+          </div>
+          <span [class]="'flex-shrink-0 ml-2 px-2.5 py-1 rounded-full text-xs font-semibold ' + getStatusClass(quote.status)">
+            {{ getStatusLabel(quote.status) }}
+          </span>
+        </div>
+
+        <!-- Details -->
+        <div class="space-y-1.5 mb-3 flex-1">
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span class="truncate text-xs">{{ quote.city }}, {{ quote.country }}</span>
+          </div>
+
+          <div class="flex items-center gap-3 text-xs text-gray-500">
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+              {{ quote.totalArea }} m²
+            </span>
+            <span *ngIf="quote.numberOfFloors !== undefined && quote.numberOfFloors !== null" class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+              </svg>
+              {{ quote.numberOfFloors }} niv.
+            </span>
+            <span *ngIf="quote.numberOfRooms" class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              {{ quote.numberOfRooms }} pièces
+            </span>
+          </div>
+
+          <!-- Options tags -->
+          <div *ngIf="getOptionsIcons(quote).length > 0" class="flex flex-wrap gap-1 mt-1">
+            <span *ngFor="let opt of getOptionsIcons(quote)"
+              class="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-md">{{ opt }}</span>
+          </div>
+
+          <!-- Execution delay -->
+          <div *ngIf="quote.executionDelay" class="flex items-start gap-2 bg-blue-50 rounded-lg px-3 py-2 mt-1">
+            <svg class="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-blue-700 text-xs leading-relaxed">{{ quote.executionDelay }}</span>
+          </div>
+
+          <!-- Coût TTC -->
+          <div *ngIf="quote.totalTTC" class="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-2 mt-1">
+            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="min-w-0">
+              <span class="text-emerald-700 text-sm font-bold">{{ formatCost(quote.totalTTC) }}</span>
+              <span class="text-emerald-500 text-xs ml-1">TTC</span>
+              <span *ngIf="quote.totalHT" class="text-gray-400 text-xs ml-1">({{ formatCost(quote.totalHT) }} HT)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Valid Until -->
+        <div *ngIf="quote.validUntil" class="mb-3 flex items-center gap-1.5 text-xs text-gray-400">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Valable jusqu'au {{ formatDate(quote.validUntil) }}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2 pt-3 border-t border-gray-100">
+          <button (click)="viewQuote(quote)"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-xs font-medium transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Détails
+          </button>
+          <a [href]="devisService.getPdfUrlWithToken(quote.id)" target="_blank"
+            class="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            PDF
+          </a>
+          <button (click)="confirmDeleteQuote(quote)"
+            class="flex items-center justify-center px-3 py-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg text-xs transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="showDeleteModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+  (click)="closeDeleteModal()">
+  <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6" (click)="$event.stopPropagation()">
+    <div class="flex justify-center mb-4">
+      <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
+        <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </div>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 text-center mb-2">Supprimer le devis ?</h3>
+    <p class="text-gray-500 text-sm text-center mb-6">
+      <strong>{{ quoteToDelete?.projectName }}</strong> sera définitivement supprimé.
+    </p>
+    <div class="flex gap-3">
+      <button (click)="closeDeleteModal()"
+        class="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium text-sm">
+        Annuler
+      </button>
+      <button (click)="deleteQuote()" [disabled]="isDeleting"
+        class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+        <svg *ngIf="isDeleting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        {{ isDeleting ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
