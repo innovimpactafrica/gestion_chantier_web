@@ -80,12 +80,12 @@ export class NouveauDevisComponent implements OnDestroy {
   };
 
   readonly projectTypes = [
-    { value: 'VILLA',    label: 'Villa',     icon: '🏡' },
-    { value: 'IMMEUBLE', label: 'Immeuble',  icon: '🏢' },
-    { value: 'COMMERCE', label: 'Commerce',  icon: '🏪' },
-    { value: 'BUREAU',   label: 'Bureau',    icon: '🏬' },
-    { value: 'ENTREPOT', label: 'Entrepôt',  icon: '🏭' },
-    { value: 'AUTRE',    label: 'Autre',     icon: '🏗️' }
+    { value: 'VILLA',    label: 'Villa',    path: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { value: 'IMMEUBLE', label: 'Immeuble', path: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+    { value: 'COMMERCE', label: 'Commerce', path: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+    { value: 'BUREAU',   label: 'Bureau',   path: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+    { value: 'ENTREPOT', label: 'Entrepôt', path: 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z' },
+    { value: 'AUTRE',    label: 'Autre',    path: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5' }
   ];
 
   readonly finishingLevels = [
@@ -108,12 +108,12 @@ export class NouveauDevisComponent implements OnDestroy {
     { value: 'DIFFICILE', label: 'Difficile' }
   ];
 
-  readonly options: Array<{ field: keyof StepForm; label: string; icon: string }> = [
-    { field: 'hasBasement', label: 'Sous-sol',          icon: '⬇️' },
-    { field: 'hasParking',  label: 'Parking',            icon: '🚗' },
-    { field: 'hasPool',     label: 'Piscine',            icon: '🏊' },
-    { field: 'hasGarden',   label: 'Jardin',             icon: '🌿' },
-    { field: 'hasElevator', label: 'Ascenseur',          icon: '🛗' }
+  readonly options: Array<{ field: keyof StepForm; label: string }> = [
+    { field: 'hasBasement', label: 'Sous-sol' },
+    { field: 'hasParking',  label: 'Parking' },
+    { field: 'hasPool',     label: 'Piscine' },
+    { field: 'hasGarden',   label: 'Jardin' },
+    { field: 'hasElevator', label: 'Ascenseur' }
   ];
 
   private destroy$ = new Subject<void>();
@@ -259,7 +259,7 @@ export class NouveauDevisComponent implements OnDestroy {
   getTypeLabel(v: string): string      { return this.projectTypes.find(p => p.value === v)?.label || v; }
 
   getSelectedOptions(): string[] {
-    return this.options.filter(o => (this.form[o.field] as boolean)).map(o => `${o.icon} ${o.label}`);
+    return this.options.filter(o => (this.form[o.field] as boolean)).map(o => o.label);
   }
 
   private extractError(err: any): string {

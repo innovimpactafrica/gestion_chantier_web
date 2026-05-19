@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
 // ─── Enums ─────────────────────────────────────────────────────────────────────
-export type QuoteStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED';
+export type QuoteStatus = 'DRAFT' | 'SENT' | 'APPROVED' | 'REJECTED';
 export type ProjectType  = 'VILLA' | 'IMMEUBLE' | 'COMMERCE' | 'BUREAU' | 'ENTREPOT' | 'AUTRE';
 export type FinishingLevel = 'ECONOMIQUE' | 'STANDARD' | 'HAUT_STANDING' | 'LUXE';
 export type SoilType = 'NORMAL' | 'ROCHEUX' | 'SABLEUX' | 'ARGILEUX';
@@ -150,9 +150,9 @@ export class DevisService {
     return this.http.get<PagedResponse<ConstructionQuote>>(`${this.base}/user/${userId}`, { headers: this.getHeaders(), params });
   }
 
-  /** GET /api/construction-quotes/user/{userId}/search?q=... */
-  searchQuotes(userId: number, q: string): Observable<PagedResponse<ConstructionQuote>> {
-    const params = new HttpParams().set('q', q);
+  /** GET /api/construction-quotes/user/{userId}/search?keyword=... */
+  searchQuotes(userId: number, keyword: string): Observable<PagedResponse<ConstructionQuote>> {
+    const params = new HttpParams().set('keyword', keyword);
     return this.http.get<PagedResponse<ConstructionQuote>>(`${this.base}/user/${userId}/search`, { headers: this.getHeaders(), params });
   }
 
