@@ -396,7 +396,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadMaterialTypes();
 
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
   printOrder(order: Order): void {
@@ -415,7 +414,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         },
         error: (err) => {
-          console.error('Erreur chargement consommation:', err);
         }
       });
 
@@ -430,7 +428,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         },
         error: (err) => {
-          console.error('Erreur chargement évolution:', err);
         }
       });
   }
@@ -623,7 +620,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadStock(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
@@ -680,7 +676,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loading = true;
 
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
@@ -766,17 +761,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadRecentMovements(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
     }
-    console.log(`Chargement des mouvements récents pour la propriété ${this.propertyId}`);
     this.materialsService.getStockMove(this.propertyId, 0, 5)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: StockMovementsResponse) => {
-          console.log('Mouvements récents reçus:', response);
           if (response.content && response.content.length > 0) {
             this.recentMovements = response.content.map(movement => ({
               id: movement.id,
@@ -812,7 +804,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadUnits(): void {
-    console.log('🔄 Chargement des unités...');
 
     this.unitParameterService.getAll({ type: 'UNIT', page: 0, size: 1000 }) // Augmentez la taille pour récupérer plus d'éléments si nécessaire
       .pipe(takeUntil(this.destroy$))
@@ -830,7 +821,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadProperties(): void {
-    console.log('🔄 Chargement des propriétés...');
 
     // ✅ Utiliser getAll() qui retourne PropertyType[] directement
     this.propertyService.getAll()
@@ -1088,20 +1078,17 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       }))
     };
 
-    console.log('📦 Données envoyées (format swagger):', orderData);
 
     this.materialsService.createCommand(orderData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (created) => {
-          console.log('✅ Commande créée:', created);
           this.loading = false;
           this.closeOrderModal();
           this.loadOrders();
           this.showSuccessMessage('Commande créée avec succès !');
         },
         error: (error) => {
-          console.error('❌ Erreur:', error);
           this.loading = false;
           this.showErrorMessage(error.message || 'Erreur lors de la création');
         }
@@ -1115,7 +1102,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     const materialId = materials.at(index).get('materialId')?.value;
 
     if (materialId) {
-      console.log('Matériau sélectionné:', materialId);
       // Vous pouvez pré-remplir le prix si disponible
     }
   }
@@ -1228,29 +1214,17 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   checkAuthStatus(): void {
     if (isPlatformBrowser(this.platformId)) {
-      console.log('=== DEBUG AUTHENTIFICATION ===');
-      console.log('localStorage auth_token:', localStorage.getItem('auth_token'));
-      console.log('localStorage token:', localStorage.getItem('token'));
-      console.log('sessionStorage auth_token:', sessionStorage.getItem('auth_token'));
-      console.log('sessionStorage token:', sessionStorage.getItem('token'));
-      console.log('Property ID:', this.propertyId);
-      console.log('Current page:', this.currentPage);
-      console.log('Page size:', this.pageSize);
-      console.log('================================');
     }
   }
 
   testApiConnection(): void {
-    console.log('Test de connexion à l\'API...');
     this.materialsService.checkTokenValidity()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Token valide:', response);
           this.showSuccessMessage('Connexion API réussie');
         },
         error: (error) => {
-          console.error('Erreur de connexion API:', error);
           this.showErrorMessage('Erreur de connexion à l\'API');
         }
       });
@@ -1383,17 +1357,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadStockMovements(): void {
     this.loading = true;
     if (!this.propertyId || this.propertyId <= 0) {
-      console.error('ID de propriété invalide:', this.propertyId);
       this.showErrorMessage('ID de propriété invalide');
       this.loading = false;
       return;
     }
-    console.log(`Chargement des mouvements pour la propriété ${this.propertyId}`);
     this.materialsService.getStockMove(this.propertyId, this.movementCurrentPage, this.itemsPerPage)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: StockMovementsResponse) => {
-          console.log('Mouvements reçus:', response);
           this.movements = response.content || [];
           this.totalMovementElements = response.totalElements || 0;
           this.totalMovementPages = response.totalPages || 0;
@@ -1402,7 +1373,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.updateRecentMovements();
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des mouvements:', error);
           this.loading = false;
           if (error.status === 403) {
             this.showErrorMessage('Accès refusé - Vérifiez vos permissions');
@@ -1657,7 +1627,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           error: (error) => {
             this.loading = false;
-            console.error('Erreur lors de l\'ajout:', error);
             if (error.status === 403) {
               this.showErrorMessage('Accès refusé - Vous n\'avez pas les permissions nécessaires');
             } else if (error.status === 401) {
@@ -1671,20 +1640,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   editMaterial(material: Material): void {
-    console.log('Modifier', material);
   }
 
   orderMaterial(material: Material): void {
-    console.log('Commander', material);
   }
 
   showMaterialHistory(material: Material): void {
-    console.log('Historique', material);
   }
 
   deleteMaterial(material: Material): void {
     if (confirm(`Supprimer "${material.label}" ?`)) {
-      console.log('Supprimer', material);
     }
   }
 
@@ -1822,11 +1787,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrorMessage('Impossible de modifier une commande livrée ou annulée');
       return;
     }
-    console.log('Modifier la commande:', order);
   }
 
   duplicateOrder(order: Order): void {
-    console.log('Dupliquer la commande:', order);
     if (order.materials && order.materials.length > 0) {
       const materialsArray = this.orderForm.get('materials') as FormArray;
       while (materialsArray.length !== 0) {
@@ -2003,11 +1966,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         doc.save(`Facture_${orderNumber}.pdf`);
         this.showSuccessMessage('Facture téléchargée avec succès');
       }).catch((error) => {
-        console.error('Erreur lors du chargement de jsPDF:', error);
         this.showErrorMessage('Erreur lors de la génération du PDF');
       });
     } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
       this.showErrorMessage('Erreur lors de la génération du PDF');
     }
   }
@@ -2090,7 +2051,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Méthodes d'action pour les livraisons
   viewDeliveryDetails(delivery: Delivery): void {
-    console.log('Voir détails de la livraison:', delivery);
     // Logique pour afficher les détails
   }
 
@@ -2099,7 +2059,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrorMessage('Impossible de modifier une livraison annulée');
       return;
     }
-    console.log('Modifier la livraison:', delivery);
     // Logique pour modifier la livraison
   }
 
@@ -2108,14 +2067,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrorMessage('Aucune preuve disponible pour cette livraison');
       return;
     }
-    console.log('Télécharger la preuve:', delivery.proof);
     // Logique pour télécharger la preuve
   }
 
   deleteDelivery(delivery: Delivery): void {
     const confirmMessage = `Êtes-vous sûr de vouloir supprimer la livraison ${delivery.number} ?`;
     if (confirm(confirmMessage)) {
-      console.log('Supprimer la livraison:', delivery);
       // Logique pour supprimer la livraison
     }
   }
@@ -2449,7 +2406,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    console.log('🔍 Ouverture détails commande:', order);
 
     // ✅ Réinitialiser AVANT d'ouvrir
     this.orderQuotes = [];
@@ -2473,7 +2429,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
    * Charge les citations (quotes) d'une commande
    */
   loadOrderQuotes(orderId: number): void {
-    console.log('📄 Chargement des citations pour la commande:', orderId);
 
     this.loadingQuotes = true;
     this.quotesError = null;
@@ -2484,7 +2439,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: QuoteResponse) => {
-          console.log('✅ Citations reçues:', response);
 
           this.orderQuotes = response.content || [];
           this.loadingQuotes = false;
@@ -2498,7 +2452,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('❌ Erreur chargement citations:', error);
           this.loadingQuotes = false;
 
           if (error.status === 404) {
@@ -2516,13 +2469,11 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   selectQuote(quote: Quote): void {
-    console.log('📌 Sélection citation:', quote);
     this.selectedQuote = quote;
   }
 
   // ===== MÉTHODE closeOrderDetailsModal() - VÉRIFIER =====
   closeOrderDetailsModal(): void {
-    console.log('🚪 Fermeture modal détails');
     this.showOrderDetailsModal = false;
     this.selectedOrderDetails = null;
     this.orderQuotes = [];

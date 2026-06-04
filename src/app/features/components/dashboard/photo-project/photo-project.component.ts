@@ -30,8 +30,7 @@
 //     this.authService.getCurrentUser().subscribe({
 //       next: (user) => {
 //         if (!user?.id) {
-//           console.error('Utilisateur non connecté');
-//           return;
+////           return;
 //         }
 
 //         const promoterId = user.id;
@@ -41,13 +40,11 @@
 //             this.photos = data;
 //           },
 //           error: (err) => {
-//             console.error('Erreur lors du chargement des photos :', err);
-//           }
+////           }
 //         });
 //       },
 //       error: (err) => {
-//         console.error('Erreur lors de la récupération de l’utilisateur :', err);
-//       }
+////       }
 //     });
 //   }
 // }
@@ -108,15 +105,13 @@ export class PhotoProjectComponent implements OnInit {
             this.isLoading = false;
           },
           error: (err) => {
-            console.error('Erreur lors du chargement des photos :', err);
             this.error = 'Erreur lors du chargement des photos';
             this.isLoading = false;
           }
         });
       },
       error: (err) => {
-        // console.error('Erreur lors de la récupération de l'utilisateur :', err);
-        this.error = 'Erreur de connexion utilisateur';
+        //this.error = 'Erreur de connexion utilisateur';
         this.isLoading = false;
       }
     });

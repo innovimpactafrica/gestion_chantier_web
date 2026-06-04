@@ -119,7 +119,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
           },
           error: (error: any) => {
             this.handleUserError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
 
@@ -131,7 +130,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
   }
 
   private handleUserError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }
@@ -168,7 +166,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
     const userId = this.authService.currentUser();
 
     if (!userId || !userId.id) {
-      console.error('❌ Utilisateur non connecté ou ID manquant');
       this.error = 'Utilisateur non connecté';
       this.loading = false;
       return;
@@ -185,7 +182,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des demandes:', err);
         this.error = 'Erreur lors du chargement des demandes';
         this.loading = false;
       }
@@ -329,7 +325,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     const validateSubscription = this.demandeService.validateDemande(this.selectedDemande.id).subscribe({
       next: (updatedDemande: Demande) => {
-        console.log('✅ Demande validée avec succès:', updatedDemande);
 
         // Mettre à jour la demande locale
         this.selectedDemande = updatedDemande;
@@ -344,7 +339,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.closeValidateConfirmation();
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la validation:', error);
         this.actionError = 'Erreur lors de la validation de la demande';
         this.isValidating = false;
       }
@@ -377,7 +371,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
       this.rejectionReason.trim() || undefined
     ).subscribe({
       next: (updatedDemande: Demande) => {
-        console.log('✅ Demande rejetée avec succès:', updatedDemande);
 
         // Mettre à jour la demande locale
         this.selectedDemande = updatedDemande;
@@ -392,7 +385,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.closeRejectConfirmation();
       },
       error: (error) => {
-        console.error('❌ Erreur lors du rejet:', error);
         this.actionError = 'Erreur lors du rejet de la demande';
         this.isRejecting = false;
       }
@@ -436,7 +428,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     const deleteSubscription = this.demandeService.deleteDemande(this.demandeToDelete.id).subscribe({
       next: () => {
-        console.log('✅ Demande supprimée avec succès');
 
         // Retirer de la liste
         this.demandes = this.demandes.filter(d => d.id !== this.demandeToDelete!.id);
@@ -450,7 +441,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la suppression:', error);
         this.actionError = 'Erreur lors de la suppression de la demande';
         this.isDeleting = false;
       }
@@ -471,7 +461,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.loadingComments = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des commentaires:', error);
         this.loadingComments = false;
       }
     });
@@ -481,7 +470,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   sendComment() {
     if (!this.comment.trim() || !this.selectedDemande || !this.betId) {
-      console.error('❌ Données manquantes pour l\'ajout de commentaire');
       return;
     }
 
@@ -500,12 +488,10 @@ export class DemandeComponent implements OnInit, OnDestroy {
       commentData
     ).subscribe({
       next: (newComment) => {
-        console.log('✅ Commentaire ajouté avec succès:', newComment);
         this.comments.push(newComment);
         this.comment = '';
       },
       error: (error) => {
-        console.error('❌ Erreur lors de l\'ajout du commentaire:', error);
       }
     });
 
@@ -588,7 +574,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     const createSubscription = this.demandeService.createReport(reportData, this.newReport.file).subscribe({
       next: (response: Report) => {
-        console.log('✅ Rapport créé avec succès:', response);
 
         if (this.selectedDemande) {
           if (!this.selectedDemande.reports) {
@@ -600,7 +585,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.closeCreateReportModal();
       },
       error: (error: any) => {
-        console.error('❌ Erreur lors de la création du rapport:', error);
         this.createReportError = 'Erreur lors de la création du rapport. Veuillez réessayer.';
         this.isCreatingReport = false;
       }
@@ -713,7 +697,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     const acceptSubscription = this.demandeService.acceptDemande(this.selectedDemande.id).subscribe({
       next: (updatedDemande: Demande) => {
-        console.log('✅ Demande acceptée avec succès:', updatedDemande);
 
         this.selectedDemande = updatedDemande;
 
@@ -726,7 +709,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.isValidating = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors de l\'acceptation:', error);
         this.actionError = 'Erreur lors de l\'acceptation de la demande';
         this.isValidating = false;
       }
@@ -743,7 +725,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
     const deliverSubscription = this.demandeService.deliverDemande(this.selectedDemande.id).subscribe({
       next: (updatedDemande: Demande) => {
-        console.log('✅ Demande marquée comme livrée:', updatedDemande);
 
         this.selectedDemande = updatedDemande;
 
@@ -756,7 +737,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.isValidating = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la livraison:', error);
         this.actionError = 'Erreur lors de la livraison de la demande';
         this.isValidating = false;
       }
@@ -779,7 +759,6 @@ export class DemandeComponent implements OnInit, OnDestroy {
         this.isLoadingIA = false;
       },
       error: (err) => {
-        console.error('Erreur rapport IA:', err);
         this.iaError = 'Rapport IA non disponible pour cette étude.';
         this.isLoadingIA = false;
       }

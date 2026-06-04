@@ -54,8 +54,6 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🚀 RegisterComponent initialisé');
-    console.log('📋 Profils disponibles:', this.availableProfiles);
   }
 
   private initializeForm(): void {
@@ -83,18 +81,13 @@ export class RegisterComponent implements OnInit {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
     const formattedDate = `${day}-${month}-${year}`;
-    console.log('📅 Conversion date:', {
-      original: dateString,
-      formatted: formattedDate
-    });
-    return formattedDate;
+return formattedDate;
   }
 
   // Détection du changement de profil
   onProfileChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const selectedValue = selectElement.value;
-    console.log('👤 Profil sélectionné:', selectedValue);
   }
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -123,7 +116,6 @@ export class RegisterComponent implements OnInit {
       reader.readAsDataURL(file);
 
       this.errorMessage = '';
-      console.log('📸 Photo sélectionnée:', file.name, `(${(file.size / 1024).toFixed(2)} KB)`);
     }
   }
 
@@ -135,7 +127,6 @@ export class RegisterComponent implements OnInit {
     if (fileInput) {
       fileInput.value = '';
     }
-    console.log('🗑️ Photo supprimée');
   }
 
   onSubmit(): void {
@@ -172,23 +163,6 @@ export class RegisterComponent implements OnInit {
       photo: this.selectedPhoto || undefined // Ajouter la photo
     };
 
-    console.log('📤 Envoi des données d\'inscription:', {
-      ...userData,
-      password: '***', // Masquer le mot de passe dans les logs
-      photo: this.selectedPhoto ? this.selectedPhoto.name : 'Aucune'
-    });
-
-    console.log('🔍 Vérification des champs:');
-    console.log('  - nom:', userData.nom);
-    console.log('  - prenom:', userData.prenom);
-    console.log('  - email:', userData.email);
-    console.log('  - password:', userData.password ? 'OK' : 'VIDE');
-    console.log('  - telephone:', userData.telephone);
-    console.log('  - date:', userData.date);
-    console.log('  - lieunaissance:', userData.lieunaissance);
-    console.log('  - adress:', userData.adress);
-    console.log('  - profil:', userData.profil);
-    console.log('  - photo:', this.selectedPhoto ? `${this.selectedPhoto.name} (${(this.selectedPhoto.size / 1024).toFixed(2)} KB)` : 'Aucune');
 
     // Appel du service UserService pour créer l'utilisateur
     this.userService.createUser(userData).subscribe({
@@ -202,7 +176,6 @@ export class RegisterComponent implements OnInit {
   }
 
   private handleRegistrationSuccess(response: any): void {
-    console.log('✅ Inscription réussie:', response);
     this.successMessage = "Compte créé avec succès ! Redirection vers la connexion...";
     this.isLoading = false;
 
@@ -213,7 +186,6 @@ export class RegisterComponent implements OnInit {
   }
 
   private handleRegistrationError(error: any): void {
-    console.error('❌ Erreur lors de l\'inscription:', error);
     this.isLoading = false;
 
     if (error.userMessage) {

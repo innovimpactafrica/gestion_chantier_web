@@ -150,7 +150,6 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
           this.unreadCount = count;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement du compteur:', error);
         }
       });
   }
@@ -184,7 +183,6 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
           this.loadingNotifications = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des notifications:', error);
           this.loadingNotifications = false;
           this.notifications = [];
         }
@@ -204,7 +202,6 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
           this.notifications.forEach(n => n.read = true);
         },
         error: (error) => {
-          console.error('Erreur lors du marquage des notifications:', error);
         }
       });
   }
@@ -225,7 +222,6 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
           this.loadingNotifications = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement de la notification:', error);
           this.loadingNotifications = false;
         }
       });
@@ -282,9 +278,7 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
   copyToClipboard(text: string): void {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
-        console.log('Copié dans le presse-papiers:', text);
       }).catch(err => {
-        console.error('Erreur lors de la copie:', err);
       });
     } else {
       const textarea = document.createElement('textarea');
@@ -293,9 +287,7 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
       textarea.select();
       try {
         document.execCommand('copy');
-        console.log('Copié dans le presse-papiers:', text);
       } catch (err) {
-        console.error('Erreur lors de la copie:', err);
       }
       document.body.removeChild(textarea);
     }

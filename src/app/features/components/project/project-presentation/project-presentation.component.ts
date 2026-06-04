@@ -73,7 +73,6 @@ export class ProjectPresentationComponent implements OnInit {
     if (this.statusReportComponent) {
       this.statusReportComponent.onAddClick();
     } else {
-      console.warn('StatusReportComponent pas encore initialisé');
     }
   }
   /**
@@ -82,7 +81,6 @@ export class ProjectPresentationComponent implements OnInit {
  */
   changeStatut(nouveauStatutFr: string): void {
     if (!this.projet || !this.projet.id) {
-      console.error('Projet non chargé');
       return;
     }
 
@@ -99,23 +97,15 @@ export class ProjectPresentationComponent implements OnInit {
     const nouveauStatutEn = this.statutMap[nouveauStatutFr];
 
     if (!nouveauStatutEn) {
-      console.error('Statut invalide:', nouveauStatutFr);
       return;
     }
 
     this.isUpdatingStatus = true;
     this.statusUpdateError = null;
 
-    console.log('🔄 Mise à jour du statut:', {
-      ancien: this.projet.constructionStatus,
-      nouveau: nouveauStatutEn,
-      projetId: this.projet.id
-    });
-
     // Appel de la méthode changeProjectStatus au lieu de updateProject
     this.realEstateService.changeProjectStatus(this.projet.id, nouveauStatutEn).subscribe({
       next: (response) => {
-        console.log('✅ Statut mis à jour avec succès:', response);
 
         // Mettre à jour le projet local avec response.data.realEstateProperty
         if (response && response.data && response.data.realEstateProperty) {
@@ -142,11 +132,9 @@ export class ProjectPresentationComponent implements OnInit {
           this.loadBudget(this.projet.id);
         }
 
-        console.log('✓ Statut changé à:', nouveauStatutFr);
       },
 
       error: (error) => {
-        console.error('❌ Erreur lors de la mise à jour du statut:', error);
         this.statusUpdateError = 'Impossible de mettre à jour le statut du projet';
         this.isUpdatingStatus = false;
 
@@ -203,7 +191,6 @@ export class ProjectPresentationComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement du projet:', error);
           this.error = 'Erreur lors du chargement des détails du projet';
           this.projet = null;
           this.loading = false;
@@ -216,7 +203,6 @@ export class ProjectPresentationComponent implements OnInit {
     this.dashboardService.etatAvancement().pipe(
       takeUntil(this.destroy$),
       catchError(error => {
-        console.error('Erreur progression:', error);
         this.progressError = 'Impossible de charger la progression';
         this.isLoadingProgress = false;
         return of([] as PhaseIndicator[]);
@@ -241,7 +227,6 @@ export class ProjectPresentationComponent implements OnInit {
     this.projectBudgetService.GetProjectBudget(propertyId).pipe(
       takeUntil(this.destroy$),
       catchError(error => {
-        console.error('Erreur lors du chargement du budget:', error);
         this.budgetError = 'Impossible de charger les données du budget';
         this.isLoadingBudget = false;
         return of(null);
@@ -319,7 +304,6 @@ export class ProjectPresentationComponent implements OnInit {
       // Déclenche la modale de modification de budget
       this.projectBudgetComponent.openBudgetModal();
     } else {
-      console.log('Modification du projet:', this.projet?.id);
     }
   }
 
@@ -450,7 +434,6 @@ export class ProjectPresentationComponent implements OnInit {
    * Reloads the progress data to keep the sidebar in sync
    */
   onProgressUpdated(): void {
-    console.log('🔄 Progress updated, reloading progression data...');
     this.loadProgression();
   }
 }

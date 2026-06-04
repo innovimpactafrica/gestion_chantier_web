@@ -91,7 +91,6 @@ export class ProjectAlertComponent implements OnInit {
         // Succès : on peut afficher un toast ou simplement garder l'UI à jour
       },
       error: (err) => {
-        console.error("Erreur lors de la mise à jour du statut", err);
         // Rollback
         incident.status = previousStatus;
         this.showError(this.t('incidents.statusUpdateError'));
@@ -138,7 +137,6 @@ export class ProjectAlertComponent implements OnInit {
       this.newSignalement.propertyId = this.propertyId;
       this.loadSignalements();
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
       // Gérer l'erreur ou rediriger
     }
   }
@@ -155,7 +153,6 @@ export class ProjectAlertComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des signalements:', error);
           this.loading = false;
         }
       });
@@ -248,7 +245,6 @@ export class ProjectAlertComponent implements OnInit {
 
             formData.append('pictures', file);
           } catch (error) {
-            console.error('Erreur conversion image:', error);
             formData.append('pictures', picture);
           }
         } else {
@@ -267,7 +263,6 @@ export class ProjectAlertComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur:', error);
           this.loading = false;
           this.showError('Erreur lors de l\'ajout du signalement');
         }
@@ -346,7 +341,6 @@ export class ProjectAlertComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression :', error);
           this.loading = false;
           this.showDeleteConfirmModal = false;
         }
@@ -355,7 +349,6 @@ export class ProjectAlertComponent implements OnInit {
   }
 
   editSignalement(signalement: Signalement): void {
-    console.log('Édition du signalement:', signalement);
   }
 
   // Méthode pour récupérer le texte selon la langue active
@@ -372,7 +365,6 @@ export class ProjectAlertComponent implements OnInit {
 
   // Méthode pour ouvrir le modal IA alerte
   openAlertIAModal(incident: any): void {
-    console.log('🤖 Ouverture modal IA pour incident ID:', incident.id);
 
     // Fermer tous les autres modaux
     this.showPhotoModal = false;
@@ -389,12 +381,10 @@ export class ProjectAlertComponent implements OnInit {
       .getDetailsAlertFromIA(incident.id)
       .subscribe({
         next: (report) => {
-          console.log('✅ Rapport IA alerte reçu:', report);
           this.alertIAReport = report;
           this.isLoadingAlertIA = false;
         },
         error: (err) => {
-          console.error('❌ Erreur rapport IA alerte:', err);
           this.alertIAError = 'Rapport IA non disponible pour cet incident.';
           this.isLoadingAlertIA = false;
         }

@@ -498,10 +498,8 @@ export class ProjectBudgetService {
       localStorage.getItem('jwt') ||
       sessionStorage.getItem('jwt');
 
-    console.log('Token récupéré pour headers:', token ? token.substring(0, 20) + '...' : 'null');
 
     if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
       return new HttpHeaders();
     }
 
@@ -519,7 +517,6 @@ export class ProjectBudgetService {
 
   // Méthode pour gérer les erreurs HTTP
   private handleError(error: HttpErrorResponse) {
-    console.error('Erreur HTTP détaillée:', error);
 
     let errorMessage = 'Une erreur est survenue';
 
@@ -564,17 +561,9 @@ export class ProjectBudgetService {
           const fileName = `task-image-${index + 1}.png`;
           formData.append('pictures', blob, fileName);
         } catch (error) {
-          console.error(`Erreur conversion image ${index + 1}:`, error);
         }
       });
     }
-
-    console.log('📤 Création de tâche:', {
-      title: taskData.title,
-      propertyId: taskData.realEstatePropertyId,
-      executorCount: taskData.executorIds.length,
-      pictureCount: taskData.pictures?.length || 0
-    });
 
     // ✅ CORRECTION: URL fixée - était `${this.baseUrl}/tasks` au lieu de `${this.baseUrl}tasks`
     return this.http.post<any>(
@@ -583,7 +572,6 @@ export class ProjectBudgetService {
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('❌ Erreur création tâche:', error);
         return throwError(() => ({
           status: error.status,
           message: error.error?.message || error.message || 'Erreur lors de la création de la tâche',
@@ -598,7 +586,6 @@ export class ProjectBudgetService {
     const formData = new FormData();
     formData.append('status', status);
 
-    console.log('📤 Mise à jour statut:', { taskId: id, newStatus: status });
 
     return this.http.put<any>(
       `${this.baseUrl}/tasks/${id}/status`,
@@ -606,7 +593,6 @@ export class ProjectBudgetService {
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('❌ Erreur mise à jour statut:', error);
 
         // Retourner un objet d'erreur structuré
         return throwError(() => ({
@@ -667,19 +653,9 @@ export class ProjectBudgetService {
             formData.append('pictures', pictureBase64);
           }
         } catch (error) {
-          console.error(`Erreur conversion image ${index + 1}:`, error);
         }
       });
     }
-
-    console.log('📤 Mise à jour tâche:', {
-      taskId: id,
-      status: taskData.status,
-      hasTitle: !!taskData.title,
-      hasDescription: !!taskData.description,
-      executorCount: taskData.executorIds?.length || 0,
-      pictureCount: taskData.pictures?.length || 0
-    });
 
     return this.http.put<any>(
       `${this.baseUrl}/tasks/${id}`,
@@ -687,7 +663,6 @@ export class ProjectBudgetService {
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('❌ Erreur mise à jour tâche:', error);
 
         return throwError(() => ({
           status: error.status,
@@ -719,7 +694,6 @@ export class ProjectBudgetService {
 
       return new Blob([arrayBuffer], { type: mimeType });
     } catch (error) {
-      console.error('Erreur lors de la conversion base64 en Blob:', error);
       throw new Error('Impossible de convertir l\'image');
     }
   }
@@ -745,17 +719,9 @@ export class ProjectBudgetService {
           const fileName = `image-${index + 1}.png`;
           formData.append('pictures', blob, fileName);
         } catch (error) {
-          console.error(`Erreur avec l'image ${index + 1}:`, error);
         }
       });
     }
-
-    console.log('Envoi FormData avec:', {
-      realEstatePropertyId: album.realEstatePropertyId,
-      name: album.name,
-      description: album.description,
-      pictureCount: album.pictures ? album.pictures.length : 0
-    });
 
     return this.http.post<any>(
       `${this.baseUrl}/progress-album/save`,
@@ -763,7 +729,6 @@ export class ProjectBudgetService {
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('Erreur détaillée lors de la création d\'album:', error);
         return this.handleError(error);
       })
     );
@@ -785,7 +750,6 @@ export class ProjectBudgetService {
           const fileName = `image-${index + 1}.png`;
           formData.append('pictures', blob, fileName);
         } catch (error) {
-          console.error(`Erreur avec l'image ${index + 1}:`, error);
         }
       });
     }
@@ -803,7 +767,6 @@ export class ProjectBudgetService {
    * Récupère les indicateurs de progression d'un projet
    */
   getIndicatorsByProperty(propertyId: number): Observable<ProgressIndicator[]> {
-    console.log(`📊 Récupération des indicateurs du projet ${propertyId}`);
 
     return this.http.get<ProgressIndicator[]>(
       `${this.baseUrl}/indicators/property/${propertyId}`,
@@ -854,14 +817,12 @@ export class ProjectBudgetService {
   getTasks(propertyId: number, page: number = 0, size: number = 10): Observable<TasksResponse> {
     const headers = this.getAuthHeaders();
 
-    console.log('📥 Chargement tâches:', { propertyId, page, size });
 
     return this.http.get<TasksResponse>(
       `${this.baseUrl}/tasks/by-property/${propertyId}?page=${page}&size=${size}`,
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('❌ Erreur chargement tâches:', error);
 
         return throwError(() => ({
           status: error.status,
@@ -939,14 +900,12 @@ export class ProjectBudgetService {
   deleteTask(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
 
-    console.log('🗑️ Suppression tâche:', id);
 
     return this.http.delete<void>(
       `${this.baseUrl}/tasks/${id}`,
       { headers }
     ).pipe(
       catchError((error) => {
-        console.error('❌ Erreur suppression tâche:', error);
 
         return throwError(() => ({
           status: error.status,
@@ -1002,19 +961,15 @@ export class ProjectBudgetService {
     }
 
     // Log des clés et valeurs du FormData avec assertion de type
-    console.log('Envoi FormData pour document avec champs:');
     for (const [key, value] of (formData as any).entries()) {
-      console.log(`${key}: ${value instanceof File ? value.name : value}`);
     }
 
     // Vérifier le token
     const token = headers.get('Authorization')?.replace('Bearer ', '');
-    console.log('Token envoyé:', token ? token.substring(0, 20) + '...' : 'Aucun token');
 
     return this.http.post<any>(`${this.baseUrl}/documents/add`, formData, { headers })
       .pipe(
         catchError((error) => {
-          console.error('Erreur détaillée lors de la création du document:', error);
           return this.handleError(error);
         })
       );
@@ -1066,21 +1021,15 @@ export class ProjectBudgetService {
   checkAuthToken(): void {
     const possibleKeys = ['token', 'authToken', 'accessToken', 'jwt', 'bearerToken'];
 
-    console.log('=== VÉRIFICATION DES TOKENS ===');
     possibleKeys.forEach(key => {
       const localValue = localStorage.getItem(key);
       const sessionValue = sessionStorage.getItem(key);
 
       if (localValue) {
-        console.log(`localStorage.${key}:`, localValue.substring(0, 20) + '...');
       }
       if (sessionValue) {
-        console.log(`sessionStorage.${key}:`, sessionValue.substring(0, 20) + '...');
       }
     });
 
-    console.log('Clés localStorage:', Object.keys(localStorage));
-    console.log('Clés sessionStorage:', Object.keys(sessionStorage));
-    console.log('===============================');
   }
 }

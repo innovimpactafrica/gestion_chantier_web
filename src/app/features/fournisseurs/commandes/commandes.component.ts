@@ -95,7 +95,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
           },
           error: (error: HttpErrorResponse) => {
             this.handleUserError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
         
@@ -107,7 +106,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
   }
 
   private handleUserError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }
@@ -162,7 +160,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors du chargement des commandes:', err);
         this.error = 'Erreur lors du chargement des commandes';
         this.loading = false;
       }
@@ -317,7 +314,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
    */
   openDetails(commande: ExtendedOrder) {
     if (!commande || !commande.id) {
-      console.error('Commande non valide ou ID manquant');
       this.error = 'Commande non valide';
       return;
     }
@@ -344,7 +340,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         }, 0);
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des détails:', err);
         this.error = 'Erreur lors du chargement des détails de la commande';
       }
     });
@@ -458,7 +453,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
     // Appeler le service
     this.commandeService.createQuote(this.selectedCommande.id, quoteRequest).subscribe({
       next: (response) => {
-        console.log('Citation créée avec succès:', response);
         this.quoteSuccess = true;
         this.isCreatingQuote = false;
         
@@ -469,7 +463,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         }, 2000);
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors de la création de la citation:', err);
         this.quoteError = 'Erreur lors de la création de la citation. Veuillez réessayer.';
         this.isCreatingQuote = false;
       }
@@ -544,7 +537,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.refreshData();
       },
       error: (err) => {
-        console.error('Erreur lors de la validation:', err);
         this.error = 'Erreur lors de la validation de la commande';
         this.isProcessing = false;
       }
@@ -567,7 +559,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.refreshData();
       },
       error: (err) => {
-        console.error('Erreur lors du rejet:', err);
         this.error = 'Erreur lors du rejet de la commande';
         this.isProcessing = false;
       }
@@ -589,7 +580,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.refreshData();
       },
       error: (err) => {
-        console.error('Erreur lors de la suppression:', err);
         this.error = 'Erreur lors de la suppression de la commande';
         this.isProcessing = false;
       }

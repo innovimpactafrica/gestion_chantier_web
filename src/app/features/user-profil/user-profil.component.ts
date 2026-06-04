@@ -488,8 +488,7 @@
 //     if (this.authService.isAuthenticated() && !this.authService.currentUser()) {
 //       this.authService.loadCurrentUser().subscribe({
 //         error: (error) => {
-//           console.error('Erreur lors du chargement du profil:', error);
-//         }
+////         }
 //       });
 //     }
 //   }
@@ -497,11 +496,9 @@
 //   refreshProfile(): void {
 //     this.authService.refreshUser().subscribe({
 //       next: () => {
-//         console.log('Profil actualisé avec succès');
-//       },
+////       },
 //       error: (error) => {
-//         console.error('Erreur lors de l\'actualisation:', error);
-//       }
+////       }
 //     });
 //   }
 

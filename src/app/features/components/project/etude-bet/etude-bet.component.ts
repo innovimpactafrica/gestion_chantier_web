@@ -174,7 +174,6 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
         setTimeout(() => this.successMessage = '', 2500);
       },
       error: (err) => {
-        console.error('Erreur changement statut étude:', err);
         this.showEtudeStatusDropdown = null;
         this.isLoading = false;
         this.showErrorModal = true;
@@ -318,7 +317,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
             this.editEtude.clientId = user.id;
           }
         },
-        error: (err) => console.error('Erreur chargement utilisateur:', err)
+        error: (_err) => {}
       });
     }
   }
@@ -405,8 +404,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
         this.betLoading = false;
         this.loadingBETs = false;
       },
-      error: (err) => {
-        console.error('Erreur chargement BETs:', err);
+      error: (_err) => {
         this.betLoading = false;
         this.loadingBETs = false;
       }
@@ -424,7 +422,6 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
       this.newEtude.propertyId = this.currentPropertyId;
       this.loadEtudes();
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
 
@@ -438,8 +435,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
         this.onSearch();
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('Erreur chargement études:', err);
+      error: (_err) => {
         this.isLoading = false;
       }
     });
@@ -506,7 +502,6 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
   // ═══════════════════════════════════════════════════════════════════════════
 
   openIAModal(etude: EtudeBET): void {
-    console.log('🤖 Ouverture modal IA pour l\'étude ID:', etude.id, ' | titre:', etude.titre);
 
     // Fermer tous les autres modaux pour éviter les conflits d'affichage
     this.showDetailModal = false;
@@ -523,16 +518,13 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.iaError = null;
     this.isLoadingIA = true;
 
-    console.log('🤖 showIAModal =', this.showIAModal);
 
     this.etudeBetService.getDetailsFromIA(etude.id).subscribe({
       next: (report) => {
-        console.log('✅ Rapport IA reçu:', report);
         this.iaReport = report;
         this.isLoadingIA = false;
       },
-      error: (err) => {
-        console.error('❌ Erreur chargement rapport IA:', err);
+      error: (_err) => {
         this.iaError = 'Rapport IA non disponible pour cette étude.';
         this.isLoadingIA = false;
       }
@@ -707,7 +699,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
   private loadCommentsForDetail(etude: EtudeBET): void {
     this.etudeBetService.getComment(etude.id).subscribe({
       next: (comments) => { this.comments = comments; },
-      error: (err) => { console.error('Erreur commentaires:', err); this.comments = []; }
+      error: (_err) => { this.comments = []; }
     });
   }
 
@@ -715,7 +707,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.selectedEtudeForComments = etude;
     this.etudeBetService.getComment(etude.id).subscribe({
       next: (comments) => { this.comments = comments; this.showCommentsModal = true; },
-      error: (err) => { console.error('Erreur commentaires:', err); this.comments = []; this.showCommentsModal = true; }
+      error: (_err) => { this.comments = []; this.showCommentsModal = true; }
     });
   }
 
@@ -781,7 +773,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.isLoading = true;
     this.etudeBetService.createEtude(this.newEtude).subscribe({
       next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
-      error: (err) => { console.error('Erreur création étude:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
@@ -801,7 +793,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.isLoading = true;
     this.etudeBetService.updateEtude(this.selectedEtude.id, this.editEtude).subscribe({
       next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
-      error: (err) => { console.error('Erreur mise à jour étude:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
@@ -811,7 +803,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.editReport.authorId = this.currentPropertyId;
     this.etudeBetService.updateReport(this.selectedReport.id, this.editReport).subscribe({
       next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
-      error: (err) => { console.error('Erreur mise à jour rapport:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
@@ -820,7 +812,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
       this.isLoading = true;
       this.etudeBetService.deleteReport(rapport.id).subscribe({
         next: () => { this.loadEtudes(); this.isLoading = false; },
-        error: (err) => { console.error('Erreur suppression rapport:', err); this.isLoading = false; }
+        error: (_err) => {this.isLoading = false; }
       });
     }
   }
@@ -830,7 +822,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.isLoading = true;
     this.etudeBetService.acceptEtude(this.selectedEtude.id).subscribe({
       next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
-      error: (err) => { console.error('Erreur validation:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
@@ -839,12 +831,11 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.isLoading = true;
     this.etudeBetService.rejectEtude(this.selectedEtude.id).subscribe({
       next: () => { this.loadEtudes(); this.closeAllModals(); this.isLoading = false; },
-      error: (err) => { console.error('Erreur rejet:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
   deleteEtude(etude: EtudeBET): void {
-    console.log('Suppression non disponible dans l\'API actuelle');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -859,7 +850,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     this.isLoading = true;
     this.demandeService.createComment(this.selectedEtude.id, currentUser.id, { content: content.trim() }).subscribe({
       next: () => { if (this.selectedEtude) this.loadCommentsForDetail(this.selectedEtude); this.isLoading = false; },
-      error: (err) => { console.error('Erreur commentaire:', err); this.isLoading = false; }
+      error: (_err) => {this.isLoading = false; }
     });
   }
 
@@ -908,7 +899,6 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
         this.isCreatingReport = false;
       },
       error: (err) => {
-        console.error('Erreur création rapport:', err);
         this.createReportError = err.status === 413 ? 'Fichier trop volumineux.' : 'Erreur lors de la création du rapport.';
         this.isCreatingReport = false;
       }

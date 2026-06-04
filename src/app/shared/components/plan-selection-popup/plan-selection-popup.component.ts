@@ -49,7 +49,6 @@ export class PlanSelectionPopupComponent implements OnInit {
     private loadSubscriptionPlans(): void {
         const user = this.authService.currentUser();
         if (!user) {
-            console.error('Utilisateur non connecté');
             this.errorMessage.set(this.t('popup.error.loginRequired'));
             return;
         }
@@ -67,11 +66,9 @@ export class PlanSelectionPopupComponent implements OnInit {
             userProfile = user.profil as any;
         }
 
-        console.log('📥 Chargement des plans pour profil:', userProfile);
 
         this.subscriptionService.getPlanSubscription(userProfile).subscribe({
             next: (plans: SubscriptionPlan[]) => {
-                console.log('✅ Plans reçus:', plans);
 
                 const premium = plans.find(plan =>
                     plan.label?.toUpperCase() === 'PREMIUM' ||
@@ -87,7 +84,6 @@ export class PlanSelectionPopupComponent implements OnInit {
                 this.isLoadingPlans.set(false);
             },
             error: (error) => {
-                console.error('❌ Erreur chargement plans:', error);
                 this.errorMessage.set(this.t('popup.error.loadPlans'));
                 this.isLoadingPlans.set(false);
             }
@@ -165,11 +161,9 @@ export class PlanSelectionPopupComponent implements OnInit {
             // Vérifier que le script OneTouch est chargé
             if (!this.isOneTouchScriptLoaded()) {
                 this.errorMessage.set(this.t('popup.error.payment'));
-                console.error('❌ Script OneTouch non chargé');
                 return;
             }
 
-            console.log('💳 Initialisation du paiement pour:', planType);
 
             // Initier le paiement via le service
             await this.subscriptionService.initiateSubscriptionPayment(
@@ -183,7 +177,6 @@ export class PlanSelectionPopupComponent implements OnInit {
             this.onClose();
 
         } catch (error: any) {
-            console.error('❌ Erreur lors de l\'initialisation du paiement:', error);
             this.errorMessage.set(error.message || this.t('popup.error.payment'));
         } finally {
             if (planType === 'premium') {

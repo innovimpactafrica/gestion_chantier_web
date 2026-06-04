@@ -169,7 +169,6 @@ export class LotService {
    * Récupère un lot par son ID
    */
   getLotById(lotId: number): Observable<Lot> {
-    console.log(`📖 Récupération du lot ${lotId}`);
 
     return this.http.get<Lot>(
       `${this.apiUrl}/${lotId}`,
@@ -181,7 +180,6 @@ export class LotService {
    * Récupère les commentaires d'un lot
    */
   getCommentsForLot(lotId: number): Observable<Comment[]> {
-    console.log(`💬 Récupération des commentaires du lot ${lotId}`);
 
     return this.http.get<Comment[]>(
       `${this.apiUrl}/${lotId}/comments`,
@@ -201,7 +199,6 @@ export class LotService {
       .set('userId', userId.toString())
       .set('commentText', commentText.trim());
 
-    console.log(`💬 Ajout commentaire au lot ${lotId}:`, { userId, commentText });
 
     return this.http.post<Comment>(
       `${this.apiUrl}/${lotId}/comments`,
@@ -305,7 +302,6 @@ export class LotService {
       subcontractorId: lotData.subcontractorId
     };
 
-    console.log('📤 Création de lot - Payload JSON:', payload);
 
     return this.http.post<Lot>(
       this.apiUrl,
@@ -323,7 +319,6 @@ export class LotService {
 
     const params = new HttpParams().set('percentage', percentage.toString());
 
-    console.log(`📊 Mise à jour progression lot ${lotId}: ${percentage}%`);
 
     return this.http.put<Lot>(
       `${this.apiUrl}/${lotId}/progress`,
@@ -347,7 +342,6 @@ export class LotService {
 
     const params = new HttpParams().set('status', status);
 
-    console.log(`🔄 Changement statut lot ${lotId}: ${status}`);
 
     return this.http.put<Lot>(
       `${this.apiUrl}/${lotId}/status`,
@@ -363,7 +357,6 @@ export class LotService {
    * Récupère la liste des fichiers/documents associés à un lot
    */
   getLotFiles(lotId: number): Observable<LotDocument[]> {
-    console.log(`📄 Récupération des fichiers du lot ${lotId}`);
     return this.http.get<LotDocument[]>(
       `${this.apiUrl}/${lotId}/files`,
       { headers: this.getAuthHeaders() }
@@ -401,7 +394,6 @@ export class LotService {
       // Content-Type sera automatiquement défini par le navigateur avec boundary
     });
 
-    console.log(`📤 Upload fichier vers lot ${lotId}:`, file.name, 'Libellé:', libelle);
 
     return this.http.post<LotDocument>(
       `${this.apiUrl}/${lotId}/files`,
@@ -414,7 +406,6 @@ export class LotService {
    * Supprime un fichier/document d'un lot
    */
   deleteLotFile(fileId: number): Observable<void> {
-    console.log(`🗑️ Suppression du fichier ${fileId}`);
 
     return this.http.delete<void>(
       `${this.apiUrl}/files/${fileId}`,
@@ -456,7 +447,6 @@ export class LotService {
       subcontractorId: lotData.subcontractorId
     };
 
-    console.log('📤 Mise à jour de lot - Payload JSON:', payload);
 
     return this.http.put<Lot>(
       `${this.apiUrl}/${id}`,

@@ -59,7 +59,7 @@ export interface CreateNotificationRequest {
   providedIn: 'root'
 })
 export class NotificationService {
-  private baseUrl = `${environment.apiBaseUrl}/api/admin-notifications`;
+  private baseUrl = environment.endpoints.adminNotifications;
 
   constructor(private http: HttpClient) {}
 

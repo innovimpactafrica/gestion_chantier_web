@@ -41,7 +41,7 @@ export interface PaginationParams {
   providedIn: 'root'
 })
 export class UnitParameterService {
-  private baseUrl = `${environment.apiUrl}/unit-parameters`;
+  private baseUrl = environment.endpoints.unitParameters;
 
   constructor(private http: HttpClient) {}
 

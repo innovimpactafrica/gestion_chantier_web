@@ -58,7 +58,6 @@ export class PlanAbonnementService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    console.log('🔧 PlanAbonnementService initialisé');
   }
 
   /**
@@ -68,16 +67,10 @@ export class PlanAbonnementService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscriptions`;
     
-    console.log('📡 API Call: getAbonnements');
-    console.log('🔗 URL:', url);
     
     return this.http.get<Subscription[]>(url, { headers })
       .pipe(
         tap(abonnements => {
-          console.log('✅ Abonnements récupérés:');
-          console.log('  - Nombre d\'abonnements:', abonnements.length);
-          console.log('  - Abonnements actifs:', abonnements.filter(a => a.active).length);
-          console.log('  - Plans:', abonnements.map(a => a.subscriptionPlan?.name));
         }),
         catchError(error => this.handleError(error, 'getAbonnements'))
       );
@@ -90,18 +83,10 @@ export class PlanAbonnementService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans/${id}`;
     
-    console.log('📡 API Call: getPlanAbonnementById');
-    console.log('🔗 URL:', url);
-    console.log('🆔 Plan ID:', id);
     
     return this.http.get<SubscriptionPlan>(url, { headers })
       .pipe(
         tap(plan => {
-          console.log('✅ Plan d\'abonnement récupéré:');
-          console.log('  - Nom:', plan.name);
-          console.log('  - Label:', plan.label);
-          console.log('  - Coût total:', plan.totalCost);
-          console.log('  - Actif:', plan.active);
         }),
         catchError(error => this.handleError(error, 'getPlanAbonnementById'))
       );
@@ -114,17 +99,10 @@ export class PlanAbonnementService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans`;
     
-    console.log('📡 API Call: createPlanAbonnement');
-    console.log('🔗 URL:', url);
-    console.log('📝 Données du plan:', planData);
     
     return this.http.post<SubscriptionPlan>(url, planData, { headers })
       .pipe(
         tap(newPlan => {
-          console.log('✅ Plan d\'abonnement créé:');
-          console.log('  - ID:', newPlan.id);
-          console.log('  - Nom:', newPlan.name);
-          console.log('  - Label:', newPlan.label);
         }),
         catchError(error => this.handleError(error, 'createPlanAbonnement'))
       );
@@ -138,15 +116,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
   const headers = this.getAuthHeaders();
   const url = `${this.baseUrl}/subscription-plans/${id}`;
   
-  console.log('📡 API Call: putPlanAbonnement');
-  console.log('🔗 URL:', url);
-  console.log('🆔 Plan ID:', id);
-  console.log('📝 Données à mettre à jour:', planData);
   
   return this.http.put<void>(url, planData, { headers })
     .pipe(
       tap(() => {
-        console.log('✅ Plan d\'abonnement mis à jour avec succès (ID:', id, ')');
       }),
       catchError(error => this.handleError(error, 'putPlanAbonnement'))
     );
@@ -159,14 +132,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans/${id}`;
     
-    console.log('📡 API Call: deletePlanAbonnement');
-    console.log('🔗 URL:', url);
-    console.log('🆔 Plan ID à supprimer:', id);
     
     return this.http.delete(url, { headers })
       .pipe(
         tap(() => {
-          console.log('✅ Plan d\'abonnement supprimé avec succès');
         }),
         catchError(error => this.handleError(error, 'deletePlanAbonnement'))
       );
@@ -179,15 +148,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans/active`;
     
-    console.log('📡 API Call: getAllActivePlans');
-    console.log('🔗 URL:', url);
     
     return this.http.get<SubscriptionPlan[]>(url, { headers })
       .pipe(
         tap(plans => {
-          console.log('✅ Plans actifs récupérés:');
-          console.log('  - Nombre de plans actifs:', plans.length);
-          console.log('  - Plans:', plans.map(p => p.name));
         }),
         catchError(error => this.handleError(error, 'getAllActivePlans'))
       );
@@ -200,16 +164,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans/name/${name}`;
     
-    console.log('📡 API Call: getPlansByName');
-    console.log('🔗 URL:', url);
-    console.log('🔍 Nom recherché:', name);
     
     return this.http.get<SubscriptionPlan[]>(url, { headers })
       .pipe(
         tap(plans => {
-          console.log('✅ Plans par nom récupérés:');
-          console.log('  - Nombre de plans:', plans.length);
-          console.log('  - Plans:', plans.map(p => p.label));
         }),
         catchError(error => this.handleError(error, 'getPlansByName'))
       );
@@ -218,16 +176,10 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/subscription-plans`;
     
-    console.log('📡 API Call: getPlansByName');
-    console.log('🔗 URL:', url);
-    console.log('🔍 Nom recherché:', name);
     
     return this.http.get<SubscriptionPlan[]>(url, { headers })
       .pipe(
         tap(plans => {
-          console.log('✅ Plans par nom récupérés:');
-          console.log('  - Nombre de plans:', plans.length);
-          console.log('  - Plans:', plans.map(p => p.label));
         }),
         catchError(error => this.handleError(error, 'getPlansByName'))
       );
@@ -237,34 +189,28 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
    * Récupère les headers d'authentification
    */
   private getAuthHeaders(): HttpHeaders {
-    console.log('🔑 Récupération des headers d\'authentification...');
     
     if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
       
-      console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
       
       if (!hasAuth) {
-        console.warn('⚠️ Aucun header Authorization trouvé!');
       }
       
       return headers;
     }
     
-    console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
     
     const token = this.authService?.getToken() || localStorage.getItem('token');
     
     if (token) {
-      console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       });
     }
     
-    console.error('❌ Aucun token d\'authentification trouvé!');
     
     return new HttpHeaders({
       'Content-Type': 'application/json'
@@ -275,14 +221,8 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
    * Gestion des erreurs HTTP avec contexte
    */
   private handleError(error: any, context: string = 'unknown'): Observable<never> {
-    console.error(`❌ Erreur dans PlanAbonnementService.${context}:`, error);
-    console.error('❌ Status:', error.status);
-    console.error('❌ Status Text:', error.statusText);
-    console.error('❌ URL:', error.url);
-    console.error('❌ Message:', error.message);
     
     if (error.error) {
-      console.error('❌ Error body:', error.error);
     }
     
     let errorMessage = 'Une erreur est survenue';
@@ -327,7 +267,6 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
         }
     }
     
-    console.error('💬 Message utilisateur:', userMessage);
     
     return throwError(() => ({
       message: errorMessage,
@@ -370,16 +309,5 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
    * Debug des endpoints disponibles
    */
   debugEndpoints(): void {
-    console.log('🔍 === PLAN ABONNEMENT SERVICE ENDPOINTS ===');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Endpoints disponibles:');
-    console.log('  - getAbonnements: GET', `${this.baseUrl}/subscriptions`);
-    console.log('  - getPlanAbonnementById: GET', `${this.baseUrl}/subscription-plans/{id}`);
-    console.log('  - createPlanAbonnement: POST', `${this.baseUrl}/subscription-plans`);
-    console.log('  - putPlanAbonnement: PUT', `${this.baseUrl}/subscription-plans/{id}`);
-    console.log('  - deletePlanAbonnement: DELETE', `${this.baseUrl}/subscription-plans/{id}`);
-    console.log('  - getAllActivePlans: GET', `${this.baseUrl}/subscription-plans/active`);
-    console.log('  - getPlansByName: GET', `${this.baseUrl}/subscription-plans/name/{name}`);
-    console.log('========================');
   }
 }

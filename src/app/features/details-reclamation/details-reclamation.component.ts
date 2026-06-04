@@ -119,7 +119,6 @@ export class DetailsReclamationComponent implements OnInit {
   }
 
   confirmerResolution(): void {
-    console.log('Réclamation marquée comme résolue');
     this.reclamation.statut = 'Résolue';
     this.closeConfirmationModal();
   }
@@ -136,7 +135,6 @@ export class DetailsReclamationComponent implements OnInit {
 
   reassignerReclamation(): void {
     if (this.nouvelAgent || this.searchAgent) {
-      console.log('Réclamation réassignée à:', this.nouvelAgent || this.searchAgent);
       this.agentActuel = this.nouvelAgent || this.searchAgent;
       this.closeReassignModal();
     }
@@ -165,6 +163,5 @@ export class DetailsReclamationComponent implements OnInit {
   }
 
   attachFile(): void {
-    console.log('Attacher un fichier');
   }
 }

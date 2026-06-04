@@ -19,11 +19,9 @@ export class RoleGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     
-    console.log('🔒 RoleGuard - Vérification des rôles pour:', state.url);
     
     // Vérifier d'abord l'authentification (sécurité supplémentaire)
     if (!this.authService.isAuthenticated()) {
-      console.log('❌ RoleGuard - Utilisateur non authentifié');
       return this.router.createUrlTree(['/login'], { 
         queryParams: { returnUrl: state.url } 
       });
@@ -31,7 +29,6 @@ export class RoleGuard implements CanActivate {
 
     const user = this.authService.currentUser();
     if (!user) {
-      console.log('❌ RoleGuard - Aucune donnée utilisateur');
       return this.router.createUrlTree(['/login'], { 
         queryParams: { returnUrl: state.url } 
       });
@@ -39,12 +36,9 @@ export class RoleGuard implements CanActivate {
 
     // Récupérer les rôles requis pour cette route
     const requiredRoles = route.data['roles'] as profil[];
-    console.log('📋 Rôles requis:', requiredRoles);
-    console.log('👤 Rôles utilisateur:', user.profil);
 
     // Si aucun rôle spécifique n'est requis, autoriser l'accès
     if (!requiredRoles || requiredRoles.length === 0) {
-      console.log('✅ RoleGuard - Aucun rôle spécifique requis');
       return true;
     }
 
@@ -52,8 +46,6 @@ export class RoleGuard implements CanActivate {
     const hasRequiredRole = this.checkUserRoles(user.profil, requiredRoles);
     
     if (!hasRequiredRole) {
-      console.log('❌ RoleGuard - Rôles insuffisants');
-      console.log('🔄 Redirection vers /dashboard');
       
       // Rediriger vers le dashboard si l'utilisateur n'a pas les droits
       // Vous pourriez aussi créer une page d'erreur 403
@@ -65,7 +57,6 @@ export class RoleGuard implements CanActivate {
       });
     }
 
-    console.log('✅ RoleGuard - Accès autorisé');
     return true;
   }
 
@@ -96,14 +87,12 @@ export class RoleGuard implements CanActivate {
       profilesArray = [userProfiles];
     }
 
-    console.log('🔍 Profils normalisés:', profilesArray);
     
     // Vérifier s'il y a au moins une correspondance
     const hasRole = profilesArray.some(profile => 
       requiredRoles.includes(profile)
     );
     
-    console.log('🎯 Correspondance trouvée:', hasRole);
     return hasRole;
   }
 

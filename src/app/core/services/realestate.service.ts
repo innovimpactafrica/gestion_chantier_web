@@ -1,8 +1,7 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, retry, timeout, map, switchMap } from 'rxjs/operators';
-import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../features/auth/services/auth.service';
 
@@ -100,35 +99,26 @@ export interface ApiErrorResponse {
   errors?: { [key: string]: string[] };
 }
 
-interface PhaseProgress {
-  phaseName: string;
-  averageProgressPercentage: number;
-}
-
-interface ProjectWithProgress extends RealEstateProject {
-  averageProgress?: number;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class RealestateService {
   private readonly endpoints = {
-    save: `${environment.apiUrl}/realestate/save`,
-    propertyTypes: `${environment.apiUrl}/property-types/all`,
-    promoters: `${environment.apiUrl}/v1/user/me`,
-    projects: `${environment.apiUrl}/realestate`,
-    searchProjects: `${environment.apiUrl}/realestate/search-by-promoter`,
-    indicators: `${environment.apiUrl}/indicators/global`,
-    detailProject: `${environment.apiUrl}/realestate`
+    save: `${environment.endpoints.realestate}/save`,
+    propertyTypes: `${environment.endpoints.propertyTypes}/all`,
+    promoters: `${environment.endpoints.user}/me`,
+    projects: environment.endpoints.realestate,
+    searchProjects: `${environment.endpoints.realestate}/search-by-promoter`,
+    indicators: `${environment.endpoints.indicators}/global`,
+    detailProject: environment.endpoints.realestate
   };
 
   private apiImageUrl = environment.filebaseUrl;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private authService: AuthService
   ) {}
 
   private getHeaders(): HttpHeaders {
@@ -140,7 +130,6 @@ export class RealestateService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      console.warn('⚠️ Aucun token disponible pour la requête');
     }
 
     return headers;
@@ -154,7 +143,6 @@ export class RealestateService {
 changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<RealEstateProject>> {
   const url = `${this.endpoints.projects}/change-status/${projectId}/${status}`;
   
-  console.log('🔄 Changement de statut:', { projectId, status, url });
   
   return this.http.put<ApiResponse<RealEstateProject>>(url, {}, { headers: this.getHeaders() })
     .pipe(
@@ -173,23 +161,13 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
   ): FormData {
     const formData = new FormData();
 
-    console.log('=== CONSTRUCTION DU FORMDATA (RAW FILE) ===');
-    console.log('Données reçues:', projectData);
-    console.log('Fichier plan:', planFile ? {
-      name: planFile.name,
-      size: planFile.size,
-      type: planFile.type
-    } : 'Aucun');
-
     if (planFile) {
       const validation = this.validateFile(planFile, 'image');
       if (!validation.valid) {
         throw new Error(validation.error || 'Fichier plan invalide');
       }
       formData.append('plan', planFile, planFile.name);
-      console.log('✅ Fichier plan ajouté en tant que fichier brut');
     } else {
-      console.warn('⚠️ Aucun fichier plan fourni');
     }
 
     const dataToSend = {
@@ -228,15 +206,8 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
     Object.entries(dataToSend).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
         formData.append(key, value);
-        console.log(`✅ Champ ajouté: ${key} = ${value}`);
       } else {
-        console.log(`⚠️ Champ ignoré (vide/null): ${key}`);
       }
-    });
-
-    console.log('=== FORMDATA FINAL (RAW FILE) ===');
-    formData.forEach((value, key) => {
-      console.log(`${key}: ${typeof value === 'string' ? value : '[File]'}`);
     });
 
     return formData;
@@ -411,7 +382,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const year = date.getFullYear().toString().slice(-2);
       return `${day}.${month}.${year}`;
     } catch (error) {
-      console.warn('Erreur lors du formatage de la date:', dateString, error);
       return dateString;
     }
   }
@@ -425,7 +395,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const date = new Date(dateString);
       return isNaN(date.getTime()) ? null : date;
     } catch (error) {
-      console.warn('Erreur lors du parsing de date:', dateString, error);
       return null;
     }
   }
@@ -452,7 +421,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const progress = (elapsed / totalDuration) * 100;
       return Math.max(0, Math.min(100, Math.round(progress)));
     } catch (error) {
-      console.error('Erreur lors du calcul de progression:', error);
       return 0;
     }
   }
@@ -533,7 +501,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
     let errorMessage = 'Une erreur inconnue est survenue';
     let technicalDetails = '';
 
-    console.error('Erreur API:', error);
 
     if (error instanceof HttpErrorResponse) {
       technicalDetails = `Status: ${error.status} - ${error.statusText}`;
@@ -580,7 +547,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       technicalDetails = 'Vérifiez votre connexion internet';
     }
 
-    console.error('Erreur traitée:', { message: errorMessage, technical: technicalDetails });
     const userError = new Error(errorMessage);
     (userError as any).technicalDetails = technicalDetails;
     return throwError(() => userError);
@@ -595,7 +561,6 @@ createProject(
   // Check authentication synchronously
   const isAuthenticated = this.authService.isAuthenticated();
   if (!isAuthenticated) {
-    console.error('Utilisateur non authentifié');
     return throwError(() => new Error('Utilisateur non authentifié'));
   }
 
@@ -614,7 +579,6 @@ private createProjectWithBase64(
   return new Observable(observer => {
     this.buildFormDataWithBase64(projectData, planFile)
       .then(formData => {
-        console.log('FormData prêt pour l\'envoi:', { formData });
 
         this.http.post<ApiResponse<RealEstateProject>>(
           this.endpoints.save,
@@ -626,7 +590,6 @@ private createProjectWithBase64(
             count: 2,
             delay: (error: HttpErrorResponse, retryCount: number) => {
               if (error.status === 401 && retryCount === 1) {
-                console.log('Tentative de rafraîchissement du token...');
                 return this.authService.refreshUser().pipe(
                   switchMap(() => throwError(() => error))
                 );
@@ -650,7 +613,6 @@ private createProjectWithRawFile(
   planFile?: File
 ): Observable<ApiResponse<RealEstateProject>> {
   const formData = this.buildFormDataWithRawFile(projectData, planFile);
-  console.log('FormData prêt pour l\'envoi:', { formData });
 
   return this.http.post<ApiResponse<RealEstateProject>>(
     this.endpoints.save,
@@ -662,7 +624,6 @@ private createProjectWithRawFile(
       count: 2,
       delay: (error: HttpErrorResponse, retryCount: number) => {
         if (error.status === 401 && retryCount === 1) {
-          console.log('Tentative de rafraîchissement du token...');
           return this.authService.refreshUser().pipe(
             switchMap(() => throwError(() => error))
           );
@@ -683,14 +644,6 @@ private buildFormDataWithBase64(
     try {
       const formData = new FormData();
 
-      console.log('=== CONSTRUCTION DU FORMDATA (BASE64) ===');
-      console.log('Données reçues:', projectData);
-      console.log('Fichier plan:', planFile ? {
-        name: planFile.name,
-        size: planFile.size,
-        type: planFile.type
-      } : 'Aucun');
-
       if (planFile) {
         const validation = this.validateFile(planFile, 'image');
         if (!validation.valid) {
@@ -701,17 +654,11 @@ private buildFormDataWithBase64(
         try {
           const planBase64 = await this.fileToBase64(planFile);
           formData.append('plan', planBase64);
-          console.log('✅ Fichier plan encodé en Base64:', {
-            originalSize: planFile.size,
-            base64Length: planBase64.length
-          });
-        } catch (error) {
-          console.error('Erreur lors de l\'encodage du fichier plan:', error);
+} catch (error) {
           reject(new Error('Impossible d\'encoder le fichier plan'));
           return;
         }
       } else {
-        console.warn('⚠️ Aucun fichier plan fourni');
       }
 
       const dataToSend = {
@@ -750,13 +697,10 @@ private buildFormDataWithBase64(
       Object.entries(dataToSend).forEach(([key, value]) => {
         if (value !== null && value !== undefined && value !== '') {
           formData.append(key, value);
-          console.log(`✅ Champ ajouté: ${key} = ${key === 'plan' ? '[Base64]' : value}`);
         } else {
-          console.log(`⚠️ Champ ignoré (vide/null): ${key}`);
         }
       });
 
-      console.log('=== FORMDATA FINAL (BASE64) ===');
       resolve(formData);
     } catch (error) {
       reject(error);
@@ -781,7 +725,6 @@ private formatDateForApi(date: string | Date): string {
   }
   
   if (isNaN(dateObj.getTime())) {
-    console.warn('Date invalide:', date);
     return '';
   }
   
@@ -836,8 +779,7 @@ getlisteProjectsByPromoters(promoterId: number, page: number = 0, size: number =
     .set('page', page.toString())
     .set('size', size.toString());
   
-  // FIX: URL complète au lieu d'URL relative
-  const url = `${environment.apiUrl}/realestate/search-by-promoter`;
+  const url = `${environment.endpoints.realestate}/search-by-promoter`;
   
   return this.http.get<any>(url, { 
     params,

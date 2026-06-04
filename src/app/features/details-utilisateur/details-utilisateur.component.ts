@@ -78,13 +78,11 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('🚀 Initialisation du composant Détails Utilisateur');
     
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.utilisateurId = +params['id'];
-        console.log('👤 ID utilisateur:', this.utilisateurId);
         
         if (this.utilisateurId) {
           this.loadUserData();
@@ -106,13 +104,11 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
     
-    console.log('📥 Chargement des données utilisateur:', this.utilisateurId);
 
     this.userService.getUserById(this.utilisateurId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user) => {
-          console.log('✅ Utilisateur chargé:', user);
           this.utilisateur = user;
           
           // Initialiser le formulaire avec les données
@@ -132,7 +128,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('❌ Erreur chargement utilisateur:', error);
           this.errorMessage = error.userMessage || 'Impossible de charger les données de l\'utilisateur';
           this.isLoading = false;
         }
@@ -144,13 +139,11 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
    */
   loadAbonnements(): void {
     this.isLoadingAbonnements = true;
-    console.log('📥 Chargement de l\'abonnement utilisateur:', this.utilisateurId);
 
     this.subscriptionService.getSubscriptionByUser(this.utilisateurId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (subscription: UserSubscription) => {
-          console.log('✅ Abonnement chargé:', subscription);
           
           if (subscription && subscription.subscriptionPlan) {
             const plan = subscription.subscriptionPlan;
@@ -169,22 +162,18 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
                 : `${plan.projectLimit} projet(s)`
             }];
             
-            console.log('📋 Abonnement formaté:', this.abonnements[0]);
           } else {
             this.abonnements = [];
-            console.log('ℹ️ Aucun abonnement actif trouvé');
           }
           
           this.isLoadingAbonnements = false;
         },
         error: (error) => {
-          console.error('❌ Erreur chargement abonnement:', error);
           this.abonnements = [];
           this.isLoadingAbonnements = false;
           
           // Ne pas afficher d'erreur si c'est juste une 404 (pas d'abonnement)
           if (error.status !== 404) {
-            console.warn('⚠️ Erreur lors du chargement de l\'abonnement:', error.userMessage);
           }
         }
       });
@@ -195,13 +184,11 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
    */
   loadFactures(page: number = 0): void {
     this.isLoadingPaiements = true;
-    console.log('📥 Chargement des factures utilisateur:', this.utilisateurId);
 
     this.subscriptionService.getFactures(this.utilisateurId, page, 10)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Factures chargées:', response);
           
           this.paiements = response.content.map((invoice: Invoice) => ({
             id: invoice.id,
@@ -218,17 +205,14 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           this.totalPagesFactures = response.totalPages;
           this.totalFactures = response.totalElements;
           
-          console.log('📋 Factures formatées:', this.paiements.length);
           this.isLoadingPaiements = false;
         },
         error: (error) => {
-          console.error('❌ Erreur chargement factures:', error);
           this.paiements = [];
           this.isLoadingPaiements = false;
           
           // Ne pas afficher d'erreur si c'est juste une 404 (pas de factures)
           if (error.status !== 404) {
-            console.warn('⚠️ Erreur lors du chargement des factures:', error.userMessage);
           }
         }
       });
@@ -256,7 +240,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     } catch (error) {
-      console.error('Erreur formatage date:', error);
       return 'N/A';
     }
   }
@@ -412,7 +395,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           }, 500);
         },
         error: (error) => {
-          console.error('❌ Erreur suppression:', error);
           this.errorMessage = error.userMessage || 'Erreur lors de la suppression';
           this.isLoading = false;
           this.closeDeleteModal();
@@ -463,7 +445,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {
-          console.log('✅ Utilisateur mis à jour:', updatedUser);
           this.successMessage = 'Utilisateur modifié avec succès';
           this.utilisateur = updatedUser;
           this.isLoading = false;
@@ -474,7 +455,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           }, 1500);
         },
         error: (error) => {
-          console.error('❌ Erreur modification:', error);
           
           let userMsg = 'Erreur lors de la modification';
           if (error.status === 400) {
@@ -503,7 +483,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
     const currentStatus = this.getUserStatus();
     const action = currentStatus === 'Actif' ? 'suspension' : 'activation';
     
-    console.log(`🔒 ${action} de l'utilisateur:`, this.utilisateur.id);
     
     setTimeout(() => {
       this.successMessage = currentStatus === 'Actif' 
@@ -519,7 +498,6 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   }
 
   downloadFacture(paiement: Paiement): void {
-    console.log('📄 Télécharger facture:', paiement.idFacture);
     // TODO: Implémenter le téléchargement de facture
   }
 }

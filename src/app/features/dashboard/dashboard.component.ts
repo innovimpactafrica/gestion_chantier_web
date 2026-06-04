@@ -307,7 +307,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Vérifier si l'utilisateur est connecté de manière plus robuste
     if (!this.dashboardService.isUserConnected()) {
-      console.warn('Utilisateur non connecté, tentative de reconnexion...');
 
       // Attendre un peu pour permettre à l'authentification de se stabiliser
       setTimeout(() => {
@@ -330,7 +329,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     forkJoin({
       vueEnsembleProject: this.dashboardService.vueEnsembleProject().pipe(
         catchError(error => {
-          console.warn('Erreur vueEnsembleProject:', error);
           return of({
             total: 0,
             inProgress: 0,
@@ -342,7 +340,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       ),
       vueEnsembleEtude: this.dashboardService.getVueEnsembleAndRepartitionEtude().pipe(
         catchError(error => {
-          console.warn('Erreur vueEnsembleEtude:', error);
           return of({
             total: 0,
             percentages: {
@@ -364,13 +361,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       ),
       tauxMoyenAvancement: this.dashboardService.tauxMoyenAvancement().pipe(
         catchError(error => {
-          console.warn('Erreur tauxMoyenAvancement:', error);
           return of({ averageProgressPercentage: 0 } as GlobalIndicator);
         })
       ),
       budget: this.dashboardService.getBudget().pipe(
         catchError(error => {
-          console.warn('Erreur budget:', error);
           return of({
             totalPlanned: 0,
             totalConsumed: 0,
@@ -382,7 +377,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       ),
       materiauxCritique: this.dashboardService.materiauxCritique(0, 20).pipe(
         catchError(error => {
-          console.warn('Erreur materiauxCritique:', error);
           return of({
             content: [],
             totalElements: 0,
@@ -397,25 +391,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       ),
       etatAvancement: this.dashboardService.etatAvancement().pipe(
         catchError(error => {
-          console.warn('Erreur etatAvancement:', error);
           return of([] as PhaseIndicator[]);
         })
       ),
       statistiqueSignalement: this.dashboardService.statistiqueDeSignalement().pipe(
         catchError(error => {
-          console.warn('Erreur statistiqueSignalement:', error);
           return of([] as IncidentStatistic[]);
         })
       ),
       tacheCritique: this.dashboardService.tacheCritique().pipe(
         catchError(error => {
-          console.warn('Erreur tacheCritique:', error);
           return of([] as CriticalTask[]);
         })
       ),
       photoRecent: this.dashboardService.photoRecent(0, 8).pipe(
         catchError(error => {
-          console.warn('Erreur photoRecent:', error);
           return of({
             content: [],
             totalElements: 0,
@@ -430,19 +420,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       ),
       tacheEnRetard: this.dashboardService.tacheEnRetard().pipe(
         catchError(error => {
-          console.warn('Erreur tacheEnRetard:', error);
           return of(0);
         })
       ),
       incidents: this.dashboardService.incidents().pipe(
         catchError(error => {
-          console.warn('Erreur incidents:', error);
           return of(0);
         })
       ),
       presenceMoyenne: this.dashboardService.presenceMoyenne().pipe(
         catchError(error => {
-          console.warn('Erreur presenceMoyenne:', error);
           return of(0);
         })
       )
@@ -450,7 +437,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (data) => {
-        console.log('Données reçues:', data);
         this.rawData = data;
         this.processDashboardData();
         this.isLoading = false;
@@ -461,7 +447,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des données:', error);
 
         // Gestion spécifique des erreurs d'authentification
         if (error.status === 401 || error.message?.includes('non connecté')) {
@@ -497,7 +482,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.photosRecentes = this.dashboardData.photos;
 
     } catch (error) {
-      console.error('Erreur lors du traitement des données:', error);
       // Garder les valeurs par défaut en cas d'erreur
     }
   }

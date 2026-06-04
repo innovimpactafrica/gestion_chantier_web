@@ -70,7 +70,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('🚀 DashboardAdminComponent initialisé');
     this.loadAllData();
   }
 
@@ -88,7 +87,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
    * Charge toutes les données du dashboard
    */
   loadAllData(): void {
-    console.log('📊 Chargement de toutes les données du dashboard...');
 
     // Charger les infos principales avec l'année sélectionnée
     this.loadDashboardInfos(this.selectedYear);
@@ -114,12 +112,10 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (infos) => {
-          console.log('✅ Infos dashboard chargées:', infos);
           this.dashboardInfos = infos;
           this.isLoadingDashboard = false;
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des infos dashboard:', error);
           this.isLoadingDashboard = false;
         }
       });
@@ -139,7 +135,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (results) => {
-          console.log('✅ Données de l\'année chargées:', results);
 
           this.evolutionData = results.evolution;
           this.revenuData = results.revenu;
@@ -154,7 +149,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           }, 100);
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des données de l\'année:', error);
           this.isLoadingEvolution = false;
           this.isLoadingRevenu = false;
         }
@@ -171,7 +165,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (distribution) => {
-          console.log('✅ Distribution des plans chargée:', distribution);
           this.planDistribution = distribution;
           this.isLoadingPlans = false;
 
@@ -180,7 +173,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           }, 100);
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement de la distribution des plans:', error);
           this.isLoadingPlans = false;
         }
       });
@@ -196,7 +188,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (distribution) => {
-          console.log('✅ Répartition des profils chargée:', distribution);
           this.profilDistribution = distribution;
           this.isLoadingProfils = false;
 
@@ -205,7 +196,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           }, 100);
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement de la répartition des profils:', error);
           this.isLoadingProfils = false;
         }
       });
@@ -221,14 +211,12 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: InvoiceResponse) => {
-          console.log('✅ Factures chargées:', response);
           this.dernieresFactures = response.content;
           this.totalPages = response.totalPages;
           this.totalElements = response.totalElements;
           this.isLoadingInvoices = false;
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des factures:', error);
           this.isLoadingInvoices = false;
         }
       });
@@ -238,7 +226,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
    * Appelé quand l'année change
    */
   onYearChange(): void {
-    console.log('📅 Année changée:', this.selectedYear);
     // Reload dashboard cards with new year
     this.loadDashboardInfos(this.selectedYear);
     // Reload year-specific charts

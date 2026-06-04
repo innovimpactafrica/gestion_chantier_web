@@ -274,7 +274,6 @@ export class ProjectService {
       }
     }
 
-    console.error('Erreur dans ProjectService:', errorMessage);
     
     return throwError(() => ({
       success: false,

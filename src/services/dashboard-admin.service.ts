@@ -88,7 +88,6 @@ export class DashboardAdminService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    console.log('🔧 DashboardAdminService initialisé');
   }
 
   /**
@@ -102,17 +101,10 @@ export class DashboardAdminService {
       url += `?year=${year}`;
     }
 
-    console.log('📡 API Call: getInfosDashboard', year ? `for year ${year}` : '');
-    console.log('🔗 URL:', url);
 
     return this.http.get<DashboardInfos>(url, { headers })
       .pipe(
         tap(infos => {
-          console.log('✅ Dashboard infos récupérées:');
-          console.log('  - Total abonnements:', infos.totalSubscriptions);
-          console.log('  - Abonnements actifs:', infos.activeSubscriptions);
-          console.log('  - Revenu total:', infos.totalRevenue);
-          console.log('  - Taux de paiement:', infos.paidPercentage + '%');
         }),
         catchError(error => this.handleError(error, 'getInfosDashboard'))
       );
@@ -131,16 +123,10 @@ export class DashboardAdminService {
 
     const url = `${this.baseUrl}/evolution`;
 
-    console.log('📡 API Call: getEvolution');
-    console.log('🔗 URL:', url);
-    console.log('📅 Year:', year || 'current');
 
     return this.http.get<EvolutionData[]>(url, { headers, params })
       .pipe(
         tap(evolution => {
-          console.log('✅ Évolution des abonnements récupérée:');
-          console.log('  - Nombre de mois:', evolution.length);
-          console.log('  - Total annuel:', evolution.reduce((sum, item) => sum + item.total, 0));
         }),
         catchError(error => this.handleError(error, 'getEvolution'))
       );
@@ -159,16 +145,10 @@ export class DashboardAdminService {
 
     const url = `${this.baseUrl}/revenues/evolution`;
 
-    console.log('📡 API Call: getRevenuEvolution');
-    console.log('🔗 URL:', url);
-    console.log('📅 Year:', year || 'current');
 
     return this.http.get<EvolutionData[]>(url, { headers, params })
       .pipe(
         tap(evolution => {
-          console.log('✅ Évolution des revenus récupérée:');
-          console.log('  - Nombre de mois:', evolution.length);
-          console.log('  - Revenu annuel:', evolution.reduce((sum, item) => sum + item.total, 0));
         }),
         catchError(error => this.handleError(error, 'getRevenuEvolution'))
       );
@@ -181,15 +161,10 @@ export class DashboardAdminService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/plan-distribution`;
 
-    console.log('📡 API Call: getDistributionsPlan');
-    console.log('🔗 URL:', url);
 
     return this.http.get<PlanDistribution[]>(url, { headers })
       .pipe(
         tap(distribution => {
-          console.log('✅ Distribution des plans récupérée:');
-          console.log('  - Nombre de plans:', distribution.length);
-          console.log('  - Plans:', distribution.map(p => `${p.planName}: ${p.percentage}%`));
         }),
         catchError(error => this.handleError(error, 'getDistributionsPlan'))
       );
@@ -206,19 +181,10 @@ export class DashboardAdminService {
 
     const url = `${this.baseUrl}/invoices-lastest`;
 
-    console.log('📡 API Call: getLastInvoices');
-    console.log('🔗 URL:', url);
-    console.log('📄 Page:', page);
-    console.log('📊 Size:', size);
 
     return this.http.get<InvoiceResponse>(url, { headers, params })
       .pipe(
         tap(response => {
-          console.log('✅ Dernières factures récupérées:');
-          console.log('  - Total éléments:', response.totalElements);
-          console.log('  - Pages totales:', response.totalPages);
-          console.log('  - Page actuelle:', response.number);
-          console.log('  - Factures:', response.content.length);
         }),
         catchError(error => this.handleError(error, 'getLastInvoices'))
       );
@@ -231,16 +197,10 @@ export class DashboardAdminService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrlUser}/profil-distribution`;
 
-    console.log('📡 API Call: getRepartitionProfil');
-    console.log('🔗 URL:', url);
 
     return this.http.get<ProfilDistribution[]>(url, { headers })
       .pipe(
         tap(distribution => {
-          console.log('✅ Répartition des profils récupérée:');
-          console.log('  - Nombre de profils:', distribution.length);
-          console.log('  - Total utilisateurs:', distribution.reduce((sum, item) => sum + item.count, 0));
-          console.log('  - Profils principaux:', distribution.filter(p => p.count > 0).map(p => `${p.profil}: ${p.count}`));
         }),
         catchError(error => this.handleError(error, 'getRepartitionProfil'))
       );
@@ -250,34 +210,28 @@ export class DashboardAdminService {
    * Récupère les headers d'authentification
    */
   private getAuthHeaders(): HttpHeaders {
-    console.log('🔑 Récupération des headers d\'authentification...');
 
     if (this.authService && typeof this.authService.getAuthHeaders === 'function') {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
 
-      console.log('🔑 Headers depuis AuthService:', hasAuth ? '✅ OK' : '❌ Manquant');
 
       if (!hasAuth) {
-        console.warn('⚠️ Aucun header Authorization trouvé!');
       }
 
       return headers;
     }
 
-    console.warn('⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback');
 
     const token = this.authService?.getToken() || localStorage.getItem('token');
 
     if (token) {
-      console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       });
     }
 
-    console.error('❌ Aucun token d\'authentification trouvé!');
 
     return new HttpHeaders({
       'Content-Type': 'application/json'
@@ -288,14 +242,8 @@ export class DashboardAdminService {
    * Gestion des erreurs HTTP avec contexte
    */
   private handleError(error: any, context: string = 'unknown'): Observable<never> {
-    console.error(`❌ Erreur dans DashboardAdminService.${context}:`, error);
-    console.error('❌ Status:', error.status);
-    console.error('❌ Status Text:', error.statusText);
-    console.error('❌ URL:', error.url);
-    console.error('❌ Message:', error.message);
 
     if (error.error) {
-      console.error('❌ Error body:', error.error);
     }
 
     let errorMessage = 'Une erreur est survenue';
@@ -336,7 +284,6 @@ export class DashboardAdminService {
         }
     }
 
-    console.error('💬 Message utilisateur:', userMessage);
 
     return throwError(() => ({
       message: errorMessage,
@@ -351,16 +298,5 @@ export class DashboardAdminService {
    * Debug des endpoints disponibles
    */
   debugEndpoints(): void {
-    console.log('🔍 === DASHBOARD ADMIN ENDPOINTS ===');
-    console.log('Base URL Subscriptions:', this.baseUrl);
-    console.log('Base URL Users:', this.baseUrlUser);
-    console.log('Endpoints disponibles:');
-    console.log('  - getInfosDashboard: GET', `${this.baseUrl}/dashboard`);
-    console.log('  - getEvolution: GET', `${this.baseUrl}/evolution?year={year}`);
-    console.log('  - getRevenuEvolution: GET', `${this.baseUrl}/revenues/evolution?year={year}`);
-    console.log('  - getDistributionsPlan: GET', `${this.baseUrl}/plan-distribution`);
-    console.log('  - getLastInvoices: GET', `${this.baseUrl}/invoices-lastest?page={page}&size={size}`);
-    console.log('  - getRepartitionProfil: GET', `${this.baseUrlUser}/profil-distribution`);
-    console.log('========================');
   }
 }

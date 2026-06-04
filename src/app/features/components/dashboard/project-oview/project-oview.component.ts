@@ -73,7 +73,6 @@ export class ProjectOviewComponent implements OnInit, OnChanges {
         }
       },
       error: err => {
-        console.error('Erreur lors du chargement de l\'utilisateur connecté', err);
         this.error = 'Erreur lors du chargement de l\'utilisateur';
         this.isLoading = false;
       }
@@ -89,7 +88,6 @@ export class ProjectOviewComponent implements OnInit, OnChanges {
       if (!propertyId) missingData.push('Propriété (ID: ' + propertyId + ')');
       if (!promoterId) missingData.push('Utilisateur (ID: ' + promoterId + ')');
       
-      console.warn(`${missingData.join(' et ')} manquant pour charger les KPIs`);
       this.error = `${missingData.join(' et ')} manquant`;
       this.isLoading = false;
       return;
@@ -98,11 +96,9 @@ export class ProjectOviewComponent implements OnInit, OnChanges {
     this.isLoading = true;
     this.error = null;
 
-    console.log('Chargement des KPIs avec:', { propertyId, promoterId });
 
     this.dashboardService.getTasksKPIs(propertyId, promoterId).subscribe({
       next: (data: any) => {
-        console.log('KPIs des tâches reçus:', data);
         this.tasksKPIs = data;
         this.isLoading = false;
         
@@ -110,7 +106,6 @@ export class ProjectOviewComponent implements OnInit, OnChanges {
         this.processTasksKPIs(data);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des KPIs des tâches:', error);
         this.error = 'Erreur lors du chargement des KPIs';
         this.isLoading = false;
       }
@@ -132,10 +127,6 @@ export class ProjectOviewComponent implements OnInit, OnChanges {
     if (this.selectedPropertyId && this.currentUserId) {
       this.loadTasksData();
     } else {
-      console.warn('Impossible de rafraîchir : données manquantes', {
-        selectedPropertyId: this.selectedPropertyId,
-        currentUserId: this.currentUserId
-      });
-    }
+}
   }
 }

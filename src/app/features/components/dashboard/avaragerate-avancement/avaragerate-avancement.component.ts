@@ -45,7 +45,6 @@ export class AvaragerateAvancementComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des indicateurs globaux', err);
         this.isLoading = false;
       }
     });

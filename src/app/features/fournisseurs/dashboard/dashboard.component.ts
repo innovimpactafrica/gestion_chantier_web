@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
-import { SupplierService, DashboardInfos, OrderCountByStatus } from '../../../../services/supplier.service';
+import { SupplierService, DashboardInfos } from '../../../../services/supplier.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Subscription } from 'rxjs';
 import { LanguageService } from '../../../core/services/language.service';
@@ -89,7 +89,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   private initializeSupplierId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
-      console.log(user)
       if (user && user.id) {
         this.supplierId = user.id;
         this.loadDashboardData();
@@ -104,9 +103,8 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
               this.handleError('Utilisateur non trouvé ou ID manquant');
             }
           },
-          error: (error) => {
+          error: (_err) => {
             this.handleError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
 
@@ -141,8 +139,7 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
           this.createBarChart();
         }, 0);
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement du dashboard:', error);
+      error: (_err) => {
         this.handleError('Erreur lors du chargement des données du dashboard');
         this.loading = false;
       }
@@ -175,7 +172,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
    * Gère les erreurs
    */
   private handleError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }
@@ -363,8 +359,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
    * Méthode pour debug - afficher les informations utilisateur
    */
   debugUserInfo(): void {
-    console.log('Current User:', this.authService.currentUser());
-    console.log('Supplier ID:', this.supplierId);
   }
 
   /**

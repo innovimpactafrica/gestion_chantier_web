@@ -66,7 +66,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     public languageService: LanguageService
   ) {
-    console.log('🚀 CreatePlanComponent initialisé');
   }
 
   // Helper pour la traduction
@@ -105,7 +104,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plan) => {
-          console.log('✅ Plan chargé:', plan);
           this.formData = {
             name: plan.name,
             label: plan.label,
@@ -120,7 +118,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement du plan:', error);
           this.isLoading = false;
           alert(error.userMessage || 'Erreur lors du chargement du plan');
           this.goBack();
@@ -188,7 +185,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     if (this.mode === 'view') return;
 
     if (!this.validateForm()) {
-      console.error('❌ Formulaire invalide:', this.errors);
       // Scroll vers le premier champ en erreur
       const firstErrorKey = Object.keys(this.errors)[0];
       const element = document.getElementById(firstErrorKey);
@@ -224,13 +220,11 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       active: this.formData.active
     };
 
-    console.log('📝 Création du plan avec données:', planData);
 
     this.planService.createPlanAbonnement(planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (createdPlan) => {
-          console.log('✅ Plan créé avec succès:', createdPlan);
           this.isSaving = false;
 
           // Afficher la notification
@@ -245,7 +239,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
           }, 2000);
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la création:', error);
           this.isSaving = false;
 
           let errorMsg = 'Erreur lors de la création du plan';
@@ -279,13 +272,11 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       active: this.formData.active
     };
 
-    console.log('📝 Mise à jour du plan ID', this.planId, ':', planData);
 
     this.planService.putPlanAbonnement(this.planId, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Plan mis à jour avec succès');
           this.isSaving = false;
 
           // Afficher la notification avec le label du formulaire
@@ -300,7 +291,6 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
           }, 2000);
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour:', error);
           this.isSaving = false;
 
           let errorMsg = 'Erreur lors de la mise à jour du plan';

@@ -86,7 +86,6 @@ export class HumanResourcesComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des utilisateurs:', error);
           this.errorMessage = 'Erreur lors du chargement des données';
           this.isLoading = false;
           // Fallback avec des données de test en cas d'erreur
@@ -295,14 +294,12 @@ export class HumanResourcesComponent implements OnInit {
     this.utilisateurService.createUser(this.newUser)
       .subscribe({
         next: (response: Worker) => {
-          console.log('Utilisateur créé avec succès:', response);
           this.isCreatingUser = false;
           this.closeCreateUserModal();
           // Recharger la liste des utilisateurs
           this.loadAllTeamMembers();
         },
         error: (error) => {
-          console.error('Erreur lors de la création de l\'utilisateur:', error);
           this.createUserErrors = ['Erreur lors de la création de l\'utilisateur. Veuillez réessayer.'];
           this.isCreatingUser = false;
         }
@@ -330,13 +327,11 @@ export class HumanResourcesComponent implements OnInit {
 
     if (confirm(`Êtes-vous sûr de vouloir supprimer ${selectedMembers.length} utilisateur(s) ?`)) {
       // TODO: Implémenter la suppression via l'API
-      console.log('Suppression des utilisateurs:', selectedMembers);
     }
   }
 
   // Méthode pour exporter les données
   exportData() {
     // TODO: Implémenter l'export des données
-    console.log('Export des données');
   }
 }

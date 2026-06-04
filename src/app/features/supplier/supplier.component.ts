@@ -78,7 +78,6 @@ export class SupplierComponent implements OnInit {
       this.itemsPerPage
     ).subscribe({
       next: (response: UserPageResponse) => {
-        console.log('✅ Fournisseurs chargés:', response);
 
         this.allWorkers = response.content.map(user => this.userToWorker(user));
         this.displayedWorkers = [...this.allWorkers];
@@ -88,7 +87,6 @@ export class SupplierComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors du chargement des fournisseurs:', error);
         this.errorMessage = error.userMessage || this.t('stock.errors.loadStock'); // Fallback generic or create specific
         this.isLoading = false;
       }
@@ -185,11 +183,9 @@ export class SupplierComponent implements OnInit {
       profil: 'SUPPLIER'
     };
 
-    console.log('📤 Création d\'un fournisseur:', createUserData);
 
     this.userService.createUser(createUserData).subscribe({
       next: (response) => {
-        console.log('✅ Fournisseur créé avec succès:', response);
         this.successMessage = this.t('supplier.success.add');
         this.isLoading = false;
 
@@ -203,7 +199,6 @@ export class SupplierComponent implements OnInit {
         }, 1500);
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la création du fournisseur:', error);
 
         let userMsg = this.t('supplier.error.add');
         // Simple error handling enhancement if needed
@@ -238,7 +233,6 @@ export class SupplierComponent implements OnInit {
       this.userService.deleteUser(worker.id).subscribe({
         next: () => {
           deletedCount++;
-          console.log(`✅ Fournisseur ${worker.name} supprimé`);
 
           if (index === selectedWorkers.length - 1) {
             this.finishDeletion(deletedCount, errorCount);
@@ -246,7 +240,6 @@ export class SupplierComponent implements OnInit {
         },
         error: (error) => {
           errorCount++;
-          console.error(`❌ Erreur suppression ${worker.name}:`, error);
 
           if (index === selectedWorkers.length - 1) {
             this.finishDeletion(deletedCount, errorCount);

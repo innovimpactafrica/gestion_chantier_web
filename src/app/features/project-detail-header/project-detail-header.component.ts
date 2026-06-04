@@ -101,14 +101,10 @@ export class ProjectDetailHeaderComponent implements OnInit {
 
     this.realestateService.getRealEstateDetails(this.projectId).subscribe({
       next: (response) => {
-        console.log('📋 Réponse complète du serveur:', response);
 
         // Extraire realEstateProperty de la réponse
         if (response && response.realEstateProperty) {
           this.projectDetails = response.realEstateProperty;
-          console.log('✅ Données du projet extraites:', this.projectDetails);
-          console.log('📌 Nom du projet:', this.projectDetails.name);
-          console.log('📌 QR Code:', this.projectDetails.qrcode);
         } else {
           this.projectDetails = response;
         }
@@ -121,7 +117,6 @@ export class ProjectDetailHeaderComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Erreur lors du chargement du projet:', error);
         this.projectError = 'Erreur lors du chargement des détails du projet';
         this.isLoadingProject = false;
       }
@@ -134,7 +129,6 @@ export class ProjectDetailHeaderComponent implements OnInit {
   private async generateQrCode(): Promise<void> {
     try {
       if (!this.projectDetails?.qrcode) {
-        console.warn('⚠️ Aucun QR code disponible pour ce projet');
         this.qrCodeDataUrl = null;
         return;
       }
@@ -145,7 +139,6 @@ export class ProjectDetailHeaderComponent implements OnInit {
       // OU créer une URL complète si nécessaire
       // const qrCodeValue = `${window.location.origin}/projects/${this.projectId}`;
 
-      console.log('🔄 Génération du QR code pour:', qrCodeValue);
 
       // Générer le QR code en data URL
       const qrCodeUrl = await QRCode.toDataURL(qrCodeValue, {
@@ -164,9 +157,7 @@ export class ProjectDetailHeaderComponent implements OnInit {
       this.qrCodeDataUrl = this.sanitizer.bypassSecurityTrustUrl(qrCodeUrl);
       this.qrCodeValue = qrCodeValue;
 
-      console.log('✅ QR Code généré avec succès');
     } catch (error) {
-      console.error('❌ Erreur lors de la génération du QR code:', error);
       this.qrCodeDataUrl = null;
       this.qrCodeRawDataUrl = null;
     }
@@ -278,16 +269,13 @@ export class ProjectDetailHeaderComponent implements OnInit {
       link.click();
       document.body.removeChild(link);
 
-      console.log('✅ QR Code téléchargé');
     } catch (error) {
-      console.error('❌ Erreur lors du téléchargement:', error);
     }
   }
   /**
    * Gère les erreurs de chargement du QR code
    */
   handleQrCodeError(): void {
-    console.error('❌ Erreur lors du chargement de l\'image QR code');
     this.qrCodeDataUrl = null;
   }
 

@@ -39,7 +39,7 @@ export interface TaskFilters {
 export class TaskService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly baseUrl = `${environment.apiUrl}/tasks`; // Utilisation de l'URL de l'environnement
+  private readonly baseUrl = environment.endpoints.tasks;
   private readonly authTokenKey = 'token';
 
   // État réactif pour les tâches (optionnel)
@@ -280,7 +280,6 @@ export class TaskService {
    * Gère les erreurs HTTP avec un format cohérent
    */
   private handleError(baseMessage: string, error: HttpErrorResponse): Observable<never> {
-    console.error(`${baseMessage}:`, error);
 
     let errorMessage = baseMessage;
 

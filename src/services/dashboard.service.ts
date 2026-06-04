@@ -144,9 +144,6 @@ export class DashboardService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    console.log('🔧 DashboardService initialisé');
-    console.log('📍 Base URL:', this.baseUrl);
-    console.log('📍 Endpoints configurés:', this.endpoints);
   }
 
   /**
@@ -156,7 +153,6 @@ export class DashboardService {
     const token = this.authService.getToken();
 
     if (!token) {
-      console.error('❌ Aucun token disponible pour DashboardService');
     }
 
     return new HttpHeaders({
@@ -170,7 +166,6 @@ export class DashboardService {
    */
   getVueEnsembleAndRepartitionEtude(): Observable<StudyKpi> {
     const userId = this.getCurrentUserId();
-    console.log('📊 getVueEnsembleAndRepartitionEtude - utilisateur:', userId);
 
     if (!userId) {
       throw new Error('Utilisateur non connecté');
@@ -178,7 +173,6 @@ export class DashboardService {
 
     const url = `${this.baseUrl}/study-requests/kpi/moa/${userId}`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<StudyKpi>(url, {
       headers: this.getAuthHeaders()
@@ -189,7 +183,6 @@ export class DashboardService {
    */
   private getCurrentUserId(): number | null {
     const currentUser = this.authService.currentUser();
-    console.log('👤 Current user from auth service:', currentUser);
     return currentUser?.id || null;
   }
 
@@ -201,8 +194,6 @@ export class DashboardService {
     const hasToken = !!token;
     const hasUser = !!this.authService.currentUser();
 
-    console.log('🔍 Token exists:', hasToken);
-    console.log('🔍 User exists:', hasUser);
 
     return hasToken && hasUser;
   }
@@ -213,7 +204,6 @@ export class DashboardService {
    */
   vueEnsemble(): Observable<TasksKpi> {
     const userId = this.getCurrentUserId();
-    console.log('📊 vueEnsemble - utilisateur:', userId);
 
     if (!userId) {
       throw new Error('Utilisateur non connecté');
@@ -222,7 +212,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/kpis`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<TasksKpi>(url, {
       headers: this.getAuthHeaders(),
@@ -231,7 +220,6 @@ export class DashboardService {
   }
   vueEnsembleProject(): Observable<ProjectKpi> {
     const userId = this.getCurrentUserId();
-    console.log('📊 vueEnsemble - utilisateur:', userId);
 
     if (!userId) {
       throw new Error('Utilisateur non connecté');
@@ -240,7 +228,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.baseUrl}/realestate/kpi/status`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<ProjectKpi>(url, {
       headers: this.getAuthHeaders(),
@@ -261,7 +248,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.indicators}/global`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<GlobalIndicator>(url, {
       headers: this.getAuthHeaders(),
@@ -282,7 +268,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.budgets}/dashboard/kpi`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<BudgetKpi>(url, {
       headers: this.getAuthHeaders(),
@@ -307,7 +292,6 @@ export class DashboardService {
 
     const url = `${this.endpoints.materials}/critical`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<PageableResponse<CriticalMaterial>>(url, {
       headers: this.getAuthHeaders(),
@@ -328,7 +312,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.indicators}/by-phase`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<PhaseIndicator[]>(url, {
       headers: this.getAuthHeaders(),
@@ -349,7 +332,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.incidents}/kpi`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<IncidentStatistic[]>(url, {
       headers: this.getAuthHeaders(),
@@ -370,7 +352,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/critical`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<CriticalTask[]>(url, {
       headers: this.getAuthHeaders(),
@@ -395,7 +376,6 @@ export class DashboardService {
 
     const url = `${this.endpoints.progressAlbum}/recent`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<PageableResponse<RecentPhoto>>(url, {
       headers: this.getAuthHeaders(),
@@ -416,7 +396,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.tasks}/late/count`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
@@ -437,7 +416,6 @@ export class DashboardService {
     const params = new HttpParams().set('promoterId', userId.toString());
     const url = `${this.endpoints.incidents}/count-last-7-days`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders(),
@@ -457,16 +435,11 @@ export class DashboardService {
 
     const url = `${this.endpoints.workers}/manager/${userId}/presence-rate`;
 
-    console.log('📡 Appel API:', url);
 
     return this.http.get<number>(url, {
       headers: this.getAuthHeaders()
     }).pipe(
-      catchError(error => {
-        console.warn('⚠️ Erreur lors de la récupération du taux de présence:', error);
-        // Return 0 as default value if API fails
-        return of(0);
-      })
+      catchError(() => of(0))
     );
   }
 
@@ -489,19 +462,4 @@ export class DashboardService {
     return new Date(year, month - 1, day, hour, minute, second);
   }
 
-  /**
-   * Méthode de debug pour afficher la configuration
-   */
-  debugConfiguration(): void {
-    console.log('=== DASHBOARD SERVICE DEBUG ===');
-    console.log('🔧 Environment:', environment.production ? 'PRODUCTION' : 'DEVELOPMENT');
-    console.log('📍 Base URL:', this.baseUrl);
-    console.log('📍 Endpoints:');
-    Object.entries(this.endpoints).forEach(([key, value]) => {
-      console.log(`  - ${key}: ${value}`);
-    });
-    console.log('👤 User ID:', this.getCurrentUserId());
-    console.log('🔑 Has Token:', !!this.authService.getToken());
-    console.log('================================');
-  }
 }

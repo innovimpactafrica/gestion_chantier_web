@@ -96,7 +96,6 @@ export class MaterialStockAlertComponent {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         if (!user || !user.id) {
-          console.warn('Utilisateur non connecté');
           this.error = 'Utilisateur non connecté';
           this.loading = false;
           return;
@@ -106,19 +105,16 @@ export class MaterialStockAlertComponent {
 
         this.dahsbordService.getCriticalMaterials(promoterId).subscribe({
           next: (data: any) => {
-            console.log('Données des matériaux critiques:', data);
             this.criticalMaterials = data?.content || data || [];
             this.loading = false;
           },
           error: (err: any) => {
-            console.error('Erreur lors du chargement des matériaux critiques:', err);
             this.error = 'Erreur de chargement';
             this.loading = false;
           }
         });
       },
       error: (err) => {
-        console.error('Erreur récupération utilisateur:', err);
         this.error = 'Erreur lors de la récupération de l\'utilisateur';
         this.loading = false;
       }

@@ -81,7 +81,6 @@ export class SubcontractorComponent implements OnInit {
       this.itemsPerPage
     ).subscribe({
       next: (response: UserPageResponse) => {
-        console.log('✅ Sous-traitants chargés:', response);
 
         this.allSubcontractors = response.content.map(user => this.userToSubcontractor(user));
         this.totalMembers = response.totalElements;
@@ -90,7 +89,6 @@ export class SubcontractorComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors du chargement des sous-traitants:', error);
         this.errorMessage = error.userMessage || this.t('subcontractor.error.load');
         this.isLoading = false;
       }
@@ -288,11 +286,9 @@ export class SubcontractorComponent implements OnInit {
       profil: 'SUBCONTRACTOR' // Profil par défaut
     };
 
-    console.log('📤 Création d\'un sous-traitant:', createUserData);
 
     this.userService.createUser(createUserData).subscribe({
       next: (response) => {
-        console.log('✅ Sous-traitant créé avec succès:', response);
         this.successMessage = this.t('subcontractor.success.add');
 
         // Recharger la liste
@@ -304,7 +300,6 @@ export class SubcontractorComponent implements OnInit {
         }, 1500);
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la création du sous-traitant:', error);
         this.errorMessage = error.userMessage || this.t('subcontractor.error.add');
         this.isLoading = false;
       }
@@ -334,7 +329,6 @@ export class SubcontractorComponent implements OnInit {
       this.userService.deleteUser(member.id).subscribe({
         next: () => {
           deletedCount++;
-          console.log(`✅ Sous-traitant ${member.nomContact} supprimé`);
 
           // Si c'est le dernier élément traité
           if (index === selectedMembers.length - 1) {
@@ -343,7 +337,6 @@ export class SubcontractorComponent implements OnInit {
         },
         error: (error) => {
           errorCount++;
-          console.error(`❌ Erreur suppression ${member.nomContact}:`, error);
 
           // Si c'est le dernier élément traité
           if (index === selectedMembers.length - 1) {
@@ -384,7 +377,6 @@ export class SubcontractorComponent implements OnInit {
     // import { isPlatformBrowser, PLATFORM_ID } from '@angular/common';
     if (typeof isPlatformBrowser !== 'undefined' && !isPlatformBrowser(this.platformId)) return;
 
-    console.log('📊 Export des données des sous-traitants');
 
     // Créer le contenu CSV
     const headers = ['ID', 'Raison Sociale', 'Nom Contact', 'Téléphone', 'Email', 'Status'];

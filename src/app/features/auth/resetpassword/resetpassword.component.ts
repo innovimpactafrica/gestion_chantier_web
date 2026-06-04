@@ -110,11 +110,9 @@ export class ResetpasswordComponent implements OnInit {
     const email = this.requestForm.get('email')?.value;
     const credentials = { email };
 
-    console.log('📧 Demande de réinitialisation pour:', email);
 
     this.authService.resetPassword(credentials).subscribe({
       next: (response: any) => {
-        console.log('✅ Email envoyé:', response);
         this.isLoading.set(false);
         this.showAlert('success', `Un email de réinitialisation a été envoyé à ${email}. Veuillez vérifier votre boîte de réception.`);
 
@@ -126,7 +124,6 @@ export class ResetpasswordComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        console.error('❌ Erreur lors de l\'envoi:', err);
         this.handleError(err, 'Impossible d\'envoyer l\'email de réinitialisation');
       }
     });
@@ -136,9 +133,6 @@ export class ResetpasswordComponent implements OnInit {
   private handleError(err: any, defaultMessage: string): void {
     let errorMessage = defaultMessage;
 
-    console.error('❌ Erreur complète:', err);
-    console.error('❌ Status:', err.status);
-    console.error('❌ Error body:', err.error);
 
     if (err.error instanceof ProgressEvent) {
       errorMessage = 'L\'API n\'est pas accessible ou retourne un format invalide. Vérifiez l\'URL de l\'API.';

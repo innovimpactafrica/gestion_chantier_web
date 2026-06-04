@@ -145,7 +145,6 @@ export class UnitComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (newUnite) => {
-          console.log('✅ Unité ajoutée:', newUnite);
           this.loading = false;
           this.showSuccessMessage('Unité ajoutée avec succès');
           this.resetForm();
@@ -166,7 +165,6 @@ export class UnitComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            console.log('✅ Unité modifiée avec succès');
             this.loading = false;
             this.showSuccessMessage('Unité modifiée avec succès');
             this.resetForm();
@@ -209,7 +207,6 @@ export class UnitComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            console.log('✅ Unité supprimée avec succès');
             this.loading = false;
             this.showSuccessMessage('Unité supprimée avec succès');
             if (this.uniteEnEdition?.id === this.uniteToDelete) {
@@ -299,7 +296,6 @@ export class UnitComponent implements OnInit, OnDestroy {
 
   private handleError(message: string, error: any): void {
     this.error = message;
-    console.error('❌ Erreur:', error);
     setTimeout(() => {
       this.error = null;
     }, 5000);

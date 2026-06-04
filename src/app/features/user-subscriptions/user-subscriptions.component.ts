@@ -35,22 +35,12 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
     this.isAuthenticated = this.authService.isAuthenticated();
     this.currentUserId = this.authService.getConnectedUserId();
 
-    console.log('🔐 État d\'authentification:', {
-      isAuthenticated: this.isAuthenticated,
-      currentUserId: this.currentUserId
-    });
-
     // Récupérer les paramètres de l'URL
     this.route.queryParams.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       this.userId = params['id'] ? +params['id'] : null;
       this.userProfile = params['profil'] || null;
-
-      console.log('📋 Paramètres URL:', {
-        userId: this.userId,
-        userProfile: this.userProfile
-      });
 
       // Validation des paramètres
       if (!this.userProfile) {
@@ -63,11 +53,7 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
       if (this.isAuthenticated && this.userId && this.currentUserId !== this.userId) {
         this.error = 'Vous n\'êtes pas autorisé à voir ces abonnements';
         this.loading = false;
-        console.warn('⚠️ Tentative d\'accès non autorisé:', {
-          requestedUserId: this.userId,
-          currentUserId: this.currentUserId
-        });
-        return;
+return;
       }
 
       // Si l'utilisateur n'est pas authentifié
@@ -103,19 +89,16 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📡 Chargement des abonnements pour l\'utilisateur:', targetUserId);
 
     this.subscriptionService.getSubscriptionByUser(targetUserId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (subscription: UserSubscription) => {
-        console.log('✅ Abonnement reçu:', subscription);
         this.subscriptions = subscription ? [subscription] : [];
         this.loading = false;
         this.error = null;
       },
       error: (err: any) => {
-        console.error('❌ Erreur lors du chargement des abonnements:', err);
 
         if (err.status === 401 || err.status === 403) {
           this.error = 'Session expirée. Veuillez vous reconnecter.';
@@ -164,7 +147,6 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
       );
       window.open(url, '_blank');
     } else {
-      console.warn('ID utilisateur ou profil manquant pour la navigation vers les offres');
     }
   }
 
@@ -220,12 +202,6 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
     // Déterminer le type d'abonnement basé sur le nom du plan
     const planName = subscription.subscriptionPlan?.name?.toLowerCase() || '';
     const planLabel = subscription.subscriptionPlan?.label?.toLowerCase() || '';
-
-    console.log('🔍 Analyse du type d\'abonnement:', {
-      planName,
-      planLabel,
-      plan: subscription.subscriptionPlan
-    });
 
     // Vérifier Premium
     if (planName.includes('premium') || planName.includes('pro') ||

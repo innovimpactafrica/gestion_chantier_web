@@ -281,14 +281,8 @@ export class LoginComponent implements OnInit {
     };
 
     const identifierType = this.getIdentifierType(emailValue);
-    console.log('🚀 Tentative de connexion avec:', {
-      identifier: credentials.email,
-      type: identifierType
-    });
-
     this.authService.login(credentials).subscribe({
       next: (response) => {
-        console.log('📥 Réponse serveur complète:', response);
 
         // Attendre un délai pour s'assurer que toutes les données sont sauvegardées
         setTimeout(() => {
@@ -297,7 +291,6 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        console.error('❌ Erreur connexion:', err);
         this.handleLoginError(err);
       }
     });
@@ -305,16 +298,13 @@ export class LoginComponent implements OnInit {
 
   private processLoginSuccess(response: any): void {
     try {
-      console.log('📥 Réponse serveur complète:', response);
 
       // ✅ ÉTAPE 1: Attendre que l'AuthService rafraîchisse l'utilisateur
       this.authService.refreshUser().subscribe({
         next: (user) => {
-          console.log('✅ Utilisateur rafraîchi:', user);
 
           // Vérifier que le token est bien présent
           const token = this.authService.getToken();
-          console.log('🔑 Token présent après refresh:', !!token);
 
           // Indicateurs de profil
           let isBET = false;
@@ -329,7 +319,6 @@ export class LoginComponent implements OnInit {
             }
 
             const payload = JSON.parse(atob(tokenParts[1]));
-            console.log('🔍 Payload JWT:', payload);
 
             // ✅ Lecture flexible du profil
             const profile = payload.profil || payload.profile || payload.role;
@@ -337,27 +326,19 @@ export class LoginComponent implements OnInit {
             isSUPPLIER = profile === 'SUPPLIER';
             isADMIN = profile === 'ADMIN';
 
-            console.log('✅ Profil détecté:', profile, '| isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
 
           } catch (tokenError) {
-            console.error('❌ Impossible de lire le token, utilisation du service:', tokenError);
 
             // 🔁 Fallback: vérifier via le service Auth
             isBET = this.authService.isBETProfile();
             isSUPPLIER = this.authService.isSUPPLIERProfile();
             isADMIN = this.authService.isADMINProfile();
-            console.log('🔄 Fallback - Vérification via service:', {
-              isBET,
-              isSUPPLIER,
-              isADMIN
-            });
-          }
+}
 
           // ✅ Redirection basée sur l'abonnement
           this.redirectBasedOnSubscription(isBET, isSUPPLIER, isADMIN);
         },
         error: (error) => {
-          console.error('❌ Erreur lors du refresh utilisateur:', error);
           this.isLoading.set(false);
           // Tenter une redirection par défaut
           this.redirectBasedOnSubscription(false, false, false);
@@ -365,7 +346,6 @@ export class LoginComponent implements OnInit {
       });
 
     } catch (error) {
-      console.error('❌ Erreur critique lors du traitement:', error);
       this.isLoading.set(false);
       this.redirectBasedOnSubscription(false, false, false);
     }
@@ -380,7 +360,6 @@ export class LoginComponent implements OnInit {
     if (isSUPPLIER === undefined) isSUPPLIER = this.authService.isSUPPLIERProfile();
     if (isADMIN === undefined) isADMIN = this.authService.isADMINProfile();
 
-    console.log('🎯 Vérification redirection - isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
 
     // ✅ PRIORITÉ 1: Les ADMIN ont toujours accès au dashboard
     if (isADMIN) {
@@ -392,18 +371,15 @@ export class LoginComponent implements OnInit {
     // ✅ PRIORITÉ 2: Vérifier l'abonnement pour les autres profils
     const user = this.authService.currentUser();
     if (!user || !user.id) {
-      console.error('❌ Utilisateur non trouvé ou ID manquant');
       this.isLoading.set(false);
       this.router.navigate(['/login']);
       return;
     }
 
-    console.log('🔍 Vérification de l\'abonnement pour userId:', user.id);
     this.isCheckingSubscription.set(true);
 
     this.subscriptionService.seeActive(user.id).subscribe({
       next: (isActive: boolean) => {
-        console.log('✅ Statut abonnement actif:', isActive);
         this.hasActiveSubscription.set(isActive);
         this.isCheckingSubscription.set(false);
         this.isLoading.set(false);
@@ -413,7 +389,6 @@ export class LoginComponent implements OnInit {
           this.redirectToDashboard(isBET, isSUPPLIER, isADMIN);
         } else {
           // Pas d'abonnement actif, redirection vers mon-compte (onglet abonnements)
-          console.log('⚠️ Pas d\'abonnement actif, redirection vers mon-compte');
           this.router.navigate(['/mon-compte'], {
             queryParams: { tab: 'abonnements' }
           }).then(success => {
@@ -424,7 +399,6 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Erreur vérification abonnement:', error);
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
         this.isLoading.set(false);
@@ -447,15 +421,12 @@ export class LoginComponent implements OnInit {
     if (isSUPPLIER === undefined) isSUPPLIER = this.authService.isSUPPLIERProfile();
     if (isADMIN === undefined) isADMIN = this.authService.isADMINProfile();
 
-    console.log('🎯 Redirection finale - isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
 
     // ✅ PRIORITÉ 1: Redirection ADMIN
     if (isADMIN) {
-      console.log('✅ Redirection vers dashboard ADMIN');
       this.router.navigate(['/dashboard-admin']).then(success => {
         this.showAlert('success', this.t('auth.login.success.welcomeAdmin'));
         if (!success) {
-          console.warn('⚠️ Redirection vers dashboard-admin échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
         }
       });
@@ -464,11 +435,9 @@ export class LoginComponent implements OnInit {
 
     // ✅ PRIORITÉ 2: Redirection BET
     if (isBET) {
-      console.log('✅ Redirection vers dashboard BET');
       this.router.navigate(['/dashboard-etude']).then(success => {
         this.showAlert('success', this.t('auth.login.success.welcomeBET'));
         if (!success) {
-          console.warn('⚠️ Redirection vers dashboard-etude échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
         }
       });
@@ -477,11 +446,9 @@ export class LoginComponent implements OnInit {
 
     // ✅ PRIORITÉ 3: Redirection SUPPLIER
     if (isSUPPLIER) {
-      console.log('✅ Redirection vers dashboard fournisseur');
       this.router.navigate(['/dashboardf']).then(success => {
         this.showAlert('success', this.t('auth.login.success.welcomeSupplier'));
         if (!success) {
-          console.warn('⚠️ Redirection vers dashboardf échouée, fallback vers dashboard');
           this.router.navigate(['/dashboard']);
         }
       });
@@ -489,7 +456,6 @@ export class LoginComponent implements OnInit {
     }
 
     // ✅ PRIORITÉ 4: Redirection standard
-    console.log('✅ Redirection vers dashboard standard');
     this.router.navigate(['/dashboard']).then(success => {
       if (success) {
         this.showAlert('success', this.t('auth.login.success.welcome'));

@@ -75,11 +75,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
             this.hasActiveSubscription.set(true);
 
             // Ne pas afficher le popup pour les ADMIN
-            console.log('👤 Utilisateur ADMIN détecté - popup désactivé');
           }
         },
         error: (error) => {
-          console.error('Erreur lors du chargement de l\'utilisateur:', error);
           this.isCheckingSubscription.set(false);
         }
       });
@@ -96,12 +94,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * Vérifie si l'utilisateur a un abonnement actif
    */
   private checkUserSubscription(userId: number): void {
-    console.log('🔍 Vérification de l\'abonnement pour userId:', userId);
     this.isCheckingSubscription.set(true);
 
     this.subscriptionService.seeActive(userId).subscribe({
       next: (isActive: boolean) => {
-        console.log('✅ Statut abonnement actif:', isActive);
         this.hasActiveSubscription.set(isActive);
         this.isCheckingSubscription.set(false);
 
@@ -109,7 +105,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.checkShouldShowPlanPopup();
       },
       error: (error) => {
-        console.error('❌ Erreur vérification abonnement:', error);
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
 
@@ -248,7 +243,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // Vérifier si l'utilisateur peut accéder au dashboard
     if ((path === '/dashboard' || path === '/dashboard-etude' || path === '/dashboardf')
       && !this.canAccessDashboard()) {
-      console.warn('Accès au dashboard refusé: pas d\'abonnement actif');
       // Optionnel: afficher un message ou rediriger vers la page d'abonnement
       this.router.navigate(['/mon-compte']);
       return;
@@ -331,7 +325,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any): void {
-    console.warn('Erreur lors du chargement de la photo de profil, utilisation des initiales');
     this.profileImageLoading.set(false);
     this.profileImageError = true;
   }
@@ -342,34 +335,25 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * This will show on every login until user has an active subscription
    */
   private checkShouldShowPlanPopup(): void {
-    console.log('🎯 checkShouldShowPlanPopup appelé');
-    console.log('  - isADMINProfile:', this.isADMINProfile());
-    console.log('  - hasActiveSubscription:', this.hasActiveSubscription());
-    console.log('  - isCheckingSubscription:', this.isCheckingSubscription());
 
     // Don't show for ADMIN users
     if (this.isADMINProfile()) {
-      console.log('❌ Popup désactivé: utilisateur ADMIN');
       return;
     }
 
     // Wait for subscription check to complete
     if (this.isCheckingSubscription()) {
-      console.log('⏳ Vérification d\'abonnement en cours, attente...');
       return;
     }
 
     // Show popup if user doesn't have an active subscription
     // This includes users who never subscribed or whose subscription expired
     if (!this.hasActiveSubscription()) {
-      console.log('✅ Conditions remplies - affichage du popup dans 1 seconde');
       // Small delay to ensure smooth UI rendering
       setTimeout(() => {
         this.showPlanSelectionPopup.set(true);
-        console.log('🎉 Popup affiché');
       }, 1000);
     } else {
-      console.log('❌ Popup désactivé: abonnement actif détecté');
     }
   }
 
@@ -378,7 +362,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onPlanSelected(planType: string): void {
-    console.log('Plan selected:', planType);
     this.showPlanSelectionPopup.set(false);
   }
 
@@ -421,15 +404,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   debugUserProfile(): void {
-    console.log('Current User:', this.currentUser);
-    console.log('Is ADMIN Profile:', this.isADMINProfile());
-    console.log('Is BET Profile:', this.isBETProfile());
-    console.log('Is SUPPLIER Profile:', this.isSUPPLIERProfile());
-    console.log('User Profile:', this.getUserProfile());
-    console.log('User Profil Type:', typeof this.currentUser?.profil);
-    console.log('User Profil Value:', this.currentUser?.profil);
-    console.log('Has Active Subscription:', this.hasActiveSubscription());
-    console.log('Can Access Dashboard:', this.canAccessDashboard());
   }
 
   t(key: string): string {

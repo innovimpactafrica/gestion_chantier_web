@@ -68,7 +68,6 @@ export class PointingAddressComponent implements OnInit {
       this.loadProjectQrCode();
       this.loadAddresses();
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
     }
   }
 
@@ -80,10 +79,8 @@ export class PointingAddressComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.projectQrCode = response.realEstateProperty.qrcode || '';
-          console.log('QR code du projet récupéré:', this.projectQrCode);
         },
         error: (error) => {
-          console.error('Erreur lors de la récupération du QR code:', error);
           this.projectQrCode = '';
         }
       });
@@ -99,7 +96,6 @@ export class PointingAddressComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des adresses:', error);
           this.isLoading = false;
         }
       });
@@ -159,7 +155,6 @@ export class PointingAddressComponent implements OnInit {
           this.closeAllModals();
         },
         error: (error) => {
-          console.error('Erreur lors de la création:', error);
           this.isLoading = false;
         }
       });
@@ -179,7 +174,6 @@ export class PointingAddressComponent implements OnInit {
           this.closeAllModals();
         },
         error: (error) => {
-          console.error('Erreur lors de la modification:', error);
           this.isLoading = false;
         }
       });
@@ -203,7 +197,6 @@ export class PointingAddressComponent implements OnInit {
           this.closeAllModals();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
           this.isLoading = false;
         }
       });
@@ -245,7 +238,6 @@ export class PointingAddressComponent implements OnInit {
         this.isLocating = false;
       },
       (error) => {
-        console.error('Erreur géolocalisation:', error);
         let msg = 'Impossible de récupérer votre position.';
         switch (error.code) {
           case error.PERMISSION_DENIED:
@@ -310,11 +302,9 @@ export class PointingAddressComponent implements OnInit {
             this.editAddress.name = placeName;
           }
 
-          console.log('Lieu identifié:', placeName);
         }
       })
       .catch(error => {
-        console.error('Erreur géolocalisation inversée:', error);
         // Ne pas bloquer l'utilisateur si la géolocalisation inversée échoue
       });
   }
