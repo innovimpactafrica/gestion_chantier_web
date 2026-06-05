@@ -10,6 +10,7 @@ import { ProjectBudgetService, BudgetResponse } from '../../../../../services/pr
 import { catchError, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-project-presentation',
@@ -25,6 +26,8 @@ export class ProjectPresentationComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private projectBudgetService = inject(ProjectBudgetService);
   private languageService = inject(LanguageService);
+
+  readonly filebaseUrl = environment.filebaseUrl;
 
   // Translation helper
   t = (key: string) => this.languageService.translate(key);
