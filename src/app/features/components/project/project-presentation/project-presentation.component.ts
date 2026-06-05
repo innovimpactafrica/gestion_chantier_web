@@ -10,6 +10,7 @@ import { ProjectBudgetService, BudgetResponse } from '../../../../../services/pr
 import { catchError, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-project-presentation',
@@ -19,6 +20,8 @@ import { LanguageService } from '../../../../core/services/language.service';
   styleUrl: './project-presentation.component.css'
 })
 export class ProjectPresentationComponent implements OnInit {
+  readonly filebaseUrl = environment.filebaseUrl;
+
   private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
   private realEstateService = inject(RealestateService);

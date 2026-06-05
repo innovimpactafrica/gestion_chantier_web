@@ -204,7 +204,7 @@
           </div>
 
           <ng-container *ngIf="project; else loading">
-            <img *ngIf="project.plan" [src]="project.plan" (error)="onImageError($event)" (load)="onImageLoad($event)"
+            <img *ngIf="isValidplan(project.plan)" [src]="project.plan" (error)="onImageError($event)" (load)="onImageLoad($event)"
               alt="plan" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
 
             <div *ngIf="!project.plan" class="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-4">

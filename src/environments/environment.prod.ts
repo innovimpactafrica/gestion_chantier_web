@@ -4,7 +4,7 @@ export const environment = {
   apiBaseUrl: 'https://btp.innovimpactdev.cloud',
   apiUrl: 'https://btp.innovimpactdev.cloud/api',
   apiUrlAddress: 'https://btp.innovimpactdev.cloud/api/pointing-addresses',
-  filebaseUrl: 'https://btp.innovimpactdev.cloud/repertoire_chantier',
+  filebaseUrl: 'https://btp.innovimpactdev.cloud/repertoire_chantier/',
   endpoints: {
     // Dashboard Admin & Subscriptions
     subscriptions: 'https://btp.innovimpactdev.cloud/api/subscriptions',

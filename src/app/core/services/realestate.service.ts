@@ -352,7 +352,9 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
     address: project.address,
     startDate: this.formatDisplayDate(project.startDate),
     endDate: this.formatDisplayDate(project.endDate),
-    progress: this.calculateProgress(project.startDate, project.endDate),
+    progress: project.averageProgess !== undefined && project.averageProgess !== null
+      ? Math.max(0, Math.min(100, Number(project.averageProgess)))
+      : this.calculateProgress(project.startDate, project.endDate),
     plan: this.apiImageUrl + (project.plan || ''),
     available: project.available,
     blocked: project.blocked === true, 
