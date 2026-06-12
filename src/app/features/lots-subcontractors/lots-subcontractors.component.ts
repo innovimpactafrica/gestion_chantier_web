@@ -51,6 +51,7 @@ export class LotsSubcontractorsComponent implements OnInit {
   pageSize = 6;
   totalElements = 0;
   totalPages = 0;
+  pageNumbers: number[] = [];
 
   // États de chargement
   isLoading = false;
@@ -360,6 +361,7 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.lots = this.transformLotsFromAPI(response.content);
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
+        this.pageNumbers = this.getPageNumbers();
         this.filtrerLots();
         this.loadCommentCounts();
         this.isLoading = false;

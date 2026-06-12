@@ -168,8 +168,8 @@
         </button>
 
         <!-- Numéros de page -->
-        <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
-          [class]="page === currentPage ? 
+        <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
+          [class]="page === currentPage ?
             'w-10 h-10 rounded-lg bg-orange-500 text-white font-semibold flex items-center justify-center shadow-sm' : 
             'w-10 h-10 rounded-lg hover:bg-gray-100 text-gray-600 font-medium flex items-center justify-center transition-colors'">
           {{ page }}

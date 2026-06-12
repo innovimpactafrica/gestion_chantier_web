@@ -405,7 +405,7 @@
     <div class="px-8 py-6 bg-white">
       <div class="flex items-center justify-between relative">
         <ng-container
-          *ngFor="let step of getProgressSteps(selectedDemande?.status || 'PENDING'); let i = index; let last = last">
+          *ngFor="let step of selectedDemandeProgressSteps; let i = index; let last = last">
           <!-- Circle -->
           <div [class]="'w-10 h-10 rounded-full flex items-center justify-center font-semibold z-10 transition-all duration-300 ' + 
                     (step.showCheck ? 'text-white' : 
@@ -429,7 +429,7 @@
 
       <!-- Labels -->
       <div class="flex justify-between mt-3">
-        <div *ngFor="let step of getProgressSteps(selectedDemande?.status || 'PENDING')" class="text-center"
+        <div *ngFor="let step of selectedDemandeProgressSteps" class="text-center"
           style="width: 25%;">
           <span class="text-xs font-semibold"
             [style.color]="step.isCurrent ? '#FF5C02' : (step.isCompleted ? '#1A202C' : '#A0AEC0')">

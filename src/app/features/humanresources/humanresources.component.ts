@@ -28,6 +28,7 @@ export class HumanResourcesComponent implements OnInit {
   filteredMembers: TeamMember[] = [];
   currentPage = 1;
   totalPages = 1;
+  pageNumbers: number[] = [];
   itemsPerPage = 5;
   selectAll = false;
   totalMembers = 0;
@@ -140,7 +141,8 @@ export class HumanResourcesComponent implements OnInit {
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.filteredMembers.length / this.itemsPerPage);
-    if (this.totalPages === 0) this.totalPages = 1; // Au moins une page
+    if (this.totalPages === 0) this.totalPages = 1;
+    this.pageNumbers = this.getPageNumbers();
   }
 
   paginateData() {

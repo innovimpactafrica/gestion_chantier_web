@@ -45,6 +45,7 @@ export class TeamListComponent implements OnInit {
   teamMembers: TeamMember[] = [];
   currentPage = 1;
   totalPages = 1;
+  pageNumbers: number[] = [];
   totalElements = 0;
   pageSize = 5;
   isLoading = false;
@@ -181,6 +182,7 @@ export class TeamListComponent implements OnInit {
         this.teamMembers = this.mapWorkersToTeamMembers(response.content);
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
+        this.pageNumbers = this.getPageNumbers();
         this.isLoading = false;
         console.log('Workers chargés:', response.content);
       },

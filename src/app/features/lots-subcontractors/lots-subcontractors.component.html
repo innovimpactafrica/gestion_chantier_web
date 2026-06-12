@@ -251,7 +251,7 @@
         {{ t('common.previous') }}
       </button>
 
-      <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+      <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
         [class.bg-orange-500]="page === currentPage" [class.text-white]="page === currentPage"
         [class.border-orange-500]="page === currentPage"
         class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors">

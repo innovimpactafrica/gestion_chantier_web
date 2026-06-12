@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { LanguageService } from '../../../../core/services/language.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProjectService, ProjectData, ApiResponse } from '../../../../../services/projet.service';
@@ -54,6 +55,9 @@ export class NewProjectComponent implements OnInit, OnDestroy {
   // Fichier plan
   planFile: File | null = null;
 
+  // Modal de confirmation d'annulation
+  showCancelModal = signal(false);
+
   // Subscription pour nettoyer les observables
   private subscriptions: Subscription = new Subscription();
 
@@ -62,7 +66,8 @@ export class NewProjectComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private router: Router,
     private authService: AuthService,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private toastService: ToastService
   ) {
     this.initializeForm();
   }
@@ -263,15 +268,18 @@ export class NewProjectComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (file) {
       if (fileType === 'plan') {
-        // Vérification du type de fichier
         if (!file.type.startsWith('image/')) {
-          alert('Veuillez sélectionner un fichier image valide');
+          this.toastService.showError(this.t('newProject.invalidFileType'));
+          (event.target as HTMLInputElement).value = '';
           return;
         }
 
-        // Vérification de la taille (max 10MB)
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        alert(this.t('newProject.fileTooLarge', { size: '10MB' })); // TODO: Add key or use generic
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+          this.toastService.showError(this.t('newProject.fileTooLarge', { size: '10MB' }));
+          (event.target as HTMLInputElement).value = '';
+          return;
+        }
 
         this.planFile = file;
       }
@@ -350,7 +358,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
 
     // Vérifier que l'utilisateur est authentifié
     if (!this.authService.isAuthenticated()) {
-      alert(this.t('newProject.accessDenied'));
+      this.toastService.showError(this.t('newProject.accessDenied'));
       this.router.navigate(['/login']);
       return;
     }
@@ -364,7 +372,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
 
 
       if (!currentUser || !currentUser.id) {
-        alert('Erreur: Impossible de récupérer les informations de l\'utilisateur connecté');
+        this.toastService.showError(this.t('newProject.userNotFound'));
         this.isSubmitting = false;
         return;
       }
@@ -413,20 +421,20 @@ export class NewProjectComponent implements OnInit, OnDestroy {
       const response = await this.projectService.createProject(projectData).toPromise();
 
       if (response?.success) {
-        alert(this.t('newProject.success'));
-        this.router.navigate(['/projects']); // Rediriger vers la liste des projets
+        this.toastService.showSuccess(this.t('newProject.success'));
+        this.router.navigate(['/projects']);
       } else {
-        alert('Erreur lors de la création du projet: ' + (response?.message || 'Erreur inconnue'));
+        this.toastService.showError(this.t('newProject.createError') + ': ' + (response?.message || 'Erreur inconnue'));
       }
 
     } catch (error: any) {
       console.error('Erreur complète:', error);
       if (error.status === 403) {
-        alert(this.t('newProject.accessDenied'));
+        this.toastService.showError(this.t('newProject.accessDenied'));
         this.authService.logout();
         this.router.navigate(['/login']);
       } else {
-        alert('Erreur lors de la création du projet: ' + (error.message || error.error || 'Erreur inconnue'));
+        this.toastService.showError(this.t('newProject.createError') + ': ' + (error.message || error.error || 'Erreur inconnue'));
       }
     } finally {
       this.isSubmitting = false;
@@ -434,12 +442,19 @@ export class NewProjectComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Annule et retourne à la liste
+   * Ouvre le modal de confirmation d'annulation
    */
   onCancel(): void {
-    if (confirm(this.t('newProject.cancelConfirm') || 'Are you sure you want to cancel?')) {
-      this.router.navigate(['/projects']);
-    }
+    this.showCancelModal.set(true);
+  }
+
+  confirmCancel(): void {
+    this.showCancelModal.set(false);
+    this.router.navigate(['/projects']);
+  }
+
+  dismissCancelModal(): void {
+    this.showCancelModal.set(false);
   }
 
   // Méthodes utilitaires pour les erreurs et la validation

@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
@@ -25,6 +25,8 @@ interface SubcontractorMember {
 })
 export class SubcontractorComponent implements OnInit {
   showModal = false;
+  showDeleteModal = signal(false);
+  pendingDeleteCount = 0;
   searchTerm = '';
   isLoading = false;
   errorMessage = '';
@@ -46,6 +48,7 @@ export class SubcontractorComponent implements OnInit {
   displayedMembers: SubcontractorMember[] = [];
   currentPage = 1;
   totalPages = 1;
+  pageNumbers: number[] = [];
   itemsPerPage = 5;
   selectAll = false;
   totalMembers = 0;
@@ -86,6 +89,7 @@ export class SubcontractorComponent implements OnInit {
         this.allSubcontractors = response.content.map(user => this.userToSubcontractor(user));
         this.totalMembers = response.totalElements;
         this.totalPages = response.totalPages;
+        this.pageNumbers = this.getPageNumbers();
         this.updatePaginationData();
         this.isLoading = false;
       },
@@ -311,6 +315,26 @@ export class SubcontractorComponent implements OnInit {
     });
   }
 
+  openDeleteConfirmModal() {
+    const selectedMembers = this.displayedMembers.filter(member => member.selected);
+    if (selectedMembers.length === 0) {
+      this.errorMessage = this.t('subcontractor.validation.selection');
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
+    }
+    this.pendingDeleteCount = selectedMembers.length;
+    this.showDeleteModal.set(true);
+  }
+
+  confirmDeleteSelected() {
+    this.showDeleteModal.set(false);
+    this.deleteSelectedSubcontractors();
+  }
+
+  cancelDeleteModal() {
+    this.showDeleteModal.set(false);
+  }
+
   /**
    * Supprime les sous-traitants sélectionnés
    */
@@ -318,11 +342,6 @@ export class SubcontractorComponent implements OnInit {
     const selectedMembers = this.displayedMembers.filter(member => member.selected);
 
     if (selectedMembers.length === 0) {
-      this.errorMessage = this.t('subcontractor.validation.selection');
-      return;
-    }
-
-    if (!confirm(this.t('subcontractor.confirmDelete', { count: selectedMembers.length }))) {
       return;
     }
 

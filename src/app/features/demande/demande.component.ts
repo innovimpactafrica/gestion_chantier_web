@@ -20,6 +20,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
   selectedStatus: string = 'Statut';
   showModal: boolean = false;
   selectedDemande: Demande | null = null;
+  selectedDemandeProgressSteps: { step: number; isCompleted: boolean; isCurrent: boolean; label: string; showCheck: boolean }[] = [];
   comment: string = '';
 
   // Modals
@@ -296,6 +297,7 @@ export class DemandeComponent implements OnInit, OnDestroy {
 
   openDetails(demande: Demande) {
     this.selectedDemande = demande;
+    this.selectedDemandeProgressSteps = this.getProgressSteps(demande.status || 'PENDING');
     this.showModal = true;
     this.comment = '';
     this.loadComments(demande.id);

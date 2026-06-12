@@ -219,9 +219,9 @@ export class NouveauDevisComponent implements OnDestroy {
       latitude:               this.form.latitude || null,
       longitude:              this.form.longitude || null,
       totalArea:              this.form.totalArea!,
-      numberOfFloors:         this.form.numberOfFloors,
-      numberOfRooms:          this.form.numberOfRooms,
-      numberOfApartments:     this.showApartments ? this.form.numberOfApartments : null,
+      numberOfFloors:         this.form.numberOfFloors ?? 0,
+      numberOfRooms:          this.form.numberOfRooms ?? 0,
+      numberOfApartments:     this.showApartments ? (this.form.numberOfApartments ?? 0) : 0,
       finishingLevel:         this.form.finishingLevel as any,
       soilType:               this.form.soilType as any,
       accessDifficulty:       this.form.accessDifficulty as any,
@@ -232,7 +232,7 @@ export class NouveauDevisComponent implements OnDestroy {
       hasGarden:              this.form.hasGarden,
       hasElevator:            this.form.hasElevator,
       desiredStartDate:       this.form.desiredStartDate || null,
-      estimatedDurationMonths:this.form.estimatedDurationMonths,
+      estimatedDurationMonths:this.form.estimatedDurationMonths ?? 1,
       additionalNotes:        this.form.additionalNotes.trim() || null
     };
 

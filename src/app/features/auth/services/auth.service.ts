@@ -379,8 +379,10 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
         if (this.isTokenValid()) {
           this.getCurrentUser().subscribe({
             next: (user) => {
-              this._currentUser.set(user);
-              localStorage.setItem('user', JSON.stringify(user));
+              if (user) {
+                this._currentUser.set(user);
+                localStorage.setItem('user', JSON.stringify(user));
+              }
             },
             error: () => {
               // L'intercepteur gère le refresh 401 — on ne nettoie pas ici
@@ -389,7 +391,20 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
         } else if (refreshToken) {
           this.refreshAuthToken().subscribe();
         } else {
-          this.clearAuthData();
+          // Token expiré sans refresh token — vérification async avec le backend.
+          // Ne jamais appeler clearAuthData() ici de façon synchrone : le guard serait
+          // déjà évalué avec _isAuthenticated = false, provoquant une redirection vers
+          // login à chaque F5 même si l'utilisateur est connecté.
+          // getCurrentUser() appellera clearAuthData() de façon async si le backend répond 401.
+          this.getCurrentUser().subscribe({
+            next: (user) => {
+              if (user) {
+                this._currentUser.set(user);
+                localStorage.setItem('user', JSON.stringify(user));
+              }
+            },
+            error: () => {}
+          });
         }
       }
     }
@@ -605,6 +620,9 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       tap(user => {
         if (user) {
           this._currentUser.set(user);
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
         }
       }),
       catchError(error => {

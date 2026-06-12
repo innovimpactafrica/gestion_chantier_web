@@ -558,7 +558,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   toggleUserStatus(user: User): void {
     console.log('🔄 Toggle statut utilisateur:', user);
     this.selectedUserForAction = user;
-    this.modalAction = this.getUserStatus(user) === 'Actif' ? 'block' : 'activate';
+    this.modalAction = user.activated ? 'block' : 'activate';
     this.showBlockModal = true;
   }
 

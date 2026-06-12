@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, UserPageResponse, CreateUserRequest, User } from '../../../services/user.service';
@@ -39,6 +39,7 @@ export class SupplierComponent implements OnInit {
   displayedWorkers: Worker[] = [];
   currentPage = 1;
   totalPages = 1;
+  pageNumbers: number[] = [];
   itemsPerPage = 10;
   selectAll = false;
   totalWorkers = 0;
@@ -47,6 +48,8 @@ export class SupplierComponent implements OnInit {
   searchQuery: string = '';
 
   showModal = false;
+  showDeleteModal = signal(false);
+  pendingDeleteCount = 0;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -84,6 +87,7 @@ export class SupplierComponent implements OnInit {
         this.displayedWorkers = [...this.allWorkers];
         this.totalWorkers = response.totalElements;
         this.totalPages = response.totalPages;
+        this.pageNumbers = this.getPageNumbers();
         this.updatePaginationData();
         this.isLoading = false;
       },
@@ -185,7 +189,6 @@ export class SupplierComponent implements OnInit {
       profil: 'SUPPLIER'
     };
 
-    console.log('📤 Création d\'un fournisseur:', createUserData);
 
     this.userService.createUser(createUserData).subscribe({
       next: (response) => {
@@ -214,6 +217,26 @@ export class SupplierComponent implements OnInit {
     });
   }
 
+  openDeleteConfirmModal() {
+    const selectedWorkers = this.displayedWorkers.filter(worker => worker.selected);
+    if (selectedWorkers.length === 0) {
+      this.errorMessage = this.t('supplier.validation.selection');
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
+    }
+    this.pendingDeleteCount = selectedWorkers.length;
+    this.showDeleteModal.set(true);
+  }
+
+  confirmDeleteSelected() {
+    this.showDeleteModal.set(false);
+    this.deleteSelectedWorkers();
+  }
+
+  cancelDeleteModal() {
+    this.showDeleteModal.set(false);
+  }
+
   /**
    * Supprime les fournisseurs sélectionnés
    */
@@ -221,12 +244,6 @@ export class SupplierComponent implements OnInit {
     const selectedWorkers = this.displayedWorkers.filter(worker => worker.selected);
 
     if (selectedWorkers.length === 0) {
-      this.errorMessage = this.t('supplier.validation.selection');
-      setTimeout(() => this.errorMessage = '', 3000);
-      return;
-    }
-
-    if (!confirm(this.t('supplier.confirmDelete', { count: selectedWorkers.length }))) {
       return;
     }
 

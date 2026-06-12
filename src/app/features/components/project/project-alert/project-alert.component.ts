@@ -6,6 +6,7 @@ import { LanguageService } from '../../../../core/services/language.service';
 import { ProjectBudgetService, Signalement, SignalementResponse, CreateSignalementRequest, AlertIAReport } from '../../../../../services/project-details.service';
 import { environment } from '../../../../../environments/environment';
 import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-project-alert',
@@ -22,6 +23,7 @@ export class ProjectAlertComponent implements OnInit {
   pageSize: number = 5;
   totalElements: number = 0;
   totalPages: number = 0;
+  pageNumbers: number[] = [];
   loading: boolean = false;
   propertyId!: number;
 
@@ -120,7 +122,8 @@ export class ProjectAlertComponent implements OnInit {
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute,
     public languageService: LanguageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) { }
 
   t(key: string): string {
@@ -161,6 +164,7 @@ export class ProjectAlertComponent implements OnInit {
           this.filteredSignalements = [...this.signalements];
           this.totalElements = response.totalElements;
           this.totalPages = response.totalPages;
+          this.pageNumbers = this.computePageNumbers(this.currentPage, this.totalPages);
           this.loading = false;
         },
         error: () => {
@@ -227,10 +231,18 @@ export class ProjectAlertComponent implements OnInit {
 
     this.loading = true;
 
+    const currentUser = this.authService.currentUser();
+    if (!currentUser?.id) {
+      this.loading = false;
+      this.showError('Utilisateur non authentifié');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', this.newSignalement.title.trim());
     formData.append('description', this.newSignalement.description.trim());
     formData.append('propertyId', this.newSignalement.propertyId.toString());
+    formData.append('authorId', currentUser.id.toString());
 
     if (this.newSignalement.pictures.length > 0) {
       this.newSignalement.pictures.forEach((picture: string, index: number) => {
@@ -262,8 +274,6 @@ export class ProjectAlertComponent implements OnInit {
           formData.append('pictures', picture);
         }
       });
-    } else {
-      formData.append('pictures', '');
     }
 
     this.projectBudgetService.saveSignalementWithFormData(formData)
@@ -297,12 +307,12 @@ export class ProjectAlertComponent implements OnInit {
     this.loadSignalements();
   }
 
-  getPageNumbers(): number[] {
+  private computePageNumbers(currentPage: number, totalPages: number): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5;
 
-    let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
+    let startPage = Math.max(0, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
 
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(0, endPage - maxPagesToShow + 1);

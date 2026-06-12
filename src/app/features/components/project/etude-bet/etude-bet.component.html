@@ -178,7 +178,7 @@
 
       <!-- Page numbers -->
       <div class="flex space-x-1">
-        <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)" [class]="'px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium border rounded-md ' + 
+        <button *ngFor="let page of pageNumbers" (click)="goToPage(page)" [class]="'px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium border rounded-md ' + 
                   (page === currentPage ? 
                     'bg-orange-500 text-white border-orange-500' : 
                     'text-gray-700 bg-white border-gray-300 hover:bg-gray-50')">
@@ -512,7 +512,7 @@
       <!-- Progress Bar Section - 98px height -->
       <div class="px-8 py-5 border-b" style="border-color: #F7FAFC; height: 98px;">
         <div class="flex items-center justify-between relative">
-          <ng-container *ngFor="let step of getProgressSteps(selectedEtude.statut); let i = index; let last = last">
+          <ng-container *ngFor="let step of selectedEtudeProgressSteps; let i = index; let last = last">
             <!-- Circle -->
             <div [class]="'w-10 h-10 rounded-full flex items-center justify-center font-semibold z-10 transition-all duration-300 ' + 
                       (step.showCheck ? 'text-white' : 
@@ -536,7 +536,7 @@
 
         <!-- Labels -->
         <div class="flex justify-between mt-3">
-          <div *ngFor="let step of getProgressSteps(selectedEtude.statut)" class="text-center" style="width: 25%;">
+          <div *ngFor="let step of selectedEtudeProgressSteps" class="text-center" style="width: 25%;">
             <span class="text-xs font-semibold"
               [style.color]="step.isCurrent ? '#FF5C02' : (step.isCompleted ? '#1A202C' : '#A0AEC0')">
               {{ step.label }}

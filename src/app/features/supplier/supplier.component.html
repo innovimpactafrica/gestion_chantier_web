@@ -1,15 +1,16 @@
-<div class="bg-[#F5F7FA] rounded-lg shadow-sm p-6">
-  <!-- Header -->
-  <div class="flex justify-between">
-    <div class="pb-4 border-gray-200">
-      <h1 class="text-xl font-semibold text-gray-800">{{ t('supplier.title') }}</h1>
-      <p class="text-gray-600 text-sm mt-1">
-        {{ t('supplier.subtitle') }}
-      </p>
+<!-- supplier.component.html -->
+<div class="bg-white min-h-screen p-6">
+
+  <!-- ─── Zone 1 : Header ─── -->
+  <div class="flex justify-between items-center mb-5">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ t('supplier.title') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ t('supplier.subtitle') }}</p>
     </div>
     <button (click)="openModal()"
-      class="h-[50px] flex items-center justify-between text-white bg-orange-500 rounded-md hover:bg-orange-600 btn-worker px-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+      [disabled]="isLoading">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd"
           d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
           clip-rule="evenodd" />
@@ -18,330 +19,390 @@
     </button>
   </div>
 
-  <!-- Messages d'erreur et de succès -->
-  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-    {{ errorMessage }}
+  <!-- Messages globaux -->
+  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+    <svg class="h-5 w-5 text-green-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+        clip-rule="evenodd" />
+    </svg>
+    <p class="text-sm text-green-700">{{ successMessage }}</p>
   </div>
-  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-    {{ successMessage }}
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+    <svg class="h-5 w-5 text-red-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+        clip-rule="evenodd" />
+    </svg>
+    <p class="text-sm text-red-700">{{ errorMessage }}</p>
   </div>
 
-  <div class="flex justify-between items-center py-4 border-b">
-    <!-- Controls -->
-    <div class="flex flex-wrap gap-4 mb-8">
-      <!-- Barre de recherche -->
-      <div class="relative flex-grow max-w-xs">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <input type="text" [(ngModel)]="searchQuery" (input)="searchWorkers()"
-          class="block w-[302px] h-[48px] pl-10 px-4 py-2 border border-gray-300 rounded-[8px] leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-          [placeholder]="t('supplier.searchPlaceholder')">
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+    <span class="ml-3 text-gray-500 text-sm">{{ t('supplier.loading') }}</span>
+  </div>
+
+  <!-- ─── Zone 3 : Recherche et actions ─── -->
+  <div class="flex justify-between items-center mb-4" *ngIf="!isLoading">
+
+    <!-- Input recherche -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
       </div>
+      <input type="text" [(ngModel)]="searchQuery" (input)="searchWorkers()"
+        class="pl-9 pr-4 py-2 w-64 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
+        [placeholder]="t('supplier.searchPlaceholder')">
     </div>
 
-    <div class="flex flex-wrap gap-4 mb-8">
-      <!-- Bouton Supprimer -->
-      <button (click)="deleteSelectedWorkers()" [disabled]="isLoading"
-        class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 hover:bg-red-50 hover:border-red-300 hover:text-red-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-            clip-rule="evenodd" />
+    <!-- Boutons d'action -->
+    <div class="flex items-center gap-3">
+
+      <!-- Supprimer -->
+      <button (click)="openDeleteConfirmModal()"
+        class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
         {{ t('supplier.delete') }}
       </button>
 
+      <!-- Filtres -->
       <button
-        class="flex items-center justify-between w-[151px] h-[48px] px-4 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-700 focus:outline-none ml-4">
-        <img src="assets/images/filter-lines.svg" alt="" srcset="" class="mr-2">
-        <p class="mr-8">{{ t('supplier.filter') }}</p>
+        class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+        </svg>
+        {{ t('supplier.filter') }}
       </button>
 
-      <div class="flex mb-8">
-        <button
-          class="flex items-center text-gray-600 px-4 py-2 mx-8 border border-gray-300 rounded-md bg-white hover:bg-gray-50">
-          <img src="assets/images/download-cloud-02.svg" alt="download" srcset="" class="mr-2">
-          {{ t('supplier.export') }}
-        </button>
-      </div>
+      <!-- Exporter -->
+      <button
+        class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        {{ t('supplier.export') }}
+      </button>
+
     </div>
   </div>
 
-  <!-- Loader -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-  </div>
-
-  <!-- Table -->
-  <div *ngIf="!isLoading" class="mt-6 overflow-x-auto">
-    <table class="min-w-full">
+  <!-- ─── Zone 4 : Tableau ─── -->
+  <div class="bg-white rounded-lg shadow-sm shadow-gray-100 overflow-hidden" *ngIf="!isLoading">
+    <table class="min-w-full border-collapse">
       <thead>
-        <tr class="border-b border-gray-200">
-          <th class="py-3 px-2 text-left w-12">
-            <div class="flex items-center">
-              <input type="checkbox" class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500"
-                [checked]="selectAll" (change)="toggleSelectAll()">
+        <tr class="border-b border-gray-200 bg-white h-12">
+
+          <!-- Checkbox header -->
+          <th class="py-3 px-4 w-12">
+            <div class="flex items-center justify-center">
+              <div
+                class="w-5 h-5 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center cursor-pointer"
+                (click)="toggleSelectAll()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                </svg>
+              </div>
             </div>
           </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>{{ t('supplier.table.name') }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+
+          <!-- NOM -->
+          <th class="py-3 px-4 text-left">
+            <div class="flex items-center gap-1">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {{ t('supplier.table.name') }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>{{ t('supplier.table.phone') }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+
+          <!-- Téléphone -->
+          <th class="py-3 px-4 text-left">
+            <div class="flex items-center gap-1">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {{ t('supplier.table.phone') }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>{{ t('supplier.table.email') }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+
+          <!-- Email -->
+          <th class="py-3 px-4 text-left">
+            <div class="flex items-center gap-1">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {{ t('supplier.table.email') }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>{{ t('supplier.table.position') }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2 text-left text-sm font-medium text-gray-500">
-            <div class="flex items-center">
-              <span>{{ t('supplier.table.status') }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </th>
-          <th class="py-3 px-2"></th>
+
+          <!-- Actions (vide) -->
+          <th class="py-3 px-4 w-12"></th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let worker of displayedWorkers" class="border-b border-gray-100 hover:bg-gray-50">
-          <td class="py-3 px-2">
-            <input type="checkbox" class="h-4 w-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500"
-              [checked]="worker.selected" (change)="toggleWorkerSelection(worker)">
-          </td>
-          <td class="py-3 px-2 font-medium">{{ worker.name }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ worker.phone }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ worker.email }}</td>
-          <td class="py-3 px-2 text-gray-600">{{ worker.position }}</td>
-          <td class="py-3 px-2">
-            <div class="flex items-center">
-              <span class="h-2 w-2 rounded-full mr-2" [ngClass]="getStatusDot(worker.status)"></span>
-              <span [ngClass]="getStatusColor(worker.status)">
-                {{ worker.status === 'active' ? t('supplier.status.active') : t('supplier.status.inactive') }}
-              </span>
+        <tr *ngFor="let worker of displayedWorkers"
+          class="border-b border-gray-100 hover:bg-gray-50 transition-colors h-14">
+
+          <!-- Checkbox personnalisé -->
+          <td class="py-3 px-4">
+            <div class="flex items-center justify-center">
+              <div
+                class="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-colors"
+                [ngClass]="worker.selected
+                  ? 'bg-orange-500 border-2 border-orange-500'
+                  : 'border-2 border-gray-300 bg-white'"
+                (click)="toggleWorkerSelection(worker)">
+                <svg *ngIf="worker.selected" xmlns="http://www.w3.org/2000/svg"
+                  class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </td>
-          <td class="py-3 px-2 text-right">
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+
+          <!-- NOM -->
+          <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ worker.name }}</td>
+
+          <!-- Téléphone -->
+          <td class="py-3 px-4 text-sm text-gray-400">{{ worker.phone }}</td>
+
+          <!-- Email -->
+          <td class="py-3 px-4 text-sm text-gray-400">{{ worker.email }}</td>
+
+          <!-- Menu trois points -->
+          <td class="py-3 px-4 text-right">
+            <button class="text-gray-400 hover:text-gray-600 p-1 rounded transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="1.8" />
+                <circle cx="12" cy="12" r="1.8" />
+                <circle cx="12" cy="19" r="1.8" />
               </svg>
             </button>
           </td>
         </tr>
+
+        <!-- Message si aucun résultat -->
+        <tr *ngIf="displayedWorkers.length === 0">
+          <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+            {{ t('supplier.noResults') }}
+          </td>
+        </tr>
       </tbody>
     </table>
-
-    <!-- Message si aucun résultat -->
-    <div *ngIf="displayedWorkers.length === 0" class="px-6 py-12 text-center">
-      <p class="text-gray-500">Aucun fournisseur trouvé</p>
-    </div>
   </div>
 
-  <!-- Pagination -->
-  <div *ngIf="!isLoading && displayedWorkers.length > 0"
-    class="flex justify-between items-center mt-4 text-sm text-gray-600">
-    <div>
-      {{ t('supplier.pagination.viewing', { start: startIndex, end: endIndex, total: totalWorkers }) }} {{
-      t('supplier.pagination.pages', { total: totalPages }) }}
-    </div>
-    <div class="flex space-x-1">
+  <!-- ─── Zone 5 : Pagination ─── -->
+  <div class="flex justify-between items-center pt-4 border-t border-gray-100 mt-0" *ngIf="!isLoading">
+
+    <!-- Infos -->
+    <span class="text-sm text-gray-500">
+      {{ t('supplier.pagination.viewing', { start: startIndex, end: endIndex, total: totalWorkers }) }}
+      {{ t('supplier.pagination.pages', { total: totalPages }) }}
+    </span>
+
+    <!-- Boutons de pagination -->
+    <div class="flex items-center gap-1">
+
+      <!-- Précédent -->
       <button (click)="goToPreviousPage()"
-        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-        [class.opacity-50]="currentPage === 1" [disabled]="currentPage === 1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
+        class="border border-gray-200 rounded px-3 py-1 text-sm text-gray-400 hover:bg-gray-50 transition-colors"
+        [class.opacity-40]="currentPage === 1"
+        [disabled]="currentPage === 1">
+        ‹
       </button>
-      <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
-        class="w-8 h-8 flex items-center justify-center border rounded-md"
-        [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-50'">
+
+      <!-- Numéros de pages -->
+      <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
+        class="rounded px-3 py-1 text-sm font-medium transition-colors"
+        [ngClass]="currentPage === page
+          ? 'bg-orange-500 text-white font-semibold'
+          : 'border border-gray-200 text-gray-600 hover:bg-gray-50'">
         {{ page }}
       </button>
+
+      <!-- Suivant -->
       <button (click)="goToNextPage()"
-        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50"
-        [class.opacity-50]="currentPage === totalPages" [disabled]="currentPage === totalPages">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
+        class="border border-gray-200 rounded px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+        [class.opacity-40]="currentPage === totalPages"
+        [disabled]="currentPage === totalPages">
+        ›
       </button>
+
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- ─── Modal Nouveau Fournisseur ─── -->
   <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
     <!-- Overlay -->
     <div class="fixed inset-0 bg-black bg-opacity-50" (click)="closeModal()"></div>
 
-    <!-- Modal Content -->
-    <div class="relative bg-white rounded-lg p-6 w-full max-w-3xl mx-4 z-10 max-h-[90vh] overflow-y-auto">
-      <!-- Modal Header -->
+    <!-- Contenu du modal -->
+    <div class="relative bg-white rounded-lg p-6 w-full max-w-2xl mx-4 z-10 max-h-[90vh] overflow-y-auto shadow-xl">
+
+      <!-- En-tête modal -->
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold text-gray-900">{{ t('supplier.modal.title') }}</h2>
-        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-200">
-        {{ errorMessage }}
+      <!-- Messages dans le modal -->
+      <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-sm text-red-700">{{ errorMessage }}</p>
+      </div>
+      <div *ngIf="successMessage" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <p class="text-sm text-green-700">{{ successMessage }}</p>
       </div>
 
-      <!-- Form -->
-      <form (ngSubmit)="onSubmit()" #workerForm="ngForm">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Formulaire -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <!-- Nom -->
-          <div>
-            <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.name') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="nom" name="nom" type="text" [(ngModel)]="nouveauWorker.nom" placeholder="Ex: Gueye"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Prénom -->
-          <div>
-            <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.firstName') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="prenom" name="prenom" type="text" [(ngModel)]="nouveauWorker.prenom" placeholder="Ex: Cheikh"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Email -->
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.email') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="email" name="email" type="email" [(ngModel)]="nouveauWorker.email"
-              placeholder="Ex: cgueye@gmail.com"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Téléphone -->
-          <div>
-            <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.phone') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="telephone" name="telephone" type="tel" [(ngModel)]="nouveauWorker.telephone"
-              placeholder="Ex: 77 123 45 67"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Mot de passe -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.password') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="password" name="password" type="password" [(ngModel)]="nouveauWorker.password"
-              placeholder="Minimum 6 caractères"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required minlength="6">
-          </div>
-
-          <!-- Date de naissance -->
-          <div>
-            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.birthDate') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="date" name="date" type="text" [(ngModel)]="nouveauWorker.date" placeholder="dd-mm-yyyy"
-              pattern="^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-            <p class="text-xs text-gray-500 mt-1">Format: jj-mm-aaaa</p>
-          </div>
-
-          <!-- Lieu de naissance -->
-          <div>
-            <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.birthPlace') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="lieunaissance" name="lieunaissance" type="text" [(ngModel)]="nouveauWorker.lieunaissance"
-              placeholder="Ex: Dakar"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Adresse -->
-          <div>
-            <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('supplier.modal.address') }} <span class="text-red-500">*</span>
-            </label>
-            <input id="adress" name="adress" type="text" [(ngModel)]="nouveauWorker.adress"
-              placeholder="Ex: 123 Rue de l'Indépendance, Dakar"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-              required>
-          </div>
-
-          <!-- Profil (caché, fixé à WORKER) -->
-          <input type="hidden" [(ngModel)]="nouveauWorker.profil" name="profil">
+        <div>
+          <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.name') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="nom" type="text" [(ngModel)]="nouveauWorker.nom" placeholder="Ex: Gueye"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
         </div>
 
-        <!-- Modal Buttons -->
-        <div class="flex justify-end space-x-4 mt-8 pt-4 border-t border-gray-200">
-          <button type="button" (click)="closeModal()"
-            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-            {{ t('supplier.modal.cancel') }}
-          </button>
-          <button type="submit" [disabled]="isLoading || !workerForm.form.valid"
-            class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <span *ngIf="!isLoading">{{ t('supplier.modal.save') }}</span>
-            <span *ngIf="isLoading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-              </svg>
-              {{ t('supplier.modal.saving') }}
-            </span>
-          </button>
+        <div>
+          <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.firstName') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="prenom" type="text" [(ngModel)]="nouveauWorker.prenom" placeholder="Ex: Cheikh"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
         </div>
-      </form>
+
+        <div>
+          <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.phone') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="telephone" type="tel" [(ngModel)]="nouveauWorker.telephone" placeholder="Ex: 771234567"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.email') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="email" type="email" [(ngModel)]="nouveauWorker.email" placeholder="Ex: cgueye@gmail.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.password') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="password" type="password" [(ngModel)]="nouveauWorker.password"
+            placeholder="Min. 6 caractères"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+        </div>
+
+        <div>
+          <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.birthDate') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="date" type="text" [(ngModel)]="nouveauWorker.date" placeholder="dd-mm-yyyy"
+            pattern="^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+          <p class="text-xs text-gray-500 mt-1">Format: jj-mm-aaaa</p>
+        </div>
+
+        <div>
+          <label for="lieunaissance" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.birthPlace') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="lieunaissance" type="text" [(ngModel)]="nouveauWorker.lieunaissance"
+            placeholder="Ex: Dakar"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+        </div>
+
+        <div>
+          <label for="adress" class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('supplier.modal.address') }} <span class="text-red-500">*</span>
+          </label>
+          <input id="adress" type="text" [(ngModel)]="nouveauWorker.adress"
+            placeholder="Ex: Parcelles Assainies"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+        </div>
+
+      </div>
+
+      <!-- Boutons du modal -->
+      <div class="flex justify-end gap-4 mt-8">
+        <button (click)="closeModal()"
+          class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          [disabled]="isLoading">
+          {{ t('supplier.modal.cancel') }}
+        </button>
+        <button (click)="onSubmit()"
+          class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+          [disabled]="isLoading">
+          <span *ngIf="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+          {{ isLoading ? t('supplier.modal.saving') : t('supplier.modal.save') }}
+        </button>
+      </div>
+
     </div>
   </div>
+
+  <!-- ─── Modal Confirmation Suppression ─── -->
+  <div *ngIf="showDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ t('supplier.deleteModal.title') }}</h3>
+        <p class="text-sm text-gray-500 mb-6">
+          {{ t('supplier.confirmDelete', { count: pendingDeleteCount }) }}
+        </p>
+        <div class="flex gap-3 w-full">
+          <button (click)="cancelDeleteModal()"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+            {{ t('supplier.modal.cancel') }}
+          </button>
+          <button (click)="confirmDeleteSelected()"
+            class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+            {{ t('supplier.deleteModal.confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

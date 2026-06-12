@@ -170,7 +170,7 @@
       </button>
 
       <button
-        *ngFor="let page of getPageNumbers()"
+        *ngFor="let page of pageNumbers"
         (click)="goToPage(page)"
         [ngClass]="currentPage === page ? 'bg-orange-500 text-white border-orange-500' : 'border-gray-300 hover:bg-gray-100'"
         class="w-10 h-10 rounded border font-medium transition">

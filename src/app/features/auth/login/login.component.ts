@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService, profil, UserProfile } from '../../../features/auth/services/auth.service';
 import { SubscriptionService } from '../../../../services/subscription.service';
 import { LanguageService } from '../../../core/services/language.service';
@@ -58,6 +58,7 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private subscriptionService: SubscriptionService,
     public languageService: LanguageService
   ) {
@@ -442,12 +443,16 @@ export class LoginComponent implements OnInit {
   }
 
   private redirectToDashboard(isBET?: boolean, isSUPPLIER?: boolean, isADMIN?: boolean): void {
-    // 🔄 Valeurs par défaut si non définies
+    // Priorité absolue : retourner à l'URL demandée avant la redirection login
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+      return;
+    }
+
     if (isBET === undefined) isBET = this.authService.isBETProfile();
     if (isSUPPLIER === undefined) isSUPPLIER = this.authService.isSUPPLIERProfile();
     if (isADMIN === undefined) isADMIN = this.authService.isADMINProfile();
-
-    console.log('🎯 Redirection finale - isBET:', isBET, '| isSUPPLIER:', isSUPPLIER, '| isADMIN:', isADMIN);
 
     // ✅ PRIORITÉ 1: Redirection ADMIN
     if (isADMIN) {

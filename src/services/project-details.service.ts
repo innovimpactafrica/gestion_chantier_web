@@ -1036,7 +1036,7 @@ export class ProjectBudgetService {
   changeStatusIncident(incidentId: number, status: string): Observable<any> {
     const params = new HttpParams().set('status', status);
     return this.http.patch<any>(
-      `/btpconnect/api/incidents/${incidentId}/status`,
+      `${this.baseUrl}/incidents/${incidentId}/status`,
       null,
       { headers: this.getAuthHeaders(true), params }
     ).pipe(catchError(this.handleError));

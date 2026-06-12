@@ -263,6 +263,7 @@ export class LanguageService {
             'common.confirm': 'Confirmer',
             'common.yes': 'Oui',
             'common.no': 'Non',
+            'common.optional': 'optionnel',
             'common.active': 'Actif',
             'common.inactive': 'Inactif',
             'common.all': 'Tous',
@@ -937,6 +938,7 @@ export class LanguageService {
             'alert.allTypes': 'Tous les types',
             'alert.allPriorities': 'Toutes les priorités',
             'alert.allStatuses': 'Tous les statuts',
+            'alert.selectedImages': 'Images sélectionnées :',
 
             // ============ STUDY BET COMPONENT ============
             'studyBet.title': 'Études BET',
@@ -1389,6 +1391,13 @@ export class LanguageService {
             'newProject.min': 'La valeur est trop petite',
             'newProject.dateRange': 'La date de fin doit être après la date de début',
             'newProject.fileTooLarge': 'Le fichier est trop volumineux (Max {{size}})',
+            'newProject.invalidFileType': 'Veuillez sélectionner un fichier image valide (JPG, PNG, GIF...)',
+            'newProject.userNotFound': 'Impossible de récupérer les informations de l\'utilisateur connecté',
+            'newProject.createError': 'Erreur lors de la création du projet',
+            'newProject.cancelConfirmMessage': 'Les données saisies ne seront pas sauvegardées. Voulez-vous vraiment quitter ?',
+            'newProject.confirmCancel': 'Quitter sans sauvegarder',
+            'projects.blockedProject': 'Le projet',
+            'projects.blockedIsLocked': 'est actuellement verrouillé.',
 
             // ============ NOUVELLES TRADUCTIONS ============
             // Subcontractors
@@ -1425,6 +1434,8 @@ export class LanguageService {
             'subcontractor.success.delete': '{{count}} sous-traitant(s) supprimé(s) avec succès',
             'subcontractor.error.delete': '{{count}} erreur(s) lors de la suppression',
             'subcontractor.confirmDelete': 'Êtes-vous sûr de vouloir supprimer {{count}} sous-traitant(s) ?',
+            'subcontractor.deleteModal.title': 'Confirmer la suppression',
+            'subcontractor.deleteModal.confirm': 'Supprimer',
             'subcontractor.validation.required': 'Veuillez remplir tous les champs obligatoires',
             'subcontractor.validation.email': 'Veuillez saisir une adresse email valide',
             'subcontractor.validation.phone': 'Veuillez saisir un numéro de téléphone valide',
@@ -1467,6 +1478,8 @@ export class LanguageService {
             'supplier.success.delete': '{{count}} fournisseur(s) supprimé(s) avec succès',
             'supplier.error.delete': '{{count}} erreur(s) lors de la suppression',
             'supplier.confirmDelete': 'Êtes-vous sûr de vouloir supprimer {{count}} fournisseur(s) ?',
+            'supplier.deleteModal.title': 'Confirmer la suppression',
+            'supplier.deleteModal.confirm': 'Supprimer',
             'supplier.validation.required': 'Veuillez remplir tous les champs obligatoires',
             'supplier.validation.email': 'Veuillez saisir une adresse email valide',
             'supplier.validation.phone': 'Veuillez saisir un numéro de téléphone valide (min 8 chiffres)',
@@ -1474,6 +1487,7 @@ export class LanguageService {
             'supplier.validation.selection': 'Veuillez sélectionner au moins un fournisseur à supprimer',
             'supplier.pagination.viewing': 'Voir de {{start}} à {{end}} sur {{total}}',
             'supplier.pagination.pages': '({{total}} pages)',
+            'supplier.noResults': 'Aucun fournisseur trouvé',
             'supplier.export.success': 'Export réussi !',
 
             // Admin Subscriptions
@@ -2083,6 +2097,7 @@ export class LanguageService {
             'common.confirm': 'Confirm',
             'common.yes': 'Yes',
             'common.no': 'No',
+            'common.optional': 'optional',
             'common.active': 'Active',
             'common.inactive': 'Inactive',
             'common.all': 'All',
@@ -2631,6 +2646,7 @@ export class LanguageService {
             'alert.allTypes': 'All types',
             'alert.allPriorities': 'All priorities',
             'alert.allStatuses': 'All statuses',
+            'alert.selectedImages': 'Selected images:',
 
             // ============ STUDY BET COMPONENT ============
             'studyBet.title': 'Technical Studies',
@@ -2909,7 +2925,10 @@ export class LanguageService {
             // ============ NEW PROJECT COMPONENT ============
             'newProject.title': 'New Project',
             'newProject.cancelConfirm': 'Cancel Confirmation',
-            'newProject.cancelConfirmMessage': 'Are you sure you want to cancel?',
+            'newProject.cancelConfirmMessage': 'Your data will not be saved. Are you sure you want to leave?',
+            'newProject.confirmCancel': 'Leave without saving',
+            'projects.blockedProject': 'The project',
+            'projects.blockedIsLocked': 'is currently locked.',
             'newProject.subtitle': 'Fill this form to create a new project',
             'newProject.assignedManager': 'Assigned Manager',
             'newProject.loading': 'Loading data...',
@@ -2948,7 +2967,9 @@ export class LanguageService {
             'newProject.planRequired': 'The plan (image) is required',
             'newProject.success': 'Project created successfully!',
             'newProject.accessDenied': 'Access denied. Please login.',
-
+            'newProject.invalidFileType': 'Please select a valid image file (JPG, PNG, GIF...)',
+            'newProject.userNotFound': 'Unable to retrieve connected user information',
+            'newProject.createError': 'Error creating the project',
             // ============ TASK BOARD / TASKS (Complement) ============
             'taskBoard.title': 'Task Board',
             'taskBoard.searchPlaceholder': 'Search here...',
@@ -3507,6 +3528,8 @@ export class LanguageService {
             'subcontractor.success.delete': '{{count}} subcontractor(s) deleted successfully',
             'subcontractor.error.delete': '{{count}} error(s) during deletion',
             'subcontractor.confirmDelete': 'Are you sure you want to delete {{count}} subcontractor(s)?',
+            'subcontractor.deleteModal.title': 'Confirm deletion',
+            'subcontractor.deleteModal.confirm': 'Delete',
             'subcontractor.validation.required': 'Please fill in all required fields',
             'subcontractor.validation.email': 'Please enter a valid email address',
             'subcontractor.validation.phone': 'Please enter a valid phone number',
@@ -3549,6 +3572,8 @@ export class LanguageService {
             'supplier.success.delete': '{{count}} supplier(s) deleted successfully',
             'supplier.error.delete': '{{count}} error(s) during deletion',
             'supplier.confirmDelete': 'Are you sure you want to delete {{count}} supplier(s)?',
+            'supplier.deleteModal.title': 'Confirm deletion',
+            'supplier.deleteModal.confirm': 'Delete',
             'supplier.validation.required': 'Please fill in all required fields',
             'supplier.validation.email': 'Please enter a valid email address',
             'supplier.validation.phone': 'Please enter a valid phone number',
@@ -3556,6 +3581,7 @@ export class LanguageService {
             'supplier.validation.selection': 'Please select at least one supplier to delete',
             'supplier.pagination.viewing': 'Showing {{start}} to {{end}} of {{total}}',
             'supplier.pagination.pages': '({{total}} pages)',
+            'supplier.noResults': 'No suppliers found',
             'supplier.export.success': 'Export successful!',
 
             // Admin Subscriptions

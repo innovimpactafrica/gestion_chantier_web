@@ -444,4 +444,43 @@
       </div>
     </div>
   </form>
+
+  <!-- ─── Modal confirmation annulation ─── -->
+  <div *ngIf="showCancelModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6"
+      (click)="$event.stopPropagation()">
+
+      <!-- Icône avertissement -->
+      <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-orange-100">
+        <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+      </div>
+
+      <!-- Titre -->
+      <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">
+        {{ t('newProject.cancelConfirm') }}
+      </h3>
+
+      <!-- Message -->
+      <p class="text-sm text-gray-500 text-center mb-6">
+        {{ t('newProject.cancelConfirmMessage') }}
+      </p>
+
+      <!-- Boutons -->
+      <div class="flex gap-3">
+        <button (click)="dismissCancelModal()"
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          {{ t('newProject.cancel') }}
+        </button>
+        <button (click)="confirmCancel()"
+          class="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors">
+          {{ t('newProject.confirmCancel') }}
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>

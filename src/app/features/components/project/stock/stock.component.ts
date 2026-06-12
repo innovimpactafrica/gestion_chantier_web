@@ -272,6 +272,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   materialPageSize: number = 5;
   totalMaterialElements: number = 0;
   totalMaterialPages: number = 0;
+  materialPageNumbers: number[] = [];
+  orderPageNumbers: number[] = [];
+  deliveryPageNumbers: number[] = [];
 
   // Material type autocomplete
   materialTypes: MaterialType[] = [];
@@ -618,21 +621,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
 
-  getDeliveryPageNumbers(): number[] {
-    const pages: number[] = [];
+  private computePageNums(currentPage: number, totalPages: number): number[] {
     const maxPages = 5;
-    let startPage = Math.max(0, this.deliveryCurrentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(this.totalDeliveryPages - 1, startPage + maxPages - 1);
-
+    let startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
+    let endPage = Math.min(totalPages - 1, startPage + maxPages - 1);
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(0, endPage - maxPages + 1);
     }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
+    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
   }
+
   // ===== MODIFIER loadStock() pour utiliser materialCurrentPage =====
   loadStock(): void {
     this.loading = true;
@@ -656,6 +654,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           // Plus besoin de filtrage côté client pour la pagination
           this.paginatedMaterials = [...this.materials];
           this.generateStockAlerts();
+          this.materialPageNumbers = this.computePageNums(this.materialCurrentPage, this.totalMaterialPages);
           this.loading = false;
         },
         error: (error) => {
@@ -678,6 +677,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
           this.totalOrderElements = response.totalElements || 0;
           this.totalOrderPages = response.totalPages || 0;
           this.paginatedOrders = this.orders;
+          this.orderPageNumbers = this.computePageNums(this.orderCurrentPage, this.totalOrderPages);
           this.loading = false;
         },
         error: (error) => {
@@ -713,6 +713,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
             this.totalDeliveryElements = response.totalElements || 0;
             this.totalDeliveryPages = response.totalPages || 0;
             this.paginatedDeliveries = [...this.deliveries];
+            this.deliveryPageNumbers = this.computePageNums(this.deliveryCurrentPage, this.totalDeliveryPages);
           } else {
             this.deliveries = [];
             this.paginatedDeliveries = [];
@@ -1091,7 +1092,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.materials.forEach(material => {
       const status = this.getMaterialStatus(material);
       if (status === 'CRITICAL' || status === 'LOW') {
-        const name = material.materialType?.nameFr || material.label;
+        const name = material.materialType?.nameFr || material.label || 'Matériau inconnu';
         const alert: StockAlert = {
           id: material.id,
           message: `${name} - ${material.quantity} ${material.unit.code} restant${material.quantity > 1 ? 's' : ''}`,
@@ -1617,21 +1618,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getMaterialPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPages = 5;
-    let startPage = Math.max(0, this.materialCurrentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(this.totalMaterialPages - 1, startPage + maxPages - 1);
-
-    if (endPage - startPage < maxPages - 1) {
-      startPage = Math.max(0, endPage - maxPages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }
 
   previousMovementPage(): void {
     if (this.movementCurrentPage > 0) {
@@ -1701,19 +1687,6 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getOrderPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPages = 5;
-    let startPage = Math.max(0, this.orderCurrentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(this.totalOrderPages - 1, startPage + maxPages - 1);
-    if (endPage - startPage < maxPages - 1) {
-      startPage = Math.max(0, endPage - maxPages + 1);
-    }
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }
 
   getOrderStatusClass(status: string): string {
     const classes = {
@@ -2307,8 +2280,14 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Préparer les données
     const labels = this.evolutionData.map(item => {
-      const date = new Date(item.date);
-      return date.toLocaleDateString('fr-FR', { month: 'short' });
+      const parts = item.date?.split('-');
+      if (parts?.length === 2) {
+        const month = parseInt(parts[0], 10);
+        const year = parseInt(parts[1], 10);
+        const date = new Date(year, month - 1, 1);
+        return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      }
+      return item.date ?? '';
     });
     const entriesData = this.evolutionData.map(item => item.totalEntries);
     const exitsData = this.evolutionData.map(item => item.totalExits);
