@@ -63,6 +63,34 @@ export interface OrderResponse {
   first: boolean;
   empty: boolean;
 }
+export interface MaterialType {
+  id: number;
+  nameFr: string;
+  nameEn: string;
+  createdAt: string;
+  icon: string;
+}
+
+export interface MaterialUnit {
+  id: number;
+  label: string;
+  code: string;
+  hasStartDate: boolean;
+  hasEndDate: boolean;
+  type: string;
+}
+
+export interface MaterialDetail {
+  id: number;
+  materialType: MaterialType;
+  quantity: number;
+  criticalThreshold: number;
+  createdAt: string;
+  unit: MaterialUnit;
+  labelEn: string;
+  labelFr: string;
+}
+
 export interface CreateQuoteItemRequest {
   itemId: number;
   price: number;
@@ -189,6 +217,13 @@ getQuotes(
   updateStatusOrder(orderId: number, status: string): Observable<Order> {
     const params = new HttpParams().set('status', status);
     return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/status`, null, { params });
+  }
+
+  /**
+   * Récupère les détails d'un matériau par son ID
+   */
+  getMaterialById(materialId: number): Observable<MaterialDetail> {
+    return this.http.get<MaterialDetail>(`${this.baseUrl}/materials/${materialId}`);
   }
 
   /**

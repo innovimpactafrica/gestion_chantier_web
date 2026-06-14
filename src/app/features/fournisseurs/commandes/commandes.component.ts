@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommandeService, Order, OrderItem, CreateQuoteRequest, CreateQuoteItemRequest } from './../../../../services/commande.service';
 import { AuthService } from './../../../features/auth/services/auth.service';
-import { Subscription } from 'rxjs';
+import { LanguageService } from './../../../core/services/language.service';
+import { forkJoin, of, Subscription } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
 interface ExtendedOrder extends Order {
@@ -21,49 +23,54 @@ type ModalAction = 'validate' | 'reject' | 'delete';
 })
 export class CommandesComponent implements OnInit, OnDestroy {
   @ViewChild('modalContent') modalContent!: ElementRef;
-  
+
   searchTerm: string = '';
   selectedPeriod: string = 'Période';
   selectedStatus: string = 'Statut';
   showModal: boolean = false;
   selectedCommande: ExtendedOrder | null = null;
-  
+
   // Modals de confirmation
   showConfirmModal: boolean = false;
   confirmModalAction: ModalAction | null = null;
-  
+
   // Gestion des citations (quotes)
   isCreatingQuote: boolean = false;
-  quoteItems: Map<number, number> = new Map(); // Map<materialId, price>
+  quoteItems: Map<number, number> = new Map();
   quoteSuccess: boolean = false;
   quoteError: string | null = null;
-  
+
+  // Noms des matériaux résolus (materialId → label)
+  materialNames: Map<number, string> = new Map();
+  isLoadingMaterials: boolean = false;
+
   // Données dynamiques
   commandes: ExtendedOrder[] = [];
   filteredCommandes: ExtendedOrder[] = [];
   loading: boolean = true;
   error: string | null = null;
   isProcessing: boolean = false;
-  
+
   // Pagination
   currentPage: number = 0;
   pageSize: number = 10;
   totalElements: number = 0;
   totalPages: number = 0;
-  
+
   // ID du fournisseur (dynamique depuis l'utilisateur connecté)
   supplierId: number | null = null;
-  
+
   // Subscription pour nettoyer les observables
   private subscriptions: Subscription = new Subscription();
-  
+
   // Propriété Math pour utilisation dans le template
   Math = Math;
 
   constructor(
     private commandeService: CommandeService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private languageService: LanguageService
+  ) { }
 
   ngOnInit() {
     this.initializeSupplierId();
@@ -79,7 +86,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
   private initializeSupplierId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
-      
+
       if (user && user.id) {
         this.supplierId = user.id;
         this.loadCommandes();
@@ -98,7 +105,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
             console.error('Erreur refreshUser:', error);
           }
         });
-        
+
         this.subscriptions.add(refreshSubscription);
       }
     } else {
@@ -146,7 +153,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = null;
-    
+
     const loadSubscription = this.commandeService.getCommandes(this.supplierId, page, this.pageSize).subscribe({
       next: (response) => {
         this.commandes = response.content.map((commande: Order) => ({
@@ -157,7 +164,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.currentPage = response.number;
-        
+
         this.filterCommandes();
         this.loading = false;
       },
@@ -177,7 +184,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
   changePageSize(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const newSize = +target.value;
-    
+
     this.pageSize = newSize;
     this.currentPage = 0;
     this.loadCommandes();
@@ -191,7 +198,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
       const matchesSearch = this.matchesSearchFilter(commande);
       const matchesPeriod = this.selectedPeriod === 'Période' || this.matchesPeriodFilter(commande);
       const matchesStatus = this.selectedStatus === 'Statut' || this.mapStatusToFrench(commande.status) === this.selectedStatus;
-      
+
       return matchesSearch && matchesPeriod && matchesStatus;
     });
   }
@@ -209,7 +216,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
   private matchesPeriodFilter(commande: ExtendedOrder): boolean {
     const createdDate = this.arrayToDate(commande.orderDate);
     const now = new Date();
-    
+
     switch (this.selectedPeriod) {
       case 'Cette semaine':
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -244,8 +251,8 @@ export class CommandesComponent implements OnInit, OnDestroy {
     if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 3) {
       return new Date();
     }
-    return new Date(dateArray[0], dateArray[1] - 1, dateArray[2], 
-                    dateArray[3] || 0, dateArray[4] || 0, dateArray[5] || 0);
+    return new Date(dateArray[0], dateArray[1] - 1, dateArray[2],
+      dateArray[3] || 0, dateArray[4] || 0, dateArray[5] || 0);
   }
 
   /**
@@ -274,12 +281,12 @@ export class CommandesComponent implements OnInit, OnDestroy {
    */
   mapStatusToFrench(status: string | undefined): string {
     if (!status) return 'Inconnu';
-    
+
     switch (status) {
       case 'PENDING':
         return 'En attente';
       case 'APPROVED':
-        return 'Validée';
+        return 'Approuvée';
       case 'REJECTED':
         return 'Rejetée';
       case 'IN_DELIVERY':
@@ -321,30 +328,31 @@ export class CommandesComponent implements OnInit, OnDestroy {
       this.error = 'Commande non valide';
       return;
     }
-    
+
     // Réinitialiser les états de citation
     this.quoteItems.clear();
     this.quoteSuccess = false;
     this.quoteError = null;
-    
+
     // Charger les détails complets de la commande
     this.commandeService.getOrderById(commande.id).subscribe({
       next: (fullOrder) => {
-        this.selectedCommande = { 
-          ...fullOrder, 
+        this.selectedCommande = {
+          ...fullOrder,
           items: fullOrder.items || [],
           isStatic: false
         };
         this.showModal = true;
-        
+
         setTimeout(() => {
           if (this.modalContent) {
             this.modalContent.nativeElement.focus();
           }
         }, 0);
+
+        this.resolveMaterialNames(fullOrder.items || []);
       },
-      error: (err) => {
-        console.error('Erreur lors du chargement des détails:', err);
+      error: (_err) => {
         this.error = 'Erreur lors du chargement des détails de la commande';
       }
     });
@@ -357,8 +365,52 @@ export class CommandesComponent implements OnInit, OnDestroy {
     this.showModal = false;
     this.selectedCommande = null;
     this.quoteItems.clear();
+    this.materialNames.clear();
     this.quoteSuccess = false;
     this.quoteError = null;
+  }
+
+  /**
+   * Résout les noms des matériaux pour chaque item de la commande
+   */
+  private resolveMaterialNames(items: OrderItem[]): void {
+    if (!items.length) return;
+
+    this.isLoadingMaterials = true;
+    const requests = items.map(item =>
+      this.commandeService.getMaterialById(item.materialId).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        const isFr = (this.languageService.currentLang?.() ?? 'FR').toUpperCase() === 'FR';
+        results.forEach((material, index) => {
+          if (material) {
+            const label = isFr ? material.labelFr : material.labelEn;
+            this.materialNames.set(items[index].materialId, label || `Mat #${items[index].materialId}`);
+          } else {
+            this.materialNames.set(items[index].materialId, `Mat #${items[index].materialId}`);
+          }
+        });
+        this.isLoadingMaterials = false;
+      }
+    });
+  }
+
+  /**
+   * Retourne le nom affiché d'un matériau
+   */
+  getMaterialName(materialId: number): string {
+    return this.materialNames.get(materialId) ?? `Mat #${materialId}`;
+  }
+
+  /**
+   * Indique si la commande est en PENDING (seul statut permettant la saisie du prix)
+   */
+  canSetUnitPrice(): boolean {
+    return this.selectedCommande?.status === 'PENDING';
   }
 
   /**
@@ -405,7 +457,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
     if (!this.selectedCommande || !this.selectedCommande.items) {
       return 0;
     }
-    
+
     return this.selectedCommande.items.reduce((sum, item) => {
       return sum + this.calculateQuoteItemTotal(item);
     }, 0);
@@ -418,7 +470,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
     if (!this.selectedCommande || !this.selectedCommande.items) {
       return false;
     }
-    
+
     return this.selectedCommande.items.every(item => {
       const price = this.quoteItems.get(item.materialId);
       return price !== undefined && price > 0;
@@ -461,7 +513,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
         console.log('Citation créée avec succès:', response);
         this.quoteSuccess = true;
         this.isCreatingQuote = false;
-        
+
         // Fermer le modal après 2 secondes
         setTimeout(() => {
           this.closeModal();
