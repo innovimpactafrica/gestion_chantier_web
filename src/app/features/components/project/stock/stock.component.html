@@ -452,13 +452,12 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
                       </svg>
                     </button>
 
-                    <!-- DROPDOWN COMMANDES (remplacer le dropdown existant) -->
+                    <!-- DROPDOWN COMMANDES -->
                     <div *ngIf="openOrderDropdownIndex === i"
-                      class="absolute right-0 mt-2 w-[230px] bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-[5px]"
-                      [style.bottom]="i >= paginatedOrders.length - 2 ? '100%' : 'auto'"
-                      [style.top]="i >= paginatedOrders.length - 2 ? 'auto' : '100%'"
-                      [style.margin-bottom]="i >= paginatedOrders.length - 2 ? '0.5rem' : '0'"
-                      [style.margin-top]="i < paginatedOrders.length - 2 ? '0.5rem' : '0'">
+                      class="fixed w-[230px] bg-white rounded-lg shadow-xl border border-gray-200 z-[200] py-[5px]"
+                      [style.top]="orderDropdownPos?.top !== undefined ? orderDropdownPos!.top + 'px' : 'auto'"
+                      [style.bottom]="orderDropdownPos?.bottom !== undefined ? orderDropdownPos!.bottom + 'px' : 'auto'"
+                      [style.right]="orderDropdownPos?.right + 'px'">
 
                       <!-- Voir détails -->
                       <button (click)="viewOrderDetails(order)"
@@ -683,13 +682,12 @@ class="w-full flex items-center gap-3 px-5 py-3 text-left text-gray-800 hover:bg
 
                     </button>
 
-                    <!-- DROPDOWN LIVRAISONS (remplacer le dropdown existant) -->
+                    <!-- DROPDOWN LIVRAISONS -->
                     <div *ngIf="openDeliveryDropdownIndex === i"
-                      class="absolute right-0 mt-2 w-[230px] bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-[5px]"
-                      [style.bottom]="i >= paginatedDeliveries.length - 2 ? '100%' : 'auto'"
-                      [style.top]="i >= paginatedDeliveries.length - 2 ? 'auto' : '100%'"
-                      [style.margin-bottom]="i >= paginatedDeliveries.length - 2 ? '0.5rem' : '0'"
-                      [style.margin-top]="i < paginatedDeliveries.length - 2 ? '0.5rem' : '0'">
+                      class="fixed w-[230px] bg-white rounded-lg shadow-xl border border-gray-200 z-[200] py-[5px]"
+                      [style.top]="deliveryDropdownPos?.top !== undefined ? deliveryDropdownPos!.top + 'px' : 'auto'"
+                      [style.bottom]="deliveryDropdownPos?.bottom !== undefined ? deliveryDropdownPos!.bottom + 'px' : 'auto'"
+                      [style.right]="deliveryDropdownPos?.right + 'px'">
 
                       <!-- Voir détails -->
                       <button (click)="onDeliveryAction('voir', delivery, $event)"

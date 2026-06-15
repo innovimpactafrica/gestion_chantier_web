@@ -335,7 +335,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   showApproveConfirmModal: boolean = false;
   orderToApprove: Order | null = null;
   selectedQuoteForApproval: Quote | null = null;
-  deliveryPageSize: number = 10;
+  deliveryPageSize: number = 5;
   orderPageSize: number = 10;
 
   // History modal
@@ -520,7 +520,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Vérifier que la commande est dans un état permettant l'approbation
-    if (order.status === 'APPROVED' || order.status === 'DELIVERED' || order.status === 'DELIVERY') {
+    if (order.status === 'APPROVED' || order.status === 'REJECTED') {
       this.showErrorMessage('Cette commande ne peut plus être approuvée');
       return;
     }
@@ -610,14 +610,11 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       return false;
     }
 
-    // Le promoteur ne peut approuver qu'une commande IN_DELIVERY ou DELIVERED.
+    // Le promoteur ne peut approuver qu'une commande DELIVERED (livraison physique confirmée).
     // PENDING = fournisseur n'a pas encore agi.
+    // IN_DELIVERY = matériaux en transit, pas encore réceptionnés.
     // APPROVED/REJECTED = état terminal.
-    const approvableStatuses = ['IN_DELIVERY', 'DELIVERED'];
-
-    const canApprove = approvableStatuses.includes(order.status);
-
-    return canApprove;
+    return order.status === 'DELIVERED';
   }
   // Obtenir le texte du statut de livraison
   getDeliveryStatusText(status: string): string {
@@ -1745,6 +1742,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       'PENDING': 'stock.orderStatus.pending',
       'CONFIRMED': 'stock.orderStatus.confirmed',
       'IN_PROGRESS': 'stock.orderStatus.inProgress',
+      'IN_DELIVERY': 'stock.orderStatus.inDelivery',
       'DELIVERY': 'stock.orderStatus.delivery',
       'DELIVERED': 'stock.orderStatus.delivered',
       'CANCELLED': 'stock.orderStatus.cancelled',
@@ -1995,11 +1993,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Méthode pour mettre à jour la pagination des livraisons filtrées
   updatePaginatedDeliveries(): void {
-    const startIndex = this.deliveryCurrentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
+    const startIndex = this.deliveryCurrentPage * this.deliveryPageSize;
+    const endIndex = startIndex + this.deliveryPageSize;
     this.paginatedDeliveries = this.filteredDeliveries.slice(startIndex, endIndex);
     this.totalDeliveryElements = this.filteredDeliveries.length;
-    this.totalDeliveryPages = Math.ceil(this.totalDeliveryElements / this.pageSize);
+    this.totalDeliveryPages = Math.ceil(this.totalDeliveryElements / this.deliveryPageSize);
+    this.deliveryPageNumbers = this.computePageNums(this.deliveryCurrentPage, this.totalDeliveryPages);
   }
 
   // Méthode appelée lors du changement de recherche
@@ -2176,20 +2175,43 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   openOrderDropdownIndex: number | null = null;
+  orderDropdownPos: { top?: number; bottom?: number; right: number } | null = null;
 
   toggleOrderDropdown(index: number, event: MouseEvent): void {
     event.stopPropagation();
-    this.openOrderDropdownIndex =
-      this.openOrderDropdownIndex === index ? null : index;
+    if (this.openOrderDropdownIndex === index) {
+      this.openOrderDropdownIndex = null;
+      this.orderDropdownPos = null;
+      return;
+    }
+    const btn = event.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
+    const dropdownH = 200;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    this.orderDropdownPos = spaceBelow >= dropdownH
+      ? { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+      : { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right };
+    this.openOrderDropdownIndex = index;
   }
 
-
   openDeliveryDropdownIndex: number | null = null;
+  deliveryDropdownPos: { top?: number; bottom?: number; right: number } | null = null;
 
   toggleDeliveryDropdown(index: number, event: MouseEvent): void {
     event.stopPropagation();
-    this.openDeliveryDropdownIndex =
-      this.openDeliveryDropdownIndex === index ? null : index;
+    if (this.openDeliveryDropdownIndex === index) {
+      this.openDeliveryDropdownIndex = null;
+      this.deliveryDropdownPos = null;
+      return;
+    }
+    const btn = event.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
+    const dropdownH = 240;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    this.deliveryDropdownPos = spaceBelow >= dropdownH
+      ? { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+      : { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right };
+    this.openDeliveryDropdownIndex = index;
   }
 
 
@@ -2282,7 +2304,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.openDropdownIndex = null;
     this.openInventoryDropdownIndex = null;
     this.openOrderDropdownIndex = null;
+    this.orderDropdownPos = null;
     this.openDeliveryDropdownIndex = null;
+    this.deliveryDropdownPos = null;
   }
 
 
