@@ -64,6 +64,8 @@ interface Property {
 interface Material {
   id: number;
   label: string;
+  labelFr?: string | null;
+  labelEn?: string | null;
   quantity: number;
   criticalThreshold: number;
   createdAt: number[];
@@ -295,6 +297,16 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedSupplier: User | null = null;
   supplierPage: number = 0;
   showMenu = false;
+
+  // Order modal - per-row material autocomplete
+  orderMaterialPool: Material[] = [];
+  orderMaterialPoolLoading: boolean = false;
+  orderMaterialPageLoaded: number = 0;
+  orderMaterialTotalPages: number = 0;
+  materialSearchTerms: string[] = [];
+  showMaterialDropdowns: boolean[] = [];
+  selectedOrderMaterials: (Material | null)[] = [];
+  filteredMaterialResults: Material[][] = [];
   // Ajouter ces propriétés dans la classe StockComponent
   consommationData: ConsommationData[] = [];
   evolutionData: EvolutionData[] = [];
@@ -378,13 +390,24 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         quantity: [1, [Validators.required, Validators.min(1)]]
       })
     );
+    const idx = this.materialsArray.length - 1;
+    this.materialSearchTerms[idx] = '';
+    this.showMaterialDropdowns[idx] = false;
+    this.selectedOrderMaterials[idx] = null;
+    this.filteredMaterialResults[idx] = [...this.orderMaterialPool];
   }
   removeMaterialLine(index: number): void {
     if (this.materialsArray.length > 1) {
       this.materialsArray.removeAt(index);
+      this.materialSearchTerms.splice(index, 1);
+      this.showMaterialDropdowns.splice(index, 1);
+      this.selectedOrderMaterials.splice(index, 1);
+      this.filteredMaterialResults.splice(index, 1);
     }
   }
   getStockForMaterial(index: number): number {
+    const selected = this.selectedOrderMaterials[index];
+    if (selected) return selected.quantity;
     const materialId = this.materialsArray.at(index).get('materialId')?.value;
     if (!materialId) return 0;
     const mat = this.materials.find(m => m.id === Number(materialId));
@@ -587,8 +610,10 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       return false;
     }
 
-    // Statuts permettant l'approbation
-    const approvableStatuses = ['PENDING', 'IN_PROGRESS'];
+    // Le promoteur ne peut approuver qu'une commande IN_DELIVERY ou DELIVERED.
+    // PENDING = fournisseur n'a pas encore agi.
+    // APPROVED/REJECTED = état terminal.
+    const approvableStatuses = ['IN_DELIVERY', 'DELIVERED'];
 
     const canApprove = approvableStatuses.includes(order.status);
 
@@ -989,15 +1014,8 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // ===== MODIFIER addMaterialToOrder =====
-  // ✅ REMPLACER par (ligne ~280 environ) :
   addMaterialToOrder(): void {
-    const materials = this.orderForm.get('materials') as FormArray;
-    materials.push(this.fb.group({
-      materialId: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]]
-      // ❌ SUPPRIMER unitPrice
-    }));
+    this.addMaterialLine();
   }
 
   // ===== NOUVELLE MÉTHODE: Calculer le total d'une ligne =====
@@ -1034,11 +1052,26 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
   openOrderModal(): void {
     this.showOrderModal = true;
+    this.orderMaterialPool = [];
+    this.orderMaterialPageLoaded = 0;
+    this.orderMaterialTotalPages = 0;
+    this.materialSearchTerms = [];
+    this.showMaterialDropdowns = [];
+    this.selectedOrderMaterials = [];
+    this.filteredMaterialResults = [];
 
     const materials = this.orderForm.get('materials') as FormArray;
     if (materials.length === 0) {
-      this.addMaterialToOrder();
+      this.addMaterialLine();
+    } else {
+      for (let i = 0; i < materials.length; i++) {
+        this.materialSearchTerms[i] = '';
+        this.showMaterialDropdowns[i] = false;
+        this.selectedOrderMaterials[i] = null;
+        this.filteredMaterialResults[i] = [];
+      }
     }
+    this.loadMaterialsForOrder();
   }
 
   // ✅ REMPLACER onSubmitOrder() par :
@@ -1079,13 +1112,19 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   // ===== NOUVELLE MÉTHODE: Gérer la sélection d'un matériau =====
   onMaterialSelect(_index: number): void { }
 
-  // ===== MODIFIER closeOrderModal =====
   closeOrderModal(): void {
     this.showOrderModal = false;
+    this.materialSearchTerms = [];
+    this.showMaterialDropdowns = [];
+    this.selectedOrderMaterials = [];
+    this.filteredMaterialResults = [];
+    this.orderMaterialPool = [];
     const materials = this.orderForm.get('materials') as FormArray;
     materials.clear();
     this.orderForm.reset({ supplierId: '' });
-    this.addMaterialToOrder(); // Ajouter une ligne vide
+    this.selectedSupplier = null;
+    this.supplierSearchKeyword = '';
+    this.addMaterialLine();
   }
   generateStockAlerts(): void {
     this.stockAlerts = [];
@@ -1920,11 +1959,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
         doc.save(`Facture_${orderNumber}.pdf`);
         this.showSuccessMessage('Facture téléchargée avec succès');
       }).catch((error) => {
-        console.error('Erreur lors du chargement de jsPDF:', error);
         this.showErrorMessage('Erreur lors de la génération du PDF');
       });
     } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
       this.showErrorMessage('Erreur lors de la génération du PDF');
     }
   }
@@ -2161,6 +2198,84 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   toggleExportDropdown(event: MouseEvent): void {
     event.stopPropagation();
     this.showExportDropdown = !this.showExportDropdown;
+  }
+
+  // ─── Order modal material autocomplete ───────────────────────────────────
+
+  getMaterialDisplayLabel(material: Material): string {
+    const isEN = this.languageService.currentLang() === 'EN';
+    if (isEN && material.labelEn) return material.labelEn;
+    if (material.labelFr) return material.labelFr;
+    return material.materialType?.nameFr || material.label || 'N/A';
+  }
+
+  loadMaterialsForOrder(append: boolean = false): void {
+    this.orderMaterialPoolLoading = true;
+    this.materialsService.getStock(this.propertyId, this.orderMaterialPageLoaded, 50)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (append) {
+            this.orderMaterialPool = [...this.orderMaterialPool, ...(response.content || [])];
+          } else {
+            this.orderMaterialPool = response.content || [];
+          }
+          this.orderMaterialTotalPages = response.totalPages || 0;
+          this.orderMaterialPoolLoading = false;
+          for (let i = 0; i < this.materialSearchTerms.length; i++) {
+            this.applyOrderMaterialFilter(i);
+          }
+        },
+        error: () => { this.orderMaterialPoolLoading = false; }
+      });
+  }
+
+  applyOrderMaterialFilter(index: number): void {
+    const term = (this.materialSearchTerms[index] || '').toLowerCase();
+    this.filteredMaterialResults[index] = term
+      ? this.orderMaterialPool.filter(mat => this.getMaterialDisplayLabel(mat).toLowerCase().includes(term))
+      : [...this.orderMaterialPool];
+  }
+
+  onOrderMaterialSearch(index: number, term: string): void {
+    this.materialSearchTerms[index] = term;
+    this.showMaterialDropdowns[index] = true;
+    this.selectedOrderMaterials[index] = null;
+    this.materialsArray.at(index).get('materialId')?.setValue('');
+    this.applyOrderMaterialFilter(index);
+  }
+
+  focusOrderMaterialInput(index: number): void {
+    this.showMaterialDropdowns[index] = true;
+    this.applyOrderMaterialFilter(index);
+  }
+
+  selectMaterialForRow(index: number, material: Material): void {
+    this.selectedOrderMaterials[index] = material;
+    this.materialSearchTerms[index] = this.getMaterialDisplayLabel(material);
+    this.materialsArray.at(index).get('materialId')?.setValue(material.id);
+    this.showMaterialDropdowns[index] = false;
+  }
+
+  clearMaterialForRow(index: number): void {
+    this.selectedOrderMaterials[index] = null;
+    this.materialSearchTerms[index] = '';
+    this.materialsArray.at(index).get('materialId')?.setValue('');
+    this.showMaterialDropdowns[index] = false;
+  }
+
+  closeOrderMaterialDropdown(index: number): void {
+    setTimeout(() => { this.showMaterialDropdowns[index] = false; }, 200);
+  }
+
+  onOrderMaterialDropdownScroll(index: number, event: Event): void {
+    const el = event.target as HTMLElement;
+    if (el.scrollHeight - el.scrollTop <= el.clientHeight + 50) {
+      if (!this.orderMaterialPoolLoading && this.orderMaterialPageLoaded < this.orderMaterialTotalPages - 1) {
+        this.orderMaterialPageLoaded++;
+        this.loadMaterialsForOrder(true);
+      }
+    }
   }
 
   closeDropdown(): void {

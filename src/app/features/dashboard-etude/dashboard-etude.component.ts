@@ -106,7 +106,6 @@ export class DashboardEtudeComponent implements OnInit, OnDestroy, AfterViewInit
           },
           error: (error) => {
             this.handleError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
         
@@ -136,7 +135,6 @@ export class DashboardEtudeComponent implements OnInit, OnDestroy, AfterViewInit
         this.checkLoadingComplete();
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des pourcentages:', error);
         this.handleError('Erreur lors du chargement des statistiques');
         this.checkLoadingComplete();
       }
@@ -149,7 +147,6 @@ export class DashboardEtudeComponent implements OnInit, OnDestroy, AfterViewInit
         this.checkLoadingComplete();
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de la volumétrie:', error);
         this.handleError('Erreur lors du chargement de la volumétrie');
         this.checkLoadingComplete();
       }
@@ -204,7 +201,6 @@ export class DashboardEtudeComponent implements OnInit, OnDestroy, AfterViewInit
    * Gère les erreurs
    */
   private handleError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }

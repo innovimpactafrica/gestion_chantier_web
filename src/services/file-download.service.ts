@@ -45,7 +45,6 @@ export class FileDownloadService {
                 URL.revokeObjectURL(objectUrl);
             })
             .catch(err => {
-                console.error('Erreur lors du téléchargement :', err);
                 // Fallback : ouvrir dans un nouvel onglet
                 window.open(fullUrl, '_blank');
             });

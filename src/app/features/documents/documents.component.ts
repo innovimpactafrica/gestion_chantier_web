@@ -96,10 +96,8 @@ export class DocumentsComponent implements OnInit {
           this.loadDocuments();
           this.loadDocumentTypes();
         } else {
-          console.error('ID de propriété invalide:', idParam);
         }
       } else {
-        console.error('Aucun ID de propriété dans l\'URL');
       }
     });
   }
@@ -130,7 +128,6 @@ export class DocumentsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Erreur chargement documents', err);
         this.isLoading = false;
       }
     });
@@ -203,7 +200,7 @@ export class DocumentsComponent implements OnInit {
       next: (response: DocumentTypesResponse) => {
         this.documentTypes = response.content || [];
       },
-      error: (err) => console.error('Erreur types documents', err)
+      error: (_err) => {}
     });
   }
 
@@ -216,14 +213,10 @@ export class DocumentsComponent implements OnInit {
       ? parseInt(this.newDocument.typeId, 10)
       : this.newDocument.typeId;
 
-    console.log('🔍 onDocumentTypeChange - typeId:', typeId, 'type:', typeof typeId);
 
     if (typeId && typeId > 0) {
       this.selectedDocumentType = this.documentTypes.find(t => t.id === typeId) || null;
 
-      console.log('📄 Type sélectionné:', this.selectedDocumentType);
-      console.log('  - hasStartDate:', this.selectedDocumentType?.hasStartDate);
-      console.log('  - hasEndDate:', this.selectedDocumentType?.hasEndDate);
 
       // Réinitialiser les dates si le type ne les supporte pas
       if (this.selectedDocumentType) {
@@ -236,7 +229,6 @@ export class DocumentsComponent implements OnInit {
       }
     } else {
       this.selectedDocumentType = null;
-      console.log('❌ Aucun type sélectionné');
     }
   }
 
@@ -245,7 +237,6 @@ export class DocumentsComponent implements OnInit {
    */
   shouldShowStartDate(): boolean {
     const result = this.selectedDocumentType?.hasStartDate === true;
-    console.log('📅 shouldShowStartDate:', result, 'selectedType:', this.selectedDocumentType?.label);
     return result;
   }
 
@@ -254,7 +245,6 @@ export class DocumentsComponent implements OnInit {
    */
   shouldShowEndDate(): boolean {
     const result = this.selectedDocumentType?.hasEndDate === true;
-    console.log('📅 shouldShowEndDate:', result, 'selectedType:', this.selectedDocumentType?.label);
     return result;
   }
 
@@ -348,7 +338,6 @@ export class DocumentsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Erreur suppression document', err);
         alert('Erreur lors de la suppression');
         this.isLoading = false;
         this.closeDeleteConfirmModal();
@@ -447,7 +436,6 @@ export class DocumentsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Erreur sauvegarde', err);
         alert('Erreur lors de l\'enregistrement');
         this.isLoading = false;
       }

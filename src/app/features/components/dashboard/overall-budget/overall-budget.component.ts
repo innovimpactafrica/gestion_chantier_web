@@ -75,11 +75,10 @@ selectedPropertyId!: number;
             this.selectedPropertyId = this.properties[0].id;
             this.loadBudgetData();
           } else {
-            console.warn('Utilisateur ou propriétés manquantes');
           }
           
       },
-      error: err => console.error("Erreur utilisateur connecté:", err)
+      error: _err => {}
     });
   }
   
@@ -103,14 +102,12 @@ selectedPropertyId!: number;
     this.error = null;
 
     if (!this.propertyId) {
-      console.warn('PropertyId non fourni, utilisation des données par défaut');
       this.initializeWithDefaultData();
       this.loading = false;
       return;
     }
 
     if (!this.selectedPropertyId || !this.currentUserId) {
-    console.warn("Paramètres manquants");
     return;
   }
 
@@ -120,11 +117,9 @@ selectedPropertyId!: number;
     { someParam: 'value' } // <-- si tu en as besoin
   ).subscribe({
     next: (data) => {
-      console.log("Budget KPIs chargés:", data);
       // traitement ici
     },
     error: (err) => {
-      console.error("Erreur lors du chargement des KPI:", err);
     }
   });
   }

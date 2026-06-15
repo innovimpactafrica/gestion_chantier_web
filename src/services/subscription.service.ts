@@ -136,7 +136,6 @@ export class SubscriptionService {
     private http: HttpClient,
     private authService: AuthService,
   ) {
-    console.log('🔧 SubscriptionService initialisé');
     this.checkOneTouchScript();
   }
 
@@ -145,12 +144,6 @@ export class SubscriptionService {
    */
   private checkOneTouchScript(): void {
     if (typeof sendPaymentInfos === 'function') {
-      console.log('✅ Script OneTouch chargé avec succès');
-    } else {
-      console.warn('⚠️ Script OneTouch non détecté au démarrage du service');
-      console.warn(
-        'Le script sera vérifié à nouveau lors du premier appel de paiement',
-      );
     }
   }
 
@@ -161,12 +154,8 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/is-active/${userId}`;
 
-    console.log('📡 API Call: seeActive');
-    console.log('🔗 URL:', url);
-    console.log('👤 UserId:', userId);
 
     return this.http.get<boolean>(url, { headers }).pipe(
-      tap((isActive) => console.log('✅ Is Active:', isActive)),
       catchError((error) => this.handleError(error, 'seeActive')),
     );
   }
@@ -179,7 +168,6 @@ export class SubscriptionService {
     const url = `${this.baseUrl}/can-create-project/${userId}`;
 
     return this.http.get<boolean>(url, { headers }).pipe(
-      tap((canCreate) => console.log('✅ Can Create Project:', canCreate)),
       catchError((error) => this.handleError(error, 'canCreateProject')),
     );
   }
@@ -199,19 +187,9 @@ export class SubscriptionService {
 
     const url = `${this.baseUrl}/invoices/${userId}`;
 
-    console.log('📡 API Call: getFactures');
-    console.log('🔗 URL:', url);
-    console.log('👤 UserId:', userId);
-    console.log('📄 Page:', page);
-    console.log('📊 Size:', size);
 
     return this.http.get<InvoiceResponse>(url, { headers, params }).pipe(
       tap((response) => {
-        console.log('✅ Factures récupérées:');
-        console.log('  - Total elements:', response.totalElements);
-        console.log('  - Total pages:', response.totalPages);
-        console.log('  - Current page:', response.number);
-        console.log('  - Items:', response.content.length);
       }),
       catchError((error) => this.handleError(error, 'getFactures')),
     );
@@ -224,23 +202,9 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/name/${name}`;
 
-    console.log('📡 API Call: getPlanSubscription');
-    console.log('🔗 URL complète:', url);
-    console.log('👔 Profil:', name);
 
     return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
       tap((plans) => {
-        console.log("✅ Plans d'abonnement récupérés:");
-        console.log('  - Nombre de plans:', plans.length);
-        console.log(
-          '  - Plans:',
-          plans.map((p) => ({
-            id: p.id,
-            name: p.name,
-            label: p.label,
-            totalCost: p.totalCost,
-          })),
-        );
       }),
       catchError((error) => this.handleError(error, 'getPlanSubscription')),
     );
@@ -253,11 +217,8 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/active`;
 
-    console.log('📡 API Call: getAllActivePlans');
-    console.log('🔗 URL:', url);
 
     return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
-      tap((plans) => console.log('✅ Plans actifs récupérés:', plans.length)),
       catchError((error) => this.handleError(error, 'getAllActivePlans')),
     );
   }
@@ -266,12 +227,9 @@ export class SubscriptionService {
    * Récupère les plans actifs filtrés par profil utilisateur
    */
   getPlansByProfile(profile: string): Observable<SubscriptionPlan[]> {
-    console.log('📡 API Call: getPlansByProfile');
-    console.log('👤 Profil demandé:', profile);
 
     return this.getAllActivePlans().pipe(
       map((plans) => {
-        console.log('📦 Tous les plans actifs:', plans);
 
         // Filtrer les plans par nom qui contient le profil
         const filteredPlans = plans.filter((plan) => {
@@ -288,22 +246,10 @@ export class SubscriptionService {
           const matches = matchesByName || matchesByTargetProfiles;
 
           if (matches) {
-            console.log(
-              `✅ Plan "${plan.name}" (${plan.label}) correspond au profil "${profile}"`,
-            );
           }
 
           return matches;
         });
-
-        console.log(
-          `✅ Plans filtrés pour le profil "${profile}":`,
-          filteredPlans.length,
-        );
-        console.log(
-          '📋 Plans trouvés:',
-          filteredPlans.map((p) => `${p.name} (${p.label})`),
-        );
 
         return filteredPlans;
       }),
@@ -318,12 +264,8 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.planBaseUrl}/${planId}`;
 
-    console.log('📡 API Call: getPlanById');
-    console.log('🔗 URL:', url);
-    console.log('🆔 Plan ID:', planId);
 
     return this.http.get<SubscriptionPlan>(url, { headers }).pipe(
-      tap((plan) => console.log('✅ Plan récupéré:', plan)),
       catchError((error) => this.handleError(error, 'getPlanById')),
     );
   }
@@ -335,17 +277,8 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/user/${userId}`;
 
-    console.log('📡 API Call: getSubscriptionByUser');
-    console.log('🔗 URL:', url);
-    console.log('👤 UserId:', userId);
 
     return this.http.get<UserSubscription>(url, { headers }).pipe(
-      tap((subscription) => {
-        console.log('✅ Abonnement utilisateur récupéré:');
-        console.log('  - ID Abonnement:', subscription.id);
-        console.log('  - Plan:', subscription.subscriptionPlan?.name);
-        console.log('  - Date création:', subscription.createdAt);
-      }),
       catchError((error) => this.handleError(error, 'getSubscriptionByUser')),
     );
   }
@@ -354,23 +287,10 @@ export class SubscriptionService {
     const headers = this.getAuthHeaders();
     const url = `${this.baseUrl}/profile/${profile}`;
 
-    console.log('📡 API Call: getSubscriptionsByProfile');
-    console.log('🔗 URL:', url);
-    console.log('👔 Profile:', profile);
 
     return this.http.get<UserSubscription[]>(url, { headers }).pipe(
       tap((subscriptions) => {
-        console.log(
-          '✅ Abonnements par profil récupérés:',
-          subscriptions.length,
-        );
         subscriptions.forEach((sub, index) => {
-          console.log(
-            `  - Abonnement ${index + 1}:`,
-            sub.subscriptionPlan?.name,
-            'User:',
-            sub.user.id,
-          );
         });
       }),
       catchError((error) =>
@@ -406,17 +326,11 @@ export class SubscriptionService {
 
     const url = `${this.baseUrl}/create/${params.userId}/${params.planId}/${params.months}`;
 
-    console.log('📡 API Call: createSubscription');
-    console.log('🔗 URL:', url);
-    console.log('👤 UserId:', params.userId);
-    console.log('🎫 PlanId:', params.planId);
-    console.log('📅 Months:', params.months);
 
     return this.http
       .get<CreateSubscriptionResponse>(url, { headers, params: httpParams })
       .pipe(
         tap((response) => {
-          console.log('✅ Abonnement créé avec succès:', response);
         }),
         catchError((error) => this.handleError(error, 'createSubscription')),
       );
@@ -435,7 +349,6 @@ export class SubscriptionService {
     // URL de succès : redirige vers /mon-compte avec les paramètres de paiement
     const successUrl = `${baseUrl}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`;
 
-    console.log('🔗 URL de succès construite:', successUrl);
 
     return successUrl;
   }
@@ -458,12 +371,6 @@ export class SubscriptionService {
       if (typeof sendPaymentInfos !== 'function') {
         const errorMsg =
           "Le système de paiement OneTouch n'est pas chargé. Veuillez rafraîchir la page et réessayer.";
-        console.error(
-          '💡 Solution: Assurez-vous que le script OneTouch est bien inclus dans index.html',
-        );
-        console.error(
-          '💡 URL du script: https://test.solinusteam.com/Scripts/form.js',
-        );
         reject(new Error(errorMsg));
         return;
       }
@@ -494,7 +401,6 @@ export class SubscriptionService {
 
         resolve();
       } catch (error) {
-        console.error('❌ Erreur lors du lancement de OneTouch:', error);
         reject(error);
       }
     });
@@ -508,10 +414,6 @@ export class SubscriptionService {
     plan: SubscriptionPlan,
     isYearly: boolean,
   ): Promise<void> {
-    console.log("🚀 Initiation du paiement d'abonnement");
-    console.log('👤 Utilisateur:', user.id, user.email);
-    console.log('📦 Plan:', plan.id, plan.label);
-    console.log('📅 Type:', isYearly ? 'Annuel' : 'Mensuel');
 
     // Calcul du montant et des mois
     const months = isYearly ? 12 : 1;
@@ -528,14 +430,11 @@ export class SubscriptionService {
     // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA (IHM conserve le vrai montant affiché)
    // amount = 1;
 
-    console.log('💰 Montant calculé (FORCÉ POUR TEST):', amount);
-    console.log('📅 Nombre de mois:', months);
 
     // Validation des données utilisateur
     if (!user.email || !user.prenom || !user.nom || !user.telephone) {
       const errorMsg =
         'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.';
-      console.error('❌', errorMsg);
       throw new Error(errorMsg);
     }
 
@@ -552,7 +451,6 @@ export class SubscriptionService {
         months,
       );
     } catch (error) {
-      console.error("❌ Erreur lors de l'initiation du paiement:", error);
       throw error;
     }
   }
@@ -580,7 +478,6 @@ export class SubscriptionService {
     try {
       await this.callTouchPay(amount, '', '', '', '', userId, plan.id, months);
     } catch (error) {
-      console.error("❌ Erreur lors de l'initiation du paiement:", error);
       throw error;
     }
   }
@@ -588,7 +485,6 @@ export class SubscriptionService {
    * Récupère les headers d'authentification avec validation
    */
   private getAuthHeaders(): HttpHeaders {
-    console.log("🔑 Récupération des headers d'authentification...");
 
     if (
       this.authService &&
@@ -597,33 +493,23 @@ export class SubscriptionService {
       const headers = this.authService.getAuthHeaders();
       const hasAuth = headers.get('Authorization') !== null;
 
-      console.log(
-        '🔑 Headers depuis AuthService:',
-        hasAuth ? '✅ OK' : '❌ Manquant',
-      );
 
       if (!hasAuth) {
-        console.warn('⚠️ Aucun header Authorization trouvé!');
       }
 
       return headers;
     }
 
-    console.warn(
-      '⚠️ AuthService.getAuthHeaders() non disponible, utilisation du fallback',
-    );
 
     const token = this.authService?.getToken() || localStorage.getItem('token');
 
     if (token) {
-      console.log('🔑 Token trouvé:', token.substring(0, 20) + '...');
       return new HttpHeaders({
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       });
     }
 
-    console.error("❌ Aucun token d'authentification trouvé!");
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
@@ -637,14 +523,8 @@ export class SubscriptionService {
     error: any,
     context: string = 'unknown',
   ): Observable<never> {
-    console.error(`❌ Erreur dans SubscriptionService.${context}:`, error);
-    console.error('❌ Status:', error.status);
-    console.error('❌ Status Text:', error.statusText);
-    console.error('❌ URL:', error.url);
-    console.error('❌ Message:', error.message);
 
     if (error.error) {
-      console.error('❌ Error body:', error.error);
     }
 
     let errorMessage = 'Une erreur est survenue';
@@ -687,7 +567,6 @@ export class SubscriptionService {
         }
     }
 
-    console.error('💬 Message utilisateur:', userMessage);
 
     return throwError(() => ({
       message: errorMessage,
@@ -698,38 +577,5 @@ export class SubscriptionService {
     }));
   }
 
-  /**
-   * Debug des endpoints disponibles
-   */
-  debugEndpoints(): void {
-    console.log('🔍 === DEBUG ENDPOINTS ===');
-    console.log('Base URL Subscriptions:', this.baseUrl);
-    console.log('Base URL Plans:', this.planBaseUrl);
-    console.log('Endpoints disponibles:');
-    console.log('  - seeActive: GET', `${this.baseUrl}/is-active/{userId}`);
-    console.log(
-      '  - canCreateProject: GET',
-      `${this.baseUrl}/can-create-project/{userId}`,
-    );
-    console.log(
-      '  - getFactures: GET',
-      `${this.baseUrl}/invoices/{userId}?page=0&size=10`,
-    );
-    console.log(
-      '  - getPlanSubscription: GET',
-      `${this.planBaseUrl}/name/{name}`,
-    );
-    console.log('  - getAllActivePlans: GET', `${this.planBaseUrl}/active`);
-    console.log('  - getPlanById: GET', `${this.planBaseUrl}/{id}`);
-    console.log(
-      '  - createSubscription: GET',
-      `${this.baseUrl}/create/{userId}/{planId}/{months}`,
-    );
-    console.log(
-      'OneTouch Script:',
-      typeof sendPaymentInfos === 'function' ? '✅ Chargé' : '❌ Non chargé',
-    );
-    console.log('========================');
-  }
 }
 

@@ -102,7 +102,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('🚀 Initialisation du composant Utilisateurs');
     this.loadAllUsers();
   }
 
@@ -114,7 +113,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   loadAllUsers(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    console.log('📥 Chargement de tous les utilisateurs...');
 
     // Use selectedProfile if set, otherwise undefined
     const profileFilter = this.selectedProfile || undefined;
@@ -123,14 +121,11 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: UserPageResponse) => {
-          console.log('✅ Réponse reçue:', response);
 
           this.utilisateurs = response.content;
           this.totalResults = response.totalElements;
           this.totalPages = response.totalPages;
 
-          console.log('📊 Total utilisateurs chargés:', this.totalResults);
-          console.log('📊 Pages totales:', this.totalPages);
 
           this.filteredUtilisateurs = [...this.utilisateurs];
           this.paginatedUtilisateurs = [...this.utilisateurs];
@@ -138,7 +133,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des utilisateurs:', error);
           this.errorMessage = error.userMessage || 'Erreur lors du chargement des utilisateurs';
           this.isLoading = false;
         }
@@ -146,7 +140,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   }
 
   filterByProfile(): void {
-    console.log('🔍 Filtre par profil:', this.selectedProfile);
     this.currentPage = 0;
     this.loadAllUsers();
   }
@@ -158,7 +151,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   }
 
   searchUtilisateurs(): void {
-    console.log('🔍 Recherche:', this.searchTerm);
     this.currentPage = 0;
     this.loadAllUsers();
   }
@@ -339,10 +331,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
     const formattedDate = `${day}-${month}-${year}`;
-    console.log('📅 Conversion date:', {
-      original: dateString,
-      formatted: formattedDate
-    });
     return formattedDate;
   }
 
@@ -395,20 +383,13 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
     if (this.createPhotoFile) {
       createData.photo = this.createPhotoFile;
-      console.log('📸 Photo ajoutée à la création:', this.createPhotoFile.name);
     }
 
-    console.log('📤 Données envoyées:', {
-      ...createData,
-      password: '***',
-      hasPhoto: !!this.createPhotoFile
-    });
 
     this.userService.createUser(createData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Utilisateur créé avec succès:', response);
           this.successMessage = 'Utilisateur créé avec succès';
           this.isLoading = false;
 
@@ -421,7 +402,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           }, 1500);
         },
         error: (error) => {
-          console.error('❌ Erreur création complète:', error);
 
           let userMsg = 'Erreur lors de la création';
           if (error.status === 400) {
@@ -481,17 +461,14 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
     if (this.editPhotoFile) {
       formData.append('photo', this.editPhotoFile, this.editPhotoFile.name);
-      console.log('📸 Photo ajoutée à la modification:', this.editPhotoFile.name);
     }
 
-    console.log('📤 FormData préparé pour modification de l\'utilisateur ID:', this.editUserForm.id);
 
     // ✅ CORRECTION: Utiliser UserService au lieu de AuthService
     this.authService.updateAnyUserWithFormData(this.editUserForm.id, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {
-          console.log('✅ Utilisateur mis à jour:', updatedUser);
           this.successMessage = 'Utilisateur modifié avec succès';
           this.isLoading = false;
 
@@ -504,7 +481,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           }, 1500);
         },
         error: (error) => {
-          console.error('❌ Erreur modification:', error);
           let userMsg = 'Erreur lors de la modification';
           if (error.status === 400) {
             userMsg = 'Données invalides. Vérifiez tous les champs.';
@@ -537,7 +513,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
       }
 
       this.editPhotoFile = file;
-      console.log('📸 Photo sélectionnée pour modification:', file.name);
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -556,7 +531,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   }
 
   toggleUserStatus(user: User): void {
-    console.log('🔄 Toggle statut utilisateur:', user);
     this.selectedUserForAction = user;
     this.modalAction = user.activated ? 'block' : 'activate';
     this.showBlockModal = true;
@@ -570,18 +544,15 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     // ✅ Déterminer l'état à envoyer (inverse du statut actuel)
     const shouldActivate = this.modalAction === 'activate';
 
-    console.log(`🔄 ${shouldActivate ? 'Activation' : 'Désactivation'} de l'utilisateur:`, this.selectedUserForAction);
 
     // ✅ Appeler le service pour bloquer/débloquer
     this.utilisateurService.blockUser(this.selectedUserForAction.id, shouldActivate)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Statut modifié avec succès');
           this.handleBlockSuccess();
         },
         error: (error) => {
-          console.error('❌ Erreur lors du changement de statut:', error);
           this.handleBlockError(error);
         }
       });
@@ -608,7 +579,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   }
 
   private handleBlockError(error: any): void {
-    console.error('❌ Erreur lors du changement de statut:', error);
     this.errorMessage = error.userMessage || 'Erreur lors du changement de statut';
     this.showBlockModal = false;
     this.isLoading = false;

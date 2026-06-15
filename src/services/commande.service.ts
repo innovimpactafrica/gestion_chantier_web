@@ -15,6 +15,7 @@ export interface OrderItem {
 export interface Property {
   id: number;
   name: string;
+  plan?: string;
 }
 
 export interface Supplier {

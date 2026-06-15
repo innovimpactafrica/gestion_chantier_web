@@ -100,12 +100,10 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: BudgetResponse) => {
-          console.log('Réponse budget complète:', data);
 
           if (data.id && (typeof data.id === 'number' || typeof data.id === 'string')) {
             this.budgetId = Number(data.id);
           } else {
-            console.error('ID du budget manquant ou invalide dans la réponse:', data);
             this.error = "ID du budget manquant dans la réponse du serveur";
             this.loading = false;
             return;
@@ -126,7 +124,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Erreur lors du chargement du budget:', error);
           this.error = "Erreur lors du chargement du budget";
           this.loading = false;
         }
@@ -137,7 +134,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
   }
   fetchExpenses(): void {
     if (!this.budgetId) {
-      console.warn('budgetId non défini, impossible de récupérer les dépenses');
       this.error = "ID du budget non défini";
       return;
     }
@@ -150,7 +146,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
           this.totalPages = response.totalPages;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des dépenses:', error);
           this.error = "Erreur lors du chargement des dépenses";
         }
       });
@@ -222,7 +217,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
   }
 
   private handleBudgetUpdateError(error: any): void {
-    console.error('Erreur lors de la mise à jour du budget:', error);
 
     if (error.status === 403) {
       this.error = "Vous n'avez pas les droits pour modifier ce budget";
@@ -327,7 +321,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
           this.fetchBudgetData();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression de la dépense:', error);
           this.error = "Erreur lors de la suppression de la dépense";
           this.loading = false;
         }
@@ -356,7 +349,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    console.log('Données envoyées:', expenseToSend);
 
     // CORRECTION: Vérifier le token avant d'envoyer la requête
     this.budgetService.checkAuthToken();
@@ -387,7 +379,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
         return false;
       }
 
-      console.log('Token présent:', token.substring(0, 20) + '...');
     }
     return true;
   }
@@ -430,14 +421,12 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Dépense créée avec succès:', response);
           this.loading = false;
           this.closeExpenseModal();
           this.fetchExpenses();
           this.fetchBudgetData();
         },
         error: (error) => {
-          console.error('Erreur lors de la création de la dépense:', error);
           this.loading = false;
 
           if (error.includes('403') || error.includes('Forbidden')) {
@@ -462,14 +451,12 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Dépense modifiée avec succès:', response);
           this.loading = false;
           this.closeExpenseModal();
           this.fetchExpenses();
           this.fetchBudgetData();
         },
         error: (error) => {
-          console.error('Erreur lors de la modification de la dépense:', error);
           this.loading = false;
 
           // CORRECTION: Gestion spécifique des erreurs
@@ -686,7 +673,6 @@ export class ProjectBudgetComponent implements OnInit, OnDestroy {
 
   // Méthode pour gérer les erreurs de chargement d'image
   onImageError(event: any): void {
-    console.error('Erreur de chargement de l\'image');
     event.target.src = 'assets/images/image-not-found.png'; // Image de fallback
   }
 

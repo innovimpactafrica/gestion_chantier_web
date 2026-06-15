@@ -646,11 +646,9 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor() { }
 
   ngOnInit(): void {
-    console.log('🚀 PortailComponent initialisé');
 
     // Synchroniser avec le LanguageService centralisé
     this.currentLang = this.languageService.currentLang();
-    console.log('🌐 Langue synchronisée depuis LanguageService:', this.currentLang);
 
     this.loadPlans();
     this.loadPartners();
@@ -673,7 +671,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   t(key: string): string {
     const translation = this.translations[this.currentLang][key];
     if (!translation) {
-      console.warn(`Translation missing for key: ${key} in language: ${this.currentLang}`);
       return key;
     }
     return translation;
@@ -695,7 +692,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     // Utiliser le service centralisé pour sauvegarder
     this.languageService.changeLanguage(this.currentLang);
 
-    console.log('🌐 Langue changée:', this.currentLang);
   }
 
   // Changement de langue via select
@@ -706,7 +702,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     // Utiliser le service centralisé pour sauvegarder
     this.languageService.changeLanguage(this.currentLang);
 
-    console.log('🌐 Langue changée (select):', this.currentLang);
   }
 
 
@@ -722,7 +717,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoadingPartners.set(false);
       },
       error: (error) => {
-        console.error('Erreur chargement partenaires:', error);
         this.isLoadingPartners.set(false);
       }
     });
@@ -741,11 +735,9 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plans) => {
-          console.log('✅ Tous les plans chargés:', plans);
 
           this.groupPlansByName(plans);
           this.planNames = Object.keys(this.allPlansByName);
-          console.log('📋 Names disponibles:', this.planNames);
 
           if (this.planNames.length > 0) {
             this.showPlansForName(0);
@@ -755,7 +747,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isLoadingPlans = false;
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des plans:', error);
           this.isLoadingPlans = false;
         }
       });
@@ -787,7 +778,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // ✅ Filtrer : n'accepter que les profils autorisés
       if (!allowedProfiles.includes(groupName)) {
-        console.log(`⚠️ Profil ${groupName} filtré (non autorisé sur le portail)`);
         return; // Ignorer ce plan
       }
 
@@ -811,14 +801,8 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     const availableNames = Object.keys(this.allPlansByName);
     this.planNames = profileOrder.filter(name => availableNames.includes(name));
 
-    console.log('✅ Plans filtrés pour le portail:', {
-      allowedProfiles,
-      planNames: this.planNames,
-      plansByName: this.allPlansByName
-    });
 
     if (isPlatformBrowser(this.platformId)) {
-      console.log('📊 Plans groupés par name (filtrés):', this.allPlansByName);
     }
   }
 
@@ -832,10 +816,6 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentNameIndex = index;
     this.animationKey++;
 
-    console.log(`🔄 Affichage des plans pour: ${name}`, {
-      premium: this.currentPremiumPlan?.label,
-      basic: this.currentBasicPlan?.label
-    });
   }
 
   private startPlanRotation(): void {
@@ -875,18 +855,12 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goToSubscription(planType: 'free' | 'basic' | 'premium'): void {
-    console.log('🎯 Intention d\'abonnement:', planType);
 
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('subscription_intent', planType);
       sessionStorage.setItem('redirect_after_login', '/mon-compte');
       sessionStorage.setItem('compte_tab', 'abonnements');
 
-      console.log('✅ SessionStorage enregistré:', {
-        subscription_intent: sessionStorage.getItem('subscription_intent'),
-        redirect_after_login: sessionStorage.getItem('redirect_after_login'),
-        compte_tab: sessionStorage.getItem('compte_tab')
-      });
     }
 
     this.router.navigate(['/login']);
@@ -974,9 +948,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-          console.log('Copié dans le presse-papiers:', text);
         }).catch(err => {
-          console.error('Erreur lors de la copie:', err);
         });
       } else {
         // Fallback pour les anciens navigateurs
@@ -986,9 +958,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
         textarea.select();
         try {
           document.execCommand('copy');
-          console.log('Copié dans le presse-papiers:', text);
         } catch (err) {
-          console.error('Erreur lors de la copie:', err);
         }
         document.body.removeChild(textarea);
       }

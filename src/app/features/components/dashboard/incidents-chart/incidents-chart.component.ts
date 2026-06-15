@@ -59,7 +59,6 @@ export class IncidentsChartComponent {
       this.authService.getCurrentUser().subscribe({
         next: (user) => {
           if (!user || !user.id) {
-            console.warn('Utilisateur non connecté');
             this.error = 'Utilisateur non connecté';
             return;
           }
@@ -75,13 +74,11 @@ export class IncidentsChartComponent {
               }
             },
             error: (err) => {
-              console.error('Erreur lors de la récupération des incidents:', err);
               this.error = 'Erreur de chargement des incidents';
             }
           });
         },
         error: (err) => {
-          console.error('Erreur lors de la récupération de l’utilisateur:', err);
           this.error = 'Erreur utilisateur';
         }
       });

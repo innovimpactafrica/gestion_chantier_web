@@ -280,7 +280,6 @@ export class TaskService {
    * Gère les erreurs HTTP avec un format cohérent
    */
   private handleError(baseMessage: string, error: HttpErrorResponse): Observable<never> {
-    console.error(`${baseMessage}:`, error);
 
     let errorMessage = baseMessage;
 

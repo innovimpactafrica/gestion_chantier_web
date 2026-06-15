@@ -25,9 +25,7 @@
             [class.opacity-100]="!profileImageLoading()" />
             
           <ng-template #initialsTemplate>
-            <div class="w-full h-full bg-[#f8f9fa] border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-600 uppercase">
-              {{ authService.getUserInitials() }}
-            </div>
+            <img src="assets/images/image-placeholder.png" alt="Placeholder" class="w-full h-full object-cover" />
           </ng-template>
         </div>
         <div>

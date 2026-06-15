@@ -89,7 +89,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
   private initializeSupplierId(): void {
     if (this.authService.isAuthenticated()) {
       const user = this.authService.currentUser();
-      console.log(user)
       if (user && user.id) {
         this.supplierId = user.id;
         this.loadDashboardData();
@@ -106,7 +105,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           error: (error) => {
             this.handleError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
 
@@ -142,7 +140,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
         }, 0);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement du dashboard:', error);
         this.handleError('Erreur lors du chargement des données du dashboard');
         this.loading = false;
       }
@@ -175,7 +172,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
    * Gère les erreurs
    */
   private handleError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }
@@ -363,8 +359,6 @@ export class DashboardfComponent implements OnInit, OnDestroy, AfterViewInit {
    * Méthode pour debug - afficher les informations utilisateur
    */
   debugUserInfo(): void {
-    console.log('Current User:', this.authService.currentUser());
-    console.log('Supplier ID:', this.supplierId);
   }
 
   /**

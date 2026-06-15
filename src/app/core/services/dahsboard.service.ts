@@ -82,19 +82,11 @@ getTasksKPIs(realEstatePropertyId: number, promoterId: number): Observable<any> 
   const url = `${this.baseUrl}/tasks/kpis?realEstatePropertyId=${realEstatePropertyId}&promoterId=${promoterId}`;
   
   // Debug: Afficher les paramètres utilisés
-  console.log('🔍 Appel API KPIs avec les paramètres:', {
-    realEstatePropertyId,
-    promoterId,
-    url
-  });
   
   return this.http.get<any>(url).pipe(
     tap(response => {
-      console.log('✅ Réponse API KPIs reçue:', response);
     }),
     catchError(error => {
-      console.error('❌ Erreur lors de la récupération des KPIs:', error);
-      console.error('URL appelée:', url);
       return throwError(() => error);
     })
   );
@@ -105,7 +97,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
   const url = `${this.baseUrl}/properties?promoterId=${promoterId}`;
   return this.http.get<any[]>(url).pipe(
     catchError(error => {
-      console.error('Erreur lors de la récupération des propriétés:', error);
       return throwError(() => error);
     })
   );
@@ -123,7 +114,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
         return this.http.get<any>(url);
       }),
       catchError(error => {
-        console.error('Erreur lors de la récupération des indicateurs globaux:', error);
         return throwError(() => error);
       })
     );
@@ -153,7 +143,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
     return this.http.get<BudgetKpiResponse>(`${this.baseUrl}/budgets/dashboard/kpi`, { params })
       .pipe(
         catchError(error => {
-          console.error('Erreur dans getBudgetDashboardKpiWithParams:', error);
           return throwError(() => error);
         })
       );
@@ -172,7 +161,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
   
     return this.http.get<any>(`${this.baseUrl}/materials/critical`, { params }).pipe(
       catchError(error => {
-        console.error('Erreur lors du chargement des matériaux critiques:', error);
         return throwError(() => error);
       })
     );
@@ -186,7 +174,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.http.get<any>(`${this.baseUrl}/incidents/kpi`, { params }).pipe(
       catchError(error => {
-        console.error('Erreur lors de la récupération des incidents:', error);
         return throwError(() => error);
       })
     );
@@ -202,7 +189,6 @@ getUserProperties(promoterId: number): Observable<any[]> {
 
     return this.http.get<any>(`${this.baseUrl}/progress-album/recent`, { params }).pipe(
       catchError(error => {
-        console.error('Erreur lors du chargement des albums récents:', error);
         return throwError(() => error);
       })
     );

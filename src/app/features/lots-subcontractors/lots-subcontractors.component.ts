@@ -237,7 +237,6 @@ export class LotsSubcontractorsComponent implements OnInit {
     this.lotService.uploadLotFile(lotId, file, libelle)
       .subscribe({
         next: (response) => {
-          console.log('Document uploadé:', response);
           this.successMessage = this.t('lots.success.documentAdded');
           this.isUploading = false;
 
@@ -252,7 +251,6 @@ export class LotsSubcontractorsComponent implements OnInit {
           }, 1800);
         },
         error: (err) => {
-          console.error('Erreur upload document:', err);
           this.errorMessage = err.error?.message || this.t('lots.error.documentUploadFailed');
           this.isUploading = false;
         }
@@ -261,16 +259,12 @@ export class LotsSubcontractorsComponent implements OnInit {
 
   // Charger les documents d'un lot
   loadLotDocuments(lotId: number): void {
-    console.log('🔍 Chargement des documents pour le lot:', lotId);
     this.docsPage = 0; // reset pagination
     this.lotService.getLotFiles(lotId).subscribe({
       next: (docs) => {
-        console.log('✅ Documents chargés:', docs);
         this.lotDocuments = docs || [];
-        console.log('📋 Nombre de documents:', this.lotDocuments.length);
       },
       error: (err) => {
-        console.error('❌ Erreur chargement documents:', err);
         this.lotDocuments = [];
       }
     });
@@ -297,7 +291,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.deleteLotFile(fileId).subscribe({
       next: () => {
-        console.log('Document supprime');
         this.successMessage = this.t('lots.success.documentDeleted');
         if (this.selectedLotId) {
           this.loadLotDocuments(this.selectedLotId);
@@ -305,7 +298,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         setTimeout(() => { this.successMessage = ''; }, 2000);
       },
       error: (err) => {
-        console.error('Erreur suppression document:', err);
         this.errorMessage = err.error?.message || this.t('lots.error.deleteDocumentFailed');
       }
     });
@@ -333,7 +325,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.userService.getUserByProfil('SUBCONTRACTOR', undefined, 0, 100).subscribe({
       next: (response: any) => {
-        console.log('✅ Sous-traitants chargés:', response);
         this.availableSubcontractors = (response.content || []).map((user: any) => ({
           id: user.id,
           name: `${user.prenom || ''} ${user.nom || ''}`.trim(),
@@ -344,7 +335,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.isLoadingSubcontractors = false;
       },
       error: (error) => {
-        console.error('❌ Erreur chargement sous-traitants:', error);
         this.errorMessage = this.t('lots.error.loadSubcontractors');
         this.isLoadingSubcontractors = false;
       }
@@ -357,7 +347,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.getLotsByProperty(this.currentPropertyId, this.currentPage, this.pageSize).subscribe({
       next: (response: LotsResponse) => {
-        console.log('✅ Lots chargés:', response);
         this.lots = this.transformLotsFromAPI(response.content);
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
@@ -367,7 +356,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('❌ Erreur chargement lots:', error);
         this.errorMessage = this.t('lots.error.loadLots');
         this.isLoading = false;
       }
@@ -384,7 +372,6 @@ export class LotsSubcontractorsComponent implements OnInit {
           this.commentCounts.set(lot.id, comments.length);
         },
         error: (err) => {
-          console.error(`Erreur chargement commentaires lot ${lot.id}:`, err);
           this.commentCounts.set(lot.id, 0);
         }
       });
@@ -560,7 +547,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.updateLotProgress(this.selectedLotForProgress, this.progressInput).subscribe({
       next: (response) => {
-        console.log('✅ Progression mise à jour:', response);
         this.successMessage = 'Progression mise à jour avec succès !';
 
         const lotIndex = this.lots.findIndex(l => l.id === this.selectedLotForProgress);
@@ -577,7 +563,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         }, 1500);
       },
       error: (err) => {
-        console.error('❌ Erreur mise à jour progression:', err);
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour de la progression';
       }
@@ -598,7 +583,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.changeStatus(lotId, newStatus).subscribe({
       next: (response) => {
-        console.log('✅ Statut changé:', response);
         this.successMessage = 'Statut modifié avec succès !';
 
         const lotIndex = this.lots.findIndex(l => l.id === lotId);
@@ -616,7 +600,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        console.error('❌ Erreur changement statut:', err);
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Erreur lors du changement de statut';
         this.showStatusDropdown = null;
@@ -774,7 +757,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     operation.subscribe({
       next: (response) => {
-        console.log('✅ Lot sauvegardé avec succès:', response);
         this.successMessage = this.showCreateModal ? 'Lot créé avec succès !' : 'Lot modifié avec succès !';
         this.isLoading = false;
 
@@ -786,7 +768,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         }, 1500);
       },
       error: (err) => {
-        console.error('❌ Erreur lors de la sauvegarde:', err);
         this.isLoading = false;
 
         if (err.status === 0) {
@@ -876,12 +857,10 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.getCommentsForLot(lotId).subscribe({
       next: (comments) => {
-        console.log('✅ Commentaires chargés:', comments);
         this.lotComments = comments;
         this.isLoadingComments = false;
       },
       error: (err) => {
-        console.error('❌ Erreur chargement commentaires:', err);
         this.errorMessage = 'Impossible de charger les commentaires';
         this.isLoadingComments = false;
         this.lotComments = [];
@@ -911,7 +890,6 @@ export class LotsSubcontractorsComponent implements OnInit {
 
     this.lotService.createCommentToLot(this.selectedLotId, userId, this.newCommentText).subscribe({
       next: (comment) => {
-        console.log('✅ Commentaire ajouté:', comment);
         this.successMessage = 'Commentaire ajouté avec succès !';
         this.newCommentText = '';
 
@@ -928,7 +906,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        console.error('❌ Erreur ajout commentaire:', err);
         this.errorMessage = err.error?.message || 'Erreur lors de l\'ajout du commentaire';
         this.isLoadingComments = false;
       }
@@ -958,14 +935,12 @@ export class LotsSubcontractorsComponent implements OnInit {
   }
 
   loadLotDetails(lotId: number): void {
-    console.log('📖 Chargement des détails du lot:', lotId);
     this.isLoading = true;
     this.errorMessage = '';
 
     // Charger les détails du lot
     this.lotService.getLotById(lotId).subscribe({
       next: (lot) => {
-        console.log('✅ Détails du lot chargés:', lot);
         this.selectedLotDetails = lot;
 
         // Charger les documents en parallèle
@@ -974,7 +949,6 @@ export class LotsSubcontractorsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('❌ Erreur détails lot:', err);
         this.errorMessage = 'Impossible de charger les détails';
         this.isLoading = false;
       }

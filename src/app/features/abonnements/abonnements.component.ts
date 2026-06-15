@@ -45,7 +45,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     private router: Router,
     public languageService: LanguageService
   ) {
-    console.log('🚀 AbonnementsComponent initialisé');
   }
 
   // Helper pour la traduction
@@ -69,17 +68,14 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plans) => {
-          console.log('✅ Plans chargés:', plans);
 
           this.allPlans = plans;
           this.filteredPlans = [...this.allPlans];
           this.totalResults = this.allPlans.length;
           this.isLoading = false;
 
-          console.log('📊 Plans chargés:', this.allPlans.length);
         },
         error: (error) => {
-          console.error('❌ Erreur lors du chargement des plans:', error);
           this.isLoading = false;
           alert(error.userMessage || this.t('admin.subscription.error.load'));
         }
@@ -104,7 +100,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.totalResults = this.filteredPlans.length;
     this.currentPage = 1;
 
-    console.log(`🔍 Recherche: "${term}" - ${this.totalResults} résultats`);
   }
 
   createPlan(): void {
@@ -112,21 +107,18 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   }
 
   viewPlan(plan: SubscriptionPlan): void {
-    console.log('👁️ Voir plan:', plan);
     this.router.navigate(['/details-abonnement', plan.id], {
       queryParams: { mode: 'view' }
     });
   }
 
   editPlan(plan: SubscriptionPlan): void {
-    console.log('✏️ Modifier plan:', plan);
     this.router.navigate(['/create-plan', plan.id], {
       queryParams: { mode: 'edit' }
     });
   }
 
   togglePlanStatus(plan: SubscriptionPlan): void {
-    console.log('🔄 Toggle statut plan:', plan);
     this.selectedPlanForAction = plan;
     this.modalAction = plan.active ? 'deactivate' : 'activate';
     this.showToggleModal = true;
@@ -153,13 +145,11 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       active: newStatus  // ✅ Seul ce champ change
     };
 
-    console.log('📝 Mise à jour du statut du plan:', planData);
 
     this.planService.putPlanAbonnement(this.selectedPlanForAction.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Statut du plan mis à jour avec succès');
 
           // ✅ Mettre à jour manuellement le plan dans la liste locale
           const index = this.allPlans.findIndex(p => p.id === this.selectedPlanForAction!.id);
@@ -185,7 +175,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
           }, 3000);
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour du statut:', error);
           this.showToggleModal = false;
           this.isLoading = false;
           alert(error.userMessage || this.t('lots.error.statusChangeFailed'));
@@ -214,7 +203,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Plan supprimé:', planId);
 
           this.allPlans = this.allPlans.filter(p => p.id !== planId);
           this.searchPlans();
@@ -226,7 +214,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
           alert(this.t('admin.subscription.success.delete', { label: planLabel }));
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la suppression:', error);
           this.isDeleting = false;
           alert(error.userMessage || this.t('admin.subscription.error.delete'));
         }
@@ -283,7 +270,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   }
 
   exportPlans(): void {
-    console.log('📤 Export des plans...');
     alert(this.t('admin.subscription.export') + ' - ' + this.t('lots.preview'));
   }
 }

@@ -87,7 +87,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des documents:', error);
           this.isLoading = false;
         }
       })
@@ -124,7 +123,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
           this.refreshDocuments();
         },
         error: (error) => {
-          console.error('Erreur lors de l\'ajout du document:', error);
           this.showErrorMessage('Erreur lors de l\'ajout du document');
           this.isSubmitting = false;
         }
@@ -159,7 +157,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
           this.annulerModification();
         },
         error: (error) => {
-          console.error('Erreur lors de la modification:', error);
           this.showErrorMessage('Erreur lors de la modification du document');
         }
       })
@@ -183,7 +180,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
           this.refreshDocuments();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
           this.showErrorMessage('Erreur lors de la suppression du document');
           this.closeDeleteModal();
         }
@@ -221,7 +217,6 @@ export class DocumentComponent implements OnInit, OnDestroy {
           this.isSearching = false;
         },
         error: (error) => {
-          console.error('Erreur lors de la recherche:', error);
           this.isSearching = false;
         }
       })
@@ -324,13 +319,11 @@ export class DocumentComponent implements OnInit, OnDestroy {
   private showSuccessMessage(message: string): void {
     // Ici vous pouvez implémenter votre système de notification
     // Par exemple avec un service de toast ou une notification
-    console.log('✅', message);
     // Exemple: this.notificationService.showSuccess(message);
   }
 
   private showErrorMessage(message: string): void {
     // Ici vous pouvez implémenter votre système de notification d'erreur
-    console.error('❌', message);
     // Exemple: this.notificationService.showError(message);
   }
 

@@ -18,7 +18,6 @@ export class MaterialsService {
   // liste des unites de mesures 
   getUnits(page: number = 0, size: number = 10): Observable<any> {
     const url = `${this.apiUrl}/unit-parameters/by-type?type=UNIT&page=${page}&size=${size}`;
-    console.log('📡 donnes unites:', url);
     return this.http.get(url);
   }
 
@@ -53,7 +52,6 @@ export class MaterialsService {
       'Accept-Encoding': 'gzip, deflate, br'
     });
 
-    console.log('📡 Appel API:', `${this.apiUrl}?page=${page}&size=${size}`);
 
     // Utiliser responseType: 'json' pour s'assurer que la réponse est correctement parsée
     return this.http.get<MaterialResponse>(this.apiUrl, { 
@@ -85,7 +83,6 @@ export class MaterialsService {
       errorMessage = 'Problème de connexion au serveur';
     }
     
-    console.error('Erreur API:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
   }
 }

@@ -17,7 +17,6 @@ export class ExportService {
      */
     exportToExcel(data: any[], filename: string, sheetName: string = 'Data'): void {
         if (!data || data.length === 0) {
-            console.warn('No data to export');
             return;
         }
 
@@ -44,7 +43,6 @@ export class ExportService {
             // Save file
             this.saveAsExcelFile(excelBuffer, filename);
         } catch (error) {
-            console.error('Error exporting to Excel:', error);
             throw error;
         }
     }

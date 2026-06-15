@@ -66,7 +66,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
       if (this.planId) {
         this.loadPlanDetails(this.planId);
       } else {
-        console.error('ID du plan manquant dans l\'URL');
         this.isLoading = false;
       }
     });
@@ -91,7 +90,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createChart(), 0);
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des détails du plan:', error);
           this.isLoading = false;
           this.showNotificationMessage('Erreur lors du chargement des détails du plan', 'deleted');
         }
@@ -100,7 +98,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
 
   createChart(): void {
     if (!this.chartCanvas) {
-      console.warn('Canvas du graphique non trouvé.');
       return;
     }
 
@@ -176,13 +173,11 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
       active: newStatus
     };
 
-    console.log('📝 Mise à jour du statut du plan:', planData);
 
     this.planService.putPlanAbonnement(this.plan.id, planData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Statut du plan mis à jour avec succès');
           
           // ✅ Mettre à jour manuellement le statut du plan local
           if (this.plan) {
@@ -200,7 +195,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
           }, 3000);
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la mise à jour du statut:', error);
           this.showToggleModal = false;
           this.showNotificationMessage('Erreur lors de la modification du statut', 'deleted');
         }
@@ -228,7 +222,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Plan supprimé avec succès');
           this.showDeleteModal = false;
           this.notificationType = 'deleted';
           this.showNotification = true;
@@ -240,7 +233,6 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
           }, 2000);
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la suppression du plan:', error);
           this.showDeleteModal = false;
           this.showNotificationMessage('Erreur lors de la suppression du plan', 'deleted');
         }
@@ -285,6 +277,5 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   }
 
   viewUser(user: SubscribedUser): void {
-    console.log(`Navigation vers les détails de l'utilisateur: ${user.name}`);
   }
 }

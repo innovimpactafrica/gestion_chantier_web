@@ -4,7 +4,6 @@ import { StatusReportComponent } from '../status-report/status-report.component'
 import { ProjectBudgetComponent } from '../project-budget/project-budget.component';
 import { ActivatedRoute } from '@angular/router';
 import { RealEstateProject, RealestateService } from '../../../../core/services/realestate.service';
-import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
 import { ProjectBudgetService, BudgetResponse } from '../../../../../services/project-details.service';
 import { catchError, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
@@ -22,7 +21,6 @@ export class ProjectPresentationComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
   private realEstateService = inject(RealestateService);
-  private dashboardService = inject(DashboardService);
   private projectBudgetService = inject(ProjectBudgetService);
   private languageService = inject(LanguageService);
 
@@ -149,7 +147,6 @@ export class ProjectPresentationComponent implements OnInit, OnDestroy {
     if (id) {
       const projectId = +id;
       this.loadProjectDetails(projectId);
-      this.loadProgression();
       this.loadBudget(projectId);
     }
   }
@@ -172,36 +169,17 @@ export class ProjectPresentationComponent implements OnInit, OnDestroy {
           } else {
             this.projet = response || null;
           }
+          this.averageProgress = this.projet?.averageProgress ?? 0;
+          this.isLoadingProgress = false;
           this.loading = false;
         },
         error: (_error) => {
           this.error = 'Erreur lors du chargement des détails du projet';
           this.projet = null;
+          this.isLoadingProgress = false;
           this.loading = false;
         }
       });
-  }
-
-  private loadProgression(): void {
-    this.isLoadingProgress = true;
-    this.dashboardService.etatAvancement().pipe(
-      takeUntil(this.destroy$),
-      catchError(_error => {
-        this.progressError = 'Impossible de charger la progression';
-        this.isLoadingProgress = false;
-        return of([] as PhaseIndicator[]);
-      })
-    ).subscribe((phases: PhaseIndicator[]) => {
-      const relevantPhases = phases.filter(p =>
-        ['GROS_OEUVRE', 'SECOND_OEUVRE', 'FINITION'].includes(p.phaseName)
-      );
-
-      const total = relevantPhases.reduce((sum, p) => sum + p.averageProgressPercentage, 0);
-      const count = relevantPhases.length;
-
-      this.averageProgress = count > 0 ? Math.round(total / count) : 0;
-      this.isLoadingProgress = false;
-    });
   }
 
   private loadBudget(propertyId: number): void {
@@ -416,6 +394,14 @@ export class ProjectPresentationComponent implements OnInit, OnDestroy {
    * Reloads the progress data to keep the sidebar in sync
    */
   onProgressUpdated(): void {
-    this.loadProgression();
+    if (this.projet?.id) {
+      this.realEstateService.getRealEstateDetails(this.projet.id).pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of(null))
+      ).subscribe(response => {
+        const p = (response as any)?.realEstateProperty ?? response;
+        if (p) this.averageProgress = (p as any).averageProgress ?? this.averageProgress;
+      });
+    }
   }
 }

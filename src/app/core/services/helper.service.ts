@@ -253,7 +253,6 @@ export class HelperService {
             await navigator.clipboard.writeText(text);
             return true;
         } catch (error) {
-            console.error('Erreur lors de la copie:', error);
             return false;
         }
     }

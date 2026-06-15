@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PropertyType } from '../../models/property-type';
 import { environment } from '../../../environments/environment';
-import { tap, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +17,7 @@ export class PropertyTypeService {
   // Récupérer toutes les propriétés
   getAll(): Observable<PropertyType[]> {
     return this.http.get<PropertyType[]>(`${this.apiBaseUrl}/all`).pipe(
-      tap(data => console.log('Propriétés chargées:', data)),
       catchError(error => {
-        console.error('Erreur lors du chargement des propriétés:', error);
         throw error;
       })
     );

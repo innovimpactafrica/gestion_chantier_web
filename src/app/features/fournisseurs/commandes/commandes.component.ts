@@ -12,7 +12,7 @@ interface ExtendedOrder extends Order {
   isStatic?: boolean;
 }
 
-type ModalAction = 'validate' | 'reject' | 'delete';
+type ModalAction = 'validate' | 'reject' | 'delete' | 'markDelivered';
 
 @Component({
   standalone: true,
@@ -66,6 +66,9 @@ export class CommandesComponent implements OnInit, OnDestroy {
   // Propriété Math pour utilisation dans le template
   Math = Math;
 
+  // Helper de traduction disponible dans le template
+  t = (key: string, params?: any) => this.languageService.translate(key, params);
+
   constructor(
     private commandeService: CommandeService,
     private authService: AuthService,
@@ -102,7 +105,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
           },
           error: (error: HttpErrorResponse) => {
             this.handleUserError('Erreur lors du chargement des informations utilisateur');
-            console.error('Erreur refreshUser:', error);
           }
         });
 
@@ -114,7 +116,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
   }
 
   private handleUserError(message: string): void {
-    console.error(message);
     this.error = message;
     this.loading = false;
   }
@@ -169,7 +170,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors du chargement des commandes:', err);
         this.error = 'Erreur lors du chargement des commandes';
         this.loading = false;
       }
@@ -306,7 +306,7 @@ export class CommandesComponent implements OnInit, OnDestroy {
     switch (frenchStatus) {
       case 'En attente':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Validée':
+      case 'Approuvée':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'Rejetée':
         return 'bg-red-100 text-red-800 border-red-200';
@@ -324,7 +324,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
    */
   openDetails(commande: ExtendedOrder) {
     if (!commande || !commande.id) {
-      console.error('Commande non valide ou ID manquant');
       this.error = 'Commande non valide';
       return;
     }
@@ -388,7 +387,9 @@ export class CommandesComponent implements OnInit, OnDestroy {
         const isFr = (this.languageService.currentLang?.() ?? 'FR').toUpperCase() === 'FR';
         results.forEach((material, index) => {
           if (material) {
-            const label = isFr ? material.labelFr : material.labelEn;
+            const label = isFr
+              ? (material.labelFr || material.materialType?.nameFr || material.labelEn)
+              : (material.labelEn || material.materialType?.nameEn || material.labelFr);
             this.materialNames.set(items[index].materialId, label || `Mat #${items[index].materialId}`);
           } else {
             this.materialNames.set(items[index].materialId, `Mat #${items[index].materialId}`);
@@ -414,10 +415,44 @@ export class CommandesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Affiche le champ de saisie pour un item uniquement si :
+   * - la commande est PENDING
+   * - le prix unitaire de l'item n'est pas encore défini (null ou 0)
+   */
+  shouldShowItemPriceInput(item: OrderItem): boolean {
+    return this.canSetUnitPrice() && (!item.unitPrice || item.unitPrice <= 0);
+  }
+
+  /**
+   * Retourne le total d'une ligne en tenant compte du prix saisi OU du prix existant
+   */
+  getItemDisplayTotal(item: OrderItem): number {
+    const quotedPrice = this.quoteItems.get(item.materialId);
+    if (quotedPrice !== undefined && quotedPrice > 0) return item.quantity * quotedPrice;
+    if (item.unitPrice && item.unitPrice > 0) return item.quantity * item.unitPrice;
+    return 0;
+  }
+
+  /**
    * Vérifie si la commande est en attente
    */
   isPendingOrder(): boolean {
     return this.selectedCommande?.status === 'PENDING';
+  }
+
+  /**
+   * Vérifie si la commande est en cours de livraison (fournisseur peut confirmer livraison)
+   */
+  isInDeliveryOrder(): boolean {
+    return this.selectedCommande?.status === 'IN_DELIVERY';
+  }
+
+  /**
+   * Vérifie si la commande est dans un état terminal (lecture seule)
+   */
+  isTerminalOrder(): boolean {
+    const s = this.selectedCommande?.status;
+    return s === 'APPROVED' || s === 'REJECTED' || s === 'DELIVERED';
   }
 
   /**
@@ -510,7 +545,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
     // Appeler le service
     this.commandeService.createQuote(this.selectedCommande.id, quoteRequest).subscribe({
       next: (response) => {
-        console.log('Citation créée avec succès:', response);
         this.quoteSuccess = true;
         this.isCreatingQuote = false;
 
@@ -521,7 +555,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         }, 2000);
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erreur lors de la création de la citation:', err);
         this.quoteError = 'Erreur lors de la création de la citation. Veuillez réessayer.';
         this.isCreatingQuote = false;
       }
@@ -529,10 +562,18 @@ export class CommandesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Ouvre le modal de confirmation pour valider
+   * Ouvre le modal de confirmation pour valider (PENDING → IN_DELIVERY)
    */
   openValidateConfirm() {
     this.confirmModalAction = 'validate';
+    this.showConfirmModal = true;
+  }
+
+  /**
+   * Ouvre le modal de confirmation pour marquer comme livrée (IN_DELIVERY → DELIVERED)
+   */
+  openMarkDeliveredConfirm() {
+    this.confirmModalAction = 'markDelivered';
     this.showConfirmModal = true;
   }
 
@@ -571,6 +612,9 @@ export class CommandesComponent implements OnInit, OnDestroy {
       case 'validate':
         this.validateOrder();
         break;
+      case 'markDelivered':
+        this.markAsDeliveredOrder();
+        break;
       case 'reject':
         this.rejectOrder();
         break;
@@ -581,9 +625,34 @@ export class CommandesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Valide une commande
+   * Valide une commande : PENDING → IN_DELIVERY
+   * Le fournisseur accepte la commande et confirme qu'il prépare la livraison.
    */
   private validateOrder() {
+    if (!this.selectedCommande) return;
+
+    this.isProcessing = true;
+    this.commandeService.updateStatusOrder(this.selectedCommande.id, 'IN_DELIVERY').subscribe({
+      next: () => {
+        this.showConfirmModal = false;
+        this.showModal = false;
+        this.confirmModalAction = null;
+        this.isProcessing = false;
+        this.refreshData();
+      },
+      error: () => {
+        this.error = 'Erreur lors de la validation de la commande';
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  /**
+   * Marque la commande comme livrée : IN_DELIVERY → DELIVERED
+   * Le fournisseur confirme que la livraison physique a été effectuée.
+   * Le promoteur devra ensuite approuver la réception (côté stock).
+   */
+  private markAsDeliveredOrder() {
     if (!this.selectedCommande) return;
 
     this.isProcessing = true;
@@ -595,9 +664,8 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.isProcessing = false;
         this.refreshData();
       },
-      error: (err) => {
-        console.error('Erreur lors de la validation:', err);
-        this.error = 'Erreur lors de la validation de la commande';
+      error: () => {
+        this.error = 'Erreur lors de la mise à jour de la livraison';
         this.isProcessing = false;
       }
     });
@@ -619,7 +687,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.refreshData();
       },
       error: (err) => {
-        console.error('Erreur lors du rejet:', err);
         this.error = 'Erreur lors du rejet de la commande';
         this.isProcessing = false;
       }
@@ -641,7 +708,6 @@ export class CommandesComponent implements OnInit, OnDestroy {
         this.refreshData();
       },
       error: (err) => {
-        console.error('Erreur lors de la suppression:', err);
         this.error = 'Erreur lors de la suppression de la commande';
         this.isProcessing = false;
       }
@@ -708,18 +774,23 @@ export class CommandesComponent implements OnInit, OnDestroy {
     switch (this.confirmModalAction) {
       case 'validate':
         return {
-          title: 'Valider la commande ?',
-          message: `Cette commande passera au statut <strong>Validée</strong>.`
+          title: this.t('commandes.modal.confirmAcceptTitle'),
+          message: this.t('commandes.modal.confirmAcceptMsg')
+        };
+      case 'markDelivered':
+        return {
+          title: this.t('commandes.modal.confirmMarkDeliveredTitle'),
+          message: this.t('commandes.modal.confirmMarkDeliveredMsg')
         };
       case 'reject':
         return {
-          title: 'Rejeter la commande ?',
-          message: `Cette commande passera au statut <strong>Rejetée</strong>.`
+          title: this.t('commandes.modal.confirmRejectTitle'),
+          message: this.t('commandes.modal.confirmRejectMsg')
         };
       case 'delete':
         return {
-          title: 'Supprimer la commande ?',
-          message: `Êtes-vous sûr de vouloir supprimer la commande <strong>CMD-${this.selectedCommande.id}</strong> ? Cette action est irréversible.`
+          title: this.t('commandes.modal.confirmDeleteTitle'),
+          message: this.t('commandes.modal.confirmDeleteMsg')
         };
       default:
         return { title: '', message: '' };

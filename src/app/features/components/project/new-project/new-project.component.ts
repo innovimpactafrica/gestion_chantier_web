@@ -96,7 +96,6 @@ export class NewProjectComponent implements OnInit, OnDestroy {
           this.updateFormWithUserData();
         },
         error: (error) => {
-          console.error('Erreur lors du chargement de l\'utilisateur:', error);
         }
       });
 
@@ -199,7 +198,6 @@ export class NewProjectComponent implements OnInit, OnDestroy {
       ]);
     } catch (error) {
       this.loadingError = 'Erreur lors du chargement des données de référence';
-      console.error('Erreur de chargement:', error);
     } finally {
       this.isLoadingData = false;
     }
@@ -428,7 +426,6 @@ export class NewProjectComponent implements OnInit, OnDestroy {
       }
 
     } catch (error: any) {
-      console.error('Erreur complète:', error);
       if (error.status === 403) {
         this.toastService.showError(this.t('newProject.accessDenied'));
         this.authService.logout();

@@ -84,11 +84,9 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
       const idFromUrl = params.get('id');
       if (idFromUrl) {
         this.propertyId = +idFromUrl;
-        console.log('Property ID récupéré depuis l\'URL:', this.propertyId);
         this.loadAllData();
         this.loadStatsData();
       } else {
-        console.error("ID de propriété non trouvé dans l'URL.");
       }
     });
   }
@@ -107,7 +105,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
         this.statsData.deliveriesReceived = results.deliveries.content.length;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des données statistiques:', error);
       }
     });
   }
@@ -122,7 +119,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadConsommation();
       this.loadRepartition();
     } else {
-      console.error('Impossible de charger les données: propertyId est null');
     }
   }
 
@@ -137,7 +133,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de l\'évolution:', error);
       }
     });
   }
@@ -150,7 +145,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
         this.processConsommationData(data);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de la consommation:', error);
       }
     });
   }
@@ -166,7 +160,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de la répartition:', error);
       }
     });
   }
@@ -383,7 +376,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onPeriodChange(): void {
-    console.log('Période sélectionnée:', this.selectedPeriod);
     this.loadAllData();
   }
 

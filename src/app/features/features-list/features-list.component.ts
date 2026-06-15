@@ -95,7 +95,6 @@ export class FeaturesListComponent implements OnInit {
                 this.loading = false;
             },
             error: (err) => {
-                console.error('Error fetching videos:', err);
                 // Fallback test videos on error for demonstration
                 this.videos = this.getMockVideos();
                 this.filterVideos();

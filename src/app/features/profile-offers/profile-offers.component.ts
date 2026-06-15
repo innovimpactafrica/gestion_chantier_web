@@ -53,12 +53,10 @@ errorMessage = '';
         // On passe urlProfile pour la vérification
         this.fetchUserProfile(this.userId, urlProfile);
       } else if (!this.userId) {
-        console.error('❌ ID utilisateur manquant');
         this.hasError = true;
         this.errorMessage = 'Identifiant utilisateur manquant dans l\'URL.';
         this.isLoadingPlans = false;
       } else if (!urlProfile) {
-        console.error('❌ Profil manquant');
         this.hasError = true;
         this.errorMessage = 'Profil utilisateur manquant dans l\'URL.';
         this.isLoadingPlans = false;
@@ -69,20 +67,16 @@ errorMessage = '';
 // Modifiez fetchUserProfile pour vérifier la correspondance
 fetchUserProfile(id: number, urlProfile: string | null): void {
   this.isLoadingPlans = true;
-  console.log(`🔍 Récupération du profil pour l'utilisateur ID: ${id}`);
 
   this.userService.getUserById(id).subscribe({
     next: (user: User) => {
-      console.log('✅ Utilisateur trouvé:', user);
       this.currentUser = user;
       
       if (user.profil) {
         this.userProfile = user.profil;
-        console.log(`👤 Profil récupéré de l'API: ${this.userProfile}`);
         
         // VÉRIFICATION CRITIQUE : Le profil URL doit correspondre au profil utilisateur
         if (urlProfile && urlProfile.toUpperCase() !== user.profil.toUpperCase()) {
-          console.error('❌ ERREUR: Le profil URL ne correspond pas au profil de l\'utilisateur');
           this.hasError = true;
           this.errorMessage = 'Accès non autorisé : le profil spécifié ne correspond pas à votre compte.';
           this.isLoadingPlans = false;
@@ -91,14 +85,12 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
         
         this.loadPlansForProfile();
       } else {
-        console.warn('⚠️ L\'utilisateur n\'a pas de profil défini');
         this.hasError = true;
         this.errorMessage = 'Cet utilisateur n\'a pas de profil défini.';
         this.isLoadingPlans = false;
       }
     },
     error: (err) => {
-      console.error('❌ Erreur lors de la récupération de l\'utilisateur:', err);
       this.hasError = true;
       this.errorMessage = 'Utilisateur introuvable ou erreur de connexion.';
       this.isLoadingPlans = false;
@@ -109,13 +101,10 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
 
   loadPlansForProfile(): void {
     if (!this.userProfile) {
-      console.error('❌ Aucun profil utilisateur défini');
       this.isLoadingPlans = false;
       return;
     }
     // let userProfile=''
-    console.log('🔍 Chargement de TOUS les plans (via PlanService like Portal)');
-    console.log('👤 Profil cible:', this.userProfile);
 
     // Utiliser PlanAbonnementService.getAllPlans() COMME LE PORTAIL
     // Cela évite l'erreur 400 sur /active et correspond au comportement du portail
@@ -136,50 +125,35 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
             p.toUpperCase().includes(profileToCheck)
           );
 
-          console.log(`  - Plan: "${plan.name}" | Match nom: ${nameMatch} | Match target: ${targetMatch}`);
           return nameMatch || targetMatch;
         });
 
-        console.log(`✅ Plans filtrés pour "${this.userProfile}":`, this.availablePlans);
 
         this.assignPlans();
-        console.log('✅ Plans assignés:', {
-          premium: this.currentPremiumPlan?.name,
-          basic: this.currentBasicPlan?.name
-        });
         this.isLoadingPlans = false;
         this.animationKey++;
       },
       error: (err: any) => {
-        console.error('❌ Erreur lors du chargement des plans:', err);
         this.isLoadingPlans = false;
       }
     });
   }
 
   private assignPlans(): void {
-    console.log('🔍 Assignation des plans...');
-    console.log('📦 Plans disponibles:', this.availablePlans);
 
     // Assigner les plans selon leur LABEL (PREMIUM ou BASIC)
     this.currentPremiumPlan = this.availablePlans.find(plan => {
       const label = plan.label?.toUpperCase() || '';
       const isPremium = label === 'PREMIUM';
-      console.log(`Plan "${plan.name}" - Label: "${plan.label}" - Est Premium? ${isPremium}`);
       return isPremium;
     }) || null;
 
     this.currentBasicPlan = this.availablePlans.find(plan => {
       const label = plan.label?.toUpperCase() || '';
       const isBasic = label === 'BASIC';
-      console.log(`Plan "${plan.name}" - Label: "${plan.label}" - Est Basic? ${isBasic}`);
       return isBasic;
     }) || null;
 
-    console.log('✅ Plans assignés:', {
-      premium: this.currentPremiumPlan,
-      basic: this.currentBasicPlan
-    });
   }
 
   private getPlanType(plan: SubscriptionPlan): string {
@@ -231,7 +205,6 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
         const isYearly = plan.installmentCount === 12;
         await this.subscriptionService.initiateSubscriptionPaymentbis(this.currentUser.id, plan, isYearly);
       } catch (error) {
-        console.error('Erreur lors de l\'initiation du paiement:', error);
       }
     } else if (plan) {
       this.router.navigate(['/login'], {

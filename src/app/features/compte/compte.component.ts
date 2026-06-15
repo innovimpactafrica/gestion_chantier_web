@@ -92,7 +92,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       const targetTab = sessionStorage.getItem('compte_tab');
 
       if (targetTab === 'abonnements') {
-        console.log('🎯 Ouverture automatique de l\'onglet Abonnements');
         this.activeTab.set('abonnements');
 
         // Nettoyer le sessionStorage après utilisation
@@ -113,10 +112,8 @@ export class CompteComponent implements OnInit, OnDestroy {
         return; // Pas de retour de paiement
       }
 
-      console.log('💳 Détection de retour de paiement:', paymentStatus);
 
       if (paymentStatus === 'success') {
-        console.log('✅ Retour de paiement réussi');
 
         const userId = params['userId'];
         const planId = params['planId'];
@@ -133,7 +130,6 @@ export class CompteComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             const user = this.currentUser();
             if (user) {
-              console.log('🔄 Rechargement des données d\'abonnement...');
               this.checkUserSubscription(user.id);
               this.loadFactures(user.id);
             }
@@ -144,7 +140,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.cleanUrl();
 
       } else if (paymentStatus === 'failed') {
-        console.log('❌ Paiement échoué');
         this.showError('❌ Le paiement a échoué. Veuillez réessayer ou contacter le support.');
 
         // Ouvrir l'onglet abonnements
@@ -154,7 +149,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.cleanUrl();
 
       } else if (paymentStatus === 'cancelled') {
-        console.log('⚠️ Paiement annulé');
         this.showError('⚠️ Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.');
 
         // Ouvrir l'onglet abonnements
@@ -177,26 +171,22 @@ export class CompteComponent implements OnInit, OnDestroy {
       replaceUrl: true
     });
 
-    console.log('🧹 URL nettoyée');
   }
 
   private loadOneTouchScript(): void {
     const existingScript = document.querySelector('script[src*="form.js"]');
 
     if (!existingScript) {
-      console.log('📥 Chargement manuel du script OneTouch...');
 
       const script = document.createElement('script');
       script.src = 'https://test.solinusteam.com/Scripts/form.js';
       script.type = 'text/javascript';
 
       script.onload = () => {
-        console.log('✅ Script OneTouch chargé manuellement avec succès');
         this.oneTouchLoaded.set(true);
       };
 
       script.onerror = (error) => {
-        console.error('❌ Erreur chargement manuel du script OneTouch:', error);
       };
 
       document.head.appendChild(script);
@@ -212,7 +202,6 @@ export class CompteComponent implements OnInit, OnDestroy {
   }
 
   private startOneTouchMonitoring(): void {
-    console.log('🔍 Début de la surveillance du script OneTouch...');
 
     let attempts = 0;
 
@@ -220,20 +209,17 @@ export class CompteComponent implements OnInit, OnDestroy {
       attempts++;
 
       if (this.isOneTouchScriptLoaded()) {
-        console.log('✅ Script OneTouch chargé avec succès');
         this.oneTouchLoaded.set(true);
         this.stopOneTouchMonitoring();
         return;
       }
 
       if (attempts >= this.maxOneTouchAttempts) {
-        console.warn('⚠️ Script OneTouch non chargé après 15 secondes');
         this.stopOneTouchMonitoring();
         return;
       }
 
       if (attempts % 5 === 0) {
-        console.log(`⏳ Attente du script OneTouch... (${attempts}/${this.maxOneTouchAttempts})`);
       }
     }, 500);
   }
@@ -486,7 +472,6 @@ export class CompteComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
         },
         error: (error) => {
-          console.error('Erreur chargement utilisateur:', error);
           this.showError('Impossible de charger les informations utilisateur');
           this.isLoading.set(false);
         }
@@ -567,7 +552,6 @@ export class CompteComponent implements OnInit, OnDestroy {
    * Gère l'erreur de chargement de la photo
    */
   onPhotoError(): void {
-    console.warn('Erreur lors du chargement de la photo de profil');
     this.photoLoadError.set(true);
   }
 
@@ -637,12 +621,10 @@ export class CompteComponent implements OnInit, OnDestroy {
    * Vérifie si l'utilisateur a un abonnement actif
    */
   private checkUserSubscription(userId: number): void {
-    console.log('🔍 Vérification de l\'abonnement pour userId:', userId);
     this.isCheckingSubscription.set(true);
 
     this.subscriptionService.seeActive(userId).subscribe({
       next: (isActive: boolean) => {
-        console.log('✅ Statut abonnement actif:', isActive);
         this.hasActiveSubscription.set(isActive);
 
         if (isActive) {
@@ -657,7 +639,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.isCheckingSubscription.set(false);
       },
       error: (error) => {
-        console.error('❌ Erreur vérification abonnement:', error);
         this.hasActiveSubscription.set(false);
         this.isCheckingSubscription.set(false);
 
@@ -673,15 +654,12 @@ export class CompteComponent implements OnInit, OnDestroy {
    * Charge les détails de l'abonnement en cours
    */
   private loadCurrentSubscription(userId: number): void {
-    console.log('📥 Chargement de l\'abonnement en cours...');
 
     this.subscriptionService.getSubscriptionByUser(userId).subscribe({
       next: (subscription: UserSubscription) => {
-        console.log('✅ Abonnement en cours récupéré:', subscription);
         this.currentSubscription.set(subscription);
       },
       error: (error) => {
-        console.error('❌ Erreur chargement abonnement en cours:', error);
         this.showError('Impossible de charger les détails de votre abonnement');
       }
     });
@@ -703,7 +681,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       // Format: "09/12/2025"
       return date.toLocaleDateString('fr-FR');
     } catch (error) {
-      console.error('Erreur lors du formatage de la date:', error);
       return 'Non disponible';
     }
   }
@@ -850,10 +827,8 @@ export class CompteComponent implements OnInit, OnDestroy {
       userProfile = user.profil as any;
     }
 
-    console.log('🔍 Profil utilisateur détecté:', userProfile);
 
     if (!userProfile) {
-      console.error('❌ Aucun profil trouvé pour l\'utilisateur');
       this.showError('Impossible de déterminer votre profil utilisateur');
       this.isLoadingPlans.set(false);
       return;
@@ -861,7 +836,6 @@ export class CompteComponent implements OnInit, OnDestroy {
 
     this.subscriptionService.getPlanSubscription(userProfile).subscribe({
       next: (plans: SubscriptionPlan[]) => {
-        console.log('✅ Plans reçus:', plans);
         this.subscriptionPlans.set(plans);
 
         const premium = plans.find(plan =>
@@ -879,7 +853,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.isLoadingPlans.set(false);
       },
       error: (error) => {
-        console.error('❌ Erreur chargement plans:', error);
         this.showError('Impossible de charger les plans d\'abonnement');
         this.isLoadingPlans.set(false);
       }
@@ -971,7 +944,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       );
 
     } catch (error: any) {
-      console.error('❌ Erreur lors de la souscription:', error);
       this.showError(error.message || 'Une erreur est survenue');
 
     } finally {
@@ -995,7 +967,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.isLoadingFactures.set(false);
       },
       error: (error) => {
-        console.error('Erreur chargement factures:', error);
         this.showError('Impossible de charger les factures');
         this.factures.set([]);
         this.isLoadingFactures.set(false);
@@ -1117,21 +1088,16 @@ export class CompteComponent implements OnInit, OnDestroy {
     // ✅ Ajouter la photo si elle a été sélectionnée
     if (this.selectedPhotoFile()) {
       formData.append('photo', this.selectedPhotoFile()!, this.selectedPhotoFile()!.name);
-      console.log('📸 Photo ajoutée au FormData:', this.selectedPhotoFile()!.name);
     }
 
     // 🔍 Debug: Afficher le contenu du FormData
-    console.log('📦 Contenu du FormData envoyé:');
     formData.forEach((value, key) => {
-      console.log(`  ${key}:`, value instanceof File ? `[Fichier: ${value.name}]` : value);
     });
 
-    console.log('🚀 Envoi de la mise à jour pour l\'utilisateur:', user.id);
 
     // Utiliser l'ID de l'utilisateur connecté
     this.authService.updateUserWithFormData(user.id, formData).subscribe({
       next: (updatedUser) => {
-        console.log('✅ Profil mis à jour avec succès:', updatedUser);
 
         // Mettre à jour l'état local
         this.currentUser.set(updatedUser);
@@ -1153,8 +1119,6 @@ export class CompteComponent implements OnInit, OnDestroy {
         this.isSaving.set(false);
       },
       error: (error) => {
-        console.error('❌ Erreur mise à jour profil:', error);
-        console.error('Détails de l\'erreur:', error.error);
 
         // Message d'erreur plus détaillé
         let errorMessage = 'Une erreur est survenue lors de la mise à jour';
@@ -1167,7 +1131,6 @@ export class CompteComponent implements OnInit, OnDestroy {
           errorMessage = 'Données invalides. Vérifiez les informations saisies.';
           // Afficher les détails de validation s'ils existent
           if (error.error?.errors) {
-            console.error('Erreurs de validation:', error.error.errors);
           }
         } else if (error.status === 401) {
           errorMessage = 'Session expirée. Veuillez vous reconnecter.';
@@ -1190,11 +1153,9 @@ export class CompteComponent implements OnInit, OnDestroy {
     const img = new Image();
     img.onload = () => {
       this.photoLoadError.set(false);
-      console.log('✅ Photo rechargée avec succès');
     };
     img.onerror = () => {
       this.photoLoadError.set(true);
-      console.error('❌ Erreur lors du rechargement de la photo');
     };
     img.src = photoUrl;
   }

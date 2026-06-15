@@ -70,8 +70,8 @@ export interface RealEstateProject {
   available?: boolean;
   constructionStatus?: string;
   plan?: string;
-  averageProgess?: number;
-  qrcode:string;
+  averageProgress?: number;
+  qrcode: string;
   blocked: boolean;
 }
 
@@ -129,7 +129,7 @@ export class RealestateService {
     private http: HttpClient,
     private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -140,29 +140,27 @@ export class RealestateService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      console.warn('⚠️ Aucun token disponible pour la requête');
     }
 
     return headers;
   }
 
-/**
- * Change le statut d'un projet immobilier
- * @param projectId ID du projet
- * @param status Nouveau statut (IN_PROGRESS, DELAYED, PENDING, COMPLETED)
- */
-changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<RealEstateProject>> {
-  const url = `${this.endpoints.projects}/change-status/${projectId}/${status}`;
-  
-  console.log('🔄 Changement de statut:', { projectId, status, url });
-  
-  return this.http.put<ApiResponse<RealEstateProject>>(url, {}, { headers: this.getHeaders() })
-    .pipe(
-      timeout(15000),
-      retry({ count: 2, delay: 1000 }),
-      catchError(this.handleError.bind(this))
-    );
-}
+  /**
+   * Change le statut d'un projet immobilier
+   * @param projectId ID du projet
+   * @param status Nouveau statut (IN_PROGRESS, DELAYED, PENDING, COMPLETED)
+   */
+  changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<RealEstateProject>> {
+    const url = `${this.endpoints.projects}/change-status/${projectId}/${status}`;
+
+
+    return this.http.put<ApiResponse<RealEstateProject>>(url, {}, { headers: this.getHeaders() })
+      .pipe(
+        timeout(15000),
+        retry({ count: 2, delay: 1000 }),
+        catchError(this.handleError.bind(this))
+      );
+  }
 
   /**
    * Build FormData with raw file
@@ -173,13 +171,6 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
   ): FormData {
     const formData = new FormData();
 
-    console.log('=== CONSTRUCTION DU FORMDATA (RAW FILE) ===');
-    console.log('Données reçues:', projectData);
-    console.log('Fichier plan:', planFile ? {
-      name: planFile.name,
-      size: planFile.size,
-      type: planFile.type
-    } : 'Aucun');
 
     if (planFile) {
       const validation = this.validateFile(planFile, 'image');
@@ -187,9 +178,7 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
         throw new Error(validation.error || 'Fichier plan invalide');
       }
       formData.append('plan', planFile, planFile.name);
-      console.log('✅ Fichier plan ajouté en tant que fichier brut');
     } else {
-      console.warn('⚠️ Aucun fichier plan fourni');
     }
 
     const dataToSend = {
@@ -228,15 +217,11 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
     Object.entries(dataToSend).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
         formData.append(key, value);
-        console.log(`✅ Champ ajouté: ${key} = ${value}`);
       } else {
-        console.log(`⚠️ Champ ignoré (vide/null): ${key}`);
       }
     });
 
-    console.log('=== FORMDATA FINAL (RAW FILE) ===');
     formData.forEach((value, key) => {
-      console.log(`${key}: ${typeof value === 'string' ? value : '[File]'}`);
     });
 
     return formData;
@@ -373,21 +358,23 @@ changeProjectStatus(projectId: number, status: string): Observable<ApiResponse<R
 
 
 
-private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
-  return apiProjects.map(project => ({
-    id: project.id || 0,
-    title: project.name,
-    location: this.extractLocationFromAddress(project.address),
-    address: project.address,
-    startDate: this.formatDisplayDate(project.startDate),
-    endDate: this.formatDisplayDate(project.endDate),
-    progress: this.calculateProgress(project.startDate, project.endDate),
-    plan: this.apiImageUrl + (project.plan || ''),
-    available: project.available,
-    blocked: project.blocked === true, 
-    name: project.name // Garder aussi le nom original
-  }));
-}
+  private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
+    return apiProjects.map(project => ({
+      id: project.id || 0,
+      title: project.name,
+      location: this.extractLocationFromAddress(project.address),
+      address: project.address,
+      startDate: this.formatDisplayDate(project.startDate),
+      endDate: this.formatDisplayDate(project.endDate),
+      progress: project.averageProgress !== undefined && project.averageProgress !== null
+        ? Math.max(0, Math.min(100, Number(project.averageProgress)))
+        : this.calculateProgress(project.startDate, project.endDate),
+      plan: this.apiImageUrl + (project.plan || ''),
+      available: project.available,
+      blocked: project.blocked === true,
+      name: project.name
+    }));
+  }
 
   /**
    * Extract location from address
@@ -411,7 +398,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const year = date.getFullYear().toString().slice(-2);
       return `${day}.${month}.${year}`;
     } catch (error) {
-      console.warn('Erreur lors du formatage de la date:', dateString, error);
       return dateString;
     }
   }
@@ -425,7 +411,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const date = new Date(dateString);
       return isNaN(date.getTime()) ? null : date;
     } catch (error) {
-      console.warn('Erreur lors du parsing de date:', dateString, error);
       return null;
     }
   }
@@ -452,7 +437,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       const progress = (elapsed / totalDuration) * 100;
       return Math.max(0, Math.min(100, Math.round(progress)));
     } catch (error) {
-      console.error('Erreur lors du calcul de progression:', error);
       return 0;
     }
   }
@@ -476,7 +460,7 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
     };
   }
 
- 
+
   /**
    * Generate unique project number
    */
@@ -533,7 +517,6 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
     let errorMessage = 'Une erreur inconnue est survenue';
     let technicalDetails = '';
 
-    console.error('Erreur API:', error);
 
     if (error instanceof HttpErrorResponse) {
       technicalDetails = `Status: ${error.status} - ${error.statusText}`;
@@ -580,272 +563,249 @@ private transformToDisplayProjects(apiProjects: RealEstateProject[]): any[] {
       technicalDetails = 'Vérifiez votre connexion internet';
     }
 
-    console.error('Erreur traitée:', { message: errorMessage, technical: technicalDetails });
     const userError = new Error(errorMessage);
     (userError as any).technicalDetails = technicalDetails;
     return throwError(() => userError);
   }
 
 
-createProject(
-  projectData: RealEstateProject,
-  planFile?: File,
-  useBase64: boolean = true
-): Observable<ApiResponse<RealEstateProject>> {
-  // Check authentication synchronously
-  const isAuthenticated = this.authService.isAuthenticated();
-  if (!isAuthenticated) {
-    console.error('Utilisateur non authentifié');
-    return throwError(() => new Error('Utilisateur non authentifié'));
-  }
-
-  // FIX: Gérer correctement les méthodes asynchrones vs synchrones
-  if (useBase64) {
-    return this.createProjectWithBase64(projectData, planFile);
-  } else {
-    return this.createProjectWithRawFile(projectData, planFile);
-  }
-}
-
-private createProjectWithBase64(
-  projectData: RealEstateProject,
-  planFile?: File
-): Observable<ApiResponse<RealEstateProject>> {
-  return new Observable(observer => {
-    this.buildFormDataWithBase64(projectData, planFile)
-      .then(formData => {
-        console.log('FormData prêt pour l\'envoi:', { formData });
-
-        this.http.post<ApiResponse<RealEstateProject>>(
-          this.endpoints.save,
-          formData,
-          { headers: this.getHeaders() }
-        ).pipe(
-          timeout(30000),
-          retry({
-            count: 2,
-            delay: (error: HttpErrorResponse, retryCount: number) => {
-              if (error.status === 401 && retryCount === 1) {
-                console.log('Tentative de rafraîchissement du token...');
-                return this.authService.refreshUser().pipe(
-                  switchMap(() => throwError(() => error))
-                );
-              }
-              return throwError(() => error);
-            }
-          }),
-          catchError(this.handleError.bind(this))
-        ).subscribe({
-          next: (response) => observer.next(response),
-          error: (error) => observer.error(error),
-          complete: () => observer.complete()
-        });
-      })
-      .catch(error => observer.error(error));
-  });
-}
-
-private createProjectWithRawFile(
-  projectData: RealEstateProject,
-  planFile?: File
-): Observable<ApiResponse<RealEstateProject>> {
-  const formData = this.buildFormDataWithRawFile(projectData, planFile);
-  console.log('FormData prêt pour l\'envoi:', { formData });
-
-  return this.http.post<ApiResponse<RealEstateProject>>(
-    this.endpoints.save,
-    formData,
-    { headers: this.getHeaders() }
-  ).pipe(
-    timeout(30000),
-    retry({
-      count: 2,
-      delay: (error: HttpErrorResponse, retryCount: number) => {
-        if (error.status === 401 && retryCount === 1) {
-          console.log('Tentative de rafraîchissement du token...');
-          return this.authService.refreshUser().pipe(
-            switchMap(() => throwError(() => error))
-          );
-        }
-        return throwError(() => error);
-      }
-    }),
-    catchError(this.handleError.bind(this))
-  );
-}
-
-// FIX: Correction de la méthode buildFormDataWithBase64 pour retourner une Promise
-private buildFormDataWithBase64(
-  projectData: RealEstateProject,
-  planFile?: File
-): Promise<FormData> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const formData = new FormData();
-
-      console.log('=== CONSTRUCTION DU FORMDATA (BASE64) ===');
-      console.log('Données reçues:', projectData);
-      console.log('Fichier plan:', planFile ? {
-        name: planFile.name,
-        size: planFile.size,
-        type: planFile.type
-      } : 'Aucun');
-
-      if (planFile) {
-        const validation = this.validateFile(planFile, 'image');
-        if (!validation.valid) {
-          reject(new Error(validation.error || 'Fichier plan invalide'));
-          return;
-        }
-
-        try {
-          const planBase64 = await this.fileToBase64(planFile);
-          formData.append('plan', planBase64);
-          console.log('✅ Fichier plan encodé en Base64:', {
-            originalSize: planFile.size,
-            base64Length: planBase64.length
-          });
-        } catch (error) {
-          console.error('Erreur lors de l\'encodage du fichier plan:', error);
-          reject(new Error('Impossible d\'encoder le fichier plan'));
-          return;
-        }
-      } else {
-        console.warn('⚠️ Aucun fichier plan fourni');
-      }
-
-      const dataToSend = {
-        name: projectData.name || '',
-        number: projectData.number || this.generateProjectNumber().toString(),
-        address: projectData.address || '',
-        price: projectData.price?.toString() || '0',
-        numberOfRooms: projectData.numberOfRooms?.toString() || '1',
-        area: projectData.area?.toString() || '0',
-        latitude: projectData.latitude?.toString() || '0',
-        longitude: projectData.longitude?.toString() || '0',
-        description: projectData.description || '',
-        numberOfLots: projectData.numberOfLots?.toString() || '1',
-        promoterId: projectData.promoterId?.toString() || '1',
-        moaId: projectData.moaId?.toString() || '',
-        managerId: projectData.managerId?.toString() || '',
-        propertyTypeId: projectData.propertyTypeId?.toString() || '1',
-        startDate: this.formatDateForApi(projectData.startDate),
-        endDate: this.formatDateForApi(projectData.endDate),
-        hasHall: projectData.hasHall ? 'true' : 'false',
-        hasParking: projectData.hasParking ? 'true' : 'false',
-        hasElevator: projectData.hasElevator ? 'true' : 'false',
-        hasSwimmingPool: projectData.hasSwimmingPool ? 'true' : 'false',
-        hasGym: projectData.hasGym ? 'true' : 'false',
-        hasPlayground: projectData.hasPlayground ? 'true' : 'false',
-        hasSecurityService: projectData.hasSecurityService ? 'true' : 'false',
-        hasGarden: projectData.hasGarden ? 'true' : 'false',
-        hasSharedTerrace: projectData.hasSharedTerrace ? 'true' : 'false',
-        hasBicycleStorage: projectData.hasBicycleStorage ? 'true' : 'false',
-        hasLaundryRoom: projectData.hasLaundryRoom ? 'true' : 'false',
-        hasStorageRooms: projectData.hasStorageRooms ? 'true' : 'false',
-        hasWasteDisposalArea: projectData.hasWasteDisposalArea ? 'true' : 'false',
-        mezzanine: projectData.mezzanine ? 'true' : 'false'
-      };
-
-      Object.entries(dataToSend).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && value !== '') {
-          formData.append(key, value);
-          console.log(`✅ Champ ajouté: ${key} = ${key === 'plan' ? '[Base64]' : value}`);
-        } else {
-          console.log(`⚠️ Champ ignoré (vide/null): ${key}`);
-        }
-      });
-
-      console.log('=== FORMDATA FINAL (BASE64) ===');
-      resolve(formData);
-    } catch (error) {
-      reject(error);
+  createProject(
+    projectData: RealEstateProject,
+    planFile?: File,
+    useBase64: boolean = true
+  ): Observable<ApiResponse<RealEstateProject>> {
+    // Check authentication synchronously
+    const isAuthenticated = this.authService.isAuthenticated();
+    if (!isAuthenticated) {
+      return throwError(() => new Error('Utilisateur non authentifié'));
     }
-  });
-}
 
-// FIX: Correction du format de date
-private formatDateForApi(date: string | Date): string {
-  if (!date) return '';
-  
-  let dateObj: Date;
-  if (typeof date === 'string') {
-    // Si c'est déjà au format YYYY-MM-DD du input date HTML
-    if (date.includes('-') && date.length === 10) {
-      dateObj = new Date(date);
+    // FIX: Gérer correctement les méthodes asynchrones vs synchrones
+    if (useBase64) {
+      return this.createProjectWithBase64(projectData, planFile);
     } else {
-      dateObj = new Date(date);
+      return this.createProjectWithRawFile(projectData, planFile);
     }
-  } else {
-    dateObj = date;
   }
-  
-  if (isNaN(dateObj.getTime())) {
-    console.warn('Date invalide:', date);
-    return '';
-  }
-  
-  // Format MM-DD-YYYY comme attendu par l'API
-  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-  const day = dateObj.getDate().toString().padStart(2, '0');
-  const year = dateObj.getFullYear();
-  return `${month}-${day}-${year}`;
-}
 
-// FIX: Correction de la méthode updateProject
-updateProject(
-  id: number,
-  projectData: RealEstateProject,
-  planFile?: File
-): Observable<ApiResponse<RealEstateProject>> {
-  if (planFile) {
-    return this.createProjectWithRawFile(projectData, planFile).pipe(
-      switchMap(formData => 
-        this.http.put<ApiResponse<RealEstateProject>>(
-          `${this.endpoints.projects}/${id}`,
-          formData,
-          { headers: this.getHeaders() }
-        )
-      )
-    );
-  } else {
+  private createProjectWithBase64(
+    projectData: RealEstateProject,
+    planFile?: File
+  ): Observable<ApiResponse<RealEstateProject>> {
     return new Observable(observer => {
-      this.buildFormDataWithBase64(projectData).then(formData => {
-        this.http.put<ApiResponse<RealEstateProject>>(
-          `${this.endpoints.projects}/${id}`,
-          formData,
-          { headers: this.getHeaders() }
-        ).pipe(
-          timeout(30000),
-          retry({ count: 2, delay: 1000 }),
-          catchError(this.handleError.bind(this))
-        ).subscribe({
-          next: (response) => observer.next(response),
-          error: (error) => observer.error(error),
-          complete: () => observer.complete()
-        });
-      }).catch(error => observer.error(error));
+      this.buildFormDataWithBase64(projectData, planFile)
+        .then(formData => {
+
+          this.http.post<ApiResponse<RealEstateProject>>(
+            this.endpoints.save,
+            formData,
+            { headers: this.getHeaders() }
+          ).pipe(
+            timeout(30000),
+            retry({
+              count: 2,
+              delay: (error: HttpErrorResponse, retryCount: number) => {
+                if (error.status === 401 && retryCount === 1) {
+                  return this.authService.refreshUser().pipe(
+                    switchMap(() => throwError(() => error))
+                  );
+                }
+                return throwError(() => error);
+              }
+            }),
+            catchError(this.handleError.bind(this))
+          ).subscribe({
+            next: (response) => observer.next(response),
+            error: (error) => observer.error(error),
+            complete: () => observer.complete()
+          });
+        })
+        .catch(error => observer.error(error));
     });
   }
-}
 
-// FIX: Correction de la méthode getlisteProjectsByPromoters
-getlisteProjectsByPromoters(promoterId: number, page: number = 0, size: number = 10): Observable<any> {
-  const params = new HttpParams()
-    .set('promoterId', promoterId.toString())
-    .set('page', page.toString())
-    .set('size', size.toString());
-  
-  // FIX: URL complète au lieu d'URL relative
-  const url = `${environment.apiUrl}/realestate/search-by-promoter`;
-  
-  return this.http.get<any>(url, { 
-    params,
-    headers: this.getHeaders() // FIX: Ajouter les headers d'authentification
-  }).pipe(
-    timeout(15000),
-    retry({ count: 2, delay: 1000 }),
-    catchError(this.handleError.bind(this))
-  );
-}
+  private createProjectWithRawFile(
+    projectData: RealEstateProject,
+    planFile?: File
+  ): Observable<ApiResponse<RealEstateProject>> {
+    const formData = this.buildFormDataWithRawFile(projectData, planFile);
+
+    return this.http.post<ApiResponse<RealEstateProject>>(
+      this.endpoints.save,
+      formData,
+      { headers: this.getHeaders() }
+    ).pipe(
+      timeout(30000),
+      retry({
+        count: 2,
+        delay: (error: HttpErrorResponse, retryCount: number) => {
+          if (error.status === 401 && retryCount === 1) {
+            return this.authService.refreshUser().pipe(
+              switchMap(() => throwError(() => error))
+            );
+          }
+          return throwError(() => error);
+        }
+      }),
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  // FIX: Correction de la méthode buildFormDataWithBase64 pour retourner une Promise
+  private buildFormDataWithBase64(
+    projectData: RealEstateProject,
+    planFile?: File
+  ): Promise<FormData> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const formData = new FormData();
+
+
+        if (planFile) {
+          const validation = this.validateFile(planFile, 'image');
+          if (!validation.valid) {
+            reject(new Error(validation.error || 'Fichier plan invalide'));
+            return;
+          }
+
+          try {
+            const planBase64 = await this.fileToBase64(planFile);
+            formData.append('plan', planBase64);
+          } catch (error) {
+            reject(new Error('Impossible d\'encoder le fichier plan'));
+            return;
+          }
+        } else {
+        }
+
+        const dataToSend = {
+          name: projectData.name || '',
+          number: projectData.number || this.generateProjectNumber().toString(),
+          address: projectData.address || '',
+          price: projectData.price?.toString() || '0',
+          numberOfRooms: projectData.numberOfRooms?.toString() || '1',
+          area: projectData.area?.toString() || '0',
+          latitude: projectData.latitude?.toString() || '0',
+          longitude: projectData.longitude?.toString() || '0',
+          description: projectData.description || '',
+          numberOfLots: projectData.numberOfLots?.toString() || '1',
+          promoterId: projectData.promoterId?.toString() || '1',
+          moaId: projectData.moaId?.toString() || '',
+          managerId: projectData.managerId?.toString() || '',
+          propertyTypeId: projectData.propertyTypeId?.toString() || '1',
+          startDate: this.formatDateForApi(projectData.startDate),
+          endDate: this.formatDateForApi(projectData.endDate),
+          hasHall: projectData.hasHall ? 'true' : 'false',
+          hasParking: projectData.hasParking ? 'true' : 'false',
+          hasElevator: projectData.hasElevator ? 'true' : 'false',
+          hasSwimmingPool: projectData.hasSwimmingPool ? 'true' : 'false',
+          hasGym: projectData.hasGym ? 'true' : 'false',
+          hasPlayground: projectData.hasPlayground ? 'true' : 'false',
+          hasSecurityService: projectData.hasSecurityService ? 'true' : 'false',
+          hasGarden: projectData.hasGarden ? 'true' : 'false',
+          hasSharedTerrace: projectData.hasSharedTerrace ? 'true' : 'false',
+          hasBicycleStorage: projectData.hasBicycleStorage ? 'true' : 'false',
+          hasLaundryRoom: projectData.hasLaundryRoom ? 'true' : 'false',
+          hasStorageRooms: projectData.hasStorageRooms ? 'true' : 'false',
+          hasWasteDisposalArea: projectData.hasWasteDisposalArea ? 'true' : 'false',
+          mezzanine: projectData.mezzanine ? 'true' : 'false'
+        };
+
+        Object.entries(dataToSend).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== '') {
+            formData.append(key, value);
+          } else {
+          }
+        });
+
+        resolve(formData);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  // FIX: Correction du format de date
+  private formatDateForApi(date: string | Date): string {
+    if (!date) return '';
+
+    let dateObj: Date;
+    if (typeof date === 'string') {
+      // Si c'est déjà au format YYYY-MM-DD du input date HTML
+      if (date.includes('-') && date.length === 10) {
+        dateObj = new Date(date);
+      } else {
+        dateObj = new Date(date);
+      }
+    } else {
+      dateObj = date;
+    }
+
+    if (isNaN(dateObj.getTime())) {
+      return '';
+    }
+
+    // Format MM-DD-YYYY comme attendu par l'API
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${month}-${day}-${year}`;
+  }
+
+  // FIX: Correction de la méthode updateProject
+  updateProject(
+    id: number,
+    projectData: RealEstateProject,
+    planFile?: File
+  ): Observable<ApiResponse<RealEstateProject>> {
+    if (planFile) {
+      return this.createProjectWithRawFile(projectData, planFile).pipe(
+        switchMap(formData =>
+          this.http.put<ApiResponse<RealEstateProject>>(
+            `${this.endpoints.projects}/${id}`,
+            formData,
+            { headers: this.getHeaders() }
+          )
+        )
+      );
+    } else {
+      return new Observable(observer => {
+        this.buildFormDataWithBase64(projectData).then(formData => {
+          this.http.put<ApiResponse<RealEstateProject>>(
+            `${this.endpoints.projects}/${id}`,
+            formData,
+            { headers: this.getHeaders() }
+          ).pipe(
+            timeout(30000),
+            retry({ count: 2, delay: 1000 }),
+            catchError(this.handleError.bind(this))
+          ).subscribe({
+            next: (response) => observer.next(response),
+            error: (error) => observer.error(error),
+            complete: () => observer.complete()
+          });
+        }).catch(error => observer.error(error));
+      });
+    }
+  }
+
+  // FIX: Correction de la méthode getlisteProjectsByPromoters
+  getlisteProjectsByPromoters(promoterId: number, page: number = 0, size: number = 10): Observable<any> {
+    const params = new HttpParams()
+      .set('promoterId', promoterId.toString())
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    // FIX: URL complète au lieu d'URL relative
+    const url = `${environment.apiUrl}/realestate/search-by-promoter`;
+
+    return this.http.get<any>(url, {
+      params,
+      headers: this.getHeaders() // FIX: Ajouter les headers d'authentification
+    }).pipe(
+      timeout(15000),
+      retry({ count: 2, delay: 1000 }),
+      catchError(this.handleError.bind(this))
+    );
+  }
 }

@@ -108,7 +108,6 @@ export class PhotoProjectComponent implements OnInit {
             this.isLoading = false;
           },
           error: (err) => {
-            console.error('Erreur lors du chargement des photos :', err);
             this.error = 'Erreur lors du chargement des photos';
             this.isLoading = false;
           }

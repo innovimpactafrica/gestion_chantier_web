@@ -162,7 +162,6 @@ export class TeamListComponent implements OnInit {
       this.currentPropertyId = +id;
       this.loadTeamMembers();
     } else {
-      console.error("ID de propriété non trouvé dans l'URL.");
       this.error = "ID de propriété non trouvé dans l'URL.";
     }
   }
@@ -184,10 +183,8 @@ export class TeamListComponent implements OnInit {
         this.totalElements = response.totalElements;
         this.pageNumbers = this.getPageNumbers();
         this.isLoading = false;
-        console.log('Workers chargés:', response.content);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des workers:', error);
         this.error = 'Erreur lors du chargement des membres de l\'équipe';
         this.isLoading = false;
       }
@@ -264,7 +261,6 @@ export class TeamListComponent implements OnInit {
 
     const performance$ = this.detailsWorkerService.getPerformanceAndTask(member.id).pipe(
       catchError(error => {
-        console.warn('Erreur lors du chargement des performances:', error);
         return of({
           totalTasks: 0,
           completedTasks: 0,
@@ -275,7 +271,6 @@ export class TeamListComponent implements OnInit {
 
     const presence$ = this.detailsWorkerService.getPresenceHistory(member.id).pipe(
       catchError(error => {
-        console.warn('Erreur lors du chargement de l\'historique de présence:', error);
         return of({
           logs: [],
           totalWorkedTime: '0h 00min'
@@ -285,7 +280,6 @@ export class TeamListComponent implements OnInit {
 
     const dashboard$ = this.detailsWorkerService.getInfoDashboard(member.id).pipe(
       catchError(error => {
-        console.warn('Erreur lors du chargement du dashboard:', error);
         return of({
           daysPresent: 0,
           totalWorkedHours: 0
@@ -295,7 +289,6 @@ export class TeamListComponent implements OnInit {
 
     const repartitions$ = this.detailsWorkerService.getRepartitions(member.id).pipe(
       catchError(error => {
-        console.warn('Erreur lors du chargement de la répartition des tâches:', error);
         return of([] as StatusDistribution[]);
       })
     );
@@ -319,7 +312,6 @@ export class TeamListComponent implements OnInit {
         this.isLoadingDetails = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des détails:', error);
         this.detailsError = 'Erreur lors du chargement des détails du membre';
         this.isLoadingDetails = false;
       }
@@ -469,23 +461,19 @@ export class TeamListComponent implements OnInit {
     sessions: Array<{ entry: string; exit: string }>;
     totalTime: string;
   }> {
-    console.log('📊 Transformation de l\'historique de présence:', presenceData);
 
     if (!presenceData.logs || presenceData.logs.length === 0) {
-      console.log('⚠️ Aucun log de présence trouvé');
       return [];
     }
 
     const groupedByDate = new Map<string, Array<{ entry: string; exit: string }>>();
 
     presenceData.logs.forEach(log => {
-      console.log('🔍 Processing log:', log);
 
       const dateStr = this.formatDateFromArray(log.checkInTime);
       const entryTime = this.formatTimeFromArray(log.checkInTime);
       const exitTime = this.formatTimeFromArray(log.checkOutTime);
 
-      console.log(`📅 Date: ${dateStr}, Entrée: ${entryTime}, Sortie: ${exitTime}`);
 
       if (!groupedByDate.has(dateStr)) {
         groupedByDate.set(dateStr, []);
@@ -524,7 +512,6 @@ export class TeamListComponent implements OnInit {
       return dateB.getTime() - dateA.getTime();
     });
 
-    console.log('✅ Historique transformé:', result);
     return result;
   }
 
@@ -561,10 +548,8 @@ export class TeamListComponent implements OnInit {
    * Exemple: [10, 38, 3, 935000000] → "10:38"
    */
   private formatTimeFromArray(timeArray: number[]): string {
-    console.log('🕐 Formatage de l\'heure depuis:', timeArray);
 
     if (!timeArray || timeArray.length < 2) {
-      console.error('❌ Tableau d\'heure invalide ou incomplet:', timeArray);
       return '--:--';
     }
 
@@ -573,7 +558,6 @@ export class TeamListComponent implements OnInit {
     const minutes = timeArray[1].toString().padStart(2, '0');
     const formattedTime = `${hours}:${minutes}`;
 
-    console.log(`🕐 Heure formatée: ${formattedTime}`);
     return formattedTime;
   }
 
@@ -581,11 +565,9 @@ export class TeamListComponent implements OnInit {
    * Calcule la différence en minutes entre deux heures au format HH:mm
    */
   private calculateMinutesBetween(entry: string, exit: string): number {
-    console.log(`⏱️ Calcul durée entre ${entry} et ${exit}`);
 
     // Si l'heure de sortie est "En cours" ou invalide, retourner 0
     if (exit === 'En cours' || exit === '--:--' || !exit.includes(':')) {
-      console.log('⚠️ Sortie en cours ou invalide, durée = 0');
       return 0;
     }
 
@@ -594,7 +576,6 @@ export class TeamListComponent implements OnInit {
 
     // Vérifier que les valeurs sont valides
     if (isNaN(entryH) || isNaN(entryM) || isNaN(exitH) || isNaN(exitM)) {
-      console.error('❌ Heures invalides:', { entry, exit });
       return 0;
     }
 
@@ -602,7 +583,6 @@ export class TeamListComponent implements OnInit {
     const exitMinutes = exitH * 60 + exitM;
 
     const duration = exitMinutes - entryMinutes;
-    console.log(`✅ Durée calculée: ${duration} minutes`);
 
     return duration > 0 ? duration : 0;
   }
@@ -624,17 +604,14 @@ export class TeamListComponent implements OnInit {
    * Obtient le temps total travaillé (filtré ou complet)
    */
   getTotalWorkedTime(): string {
-    console.log('📊 Calcul du temps total travaillé');
 
     // Si le selectedMember a déjà le totalWorkedTime de l'API, l'utiliser
     if (this.selectedMember?.totalWorkedTime && !this.selectedDate) {
-      console.log('✅ Utilisation du temps total depuis l\'API:', this.selectedMember.totalWorkedTime);
       return this.selectedMember.totalWorkedTime;
     }
 
     // Sinon, calculer depuis l'historique filtré
     if (!this.selectedMember?.presenceHistory) {
-      console.log('⚠️ Pas d\'historique de présence');
       return '0h 00min';
     }
 
@@ -650,7 +627,6 @@ export class TeamListComponent implements OnInit {
     }, 0);
 
     const result = this.formatDuration(totalMinutes);
-    console.log(`✅ Temps total calculé: ${result}`);
     return result;
   }
   toggleDatePicker(): void {
@@ -992,11 +968,9 @@ export class TeamListComponent implements OnInit {
       photo: this.selectedPhoto || undefined // Ajouter la photo
     };
 
-    console.log('📤 Création du worker pour propertyId:', this.currentPropertyId);
 
     this.utilisateurService.createWorker(userData, this.currentPropertyId).subscribe({
       next: (response) => {
-        console.log('✅ Worker créé avec succès:', response);
         this.isSubmitting = false;
         this.submitSuccess = 'Membre ajouté avec succès!';
 
@@ -1008,7 +982,6 @@ export class TeamListComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        console.error('❌ Erreur lors de la création du worker:', error);
 
         if (error.status === 400) {
           this.submitError = 'Données invalides. Vérifiez les informations saisies.';

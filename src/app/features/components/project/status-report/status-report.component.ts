@@ -102,19 +102,16 @@ export class StatusReportComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    console.log('📊 Chargement des indicateurs du projet', this.projectId);
 
     this.budgetService.getIndicatorsByProperty(this.projectId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          console.log('✅ Indicateurs récupérés:', data);
           this.indicators = data;
           this.initializeTableRows();
           this.loading = false;
         },
         error: (error) => {
-          console.error('❌ Erreur chargement indicateurs:', error);
           this.handleFetchError(error, "indicateurs");
           // Initialiser avec des valeurs par défaut en cas d'erreur
           this.initializeDefaultRows();
@@ -131,7 +128,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
       indicatorId: indicator.id
     }));
 
-    console.log('📋 Tableau initialisé:', this.lignes);
   }
 
   // === NOUVELLE MÉTHODE: Initialiser avec des valeurs par défaut ===
@@ -157,10 +153,8 @@ export class StatusReportComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.albums = data;
           this.loading = false;
-          console.log('Albums récupérés:', data);
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des albums:', error);
           this.handleFetchError(error, "albums");
         }
       });
@@ -223,12 +217,10 @@ export class StatusReportComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✓ Album modifié avec succès:', response);
           this.handleAlbumOperationSuccess(this.t('statusReport.albumModifiedSuccess'));
           this.closeEditModal();
         },
         error: (error) => {
-          console.error('✗ Erreur modification album:', error);
           this.handleAlbumOperationError(error, 'modification');
         }
       });
@@ -238,7 +230,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
     if (this.progressReportComponent && this.progressReportComponent.progressData) {
       const progressData = this.progressReportComponent.progressData;
 
-      console.log('Mise à jour tableau avec données:', progressData);
 
       this.lignes = this.lignes.map(ligne => {
         const matchingProgress = progressData.find(p => p.label === ligne.etape);
@@ -252,7 +243,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
         return ligne;
       });
 
-      console.log('Tableau mis à jour:', this.lignes);
     }
   }
 
@@ -278,13 +268,11 @@ export class StatusReportComponent implements OnInit, OnDestroy {
     this.updatingPhase = phaseName;
     this.error = null;
 
-    console.log(`📊 Mise à jour de l'indicateur ${indicatorId} (${phaseName}) à ${newProgress}%`);
 
     this.budgetService.updateIndicator(indicatorId, newProgress)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log(`✅ ${phaseName} mis à jour:`, response);
           this.updatingPhase = null;
 
           // MODIFICATION: Mettre à jour avec les données de la réponse
@@ -299,7 +287,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
           this.progressUpdated.emit();
         },
         error: (error) => {
-          console.error(`❌ Erreur mise à jour ${phaseName}:`, error);
           this.handleProgressUpdateError(error, phaseName);
         }
       });
@@ -311,7 +298,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
     if (ligne) {
       ligne.pourcentage = `${response.progressPercentage}%`;
       ligne.date = this.budgetService.formatIndicatorDate(response.lastUpdated);
-      console.log(`✅ Ligne mise à jour localement:`, ligne);
     }
 
     // Mettre à jour aussi dans indicators
@@ -367,25 +353,21 @@ export class StatusReportComponent implements OnInit, OnDestroy {
     const selectedValue = event.target.value;
 
     if (!selectedValue || selectedValue === '') {
-      console.warn('Aucune valeur sélectionnée');
       return;
     }
 
     const numericValue = parseInt(selectedValue.replace('%', ''));
 
     if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) {
-      console.error('Valeur de pourcentage invalide:', selectedValue);
       this.error = 'Valeur de pourcentage invalide';
       return;
     }
 
     const currentValue = this.getProgressValue(etape);
     if (currentValue === numericValue) {
-      console.log(`${etape} a déjà la valeur ${numericValue}%`);
       return;
     }
 
-    console.log(`🔄 Changement de ${etape}: ${currentValue}% → ${numericValue}%`);
 
     const ligne = this.lignes.find(l => l.etape === etape);
     if (ligne && ligne.indicatorId > 0) {
@@ -396,7 +378,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
       // Envoyer la mise à jour au serveur
       this.updatePhaseProgress(ligne.indicatorId, etape, numericValue);
     } else {
-      console.warn(`Indicateur non trouvé pour l'étape: ${etape}`);
       this.error = this.t('statusReport.indicatorNotFound');
     }
   }
@@ -568,12 +549,10 @@ export class StatusReportComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Album créé avec succès:', response);
           this.handleAlbumOperationSuccess(this.t('statusReport.albumCreatedSuccess'));
           this.closeCreateModal();
         },
         error: (error) => {
-          console.error('Erreur lors de la création:', error);
           this.handleAlbumOperationError(error, 'création');
         }
       });
@@ -593,7 +572,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
           this.closeDeleteModal();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
           this.handleAlbumOperationError(error, 'suppression');
         }
       });
@@ -738,7 +716,6 @@ export class StatusReportComponent implements OnInit, OnDestroy {
   }
 
   handleImageError(event: ErrorEvent, album: ProgressAlbum) {
-    console.error('Erreur chargement image:', event);
   }
 
   // === MÉTHODES POUR LA VISIONNEUSE D'IMAGES ===

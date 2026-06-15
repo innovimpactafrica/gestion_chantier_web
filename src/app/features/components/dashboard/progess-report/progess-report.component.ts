@@ -105,12 +105,10 @@ private createDefaultData(): void {
     
     this.dashboardService.etatAvancement().pipe(
       catchError(error => {
-        console.warn('Erreur etatAvancement:', error);
         return of([] as PhaseIndicator[]);
       })
     ).subscribe({
       next: (phaseIndicators: PhaseIndicator[]) => {
-        console.log('Données reçues:', phaseIndicators);
         this.processProgressData(phaseIndicators);
         this.isLoading = false;
         
@@ -120,7 +118,6 @@ private createDefaultData(): void {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement de l\'état d\'avancement:', error);
         this.error = 'Erreur lors du chargement des données';
         this.isLoading = false;
         this.createDefaultData();
@@ -162,7 +159,6 @@ private createDefaultData(): void {
       return a.label.localeCompare(b.label);
     });
 
-    console.log('Données processées:', this.progressData);
   }
 
 
