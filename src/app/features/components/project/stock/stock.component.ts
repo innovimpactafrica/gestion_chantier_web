@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { MaterialsService, MaterialsResponse, Order, CreateOrder, CreateStockMovement } from '../../../../../services/materials.service';
 import { MaterialTypeService, MaterialType } from '../../../../../services/material-type.service';
 import { CommonModule } from '@angular/common';
@@ -15,7 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService, User } from '../../../../../services/user.service';
 import { StatistiqueService, EvolutionData, ConsommationData } from '../../../../../services/statistique.service';
 import { Chart } from 'chart.js';
-import { CommandeService, Quote, QuoteResponse } from '../../../../../services/commande.service';
+import { CommandeService, Quote, QuoteResponse, OrderItem as CommandeOrderItem, MaterialDetail } from '../../../../../services/commande.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LanguageService } from '../../../../core/services/language.service';
 
@@ -330,6 +331,12 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   loadingQuotes: boolean = false;
   quotesError: string | null = null;
   selectedQuote: Quote | null = null;
+  // Items détaillés de la commande sélectionnée (avec unitPrice)
+  selectedOrderItems: CommandeOrderItem[] = [];
+  orderItemMaterialNames: Map<number, string> = new Map();
+  orderItemMaterialDetails: Map<number, MaterialDetail> = new Map();
+  isLoadingOrderItemMaterials: boolean = false;
+
   // Pour les livraisons
   approvingOrder: boolean = false;
   showApproveConfirmModal: boolean = false;
@@ -1914,42 +1921,83 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
 
         yPosition += 20;
 
-        // Tableau des matériaux
+        // ── Tableau des matériaux commandés ──────────────────────────────
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
         doc.text('Matériaux commandés', margin, yPosition);
-        yPosition += 10;
+        yPosition += 8;
 
         // En-tête du tableau
+        const colMat   = margin + 2;
+        const colQty   = margin + 90;
+        const colPrice = margin + 120;
+        const colTotal = pageWidth - margin - 2;
+
         doc.setFillColor(240, 240, 240);
         doc.rect(margin, yPosition - 5, pageWidth - 2 * margin, 10, 'F');
-        doc.setFontSize(10);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.text('Matériau', margin + 2, yPosition);
-        doc.text('Quantité', pageWidth - margin - 40, yPosition);
+        doc.text('Matériau',       colMat,   yPosition);
+        doc.text('Qté',            colQty,   yPosition);
+        doc.text('Prix unitaire',  colPrice, yPosition);
+        doc.text('Total',          colTotal, yPosition, { align: 'right' });
         yPosition += 10;
+
+        // Séparateur
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, yPosition - 4, pageWidth - margin, yPosition - 4);
 
         // Lignes du tableau
         doc.setFont('helvetica', 'normal');
-        if (order.materials && order.materials.length > 0) {
-          order.materials.forEach((material: any) => {
+        doc.setTextColor(50, 50, 50);
+
+        const items = this.selectedOrderItems;
+        if (items && items.length > 0) {
+          items.forEach((item) => {
             if (yPosition > pageHeight - 30) {
               doc.addPage();
               yPosition = margin;
             }
-            doc.text(material.label || 'N/A', margin + 2, yPosition);
-            doc.text(material.quantity?.toString() || '0', pageWidth - margin - 40, yPosition);
+            const name  = this.getOrderItemMaterialName(item.materialId);
+            const unit  = this.getOrderItemUnit(item.materialId);
+            const qty   = `${item.quantity} ${unit}`.trim();
+            const price = `${this.formatAmount(item.unitPrice)} FCFA`;
+            const total = `${this.formatAmount(this.getOrderItemTotal(item))} FCFA`;
+
+            doc.text(name,  colMat,   yPosition, { maxWidth: 82 });
+            doc.text(qty,   colQty,   yPosition);
+            doc.text(price, colPrice, yPosition);
+            doc.text(total, colTotal, yPosition, { align: 'right' });
             yPosition += 8;
+
+            doc.setDrawColor(235, 235, 235);
+            doc.line(margin, yPosition - 2, pageWidth - margin, yPosition - 2);
           });
+
+          // Total général
+          yPosition += 4;
+          doc.setFillColor(255, 92, 2);
+          doc.rect(margin, yPosition - 5, pageWidth - 2 * margin, 12, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(255, 255, 255);
+          doc.text('Total général', colMat, yPosition + 2);
+          doc.text(
+            `${this.formatAmount(this.getOrderItemsGrandTotal())} FCFA`,
+            colTotal, yPosition + 2, { align: 'right' }
+          );
+          yPosition += 18;
         } else {
           doc.setTextColor(150, 150, 150);
-          doc.text('Aucun matériau', margin + 2, yPosition);
-          yPosition += 8;
+          doc.text('Aucun matériau disponible', colMat, yPosition);
+          yPosition += 10;
         }
 
         // Pied de page
         doc.setTextColor(150, 150, 150);
         doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
         const footerText = `Généré le ${new Date().toLocaleDateString('fr-FR')} - BTP CLOUD`;
         doc.text(footerText, pageWidth / 2 - doc.getTextWidth(footerText) / 2, pageHeight - 10);
 
@@ -2496,22 +2544,24 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // ✅ Réinitialiser AVANT d'ouvrir
+    // Réinitialiser AVANT d'ouvrir
     this.orderQuotes = [];
     this.selectedQuote = null;
     this.loadingQuotes = false;
     this.quotesError = null;
+    this.selectedOrderItems = [];
+    this.orderItemMaterialNames = new Map();
+    this.orderItemMaterialDetails = new Map();
+    this.isLoadingOrderItemMaterials = false;
 
     this.selectedOrderDetails = order;
     this.showOrderDetailsModal = true;
-
-    // ✅ Forcer la détection
     this.cdr.detectChanges();
 
-    // ✅ Charger les citations après un délai
     setTimeout(() => {
       this.loadOrderQuotes(order.id);
-    }, 200); // Augmenter le délai à 200ms
+      this.loadOrderItemsWithMaterials(order.id);
+    }, 200);
   }
 
   /**
@@ -2559,6 +2609,77 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedQuote = quote;
   }
 
+  /**
+   * Charge les items détaillés de la commande depuis l'API commande,
+   * puis résout les noms des matériaux.
+   */
+  loadOrderItemsWithMaterials(orderId: number): void {
+    this.isLoadingOrderItemMaterials = true;
+
+    this.commandeService.getOrderById(orderId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (fullOrder) => {
+          this.selectedOrderItems = fullOrder.items || [];
+          if (this.selectedOrderItems.length === 0) {
+            this.isLoadingOrderItemMaterials = false;
+            this.cdr.detectChanges();
+            return;
+          }
+
+          const requests = this.selectedOrderItems.map(item =>
+            this.commandeService.getMaterialById(item.materialId).pipe(catchError(() => of(null)))
+          );
+
+          forkJoin(requests)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (results) => {
+                const isFr = (this.languageService.currentLang?.() ?? 'FR').toUpperCase() === 'FR';
+                results.forEach((mat, idx) => {
+                  const materialId = this.selectedOrderItems[idx].materialId;
+                  if (mat) {
+                    this.orderItemMaterialDetails.set(materialId, mat);
+                    const label = isFr
+                      ? (mat.labelFr || mat.materialType?.nameFr || mat.labelEn)
+                      : (mat.labelEn || mat.materialType?.nameEn || mat.labelFr);
+                    this.orderItemMaterialNames.set(materialId, label || `Mat #${materialId}`);
+                  } else {
+                    this.orderItemMaterialNames.set(materialId, `Mat #${materialId}`);
+                  }
+                });
+                this.isLoadingOrderItemMaterials = false;
+                this.cdr.detectChanges();
+              },
+              error: () => {
+                this.isLoadingOrderItemMaterials = false;
+                this.cdr.detectChanges();
+              }
+            });
+        },
+        error: () => {
+          this.isLoadingOrderItemMaterials = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  getOrderItemMaterialName(materialId: number): string {
+    return this.orderItemMaterialNames.get(materialId) ?? `Mat #${materialId}`;
+  }
+
+  getOrderItemUnit(materialId: number): string {
+    return this.orderItemMaterialDetails.get(materialId)?.unit?.code ?? '';
+  }
+
+  getOrderItemTotal(item: CommandeOrderItem): number {
+    return (item.quantity ?? 0) * (item.unitPrice ?? 0);
+  }
+
+  getOrderItemsGrandTotal(): number {
+    return this.selectedOrderItems.reduce((sum, item) => sum + this.getOrderItemTotal(item), 0);
+  }
+
   // ===== MÉTHODE closeOrderDetailsModal() - VÉRIFIER =====
   closeOrderDetailsModal(): void {
     this.showOrderDetailsModal = false;
@@ -2567,6 +2688,9 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedQuote = null;
     this.quotesError = null;
     this.loadingQuotes = false;
+    this.selectedOrderItems = [];
+    this.orderItemMaterialNames = new Map();
+    this.orderItemMaterialDetails = new Map();
   }
 
   /**
