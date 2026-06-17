@@ -79,6 +79,7 @@ export class ProjectAlertComponent implements OnInit {
       this.showStatusDropdown = {};
     }
   }
+  
 
   toggleStatusDropdown(incidentId: number, event: Event) {
     event.stopPropagation();

@@ -363,7 +363,7 @@ export class UserService {
     formData.append('prenom', userData.prenom);
     formData.append('email', userData.email);
     formData.append('password', userData.password);
-    formData.append('telephone', userData.telephone);
+  formData.append('telephone', userData.telephone);
     formData.append('profil', userData.profil);
     // Champs optionnels — n'envoyer que s'ils ont une valeur
     if (userData.adress?.trim()) formData.append('adress', userData.adress.trim());

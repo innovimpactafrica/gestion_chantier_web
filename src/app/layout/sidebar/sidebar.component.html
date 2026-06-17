@@ -1,10 +1,8 @@
 <div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2 relative">
   <!-- Close Sidebar Button (Mobile Only) -->
-  <button 
-    (click)="closeSidebar()" 
+  <button (click)="closeSidebar()"
     class="md:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white shadow-sm border border-gray-200 rounded-full p-1"
-    aria-label="Fermer le menu"
-  >
+    aria-label="Fermer le menu">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
     </svg>
@@ -18,14 +16,17 @@
           <!-- Skeleton loader while image is loading -->
           <div *ngIf="profileImageLoading()"
             class="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
-            
-          <img *ngIf="hasUserPhoto(); else initialsTemplate" 
-            [src]="getProfileImageUrl()" [alt]="'Photo de profil de ' + getUserDisplayName()" (load)="onImageLoad()"
-            (error)="onImageError($event)" class="w-full h-full object-cover" [class.opacity-0]="profileImageLoading()"
+
+          <img *ngIf="hasUserPhoto(); else initialsTemplate" [src]="getProfileImageUrl()"
+            [alt]="'Photo de profil de ' + getUserDisplayName()" (load)="onImageLoad()" (error)="onImageError($event)"
+            class="w-full h-full object-cover" [class.opacity-0]="profileImageLoading()"
             [class.opacity-100]="!profileImageLoading()" />
-            
+
           <ng-template #initialsTemplate>
-            <img src="assets/images/image-placeholder.png" alt="Placeholder" class="w-full h-full object-cover" />
+            <div
+              class="w-full h-full bg-[#f8f9fa] border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-600 uppercase">
+              {{ authService.getUserInitials() }}
+            </div>
           </ng-template>
         </div>
         <div>
@@ -135,7 +136,8 @@
                 (isActive('subcontractor') 
                   ? 'text-white' 
                   : 'text-black group-hover:text-[#FF5C02]')">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
 
           <span class="text-sm">{{ t('sidebar.subcontractors') }}</span>
@@ -153,7 +155,8 @@
                 (isActive('suppliers') 
                   ? 'text-white' 
                   : 'text-black group-hover:text-[#FF5C02]')">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
 
           <span class="text-sm">{{ t('sidebar.suppliers') }}</span>
@@ -165,12 +168,12 @@
       <li *ngIf="isADMINProfile()">
         <div>
           <a (click)="toggleParametres()"
-            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
-                 (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') || isActive('types-materiaux') ? 'bg-[#FF5C02] text-white' : '')">
+            [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
+                 (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
             <div class="flex items-center">
               <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" [class]="'mr-3 w-5 h-5 transition-all duration-200 flex-shrink-0 ' + 
-      (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') || isActive('types-materiaux')
-        ? 'brightness-0 invert'
+      (isActive('settings') || isActive('unite-mesure') || isActive('documents') || isActive('typebien') || isActive('categories') 
+        ? 'brightness-0 invert' 
         : '')">
 
                 <path
@@ -193,12 +196,6 @@
 
           <!-- Sous-menu Paramètres -->
           <div *ngIf="showParametres" class="mt-2 ml-6 space-y-1 border-l-2 border-gray-200 pl-4">
-            <!-- Vue d'ensemble -->
-            <a (click)="navigateToSubSection('/settings', 'Paramètres', 'settings')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
-                   (isActive('settings') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Vue d'ensemble</span>
-            </a>
             <!-- Unité de mesure -->
             <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
@@ -221,17 +218,10 @@
             </a>
 
             <!-- Catégories de matériel -->
-            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
+            <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
               <img src="assets/images/eclipse.png" alt="" class="mr-2">
               <span>{{ t('settings.materialCategories') }}</span>
-            </a>
-
-            <!-- Types de matériaux -->
-            <a (click)="navigateToSubSection('/parametres/types-materiaux', 'Types de matériaux', 'types-materiaux')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' +
-                   (isActive('types-materiaux') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
-              <span>Types de matériaux</span>
             </a>
           </div>
         </div>
@@ -292,27 +282,32 @@
       </li>
 
 
-     
-
       <!-- Projects Section (Standard uniquement) -->
       <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
         <a (click)="navigateTo('/projects', 'Projets', 'projects')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('projects') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-1.22-1.8A2 2 0 0 0 7.53 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-1.22-1.8A2 2 0 0 0 7.53 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z">
+              </path>
             </svg>
             <span class="text-sm">{{ t('sidebar.projects') }}</span>
           </div>
         </a>
       </li>
- <!-- Devis (Promoteur uniquement) -->
+      <!-- Devis (Promoteur uniquement) -->
       <li *ngIf="isPromoterProfile()">
         <a (click)="navigateTo('/devis', 'Devis', 'devis')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
                    (isActive('devis') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span class="text-sm">{{ t('sidebar.devis') }}</span>
           </div>
@@ -359,8 +354,8 @@
       <li>
         <a (click)="navigateTo('/mon-compte', 'Mon compte', 'mon-compte')" [class]="'flex items-center py-3 px-4 gap-3 rounded-lg cursor-pointer transition-all duration-200 ' + 
                  (isActive('mon-compte') ? 'bg-[#FF5C02] text-white' : '')">
-          <svg [class]="'transition-all duration-200 flex-shrink-0'" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
+          <svg [class]="'transition-all duration-200 flex-shrink-0'" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M5.85 17.1C6.7 16.45 7.65 15.9377 8.7 15.563C9.75 15.1883 10.85 15.0007 12 15C13.15 14.9993 14.25 15.187 15.3 15.563C16.35 15.939 17.3 16.4513 18.15 17.1C18.7333 16.4167 19.1877 15.6417 19.513 14.775C19.8383 13.9083 20.0007 12.9833 20 12C20 9.78333 19.221 7.89567 17.663 6.337C16.105 4.77833 14.2173 3.99933 12 4C9.78267 4.00067 7.895 4.78 6.337 6.338C4.779 7.896 4 9.78333 4 12C4 12.9833 4.16267 13.9083 4.488 14.775C4.81333 15.6417 5.26733 16.4167 5.85 17.1ZM12 13C11.0167 13 10.1873 12.6627 9.512 11.988C8.83667 11.3133 8.49933 10.484 8.5 9.5C8.50067 8.516 8.83833 7.68667 9.513 7.012C10.1877 6.33733 11.0167 6 12 6C12.9833 6 13.8127 6.33767 14.488 7.013C15.1633 7.68833 15.5007 8.51733 15.5 9.5C15.4993 10.4827 15.162 11.312 14.488 11.988C13.814 12.664 12.9847 13.0013 12 13ZM12 22C10.6167 22 9.31667 21.7373 8.1 21.212C6.88334 20.6867 5.825 19.9743 4.925 19.075C4.025 18.1757 3.31267 17.1173 2.788 15.9C2.26333 14.6827 2.00067 13.3827 2 12C1.99933 10.6173 2.262 9.31733 2.788 8.1C3.314 6.88267 4.02633 5.82433 4.925 4.925C5.82367 4.02567 6.882 3.31333 8.1 2.788C9.318 2.26267 10.618 2 12 2C13.382 2 14.682 2.26267 15.9 2.788C17.118 3.31333 18.1763 4.02567 19.075 4.925C19.9737 5.82433 20.6863 6.88267 21.213 8.1C21.7397 9.31733 22.002 10.6173 22 12C21.998 13.3827 21.7353 14.6827 21.212 15.9C20.6887 17.1173 19.9763 18.1757 19.075 19.075C18.1737 19.9743 17.1153 20.687 15.9 21.213C14.6847 21.739 13.3847 22.0013 12 22ZM12 20C12.8833 20 13.7167 19.871 14.5 19.613C15.2833 19.355 16 18.984 16.65 18.5C16 18.0167 15.2833 17.646 14.5 17.388C13.7167 17.13 12.8833 17.0007 12 17C11.1167 16.9993 10.2833 17.1287 9.5 17.388C8.71667 17.6473 8 18.018 7.35 18.5C8 18.9833 8.71667 19.3543 9.5 19.613C10.2833 19.8717 11.1167 20.0007 12 20ZM12 11C12.4333 11 12.7917 10.8583 13.075 10.575C13.3583 10.2917 13.5 9.93333 13.5 9.5C13.5 9.06667 13.3583 8.70833 13.075 8.425C12.7917 8.14167 12.4333 8 12 8C11.5667 8 11.2083 8.14167 10.925 8.425C10.6417 8.70833 10.5 9.06667 10.5 9.5C10.5 9.93333 10.6417 10.2917 10.925 10.575C11.2083 10.8583 11.5667 11 12 11Z"
               [attr.fill]="isActive('mon-compte') ? '#FFFFFF' : '#1A202C'" />
@@ -374,8 +369,11 @@
       <li class="mt-4">
         <a (click)="logout(); $event.stopPropagation()"
           class="flex items-center py-3 px-4 gap-3 rounded-lg transition-all duration-200 cursor-pointer">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-            <path d="M2 18C1.45 18 0.979333 17.8043 0.588 17.413C0.196667 17.0217 0.000666667 16.5507 0 16V2C0 1.45 0.196 0.979333 0.588 0.588C0.98 0.196667 1.45067 0.000666667 2 0H9V2H2V16H9V18H2ZM13 14L11.625 12.55L14.175 10H6V8H14.175L11.625 5.45L13 4L18 9L13 14Z" fill="#2C3E50"/>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="flex-shrink-0">
+            <path
+              d="M2 18C1.45 18 0.979333 17.8043 0.588 17.413C0.196667 17.0217 0.000666667 16.5507 0 16V2C0 1.45 0.196 0.979333 0.588 0.588C0.98 0.196667 1.45067 0.000666667 2 0H9V2H2V16H9V18H2ZM13 14L11.625 12.55L14.175 10H6V8H14.175L11.625 5.45L13 4L18 9L13 14Z"
+              fill="#2C3E50" />
           </svg>
           <span class="text-sm">{{ t('sidebar.logout') }}</span>
         </a>

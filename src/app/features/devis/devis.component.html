@@ -8,7 +8,7 @@
         <div class="flex items-center gap-2 text-gray-400 text-sm mb-3">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           Total devis
         </div>
@@ -19,9 +19,9 @@
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div class="flex items-center gap-2 text-gray-400 text-sm mb-3">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
           </svg>
           Valeur totale TTC
         </div>
@@ -32,7 +32,7 @@
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div class="flex items-center gap-2 text-gray-400 text-sm mb-3">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
           Approuvés
         </div>
@@ -44,7 +44,7 @@
         <div class="flex items-center gap-2 text-gray-400 text-sm mb-3">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Durée moy.
         </div>
@@ -55,41 +55,40 @@
 
     <!-- ── Filter Tabs ────────────────────────────────────────────────────────── -->
     <div class="flex gap-2 flex-wrap">
-      <button (click)="setFilter('all')"       [class]="filterBtnClass('all')">Tous</button>
-      <button (click)="setFilter('DRAFT')"     [class]="filterBtnClass('DRAFT')">Brouillons</button>
-      <button (click)="setFilter('SENT')"      [class]="filterBtnClass('SENT')">Soumis</button>
-      <button (click)="setFilter('APPROVED')"  [class]="filterBtnClass('APPROVED')">Approuvés</button>
-      <button (click)="setFilter('REJECTED')"  [class]="filterBtnClass('REJECTED')">Rejetés</button>
+      <button (click)="setFilter('all')" [class]="filterBtnClass('all')">Tous</button>
+      <button (click)="setFilter('DRAFT')" [class]="filterBtnClass('DRAFT')">Brouillons</button>
+      <button (click)="setFilter('SENT')" [class]="filterBtnClass('SENT')">Soumis</button>
+      <button (click)="setFilter('APPROVED')" [class]="filterBtnClass('APPROVED')">Approuvés</button>
+      <button (click)="setFilter('REJECTED')" [class]="filterBtnClass('REJECTED')">Rejetés</button>
     </div>
 
     <!-- ── Search + New ───────────────────────────────────────────────────────── -->
     <div class="flex gap-3 items-center">
       <div class="flex-1 relative">
-        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" type="text"
           placeholder="Rechercher un projet..."
           class="w-full pl-9 pr-9 py-2.5 bg-white border border-gray-200 text-gray-800 placeholder-gray-400
-                 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 shadow-sm"/>
+                 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 shadow-sm" />
         <button *ngIf="searchTerm" (click)="clearSearch()"
           class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <button (click)="navigateToNew()"
-        class="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white
+      <button (click)="navigateToNew()" class="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white
                rounded-xl text-sm font-semibold transition-colors shadow-md whitespace-nowrap">
         <span class="text-base leading-none">+</span>
         Nouveau devis
         <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
         </svg>
       </button>
     </div>
@@ -102,9 +101,11 @@
         <thead>
           <tr class="border-b border-gray-100 bg-gray-50/60">
             <th class="text-left px-5 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">PROJET</th>
-            <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">LOCALISATION</th>
+            <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">LOCALISATION
+            </th>
             <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">SURFACE</th>
-            <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">TOTAL TTC</th>
+            <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">TOTAL TTC
+            </th>
             <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">DÉLAI</th>
             <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">STATUT</th>
             <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">PDF</th>
@@ -122,12 +123,26 @@
                 </div>
               </div>
             </td>
-            <td class="px-4 py-4"><div class="h-3.5 bg-gray-100 rounded w-28 mb-1.5"></div><div class="h-3 bg-gray-100 rounded w-20"></div></td>
-            <td class="px-4 py-4"><div class="h-3.5 bg-gray-100 rounded w-14"></div></td>
-            <td class="px-4 py-4"><div class="h-3.5 bg-gray-100 rounded w-28 mb-1.5"></div><div class="h-3 bg-gray-100 rounded w-20"></div></td>
-            <td class="px-4 py-4"><div class="h-3.5 bg-gray-100 rounded w-12"></div></td>
-            <td class="px-4 py-4"><div class="h-6 bg-gray-100 rounded-full w-20"></div></td>
-            <td class="px-4 py-4"><div class="h-7 bg-gray-100 rounded-lg w-14"></div></td>
+            <td class="px-4 py-4">
+              <div class="h-3.5 bg-gray-100 rounded w-28 mb-1.5"></div>
+              <div class="h-3 bg-gray-100 rounded w-20"></div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="h-3.5 bg-gray-100 rounded w-14"></div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="h-3.5 bg-gray-100 rounded w-28 mb-1.5"></div>
+              <div class="h-3 bg-gray-100 rounded w-20"></div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="h-3.5 bg-gray-100 rounded w-12"></div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="h-6 bg-gray-100 rounded-full w-20"></div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="h-7 bg-gray-100 rounded-lg w-14"></div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -139,20 +154,20 @@
       <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
         <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
       <h3 class="text-base font-semibold text-gray-800 mb-1">
         {{ searchTerm || activeFilter !== 'all' ? 'Aucun devis trouvé' : 'Aucun devis pour l\'instant' }}
       </h3>
       <p class="text-gray-400 text-sm mb-6">
-        {{ searchTerm ? 'Essayez un autre terme de recherche.' : activeFilter !== 'all' ? 'Aucun devis avec ce statut.' : 'Générez votre premier devis de construction avec l\'IA.' }}
+        {{ searchTerm ? 'Essayez un autre terme de recherche.' : activeFilter !== 'all' ? 'Aucun devis avec ce statut.'
+        : 'Générez votre premier devis de construction avec l\'IA.' }}
       </p>
-      <button *ngIf="!searchTerm && activeFilter === 'all'" (click)="navigateToNew()"
-        class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white
+      <button *ngIf="!searchTerm && activeFilter === 'all'" (click)="navigateToNew()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white
                rounded-xl font-semibold text-sm transition-all duration-200 shadow-md">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         Générer mon premier devis
       </button>
@@ -166,9 +181,12 @@
           <thead>
             <tr class="border-b border-gray-100 bg-gray-50/60">
               <th class="text-left px-5 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">PROJET</th>
-              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">LOCALISATION</th>
-              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">SURFACE</th>
-              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">TOTAL TTC</th>
+              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">
+                LOCALISATION</th>
+              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">SURFACE
+              </th>
+              <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">TOTAL TTC
+              </th>
               <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">DÉLAI</th>
               <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">STATUT</th>
               <th class="text-left px-4 py-3.5 text-gray-400 text-xs font-semibold uppercase tracking-wider">PDF</th>
@@ -183,14 +201,15 @@
               <td class="px-5 py-4">
                 <div class="flex items-start gap-3">
                   <div class="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg class="text-orange-500" style="width:18px;height:18px"
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="text-orange-500" style="width:18px;height:18px" fill="none" stroke="currentColor"
+                      viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                        [attr.d]="getProjectTypePath(quote.projectType)"/>
+                        [attr.d]="getProjectTypePath(quote.projectType)" />
                     </svg>
                   </div>
                   <div class="min-w-0">
-                    <p class="text-gray-900 font-semibold text-sm truncate max-w-[180px] group-hover:text-orange-600 transition-colors">
+                    <p
+                      class="text-gray-900 font-semibold text-sm truncate max-w-[180px] group-hover:text-orange-600 transition-colors">
                       {{ quote.projectName }}
                     </p>
                     <p class="text-gray-400 text-xs mt-0.5">
@@ -221,7 +240,8 @@
               <!-- TOTAL TTC -->
               <td class="px-4 py-4">
                 <p class="text-gray-900 font-semibold text-sm">{{ formatCost(quote.totalTTC) }}</p>
-                <p *ngIf="quote.totalHT" class="text-gray-400 text-xs mt-0.5">HT: {{ formatBigNumber(quote.totalHT) }}</p>
+                <p *ngIf="quote.totalHT" class="text-gray-400 text-xs mt-0.5">HT: {{ formatBigNumber(quote.totalHT) }}
+                </p>
               </td>
 
               <!-- DÉLAI -->
@@ -233,20 +253,18 @@
 
               <!-- STATUT -->
               <td class="px-4 py-4">
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
-                  [class]="getStatusClass(quote.status)">
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold" [class]="getStatusClass(quote.status)">
                   {{ getStatusLabel(quote.status) }}
                 </span>
               </td>
 
               <!-- PDF -->
               <td class="px-4 py-4" (click)="$event.stopPropagation()">
-                <a [href]="devisService.getPdfUrlWithToken(quote.id)" target="_blank"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200
+                <a [href]="devisService.getPdfUrlWithToken(quote.id)" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200
                          text-gray-600 rounded-lg text-xs font-medium transition-colors border border-gray-200">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                   PDF
                 </a>
@@ -261,10 +279,10 @@
         <span class="text-gray-400 text-xs">{{ filteredQuotes.length }} devis affichés</span>
         <button (click)="loadQuotes()" [disabled]="isLoading"
           class="flex items-center gap-1.5 text-gray-400 hover:text-gray-600 text-xs transition-colors disabled:opacity-40">
-          <svg [class]="'w-3.5 h-3.5 ' + (isLoading ? 'animate-spin' : '')"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg [class]="'w-3.5 h-3.5 ' + (isLoading ? 'animate-spin' : '')" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Actualiser
         </button>
@@ -275,8 +293,7 @@
 </div>
 
 <!-- ── Delete Modal ───────────────────────────────────────────────────────────── -->
-<div *ngIf="showDeleteModal"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+<div *ngIf="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
   (click)="closeDeleteModal()">
   <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl max-w-sm w-full p-6"
     (click)="$event.stopPropagation()">
@@ -284,7 +301,7 @@
       <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
         <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
       </div>
     </div>
@@ -297,8 +314,7 @@
         class="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium text-sm">
         Annuler
       </button>
-      <button (click)="deleteQuote()" [disabled]="isDeleting"
-        class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium text-sm
+      <button (click)="deleteQuote()" [disabled]="isDeleting" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium text-sm
                disabled:opacity-50 flex items-center justify-center gap-2">
         <svg *ngIf="isDeleting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

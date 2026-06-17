@@ -1591,11 +1591,11 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.materialForm.valid && !this.loading) {
       this.loading = true;
       const newMaterial: CreateMaterial = {
-        materialTypeId: this.selectedMaterialType.id,
-        quantity: this.materialForm.value.quantity,
-        criticalThreshold: this.materialForm.value.criticalThreshold,
-        unitId: this.materialForm.value.unitId,
-        propertyId: this.propertyId
+        materialTypeId: +this.selectedMaterialType.id,
+        quantity: +(this.materialForm.value.quantity ?? 0),
+        criticalThreshold: +(this.materialForm.value.criticalThreshold ?? 0),
+        unitId: +(this.materialForm.value.unitId),
+        propertyId: +this.propertyId
       };
       this.materialsService.createStock(newMaterial)
         .pipe(takeUntil(this.destroy$))
