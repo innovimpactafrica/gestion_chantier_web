@@ -2215,11 +2215,23 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   showMouvementModal: boolean = false;
   stockAlertsCount = 3;
   openInventoryDropdownIndex: number | null = null;
+  inventoryDropdownPos: { top?: number; bottom?: number; right: number } | null = null;
 
-  toggleInventoryDropdown(index: number, event: MouseEvent) {
-    event.stopPropagation(); // IMPORTANT
-    this.openInventoryDropdownIndex =
-      this.openInventoryDropdownIndex === index ? null : index;
+  toggleInventoryDropdown(index: number, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openInventoryDropdownIndex === index) {
+      this.openInventoryDropdownIndex = null;
+      this.inventoryDropdownPos = null;
+      return;
+    }
+    const btn = event.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
+    const dropdownH = 160;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    this.inventoryDropdownPos = spaceBelow >= dropdownH
+      ? { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+      : { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right };
+    this.openInventoryDropdownIndex = index;
   }
 
   openOrderDropdownIndex: number | null = null;
@@ -2351,6 +2363,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
   closeDropdown(): void {
     this.openDropdownIndex = null;
     this.openInventoryDropdownIndex = null;
+    this.inventoryDropdownPos = null;
     this.openOrderDropdownIndex = null;
     this.orderDropdownPos = null;
     this.openDeliveryDropdownIndex = null;

@@ -11,6 +11,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { DemandeService } from '../../../../../services/demande.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { inject } from '@angular/core';
+import { ToastService } from '../../../../core/services/toast.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
@@ -280,6 +281,8 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
 
   // ── Utilisateur courant ───────────────────────────────────────────────────
   currentUserId = 0;
+
+  private toastService = inject(ToastService);
 
   constructor(
     private etudeBetService: EtudeBetService,
@@ -766,7 +769,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
       this.newEtude.objective && this.newEtude.problemObserved && this.newEtude.betId;
     if (!valid) return;
     if (this.documentEntries.length > 0 && !this.isDocumentEntriesValid()) {
-      alert('Veuillez remplir le type et le fichier pour chaque document.');
+      this.toastService.showWarning('Veuillez remplir le type et le fichier pour chaque document.');
       return;
     }
 
@@ -786,7 +789,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
     if (!this.selectedEtude || !valid) return;
     
     if (this.documentEntries.length > 0 && !this.isDocumentEntriesValid()) {
-      alert('Veuillez remplir le type et le fichier pour chaque document.');
+      this.toastService.showWarning('Veuillez remplir le type et le fichier pour chaque document.');
       return;
     }
 
@@ -847,7 +850,7 @@ mapStatus(apiStatus: string): 'En attente' | 'En cours' | 'Livrée' | 'Validée'
   addCommentDetail(content: string): void {
     if (!content?.trim() || !this.selectedEtude?.id) return;
     const currentUser = this.authService.currentUser();
-    if (!currentUser?.id) { alert('Vous devez être connecté pour commenter.'); return; }
+    if (!currentUser?.id) { this.toastService.showError('Vous devez être connecté pour commenter.'); return; }
 
     this.isLoading = true;
     this.demandeService.createComment(this.selectedEtude.id, currentUser.id, { content: content.trim() }).subscribe({

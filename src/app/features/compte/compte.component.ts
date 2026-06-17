@@ -612,7 +612,7 @@ export class CompteComponent implements OnInit, OnDestroy {
       if (photo.startsWith('http') || photo.startsWith('data:')) {
         return photo;
       }
-      return `${environment.filebaseUrl}${photo}?t=${new Date().getTime()}`;
+      return `${environment.filebaseUrl}${photo}`;
     }
     return 'assets/images/profil.png';
   }

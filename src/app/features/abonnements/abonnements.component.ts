@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from '../../../services/plan-abonnement.service';
 import { LanguageService } from '../../core/services/language.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-abonnements',
@@ -43,7 +44,8 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   constructor(
     private planService: PlanAbonnementService,
     private router: Router,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private toastService: ToastService
   ) {
   }
 
@@ -77,7 +79,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.isLoading = false;
-          alert(error.userMessage || this.t('admin.subscription.error.load'));
+          this.toastService.showError(error.userMessage || this.t('admin.subscription.error.load'));
         }
       });
   }
@@ -177,7 +179,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.showToggleModal = false;
           this.isLoading = false;
-          alert(error.userMessage || this.t('lots.error.statusChangeFailed'));
+          this.toastService.showError(error.userMessage || this.t('lots.error.statusChangeFailed'));
         }
       });
   }
@@ -211,11 +213,11 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
           this.showDeleteModal = false;
           this.planToDelete = null;
 
-          alert(this.t('admin.subscription.success.delete', { label: planLabel }));
+          this.toastService.showSuccess(this.t('admin.subscription.success.delete', { label: planLabel }));
         },
         error: (error) => {
           this.isDeleting = false;
-          alert(error.userMessage || this.t('admin.subscription.error.delete'));
+          this.toastService.showError(error.userMessage || this.t('admin.subscription.error.delete'));
         }
       });
   }
@@ -270,6 +272,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   }
 
   exportPlans(): void {
-    alert(this.t('admin.subscription.export') + ' - ' + this.t('lots.preview'));
+    this.toastService.showInfo(this.t('admin.subscription.export') + ' - ' + this.t('lots.preview'));
   }
 }

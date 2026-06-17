@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectBudgetService, Document, DocumentType, CreateDocumentRequest, DocumentsResponse, DocumentTypesResponse } from '../../../services/project-details.service';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
+import { ToastService } from '../../core/services/toast.service';
 import { PdfIconComponent } from '../../shared/components/pdf-icon/pdf-icon.component';
 import { FileDownloadService } from '../../../services/file-download.service';
 
@@ -75,7 +76,8 @@ export class DocumentsComponent implements OnInit {
     private projectBudgetService: ProjectBudgetService,
     private route: ActivatedRoute,
     public languageService: LanguageService,
-    private fileDownloadService: FileDownloadService
+    private fileDownloadService: FileDownloadService,
+    private toastService: ToastService
   ) { }
 
   // Make Math available to template
@@ -338,7 +340,7 @@ export class DocumentsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        alert('Erreur lors de la suppression');
+        this.toastService.showError('Erreur lors de la suppression');
         this.isLoading = false;
         this.closeDeleteConfirmModal();
       }
@@ -411,7 +413,7 @@ export class DocumentsComponent implements OnInit {
 
   saveDocument(): void {
     if (!this.isFormValid() || !this.currentPropertyId) {
-      alert('Veuillez remplir tous les champs obligatoires');
+      this.toastService.showWarning('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -436,7 +438,7 @@ export class DocumentsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        alert('Erreur lors de l\'enregistrement');
+        this.toastService.showError('Erreur lors de l\'enregistrement');
         this.isLoading = false;
       }
     });
@@ -462,7 +464,7 @@ export class DocumentsComponent implements OnInit {
 
   openAddDocumentModal(): void {
     if (!this.currentPropertyId) {
-      alert('Aucun projet sélectionné');
+      this.toastService.showWarning('Aucun projet sélectionné');
       return;
     }
     this.resetForm();

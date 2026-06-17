@@ -213,7 +213,7 @@ export class PointingAddressComponent implements OnInit {
 
   getCurrentPosition(): void {
     if (!navigator.geolocation) {
-      alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+      this.toastService.showWarning('La géolocalisation n\'est pas supportée par votre navigateur.');
       return;
     }
 
@@ -256,7 +256,7 @@ export class PointingAddressComponent implements OnInit {
             msg = 'La demande de localisation a expiré.';
             break;
         }
-        alert(msg);
+        this.toastService.showError(msg);
         this.isLocating = false;
       },
       {

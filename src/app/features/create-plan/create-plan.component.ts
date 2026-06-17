@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { PlanAbonnementService, SubscriptionPlan, CreatePlanRequest } from '../../../services/plan-abonnement.service';
 import { LanguageService } from '../../core/services/language.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-create-plan',
@@ -64,7 +65,8 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     private planService: PlanAbonnementService,
     private router: Router,
     private route: ActivatedRoute,
-    public languageService: LanguageService
+    public languageService: LanguageService,
+    private toastService: ToastService
   ) {
   }
 
@@ -119,7 +121,7 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.isLoading = false;
-          alert(error.userMessage || 'Erreur lors du chargement du plan');
+          this.toastService.showError(error.userMessage || 'Erreur lors du chargement du plan');
           this.goBack();
         }
       });
@@ -248,7 +250,7 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
             errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
           }
 
-          alert(error.userMessage || errorMsg);
+          this.toastService.showError(error.userMessage || errorMsg);
         }
       });
   }
@@ -302,7 +304,7 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
             errorMsg = 'Un plan avec ces caractéristiques existe déjà.';
           }
 
-          alert(error.userMessage || errorMsg);
+          this.toastService.showError(error.userMessage || errorMsg);
         }
       });
   }

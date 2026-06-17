@@ -217,8 +217,10 @@
                     </button>
                     <!-- DROPDOWN INVENTAIRES -->
                     <div *ngIf="openInventoryDropdownIndex === i"
-                      class="absolute right-0 mt-2 w-[230px] bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-[5px]"
-                      style="top: auto;">
+                      class="fixed w-[230px] bg-white rounded-lg shadow-xl border border-gray-200 z-[200] py-[5px]"
+                      [style.top]="inventoryDropdownPos?.top !== undefined ? inventoryDropdownPos!.top + 'px' : 'auto'"
+                      [style.bottom]="inventoryDropdownPos?.bottom !== undefined ? inventoryDropdownPos!.bottom + 'px' : 'auto'"
+                      [style.right]="inventoryDropdownPos?.right + 'px'">
 
                       <!-- Voir détails -->
                       <!-- <button

@@ -783,13 +783,11 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
 
     // Si l'utilisateur a une photo définie (chemin relatif)
     if (user?.photo) {
-      return `${environment.filebaseUrl}${user.photo}?t=${new Date().getTime()}`;
+      return `${environment.filebaseUrl}${user.photo}`;
     }
 
-    // Fallback vers l'API si aucun chemin n'est stocké (si supporté par le backend)
-    // ou vers l'image par défaut
     if (id) {
-      return `${this.userApiUrl}/photo/${id}?t=${new Date().getTime()}`;
+      return `${this.userApiUrl}/photo/${id}`;
     }
 
     return 'assets/images/profil.png';

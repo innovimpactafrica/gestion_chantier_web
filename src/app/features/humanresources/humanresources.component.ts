@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UtilisateurService, Worker, WorkersResponse, CreateWorkerRequest } from '../../../services/utilisateur.service';
+import { ToastService } from '../../core/services/toast.service';
 
 interface TeamMember {
   id: number;
@@ -62,7 +63,10 @@ export class HumanResourcesComponent implements OnInit {
   userForm: any;
   isSubmitting: any;
 
-  constructor(private utilisateurService: UtilisateurService) {}
+  constructor(
+    private utilisateurService: UtilisateurService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit() {
     this.loadAllTeamMembers();
@@ -323,7 +327,7 @@ export class HumanResourcesComponent implements OnInit {
   deleteSelectedUsers() {
     const selectedMembers = this.displayedMembers.filter(member => member.selected);
     if (selectedMembers.length === 0) {
-      alert('Aucun utilisateur sélectionné');
+      this.toastService.showWarning('Aucun utilisateur sélectionné');
       return;
     }
 
