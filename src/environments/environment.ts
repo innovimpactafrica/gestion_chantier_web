@@ -1,35 +1,35 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://btp.innovimpactdev.cloud',
-  apiUrl: 'https://btp.innovimpactdev.cloud/api',
-  apiUrlAddress: 'https://btp.innovimpactdev.cloud/api/pointing-addresses',
-  filebaseUrl: 'https://btp.innovimpactdev.cloud/repertoire_chantier/',
+  apiBaseUrl: 'https://api.btpcloud.sn',
+  apiUrl: 'https://api.btpcloud.sn/api',
+  apiUrlAddress: 'https://api.btpcloud.sn/api/pointing-addresses',
+  filebaseUrl: 'https://api.btpcloud.sn/repertoire_chantier/',
   oneTouchScriptUrl: 'https://test.solinusteam.com/Scripts/form.js',
   endpoints: {
     // Dashboard Admin & Subscriptions
-    subscriptions: 'https://btp.innovimpactdev.cloud/api/subscriptions',
-    users: 'https://btp.innovimpactdev.cloud/api/v1/user',
+    subscriptions: 'https://api.btpcloud.sn/api/subscriptions',
+    users: 'https://api.btpcloud.sn/api/v1/user',
 
     // Pharma Delivery Auth (ancien système)
-    pharmaAuth: 'https://btp.innovimpactdev.cloud/pharma-delivery/api/auth',
-    pharmaDelivery: 'https://btp.innovimpactdev.cloud/pharma-delivery/api',
+    pharmaAuth: 'https://api.btpcloud.sn/pharma-delivery/api/auth',
+    pharmaDelivery: 'https://api.btpcloud.sn/pharma-delivery/api',
 
     // Main Auth System
-    auth: 'https://btp.innovimpactdev.cloud/api/v1/auth',
-    user: 'https://btp.innovimpactdev.cloud/api/v1/user',
+    auth: 'https://api.btpcloud.sn/api/v1/auth',
+    user: 'https://api.btpcloud.sn/api/v1/user',
 
     // Dashboard & KPIs
-    tasks: 'https://btp.innovimpactdev.cloud/api/tasks',
-    indicators: 'https://btp.innovimpactdev.cloud/api/indicators',
-    budgets: 'https://btp.innovimpactdev.cloud/api/budgets',
-    materials: 'https://btp.innovimpactdev.cloud/api/materials',
-    incidents: 'https://btp.innovimpactdev.cloud/api/incidents',
-    progressAlbum: 'https://btp.innovimpactdev.cloud/api/progress-album',
-    workers: 'https://btp.innovimpactdev.cloud/api/workers',
-    videoPromo: 'https://btp.innovimpactdev.cloud/api/video-promo',
+    tasks: 'https://api.btpcloud.sn/api/tasks',
+    indicators: 'https://api.btpcloud.sn/api/indicators',
+    budgets: 'https://api.btpcloud.sn/api/budgets',
+    materials: 'https://api.btpcloud.sn/api/materials',
+    incidents: 'https://api.btpcloud.sn/api/incidents',
+    progressAlbum: 'https://api.btpcloud.sn/api/progress-album',
+    workers: 'https://api.btpcloud.sn/api/workers',
+    videoPromo: 'https://api.btpcloud.sn/api/video-promo',
 
     // Admin Notifications
-    adminNotifications: 'https://btp.innovimpactdev.cloud/api/admin-notifications',
-    adminNotificationsUnreadCount: 'https://btp.innovimpactdev.cloud/api/admin-notifications/unread/count'
+    adminNotifications: 'https://api.btpcloud.sn/api/admin-notifications',
+    adminNotificationsUnreadCount: 'https://api.btpcloud.sn/api/admin-notifications/unread/count'
   }
 };

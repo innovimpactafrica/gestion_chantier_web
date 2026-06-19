@@ -396,7 +396,7 @@ export class SubscriptionService {
           email,
           clientFirstName,
           clientLastName,
-          '',
+          clientPhone,
         );
 
         resolve();
@@ -459,7 +459,6 @@ export class SubscriptionService {
     plan: SubscriptionPlan,
     isYearly: boolean,
   ): Promise<void> {
-    // Calcul du montant et des mois
     const months = isYearly ? 12 : 1;
     let amount = plan.totalCost;
 
@@ -471,15 +470,13 @@ export class SubscriptionService {
       amount = plan.totalCost * 12;
     }
 
-    // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA
-   // amount = 1;
-
-    // Lancement du paiement OneTouch
-    try {
-      await this.callTouchPay(amount, '', '', '', '', userId, plan.id, months);
-    } catch (error) {
-      throw error;
+    const currentUser = this.authService.currentUser();
+    if (currentUser) {
+      await this.initiateSubscriptionPayment(currentUser, plan, isYearly);
+      return;
     }
+
+    await this.callTouchPay(amount, '', '', '', '', userId, plan.id, months);
   }
   /**
    * Récupère les headers d'authentification avec validation

@@ -46,6 +46,7 @@ import { AuthService } from '../auth/services/auth.service';
 import { SubscriptionService } from '../../../services/subscription.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
+import { PlanSelectionPopupComponent } from '../../shared/components/plan-selection-popup/plan-selection-popup.component';
 
 
 // Types et interfaces
@@ -74,7 +75,7 @@ interface PaginationInfo {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PlanSelectionPopupComponent],
   selector: 'app-projects',
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],
@@ -138,10 +139,14 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
   private readonly canCreateProjectSignal = signal<boolean>(false);
   private readonly isCheckingPermission = signal<boolean>(true);
+  private readonly hasActiveSubscriptionSignal = signal<boolean>(true);
+  private readonly subscriptionChecked = signal<boolean>(false);
 
   // Computed signal pour l'accès dans le template
   readonly canCreateProject = computed(() => this.canCreateProjectSignal());
   readonly checkingPermission = computed(() => this.isCheckingPermission());
+  readonly hasNoSubscription = computed(() => this.subscriptionChecked() && !this.hasActiveSubscriptionSignal());
+  readonly showSubscriptionPopup = signal<boolean>(false);
 
   promoterId: number = 0;
   @Input() project: any;
@@ -236,6 +241,9 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         if (response && response.id) {
           this.promoterId = response.id;
 
+          // Vérifier si l'utilisateur a un abonnement actif
+          this.checkActiveSubscription();
+
           // Vérifier les permissions de création de projet
           this.checkCanCreateProject();
 
@@ -253,6 +261,25 @@ export class ProjectsComponent implements OnInit, OnDestroy {
           loading: false,
           error: "Erreur lors de la connexion utilisateur"
         });
+      }
+    });
+  }
+
+  private checkActiveSubscription(): void {
+    if (!this.promoterId || this.promoterId <= 0) {
+      this.hasActiveSubscriptionSignal.set(false);
+      this.subscriptionChecked.set(true);
+      return;
+    }
+
+    this.subscriptionService.seeActive(this.promoterId).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(() => of(false)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (isActive: boolean) => {
+        this.hasActiveSubscriptionSignal.set(isActive);
+        this.subscriptionChecked.set(true);
       }
     });
   }
@@ -676,11 +703,28 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Redirige vers la page d'abonnement depuis le popup
+   * Redirige vers la page d'abonnement depuis le popup bloqué
    */
   goToSubscription(): void {
     this.closeBlockedPopup();
     this.router.navigate(['/mon-compte']);
+  }
+
+  openSubscriptionPopup(): void {
+    this.showSubscriptionPopup.set(true);
+  }
+
+  onClosePlanPopup(): void {
+    this.showSubscriptionPopup.set(false);
+    // Re-vérifie le statut d'abonnement après fermeture du popup
+    if (this.promoterId) {
+      this.checkActiveSubscription();
+      this.checkCanCreateProject();
+    }
+  }
+
+  onPlanSelected(_planType: string): void {
+    this.showSubscriptionPopup.set(false);
   }
 
   /**
