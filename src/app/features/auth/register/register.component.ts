@@ -33,6 +33,8 @@ export class RegisterComponent implements OnInit {
   isLoading = false;
   showLangDropdown = false;
   showCountryDropdown = false;
+  showPassword = false;
+  showConfirmPassword = false;
   countrySearch = '';
 
   countries: Country[] = [
@@ -122,9 +124,24 @@ export class RegisterComponent implements OnInit {
       prenom: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
       telephone: ['', [Validators.required, Validators.minLength(6), Validators.pattern(/^[0-9\s\-]+$/)]],
       profil: ['', Validators.required]
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  private passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
+    const password = group.get('password')?.value;
+    const confirm = group.get('confirmPassword')?.value;
+    if (confirm && password !== confirm) {
+      group.get('confirmPassword')?.setErrors({ mismatch: true });
+      return { mismatch: true };
+    }
+    const existing = group.get('confirmPassword')?.errors;
+    if (existing?.['mismatch']) {
+      group.get('confirmPassword')?.setErrors(null);
+    }
+    return null;
   }
 
   onProfileChange(_event: Event): void { }
@@ -199,6 +216,9 @@ export class RegisterComponent implements OnInit {
         if (control.errors?.['pattern'] && key === 'telephone') {
           this.validationErrors.push(`Le numéro de téléphone ne doit contenir que des chiffres.`);
         }
+        if (control.errors?.['mismatch'] && key === 'confirmPassword') {
+          this.validationErrors.push(`Les mots de passe ne correspondent pas.`);
+        }
       }
     });
   }
@@ -209,6 +229,7 @@ export class RegisterComponent implements OnInit {
       'prenom': 'Prénom',
       'email': 'Email',
       'password': 'Mot de passe',
+      'confirmPassword': 'Confirmation du mot de passe',
       'telephone': 'Téléphone',
       'profil': 'Profil'
     };
