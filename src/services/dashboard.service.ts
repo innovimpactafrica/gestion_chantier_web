@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 // Interfaces pour les types de retour des APIs
 export interface TasksKpi {
@@ -131,13 +132,13 @@ export class DashboardService {
   // ✅ Utilisation de l'environment pour les URLs
   private readonly baseUrl = environment.apiUrl;
   private readonly endpoints = {
-    tasks: environment.endpoints.tasks,
-    indicators: environment.endpoints.indicators,
-    budgets: environment.endpoints.budgets,
-    materials: environment.endpoints.materials,
-    incidents: environment.endpoints.incidents,
-    progressAlbum: environment.endpoints.progressAlbum,
-    workers: environment.endpoints.workers
+    tasks: API.tasks,
+    indicators: API.indicators,
+    budgets: API.budgets,
+    materials: API.materials,
+    incidents: API.incidents,
+    progressAlbum: API.progressAlbum,
+    workers: API.workers
   };
 
   constructor(

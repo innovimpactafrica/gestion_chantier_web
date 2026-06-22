@@ -67,8 +67,8 @@
                       </span>
                     </div>
                     <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
-                      <span>Début: {{ subscription.startDate | date:'dd/MM/yyyy' }}</span>
-                      <span>Fin: {{ subscription.endDate | date:'dd/MM/yyyy' }}</span>
+                      <span>Début: {{ toDate(subscription.startDate) | date:'dd/MM/yyyy' }}</span>
+                      <span>Fin: {{ toDate(subscription.endDate) | date:'dd/MM/yyyy' }}</span>
                       <span class="font-semibold text-gray-700">{{
                         formatCurrency(subscription.subscriptionPlan.totalCost) }}</span>
                     </div>
@@ -115,10 +115,10 @@
                 </span>
               </div>
               <p class="text-sm text-gray-600">
-                <span class="font-medium">Début:</span> {{ subscription.startDate | date:'dd/MM/yyyy' }}
+                <span class="font-medium">Début:</span> {{ toDate(subscription.startDate) | date:'dd/MM/yyyy' }}
               </p>
               <p class="text-sm text-gray-600">
-                <span class="font-medium">Fin:</span> {{ subscription.endDate | date:'dd/MM/yyyy' }}
+                <span class="font-medium">Fin:</span> {{ toDate(subscription.endDate) | date:'dd/MM/yyyy' }}
               </p>
               <p class="text-sm text-gray-600">
                 <span class="font-medium">Prix:</span> {{ subscription.subscriptionPlan.totalCost |

@@ -1,0 +1,161 @@
+<div class="p-6 max-w-7xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Historique des Paiements</h1>
+    <p class="text-gray-600">Suivi des paiements d'abonnement et de leur statut.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Filters -->
+    <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">N° Commande:</label>
+          <input
+            type="text"
+            inputmode="numeric"
+            [(ngModel)]="orderNumberFilter"
+            (ngModelChange)="onOrderNumberFilterChange()"
+            placeholder="Rechercher..."
+            class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 max-w-[180px]"
+          />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Statut:</label>
+          <select
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="onStatusFilterChange()"
+            class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="ALL">--</option>
+            <option value="PENDING">En attente</option>
+            <option value="SUCCESS">Réussi</option>
+            <option value="FAILED">Échoué</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Du:</label>
+          <input
+            type="date"
+            [(ngModel)]="dateFrom"
+            (ngModelChange)="onDateFilterChange()"
+            class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Au:</label>
+          <input
+            type="date"
+            [(ngModel)]="dateTo"
+            [min]="dateFrom"
+            (ngModelChange)="onDateFilterChange()"
+            class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <button
+          *ngIf="statusFilter !== 'ALL' || dateFrom || dateTo || orderNumberFilter"
+          (click)="resetFilters()"
+          class="text-sm text-blue-600 hover:underline"
+        >
+          Réinitialiser
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700">Par page:</label>
+        <select
+          [(ngModel)]="pageSize"
+          (ngModelChange)="onPageSizeChange()"
+          class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="p-8 text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <p class="mt-2 text-gray-500">Chargement de l'historique...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="p-8 text-center text-red-600">
+      <p>{{ error }}</p>
+      <button (click)="loadPayments()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Réessayer
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="!loading && !error" class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+            <th class="px-6 py-3 border-b border-gray-200">Utilisateur</th>
+            <th class="px-6 py-3 border-b border-gray-200">N° Commande</th>
+            <th class="px-6 py-3 border-b border-gray-200">Plan</th>
+            <th class="px-6 py-3 border-b border-gray-200">Durée</th>
+            <th class="px-6 py-3 border-b border-gray-200">Montant (FCFA)</th>
+            <th class="px-6 py-3 border-b border-gray-200">Statut</th>
+            <th class="px-6 py-3 border-b border-gray-200">Date initiée</th>
+            <th class="px-6 py-3 border-b border-gray-200">Date confirmée</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 text-sm">
+          <tr *ngIf="payments.length === 0">
+            <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+              Aucun paiement ne correspond à votre recherche.
+            </td>
+          </tr>
+          <tr *ngFor="let payment of payments" class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 font-semibold text-gray-900">{{ payment.userName || 'N/A' }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ payment.orderNumber }}</td>
+            <td class="px-6 py-4 text-gray-700">
+              {{ payment.planLabel || '-' }}
+              <span *ngIf="payment.planName" class="text-gray-400">({{ payment.planName }})</span>
+            </td>
+            <td class="px-6 py-4 text-gray-700">{{ payment.months }} mois</td>
+            <td class="px-6 py-4 font-medium">{{ payment.amount | number }}</td>
+            <td class="px-6 py-4">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(payment.status)">
+                {{ getStatusLabel(payment.status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-gray-700">{{ toDate(payment.initiatedAt) | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ payment.confirmedAt ? (toDate(payment.confirmedAt) | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && !error && totalElements > 0" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+      <span class="text-sm text-gray-700">
+        Page <span class="font-medium">{{ currentPage + 1 }}</span> sur
+        <span class="font-medium">{{ totalPages }}</span> —
+        <span class="font-medium">{{ totalElements }}</span> résultats
+      </span>
+
+      <div class="flex gap-2">
+        <button
+          (click)="previousPage()"
+          [disabled]="currentPage === 0"
+          class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Précédent
+        </button>
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage >= totalPages - 1"
+          class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

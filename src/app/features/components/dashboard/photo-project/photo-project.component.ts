@@ -103,8 +103,17 @@ export class PhotoProjectComponent implements OnInit {
 
         const promoterId = user.id;
         this.dashboardService.getRecentProgressAlbums(promoterId).subscribe({
-          next: (data: ProjectPhoto[]) => {
-            this.photos = data || [];
+          next: (data: any) => {
+            const albums = Array.isArray(data) ? data : (data?.content || []);
+            this.photos = albums.map((album: any) => {
+              const picture = album.pictures && album.pictures.length > 0 ? album.pictures[0] : '';
+              return {
+                url: picture,
+                photo: picture,
+                titre: album.phaseName || '',
+                date: this.formatDateFromArray(album.lastUpdated)
+              };
+            });
             this.isLoading = false;
           },
           error: (err) => {
@@ -119,6 +128,15 @@ export class PhotoProjectComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  /** Le backend renvoie lastUpdated en tableau [année, mois, jour, ...] plutôt qu'en chaîne ISO */
+  private formatDateFromArray(dateArray: number[]): string {
+    if (!dateArray || dateArray.length < 3) {
+      return '';
+    }
+    const [year, month, day] = dateArray;
+    return new Date(year, month - 1, day).toLocaleDateString('fr-FR');
   }
 
   onImageError(event: Event): void {

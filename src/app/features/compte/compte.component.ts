@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject, OnDestroy, PLATFORM_ID } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../auth/services/auth.service';
-import { SubscriptionService, Invoice, InvoiceResponse, SubscriptionPlan, UserSubscription } from '../../../services/subscription.service';
+import { SubscriptionService, Invoice, InvoiceResponse, SubscriptionPlan, UserSubscription, toJsDate } from '../../../services/subscription.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -330,8 +330,10 @@ export class CompteComponent implements OnInit, OnDestroy {
     printWindow.document.close();
   }
   private construireHTMLFacture(facture: Invoice): string {
-    const formatDate = (date: string) =>
-      new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const formatDate = (date: Invoice['createdAt']) => {
+      const parsed = toJsDate(date);
+      return parsed ? parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : 'N/A';
+    };
 
     const formatAmount = (amount: number) =>
       new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
@@ -671,30 +673,29 @@ export class CompteComponent implements OnInit, OnDestroy {
       return 'Non disponible';
     }
 
-    try {
-      const date = new Date(subscription.endDate);
+    const date = toJsDate(subscription.endDate);
 
-      if (isNaN(date.getTime())) {
-        return 'Non disponible';
-      }
-
-      // Format: "09/12/2025"
-      return date.toLocaleDateString('fr-FR');
-    } catch (error) {
+    if (!date || isNaN(date.getTime())) {
       return 'Non disponible';
     }
+
+    // Format: "09/12/2025"
+    return date.toLocaleDateString('fr-FR');
   }
 
 
   getSubscriptionPeriod(): string {
     const subscription = this.currentSubscription();
-    if (!subscription || !subscription.createdAt) {
+    if (!subscription || !subscription.startDate || !subscription.endDate) {
       return 'Non disponible';
     }
 
-    const startDate = new Date(subscription.createdAt);
-    const endDate = new Date(subscription.createdAt);
-    endDate.setMonth(endDate.getMonth() + 1);
+    const startDate = toJsDate(subscription.startDate);
+    const endDate = toJsDate(subscription.endDate);
+
+    if (!startDate || !endDate) {
+      return 'Non disponible';
+    }
 
     const formatDate = (date: Date) => date.toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -978,8 +979,9 @@ export class CompteComponent implements OnInit, OnDestroy {
     return this.factures();
   }
 
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
+  formatDate(dateValue: Invoice['createdAt']): string {
+    const date = toJsDate(dateValue);
+    if (!date) return 'N/A';
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',

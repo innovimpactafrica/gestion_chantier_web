@@ -3,7 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
-import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 // Interfaces pour le typage des réponses
 export interface DashboardInfos {
@@ -82,8 +82,8 @@ export interface InvoiceResponse {
   providedIn: 'root'
 })
 export class DashboardAdminService {
-  private baseUrl = environment.endpoints.subscriptions;
-  private baseUrlUser = environment.endpoints.user;
+  private baseUrl = API.subscriptions;
+  private baseUrlUser = API.users;
   constructor(
     private http: HttpClient,
     private authService: AuthService

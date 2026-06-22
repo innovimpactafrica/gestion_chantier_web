@@ -1,0 +1,124 @@
+<div class="p-6 max-w-7xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Historique d'Abonnement</h1>
+    <p class="text-gray-600">Historique des abonnements souscrits par les utilisateurs.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Filters -->
+    <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div class="relative w-full sm:w-64">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilters()"
+          placeholder="Rechercher un nom ou un profil..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+        <span class="absolute left-3 top-2.5 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700">Statut:</label>
+        <select 
+          [(ngModel)]="statusFilter" 
+          (ngModelChange)="applyFilters()"
+          class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="ALL">Tous</option>
+          <option value="ACTIVE">Actifs</option>
+          <option value="INACTIVE">Inactifs</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="p-8 text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <p class="mt-2 text-gray-500">Chargement de l'historique...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="p-8 text-center text-red-600">
+      <p>{{ error }}</p>
+      <button (click)="loadUsers()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Réessayer
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="!loading && !error" class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+            <th class="px-6 py-3 border-b border-gray-200">Nom</th>
+            <th class="px-6 py-3 border-b border-gray-200">Profil</th>
+            <th class="px-6 py-3 border-b border-gray-200">Abonnement</th>
+            <th class="px-6 py-3 border-b border-gray-200">Coût (FCFA)</th>
+            <th class="px-6 py-3 border-b border-gray-200">Projets</th>
+            <th class="px-6 py-3 border-b border-gray-200">Statut</th>
+            <th class="px-6 py-3 border-b border-gray-200">Date d'expiration</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 text-sm">
+          <tr *ngIf="paginatedUsers.length === 0">
+            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+              Aucun utilisateur ne correspond à votre recherche.
+            </td>
+          </tr>
+          <tr *ngFor="let user of paginatedUsers" class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 font-semibold text-gray-900">{{ getFullName(user) }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ user.profil || '-' }}</td>
+            <td class="px-6 py-4">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium"
+                    [ngClass]="{'bg-purple-100 text-purple-800': getPlanLabel(user) === 'PREMIUM', 'bg-gray-100 text-gray-800': getPlanLabel(user) === 'BASIC'}">
+                {{ getPlanLabel(user) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 font-medium">{{ getCost(user) !== null ? (getCost(user) | number) : '-' }}</td>
+            <td class="px-6 py-4">{{ getProjectLimit(user) }}</td>
+            <td class="px-6 py-4">
+              <span *ngIf="isActive(user)" class="inline-flex items-center gap-1 text-green-600 font-medium text-xs bg-green-50 px-2 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Actif
+              </span>
+              <span *ngIf="!isActive(user)" class="inline-flex items-center gap-1 text-red-600 font-medium text-xs bg-red-50 px-2 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Inactif
+              </span>
+            </td>
+            <td class="px-6 py-4 text-gray-700">{{ getExpirationDate(user) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && !error && filteredUsers.length > 0" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+      <span class="text-sm text-gray-700">
+        Affichage de <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span> à
+        <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredUsers.length) }}</span> sur
+        <span class="font-medium">{{ filteredUsers.length }}</span> résultats
+      </span>
+      
+      <div class="flex gap-2">
+        <button 
+          (click)="previousPage()" 
+          [disabled]="currentPage === 1"
+          class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Précédent
+        </button>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage === totalPages"
+          class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

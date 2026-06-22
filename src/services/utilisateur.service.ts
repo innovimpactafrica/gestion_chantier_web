@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../app/features/auth/services/auth.service'; 
 import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 // Interface pour la pagination
 interface Pageable {
@@ -122,7 +123,7 @@ export interface CreateWorkerRequest {
 })
 export class UtilisateurService {
   
-  private apiUrl =  `${environment.apiUrl}/workers`;
+  private apiUrl =  API.workers;
 
 
   constructor(
@@ -271,15 +272,15 @@ blockUser(userId: number, activated: boolean): Observable<void> {
   
     // Créer un FormData pour envoyer le fichier
     const formData = new FormData();
-    formData.append('nom', workerData.nom);
-    formData.append('prenom', workerData.prenom);
-    formData.append('email', workerData.email);
-    formData.append('password', workerData.password);
-    formData.append('telephone', workerData.telephone);
-    formData.append('date', workerData.date);
-    formData.append('lieunaissance', workerData.lieunaissance);
-    formData.append('adress', workerData.adress);
-    formData.append('profil', workerData.profil);
+    if (workerData.nom) formData.append('nom', workerData.nom);
+    if (workerData.prenom) formData.append('prenom', workerData.prenom);
+    if (workerData.email) formData.append('email', workerData.email);
+    if (workerData.password) formData.append('password', workerData.password);
+    if (workerData.telephone) formData.append('telephone', workerData.telephone);
+    if (workerData.date) formData.append('date', workerData.date);
+    if (workerData.lieunaissance) formData.append('lieunaissance', workerData.lieunaissance);
+    if (workerData.adress) formData.append('adress', workerData.adress);
+    if (workerData.profil) formData.append('profil', workerData.profil);
     
     // Ajouter la photo si elle existe
     if (workerData.photo) {

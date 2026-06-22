@@ -51,8 +51,8 @@ export interface RealEstateProject {
   moaId?: number;
   managerId?: number;
   propertyTypeId: number;
-  startDate: string;
-  endDate: string;
+  startDate: string | number[];
+  endDate: string | number[];
   hasHall: boolean;
   hasParking: boolean;
   hasElevator: boolean;
@@ -388,27 +388,37 @@ export class RealestateService {
   /**
    * Format date for display (DD.MM.YY)
    */
-  private formatDisplayDate(dateString: string): string {
-    if (!dateString) return '';
+  private formatDisplayDate(dateValue: string | number[]): string {
+    if (!dateValue) return '';
     try {
-      const date = this.parseDate(dateString);
-      if (!date) return dateString;
+      const date = this.parseDate(dateValue);
+      if (!date) return typeof dateValue === 'string' ? dateValue : '';
       const day = date.getDate().toString().padStart(2, '0');
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const year = date.getFullYear().toString().slice(-2);
       return `${day}.${month}.${year}`;
     } catch (error) {
-      return dateString;
+      return typeof dateValue === 'string' ? dateValue : '';
     }
   }
 
   /**
-   * Parse date robustly
+   * Parse date robustly. Le backend sérialise les LocalDate/LocalDateTime en tableau
+   * [année, mois, jour, heure?, minute?, seconde?, nanosecondes?] plutôt qu'en chaîne ISO.
    */
-  private parseDate(dateString: string | any): Date | null {
-    if (!dateString || typeof dateString !== 'string') return null;
+  parseDate(dateValue: string | number[] | any): Date | null {
+    if (!dateValue) return null;
+
+    if (Array.isArray(dateValue)) {
+      const [year, month, day, hour = 0, minute = 0, second = 0, nano = 0] = dateValue;
+      const date = new Date(year, month - 1, day, hour, minute, second, Math.floor(nano / 1_000_000));
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    if (typeof dateValue !== 'string') return null;
+
     try {
-      const date = new Date(dateString);
+      const date = new Date(dateValue);
       return isNaN(date.getTime()) ? null : date;
     } catch (error) {
       return null;
@@ -726,22 +736,12 @@ export class RealestateService {
   }
 
   // FIX: Correction du format de date
-  private formatDateForApi(date: string | Date): string {
+  private formatDateForApi(date: string | Date | number[]): string {
     if (!date) return '';
 
-    let dateObj: Date;
-    if (typeof date === 'string') {
-      // Si c'est déjà au format YYYY-MM-DD du input date HTML
-      if (date.includes('-') && date.length === 10) {
-        dateObj = new Date(date);
-      } else {
-        dateObj = new Date(date);
-      }
-    } else {
-      dateObj = date;
-    }
+    const dateObj = date instanceof Date ? date : this.parseDate(date);
 
-    if (isNaN(dateObj.getTime())) {
+    if (!dateObj || isNaN(dateObj.getTime())) {
       return '';
     }
 

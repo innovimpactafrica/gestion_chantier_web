@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 // Ajouter cette interface après CreateUserRequest
 export interface UpdateUserRequest {
@@ -355,7 +356,7 @@ export class UserService {
    * Crée un nouvel utilisateur (inscription)
    */
   createUser(userData: CreateUserRequest): Observable<any> {
-    const url = `${environment.endpoints.auth}/signup`;
+    const url = `${API.auth}/signup`;
 
     const formData = new FormData();
     // Champs obligatoires

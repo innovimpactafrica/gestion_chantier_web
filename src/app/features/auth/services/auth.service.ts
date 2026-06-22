@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../../environments/environment';
+import { API } from '../../../core/constants/api-endpoints';
 
 // Interface pour le plan d'abonnement
 interface SubscriptionPlan {
@@ -127,8 +128,8 @@ export interface ProfileConfig {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.endpoints.auth;
-  private userApiUrl = environment.endpoints.user;
+  private apiUrl = API.auth;
+  private userApiUrl = API.users;
 
   // Configuration des profils disponibles
   private readonly profilesConfig: ProfileConfig[] = [
@@ -565,9 +566,11 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
     const token = this.getToken();
 
     if (!token) {
-      return new HttpHeaders({
-        'Content-Type': 'application/json'
-      });
+      // Pas de Content-Type ici : sur une requête GET sans body, ce header n'est pas
+      // "safelisted" CORS et force un preflight OPTIONS. Or les pages publiques
+      // (ex: /sub/:id/:profil) appellent des endpoints en anonyme, et certains
+      // backends ne répondent pas correctement à ce preflight (erreur CORS plutôt que 401).
+      return new HttpHeaders();
     }
 
     return new HttpHeaders({

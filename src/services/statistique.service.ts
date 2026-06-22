@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 export interface EvolutionData {
   date: string;
@@ -22,7 +22,7 @@ export interface RepartitionData {
   providedIn: 'root'
 })
 export class StatistiqueService {
-  private baseUrl = `${environment.apiUrl}/materials`;
+  private baseUrl = API.materials;
 
   constructor(private http: HttpClient) { }
 

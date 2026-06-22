@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthService } from '../app/features/auth/services/auth.service';
+import { API } from '../app/core/constants/api-endpoints';
 
 
 export interface StockMovement {
@@ -227,7 +228,7 @@ export interface OrderMaterial {
   providedIn: 'root'
 })
 export class MaterialsService {
-  private apiUrl = `${environment.apiBaseUrl}/api/materials`;
+  private apiUrl = API.materials;
   private materialsSubject = new BehaviorSubject<MaterialsResponse | null>(null);
   public materials$ = this.materialsSubject.asObservable();
 

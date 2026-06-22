@@ -3,7 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, firstValueFrom } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
-import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 // ─── Déclaration SDK TouchPay (chargé via index.html) ────────────────────────
 declare function sendPaymentInfos(
@@ -27,7 +27,7 @@ export interface Invoice {
   id: number;
   invoiceNumber: string;
   amount: number;
-  createdAt: string;
+  createdAt: BackendDateTime | string;
   paid: boolean;
   paymentMethod: string;
   planLabel: string;
@@ -73,9 +73,9 @@ export interface UserSubscription {
   id: number;
   user: { id: number };
   subscriptionPlan: SubscriptionPlan;
-  createdAt: string;
-  endDate: string;
-  startDate: string;
+  createdAt: BackendDateTime | string;
+  endDate: BackendDateTime | string;
+  startDate: BackendDateTime | string;
 }
 
 export interface CreateSubscriptionParams {
@@ -114,6 +114,9 @@ export interface TouchPayParams {
   clientPhone: string;
 }
 
+/** Tableau LocalDateTime renvoyé par le backend : [année, mois, jour, heure, minute, seconde, nanosecondes] */
+export type BackendDateTime = [number, number, number, number?, number?, number?, number?];
+
 /** Historique d'un paiement */
 export interface PaymentHistory {
   id: number;
@@ -121,6 +124,7 @@ export interface PaymentHistory {
   userId: number;
   userName: string;
   planLabel: string;
+  planName: string;
   months: number;
   amount: number;
   paymentSuccess: boolean;
@@ -128,8 +132,18 @@ export interface PaymentHistory {
   errorCode: string | null;
   numTransactionFromGu: string | null;
   numCommand: string | null;
-  initiatedAt: string;
-  confirmedAt: string | null;
+  initiatedAt: BackendDateTime | string;
+  confirmedAt: BackendDateTime | string | null;
+}
+
+/** Convertit un LocalDateTime backend (tableau ou chaîne ISO) en Date JS */
+export function toJsDate(value: BackendDateTime | string | null | undefined): Date | null {
+  if (!value) return null;
+  if (Array.isArray(value)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0, nano = 0] = value;
+    return new Date(year, month - 1, day, hour, minute, second, Math.floor(nano / 1_000_000));
+  }
+  return new Date(value);
 }
 
 /** Réponse paginée */
@@ -161,8 +175,8 @@ export interface PaymentHistoryFilters {
   providedIn: 'root',
 })
 export class SubscriptionService {
-  private baseUrl = `${environment.apiUrl}/subscriptions`;
-  private planBaseUrl = `${environment.apiUrl}/subscription-plans`;
+  private baseUrl = API.subscriptions;
+  private planBaseUrl = API.subscriptionPlans;
 
   constructor(
     private http: HttpClient,

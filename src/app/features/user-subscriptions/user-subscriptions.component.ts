@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SubscriptionService, UserSubscription } from '../../../services/subscription.service';
+import { SubscriptionService, UserSubscription, toJsDate } from '../../../services/subscription.service';
 import { AuthService } from '../auth/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -118,14 +118,19 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
 
   getStatus(subscription: UserSubscription): string {
     const now = new Date();
-    const endDate = new Date(subscription.endDate);
+    const endDate = toJsDate(subscription.endDate);
 
-    if (endDate < now) return 'Expiré';
+    if (endDate && endDate < now) return 'Expiré';
 
-    const startDate = new Date(subscription.startDate);
-    if (startDate > now) return 'En attente';
+    const startDate = toJsDate(subscription.startDate);
+    if (startDate && startDate > now) return 'En attente';
 
     return 'Actif';
+  }
+
+  /** Convertit startDate/endDate/createdAt (tableau backend ou chaîne ISO) en Date JS pour le pipe `date` */
+  toDate(value: UserSubscription['startDate'] | UserSubscription['endDate']): Date | null {
+    return toJsDate(value);
   }
 
   getStatusClass(status: string): string {

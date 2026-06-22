@@ -240,15 +240,13 @@ export class ProjectPresentationComponent implements OnInit, OnDestroy {
   }
 
   get dateDebut(): string {
-    if (!this.projet?.startDate) return '01/01/25';
-    const date = new Date(this.projet.startDate);
-    return isNaN(date.getTime()) ? '01/01/25' : date.toLocaleDateString('fr-FR');
+    const date = this.realEstateService.parseDate(this.projet?.startDate);
+    return date ? date.toLocaleDateString('fr-FR') : '01/01/25';
   }
 
   get dateFinPrevue(): string {
-    if (!this.projet?.endDate) return '01/01/27';
-    const date = new Date(this.projet.endDate);
-    return isNaN(date.getTime()) ? '01/01/27' : date.toLocaleDateString('fr-FR');
+    const date = this.realEstateService.parseDate(this.projet?.endDate);
+    return date ? date.toLocaleDateString('fr-FR') : '01/01/27';
   }
 
   getGradientBackgroundDetail(percentage: number): string {

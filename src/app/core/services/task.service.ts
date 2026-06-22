@@ -5,6 +5,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
+import { API } from '../constants/api-endpoints';
 
 import {
   Task,
@@ -39,7 +40,7 @@ export interface TaskFilters {
 export class TaskService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly baseUrl = `${environment.apiUrl}/tasks`; // Utilisation de l'URL de l'environnement
+  private readonly baseUrl = API.tasks; // Utilisation de l'URL de l'environnement
   private readonly authTokenKey = 'token';
 
   // État réactif pour les tâches (optionnel)

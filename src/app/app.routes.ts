@@ -240,6 +240,22 @@ export const routes: Routes = [
         canActivate: [RoleGuard]
       },
       {
+        path: 'dashboard-admin/plans',
+        loadComponent: () => import('./features/dashboard-admin/admin-subscription-plans/admin-subscription-plans.component').then(m => m.AdminSubscriptionPlansComponent),
+        data: {
+          breadcrumb: 'Plans d\'Abonnement',
+        },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'dashboard-admin/paiements',
+        loadComponent: () => import('./features/dashboard-admin/admin-payment-history/admin-payment-history.component').then(m => m.AdminPaymentHistoryComponent),
+        data: {
+          breadcrumb: 'Historique des Paiements',
+        },
+        canActivate: [RoleGuard]
+      },
+      {
         path: 'reclamations',
         component: ReclamationsComponent,
         data: {

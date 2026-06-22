@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import { API } from '../app/core/constants/api-endpoints';
 
 export interface PointingAddress {
   id?: number;
@@ -38,7 +39,7 @@ export interface ProjectDetailsResponse {
   providedIn: 'root'
 })
 export class PointingAddressService {
-  private apiUrl = environment.apiUrlAddress;
+  private apiUrl = API.pointingAddresses;
   private apiBaseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }

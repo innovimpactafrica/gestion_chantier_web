@@ -28,13 +28,13 @@
       <div *ngIf="photo.titre"
         class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white rounded-b-[10px] p-2">
         <div class="text-xs text-end font-medium">{{ photo.titre }}</div>
-        <div class="text-xs">{{ photo.date | date:'dd/MM/yyyy' }}</div>
+        <div class="text-xs">{{ photo.date }}</div>
       </div>
 
       <!-- Overlay simple pour les photos sans titre -->
       <div *ngIf="!photo.titre"
         class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-40 text-white rounded-b-[10px] p-1">
-        <div class="text-xs">{{ photo.date | date:'dd/MM/yyyy' }}</div>
+        <div class="text-xs">{{ photo.date }}</div>
       </div>
     </div>
   </div>
@@ -79,7 +79,7 @@
     <!-- Photo info -->
     <div class="mt-4 text-center text-white">
       <h3 *ngIf="currentPhoto.titre" class="text-xl font-semibold">{{ currentPhoto.titre }}</h3>
-      <p class="text-sm text-gray-300 mt-1">{{ currentPhoto.date | date:'dd/MM/yyyy' }}</p>
+      <p class="text-sm text-gray-300 mt-1">{{ currentPhoto.date }}</p>
       <p class="text-xs text-gray-400 mt-2">{{ currentPhotoIndex + 1 }} / {{ photos.length }}</p>
     </div>
   </div>

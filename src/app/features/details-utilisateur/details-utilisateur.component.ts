@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { UserService, User } from '../../../services/user.service';
-import { SubscriptionService, UserSubscription, Invoice } from '../../../services/subscription.service';
+import { SubscriptionService, UserSubscription, Invoice, toJsDate } from '../../../services/subscription.service';
 
 interface Abonnement {
   id: number;
@@ -22,7 +22,6 @@ interface Paiement {
   idFacture: string;
   date: string;
   montant: string;
-  createdAt:string;
   statut: string;
   methodePaiement: string;
   planLabel: string;
@@ -148,14 +147,14 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
           if (subscription && subscription.subscriptionPlan) {
             const plan = subscription.subscriptionPlan;
             const isActive = this.isSubscriptionActive(subscription.endDate);
-            
+
             this.abonnements = [{
               id: subscription.id,
               plan: plan.name || 'N/A',
               label: plan.label || 'N/A',
               montant: `${plan.totalCost.toLocaleString('fr-FR')} FCFA`,
-              dateDebut: this.formatDateFromString(subscription.startDate),
-              dateFin: this.formatDateFromString(subscription.endDate),
+              dateDebut: this.formatSubscriptionDate(subscription.startDate),
+              dateFin: this.formatSubscriptionDate(subscription.endDate),
               statut: isActive ? 'Actif' : 'Expiré',
               nombreProjets: plan.unlimitedProjects 
                 ? 'Illimité' 
@@ -197,8 +196,7 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
             montant: `${invoice.amount.toLocaleString('fr-FR')} FCFA`,
             statut: invoice.paid ? 'Payé' : 'En attente',
             methodePaiement: invoice.paymentMethod || 'N/A',
-            planLabel: invoice.planLabel || 'N/A',
-            createdAt:invoice.createdAt
+            planLabel: invoice.planLabel || 'N/A'
           }));
           
           this.currentPageFactures = response.number;
@@ -221,20 +219,30 @@ export class DetailsUtilisateurComponent implements OnInit, OnDestroy {
   /**
    * Vérifie si un abonnement est actif
    */
-  private isSubscriptionActive(endDate: string): boolean {
-    if (!endDate) return false;
-    const end = new Date(endDate);
+  private isSubscriptionActive(endDate: UserSubscription['endDate']): boolean {
+    const end = toJsDate(endDate);
+    if (!end) return false;
     const now = new Date();
     return end > now;
   }
 
+  /** Formate startDate/endDate d'un abonnement (tableau backend ou chaîne ISO) en JJ/MM/AAAA */
+  private formatSubscriptionDate(value: UserSubscription['startDate'] | UserSubscription['endDate']): string {
+    const date = toJsDate(value);
+    if (!date) return 'N/A';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `${day}/${month}/${date.getFullYear()}`;
+  }
+
   /**
-   * Formate une date ISO au format JJ/MM/AAAA
+   * Formate une date (tableau backend ou chaîne ISO) au format JJ/MM/AAAA
    */
-  private formatDateFromString(dateString: string): string {
-    if (!dateString) return 'N/A';
+  private formatDateFromString(dateValue: Invoice['createdAt']): string {
+    if (!dateValue) return 'N/A';
     try {
-      const date = new Date(dateString);
+      const date = toJsDate(dateValue);
+      if (!date) return 'N/A';
       const day = date.getDate().toString().padStart(2, '0');
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const year = date.getFullYear();
