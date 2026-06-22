@@ -195,27 +195,35 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
   }
 // appelle de la methode getPlanSubscription() 
 
-  async goToSubscription(planType: string): Promise<void> {
-    // Rediriger vers la page d'abonnement avec le plan sélectionné
-    const plan = planType === 'premium' ? this.currentPremiumPlan :
-      planType === 'basic' ? this.currentBasicPlan : null;
+ async goToSubscription(planType: string): Promise<void> {
+  const plan = planType === 'premium' ? this.currentPremiumPlan :
+    planType === 'basic' ? this.currentBasicPlan : null;
 
-    if (plan && this.currentUser?.id) {
-      try {
-        const isYearly = plan.installmentCount === 12;
-        await this.subscriptionService.initiateSubscriptionPaymentbis(this.currentUser.id, plan, isYearly);
-      } catch (error) {
-      }
-    } else if (plan) {
-      this.router.navigate(['/login'], {
-        queryParams: {
-          planId: plan.id,
-          planType: planType,
-          profile: this.userProfile
-        }
-      });
+  if (plan && this.currentUser?.id) {
+    try {
+      const isYearly = plan.installmentCount === 12;
+
+      // ✅ Remplace initiateSubscriptionPaymentbis par initiatePayment
+      await this.subscriptionService.initiatePayment(
+        this.currentUser.id,
+        plan.id,
+        isYearly ? 12 : 1
+      );
+
+    } catch (error: any) {
+      this.hasError = true;
+      this.errorMessage = error?.userMessage || 'Erreur lors du paiement. Veuillez réessayer.';
     }
+  } else if (plan) {
+    this.router.navigate(['/login'], {
+      queryParams: {
+        planId: plan.id,
+        planType: planType,
+        profile: this.userProfile
+      }
+    });
   }
+}
 
   goBack(): void {
     this.router.navigate(['/subscriptions'], {

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, firstValueFrom } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { environment } from '../environments/environment';
- 
-// Déclaration de la fonction OneTouch pour TypeScript
+
+// ─── Déclaration SDK TouchPay (chargé via index.html) ────────────────────────
 declare function sendPaymentInfos(
   orderNumber: number,
   agencyCode: string,
@@ -20,8 +20,9 @@ declare function sendPaymentInfos(
   clientLastName: string,
   clientPhone: string,
 ): void;
- 
-// Interfaces pour le typage
+
+// ─── Interfaces ───────────────────────────────────────────────────────────────
+
 export interface Invoice {
   id: number;
   invoiceNumber: string;
@@ -32,17 +33,13 @@ export interface Invoice {
   planLabel: string;
   userName: string;
 }
- 
+
 export interface InvoiceResponse {
   content: Invoice[];
   pageable: {
     pageNumber: number;
     pageSize: number;
-    sort: {
-      unsorted: boolean;
-      sorted: boolean;
-      empty: boolean;
-    };
+    sort: { unsorted: boolean; sorted: boolean; empty: boolean };
     offset: number;
     paged: boolean;
     unpaged: boolean;
@@ -53,15 +50,11 @@ export interface InvoiceResponse {
   numberOfElements: number;
   size: number;
   number: number;
-  sort: {
-    unsorted: boolean;
-    sorted: boolean;
-    empty: boolean;
-  };
+  sort: { unsorted: boolean; sorted: boolean; empty: boolean };
   first: boolean;
   empty: boolean;
 }
- 
+
 export interface SubscriptionPlan {
   id: number;
   name: string;
@@ -73,20 +66,18 @@ export interface SubscriptionPlan {
   unlimitedProjects: boolean;
   yearlyDiscountRate: number;
   active: boolean;
-  targetProfiles?: string[]; // Profils cibles pour ce plan (optionnel)
+  targetProfiles?: string[];
 }
- 
+
 export interface UserSubscription {
   id: number;
-  user: {
-    id: number;
-  };
+  user: { id: number };
   subscriptionPlan: SubscriptionPlan;
   createdAt: string;
   endDate: string;
   startDate: string;
 }
- 
+
 export interface CreateSubscriptionParams {
   userId: number;
   planId: number;
@@ -96,7 +87,7 @@ export interface CreateSubscriptionParams {
   amount?: number;
   errorCode?: string;
 }
- 
+
 export interface CreateSubscriptionResponse {
   id: number;
   userId: number;
@@ -105,435 +96,331 @@ export interface CreateSubscriptionResponse {
   status: string;
   message?: string;
 }
- 
-export interface OneTouchConfig {
- agencyCode: string;
+
+// ─── Nouvelles interfaces paiement ───────────────────────────────────────────
+
+/** Paramètres retournés par le backend pour déclencher TouchPay */
+export interface TouchPayParams {
+  orderNumber: number;
+  agencyCode: string;
   secureCode: string;
   domainName: string;
-  successUrl: string;  
-  errorUrl: string;  
+  successUrl: string;
+  failedUrl: string;
+  amount: number;
+  email: string;
+  clientFirstName: string;
+  clientLastName: string;
+  clientPhone: string;
 }
- 
+
+/** Historique d'un paiement */
+export interface PaymentHistory {
+  id: number;
+  orderNumber: number;
+  userId: number;
+  userName: string;
+  planLabel: string;
+  months: number;
+  amount: number;
+  paymentSuccess: boolean;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  errorCode: string | null;
+  numTransactionFromGu: string | null;
+  numCommand: string | null;
+  initiatedAt: string;
+  confirmedAt: string | null;
+}
+
+/** Réponse paginée */
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+/** Filtres pour lister l'historique */
+export interface PaymentHistoryFilters {
+  userId?: number;
+  orderNumber?: number;
+  status?: 'PENDING' | 'SUCCESS' | 'FAILED';
+  from?: string; // ISO datetime : ex "2026-01-01T00:00:00"
+  to?: string;
+  page?: number;
+  size?: number;
+}
+
+// ─── Service ──────────────────────────────────────────────────────────────────
+
 @Injectable({
   providedIn: 'root',
 })
 export class SubscriptionService {
   private baseUrl = `${environment.apiUrl}/subscriptions`;
   private planBaseUrl = `${environment.apiUrl}/subscription-plans`;
- 
-  // Configuration OneTouch
-  private oneTouchConfig: OneTouchConfig = {
-    agencyCode: 'SOLI26685',
-    secureCode: 'SJeOJiLKfP2FUHWgTEzhX8Y0km36CwGkbJQTKdplZM3QORfQ6m',
-    domainName: 'solimus.net',
-    successUrl:
-      'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPaySuccess',
-    errorUrl:
-      'https://kairosdev.sensoft-labs.com/kairos_dev/portailEtudiant/touchPayError',
-  };
- 
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-  ) {
-    this.checkOneTouchScript();
-  }
- 
+  ) {}
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PAIEMENT — Nouveau flux via backend
+  // ═══════════════════════════════════════════════════════════════════════════
+
   /**
-   * Vérifie si le script OneTouch est chargé
+   * Étape 1 — Appelle le backend pour :
+   *   • Créer un historique de paiement en statut PENDING
+   *   • Récupérer les paramètres TouchPay (agencyCode, secureCode, montant, URLs...)
+   * Étape 2 — Déclenche la popup TouchPay avec ces paramètres
+   *
+   * Usage : await subscriptionService.initiatePayment(userId, planId, months)
    */
-  private checkOneTouchScript(): void {
-    if (typeof sendPaymentInfos === 'function') {
-    }
-  }
- 
-  /**
-   * Vérifie si l'utilisateur a un abonnement actif
-   */
-  seeActive(userId: number): Observable<boolean> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/is-active/${userId}`;
- 
- 
-    return this.http.get<boolean>(url, { headers }).pipe(
-      catchError((error) => this.handleError(error, 'seeActive')),
-    );
-  }
- 
-  /**
-   * Vérifie si l'utilisateur peut créer un projet
-   */
-  canCreateProject(userId: number): Observable<boolean> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/can-create-project/${userId}`;
- 
-    return this.http.get<boolean>(url, { headers }).pipe(
-      catchError((error) => this.handleError(error, 'canCreateProject')),
-    );
-  }
- 
-  /**
-   * Récupère les factures de l'utilisateur avec pagination
-   */
-  getFactures(
+  async initiatePayment(
     userId: number,
-    page: number = 0,
-    size: number = 10,
-  ): Observable<InvoiceResponse> {
-    const headers = this.getAuthHeaders();
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
- 
-    const url = `${this.baseUrl}/invoices/${userId}`;
- 
- 
-    return this.http.get<InvoiceResponse>(url, { headers, params }).pipe(
-      tap((response) => {
-      }),
-      catchError((error) => this.handleError(error, 'getFactures')),
-    );
-  }
- 
-  /**
-   * Récupère les plans d'abonnement par profil
-   */
-  getPlanSubscription(name: string): Observable<SubscriptionPlan[]> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.planBaseUrl}/name/${name}`;
- 
- 
-    return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
-      tap((plans) => {
-      }),
-      catchError((error) => this.handleError(error, 'getPlanSubscription')),
-    );
-  }
- 
-  /**
-   * Récupère tous les plans actifs
-   */
-  getAllActivePlans(): Observable<SubscriptionPlan[]> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.planBaseUrl}/active`;
- 
- 
-    return this.http.get<SubscriptionPlan[]>(url, { headers }).pipe(
-      catchError((error) => this.handleError(error, 'getAllActivePlans')),
-    );
-  }
- 
-  /**
-   * Récupère les plans actifs filtrés par profil utilisateur
-   */
-  getPlansByProfile(profile: string): Observable<SubscriptionPlan[]> {
- 
-    return this.getAllActivePlans().pipe(
-      map((plans) => {
- 
-        // Filtrer les plans par nom qui contient le profil
-        const filteredPlans = plans.filter((plan) => {
-          const planName = plan.name?.toUpperCase() || '';
-          const profileUpper = profile.toUpperCase();
- 
-          // Vérifier si le nom du plan contient le profil
-          const matchesByName = planName.includes(profileUpper);
- 
-          // Vérifier aussi targetProfiles si disponible
-          const matchesByTargetProfiles =
-            plan.targetProfiles && plan.targetProfiles.includes(profile);
- 
-          const matches = matchesByName || matchesByTargetProfiles;
- 
-          if (matches) {
-          }
- 
-          return matches;
-        });
- 
-        return filteredPlans;
-      }),
-      catchError((error) => this.handleError(error, 'getPlansByProfile')),
-    );
-  }
- 
-  /**
-   * Récupère un plan par son ID
-   */
-  getPlanById(planId: number): Observable<SubscriptionPlan> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.planBaseUrl}/${planId}`;
- 
- 
-    return this.http.get<SubscriptionPlan>(url, { headers }).pipe(
-      catchError((error) => this.handleError(error, 'getPlanById')),
-    );
-  }
- 
-  /**
-   * Récupère l'abonnement d'un utilisateur par son ID
-   */
-  getSubscriptionByUser(userId: number): Observable<UserSubscription> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/user/${userId}`;
- 
- 
-    return this.http.get<UserSubscription>(url, { headers }).pipe(
-      catchError((error) => this.handleError(error, 'getSubscriptionByUser')),
-    );
-  }
- 
-  getSubscriptionsByProfile(profile: string): Observable<UserSubscription[]> {
-    const headers = this.getAuthHeaders();
-    const url = `${this.baseUrl}/profile/${profile}`;
- 
- 
-    return this.http.get<UserSubscription[]>(url, { headers }).pipe(
-      tap((subscriptions) => {
-        subscriptions.forEach((sub, index) => {
-        });
-      }),
-      catchError((error) =>
-        this.handleError(error, 'getSubscriptionsByProfile'),
+    planId: number,
+    months: number = 1,
+  ): Promise<void> {
+
+    // 1. Récupère les paramètres depuis le backend (crée l'historique PENDING)
+    const params = await firstValueFrom(
+      this.http.post<TouchPayParams>(
+        `${this.baseUrl}/payment-params`,
+        { userId, planId, months },
+        { headers: this.getAuthHeaders() },
+      ).pipe(
+        catchError(error => this.handleError(error, 'initiatePayment')),
       ),
     );
-  }
- 
-  /**
-   * Crée un abonnement pour un utilisateur
-   */
-  createSubscription(
-    params: CreateSubscriptionParams,
-  ): Observable<CreateSubscriptionResponse> {
-    const headers = this.getAuthHeaders();
- 
-    let httpParams = new HttpParams();
-    if (params.num_transaction_from_gu) {
-      httpParams = httpParams.set(
-        'num_transaction_from_gu',
-        params.num_transaction_from_gu,
+
+    // 2. Vérifie que le SDK TouchPay est bien chargé dans index.html
+    if (typeof sendPaymentInfos !== 'function') {
+      throw new Error(
+        "Le SDK TouchPay n'est pas chargé. Vérifiez que le script est bien dans index.html.",
       );
     }
-    if (params.num_command) {
-      httpParams = httpParams.set('num_command', params.num_command);
-    }
-    if (params.amount) {
-      httpParams = httpParams.set('amount', params.amount.toString());
-    }
-    if (params.errorCode) {
-      httpParams = httpParams.set('errorCode', params.errorCode);
-    }
- 
-    const url = `${this.baseUrl}/create/${params.userId}/${params.planId}/${params.months}`;
- 
- 
-    return this.http
-      .get<CreateSubscriptionResponse>(url, { headers, params: httpParams })
-      .pipe(
-        tap((response) => {
-        }),
-        catchError((error) => this.handleError(error, 'createSubscription')),
-      );
+
+    // 3. Déclenche la popup de paiement TouchPay
+    sendPaymentInfos(
+      params.orderNumber,
+      params.agencyCode,
+      params.secureCode,
+      params.domainName,
+      params.successUrl,
+      params.failedUrl,
+      params.amount,
+      '',
+      params.email,
+      params.clientFirstName,
+      params.clientLastName,
+      params.clientPhone,
+    );
   }
- 
+
   /**
-   * ✨ NOUVELLE MÉTHODE : Construit l'URL de callback après paiement
-   */
-  private buildCallbackUrl(
-    userId: number,
-    planId: number,
-    months: number,
-  ): string {
-    const baseUrl = window.location.origin;
- 
-    // URL de succès : redirige vers /mon-compte avec les paramètres de paiement
-    const successUrl = `${baseUrl}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`;
- 
- 
-    return successUrl;
-  }
- 
-  /**
-   * ✨ MODIFIÉ : Lance le processus de paiement OneTouch avec redirection vers /mon-compte
-   */
-  callTouchPay(
-    amount: number,
-    email: string,
-    clientFirstName: string,
-    clientLastName: string,
-    clientPhone: string,
-    userId: number,
-    planId: number,
-    months: number,
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Vérification que la fonction sendPaymentInfos existe
-      if (typeof sendPaymentInfos !== 'function') {
-        const errorMsg =
-          "Le système de paiement OneTouch n'est pas chargé. Veuillez rafraîchir la page et réessayer.";
-        reject(new Error(errorMsg));
-        return;
-      }
- 
-      const currentOrigin = window.location.origin;
-      const orderNumber = new Date().getTime();
- 
-      // ✨ MODIFICATION : URLs de redirection vers /mon-compte
-      const successUrl = `${this.baseUrl}/create/${userId}/${planId}/${months}?redirect=${encodeURIComponent(`${currentOrigin}/#/mon-compte?payment=success&userId=${userId}&planId=${planId}&months=${months}`)}`;
-      const failedUrl = `${currentOrigin}/#/mon-compte?payment=failed&userId=${userId}&planId=${planId}`;
- 
-      try {
-        // Appel de la fonction OneTouch
-        sendPaymentInfos(
-          orderNumber,
-          this.oneTouchConfig.agencyCode,
-          this.oneTouchConfig.secureCode,
-          this.oneTouchConfig.domainName,
-          successUrl,
-          failedUrl,
-          amount,
-          '',
-          email,
-          clientFirstName,
-          clientLastName,
-          '',
-        );
- 
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
- 
-  /**
-   * ✨ MODIFIÉ : Méthode simplifiée pour initier un paiement d'abonnement
+   * Alias avec objet user complet (pour compatibilité avec l'existant)
+   * Usage : await subscriptionService.initiateSubscriptionPayment(user, plan, isYearly)
    */
   async initiateSubscriptionPayment(
     user: any,
     plan: SubscriptionPlan,
     isYearly: boolean,
   ): Promise<void> {
- 
-    // Calcul du montant et des mois
-    const months = isYearly ? 12 : 1;
-    let amount = plan.totalCost;
- 
-    if (isYearly && plan.yearlyDiscountRate > 0) {
-      const yearlyPrice = plan.totalCost * 12;
-      const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
-      amount = yearlyPrice - discount;
-    } else if (isYearly) {
-      amount = plan.totalCost * 12;
-    }
- 
-    // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA (IHM conserve le vrai montant affiché)
-   // amount = 1;
- 
- 
-    // Validation des données utilisateur
+
     if (!user.email || !user.prenom || !user.nom || !user.telephone) {
-      const errorMsg =
-        'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.';
-      throw new Error(errorMsg);
-    }
- 
-    // Lancement du paiement OneTouch
-    try {
-      await this.callTouchPay(
-        amount,
-        user.email,
-        user.prenom,
-        user.nom,
-        user.telephone,
-        user.id,
-        plan.id,
-        months,
+      throw new Error(
+        'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.',
       );
-    } catch (error) {
-      throw error;
     }
-  }
-  async initiateSubscriptionPaymentbis(
-    userId: number,
-    plan: SubscriptionPlan,
-    isYearly: boolean,
-  ): Promise<void> {
-    // Calcul du montant et des mois
+
     const months = isYearly ? 12 : 1;
-    let amount = plan.totalCost;
- 
-    if (isYearly && plan.yearlyDiscountRate > 0) {
-      const yearlyPrice = plan.totalCost * 12;
-      const discount = yearlyPrice * (plan.yearlyDiscountRate / 100);
-      amount = yearlyPrice - discount;
-    } else if (isYearly) {
-      amount = plan.totalCost * 12;
-    }
- 
-    // ⚠️ OVERRIDE DE TEST : Forcer le prix prélevé à 1 F CFA
-   // amount = 1;
- 
-    // Lancement du paiement OneTouch
-    try {
-      await this.callTouchPay(amount, '', '', '', '', userId, plan.id, months);
-    } catch (error) {
-      throw error;
-    }
+    await this.initiatePayment(user.id, plan.id, months);
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HISTORIQUE DES PAIEMENTS
+  // ═══════════════════════════════════════════════════════════════════════════
+
   /**
-   * Récupère les headers d'authentification avec validation
+   * Liste l'historique des paiements avec pagination et filtres.
+   *
+   * Filtres disponibles :
+   *   - userId      : filtrer par utilisateur
+   *   - orderNumber : rechercher un paiement précis
+   *   - status      : PENDING | SUCCESS | FAILED
+   *   - from / to   : plage de dates (ISO datetime)
+   *   - page / size : pagination (défaut : page=0, size=20)
    */
+  getPaymentHistory(
+    filters: PaymentHistoryFilters = {},
+  ): Observable<PageResponse<PaymentHistory>> {
+
+    let params = new HttpParams()
+      .set('page', (filters.page ?? 0).toString())
+      .set('size', (filters.size ?? 20).toString());
+
+    if (filters.userId != null)
+      params = params.set('userId', filters.userId.toString());
+    if (filters.orderNumber != null)
+      params = params.set('orderNumber', filters.orderNumber.toString());
+    if (filters.status)
+      params = params.set('status', filters.status);
+    if (filters.from)
+      params = params.set('from', filters.from);
+    if (filters.to)
+      params = params.set('to', filters.to);
+
+    return this.http
+      .get<PageResponse<PaymentHistory>>(`${this.baseUrl}/history`, {
+        headers: this.getAuthHeaders(),
+        params,
+      })
+      .pipe(catchError(error => this.handleError(error, 'getPaymentHistory')));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ABONNEMENTS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** Vérifie si l'utilisateur a un abonnement actif */
+  seeActive(userId: number): Observable<boolean> {
+    return this.http
+      .get<boolean>(`${this.baseUrl}/is-active/${userId}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'seeActive')));
+  }
+
+  /** Vérifie si l'utilisateur peut créer un projet */
+  canCreateProject(userId: number): Observable<boolean> {
+    return this.http
+      .get<boolean>(`${this.baseUrl}/can-create-project/${userId}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'canCreateProject')));
+  }
+
+  /** Récupère l'abonnement d'un utilisateur */
+  getSubscriptionByUser(userId: number): Observable<UserSubscription> {
+    return this.http
+      .get<UserSubscription>(`${this.baseUrl}/user/${userId}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'getSubscriptionByUser')));
+  }
+
+  /** Récupère les abonnements par profil */
+  getSubscriptionsByProfile(profile: string): Observable<UserSubscription[]> {
+    return this.http
+      .get<UserSubscription[]>(`${this.baseUrl}/profile/${profile}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'getSubscriptionsByProfile')));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PLANS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** Récupère les plans d'abonnement par nom de profil */
+  getPlanSubscription(name: string): Observable<SubscriptionPlan[]> {
+    return this.http
+      .get<SubscriptionPlan[]>(`${this.planBaseUrl}/name/${name}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'getPlanSubscription')));
+  }
+
+  /** Récupère tous les plans actifs */
+  getAllActivePlans(): Observable<SubscriptionPlan[]> {
+    return this.http
+      .get<SubscriptionPlan[]>(`${this.planBaseUrl}/active`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'getAllActivePlans')));
+  }
+
+  /** Récupère les plans actifs filtrés par profil utilisateur */
+  getPlansByProfile(profile: string): Observable<SubscriptionPlan[]> {
+    return this.getAllActivePlans().pipe(
+      map(plans =>
+        plans.filter(plan => {
+          const planName = plan.name?.toUpperCase() || '';
+          const profileUpper = profile.toUpperCase();
+          return (
+            planName.includes(profileUpper) ||
+            (plan.targetProfiles && plan.targetProfiles.includes(profile))
+          );
+        }),
+      ),
+      catchError(error => this.handleError(error, 'getPlansByProfile')),
+    );
+  }
+
+  /** Récupère un plan par son ID */
+  getPlanById(planId: number): Observable<SubscriptionPlan> {
+    return this.http
+      .get<SubscriptionPlan>(`${this.planBaseUrl}/${planId}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(error => this.handleError(error, 'getPlanById')));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FACTURES
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** Récupère les factures de l'utilisateur avec pagination */
+  getFactures(
+    userId: number,
+    page: number = 0,
+    size: number = 10,
+  ): Observable<InvoiceResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<InvoiceResponse>(`${this.baseUrl}/invoices/${userId}`, {
+        headers: this.getAuthHeaders(),
+        params,
+      })
+      .pipe(catchError(error => this.handleError(error, 'getFactures')));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PRIVÉ
+  // ═══════════════════════════════════════════════════════════════════════════
+
   private getAuthHeaders(): HttpHeaders {
- 
     if (
       this.authService &&
       typeof this.authService.getAuthHeaders === 'function'
     ) {
-      const headers = this.authService.getAuthHeaders();
-      const hasAuth = headers.get('Authorization') !== null;
- 
- 
-      if (!hasAuth) {
-      }
- 
-      return headers;
+      return this.authService.getAuthHeaders();
     }
- 
- 
-    const token = this.authService?.getToken() || localStorage.getItem('token');
- 
-    if (token) {
-      return new HttpHeaders({
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      });
-    }
- 
- 
+
+    const token =
+      this.authService?.getToken() || localStorage.getItem('token');
+
     return new HttpHeaders({
+      Authorization: token ? `Bearer ${token}` : '',
       'Content-Type': 'application/json',
     });
   }
- 
-  /**
-   * Gestion des erreurs HTTP avec contexte
-   */
-  private handleError(
-    error: any,
-    context: string = 'unknown',
-  ): Observable<never> {
- 
-    if (error.error) {
-    }
- 
+
+  private handleError(error: any, context: string = 'unknown'): Observable<never> {
     let errorMessage = 'Une erreur est survenue';
     let userMessage = errorMessage;
- 
+
     switch (error.status) {
       case 0:
-        errorMessage =
-          'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
+        errorMessage = 'Impossible de contacter le serveur.';
         userMessage = 'Problème de connexion au serveur';
         break;
       case 400:
@@ -541,16 +428,15 @@ export class SubscriptionService {
         userMessage = 'Données invalides';
         break;
       case 401:
-        errorMessage = 'Non authentifié. Votre session a expiré.';
+        errorMessage = 'Session expirée.';
         userMessage = 'Session expirée. Veuillez vous reconnecter.';
         break;
       case 403:
-        errorMessage =
-          "Accès refusé. Vous n'avez pas les permissions nécessaires.";
+        errorMessage = "Accès refusé.";
         userMessage = 'Accès non autorisé';
         break;
       case 404:
-        errorMessage = `Ressource non trouvée pour le profil spécifié.`;
+        errorMessage = 'Ressource non trouvée.';
         userMessage = 'Aucune donnée trouvée';
         break;
       case 500:
@@ -558,24 +444,16 @@ export class SubscriptionService {
         userMessage = 'Erreur serveur. Réessayez plus tard.';
         break;
       default:
-        if (error.error instanceof ErrorEvent) {
-          errorMessage = `Erreur client: ${error.error.message}`;
-          userMessage = 'Erreur de connexion';
-        } else {
-          errorMessage = `Code: ${error.status}, Message: ${error.message}`;
-          userMessage = `Erreur ${error.status}`;
-        }
+        errorMessage = `Code: ${error.status}, Message: ${error.message}`;
+        userMessage = `Erreur ${error.status}`;
     }
- 
- 
+
     return throwError(() => ({
       message: errorMessage,
-      userMessage: userMessage,
+      userMessage,
       status: error.status,
-      context: context,
+      context,
       originalError: error,
     }));
   }
- 
 }
- 
