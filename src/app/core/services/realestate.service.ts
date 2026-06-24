@@ -349,9 +349,11 @@ export class RealestateService {
    * Delete a project
    */
   deleteProject(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.endpoints.projects}/${id}`, { headers: this.getHeaders() })
+    // Timeout généreux : la suppression cascade sur de nombreuses tables liées
+    // (tâches, budget, stock, documents, pointages...), ça peut prendre du temps côté backend.
+    return this.http.delete<ApiResponse<void>>(`${this.endpoints.projects}/delete/${id}`, { headers: this.getHeaders() })
       .pipe(
-        timeout(10000),
+        timeout(60000),
         catchError(this.handleError.bind(this))
       );
   }

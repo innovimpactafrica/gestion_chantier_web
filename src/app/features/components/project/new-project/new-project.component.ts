@@ -5,15 +5,14 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ReactiveFormsModul
 import { Router } from '@angular/router';
 import { ProjectService, ProjectData, ApiResponse } from '../../../../../services/projet.service';
 import { AuthService } from '../../../../features/auth/services/auth.service';
-import { Subscription } from 'rxjs';
+import { PropertyTypeService } from '../../../../core/services/property-type.service';
+import { GeocodingService, GeocodingResult } from '../../../../core/services/geocoding.service';
+import { PropertyType } from '../../../../models/property-type';
+import { Subscription, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 
 // Interfaces pour les données de référence
-interface PropertyType {
-  id: number;
-  typename: string;
-}
-
 interface Promoter {
   id: number;
   name: string;
@@ -58,18 +57,74 @@ export class NewProjectComponent implements OnInit, OnDestroy {
   // Modal de confirmation d'annulation
   showCancelModal = signal(false);
 
+  // Autocomplétion d'adresse (géocodage Nominatim/OpenStreetMap, sans clé API)
+  addressSuggestions: GeocodingResult[] = [];
+  showAddressSuggestions = false;
+  isSearchingAddress = false;
+  private addressSearch$ = new Subject<string>();
+
   // Subscription pour nettoyer les observables
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private projectService: ProjectService,
+    private propertyTypeService: PropertyTypeService,
+    private geocodingService: GeocodingService,
     private router: Router,
     private authService: AuthService,
     public languageService: LanguageService,
     private toastService: ToastService
   ) {
     this.initializeForm();
+    this.setupAddressAutocomplete();
+  }
+
+  /**
+   * Recherche d'adresse en direct pendant la saisie : propose des suggestions
+   * (localités/adresses) et récupère automatiquement latitude/longitude au choix.
+   */
+  private setupAddressAutocomplete(): void {
+    const sub = this.addressSearch$.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter(query => query.trim().length >= 3),
+      switchMap(query => {
+        this.isSearchingAddress = true;
+        return this.geocodingService.search(query);
+      })
+    ).subscribe(results => {
+      this.addressSuggestions = results;
+      this.showAddressSuggestions = results.length > 0;
+      this.isSearchingAddress = false;
+    });
+
+    this.subscriptions.add(sub);
+  }
+
+  onAddressInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    if (value.trim().length < 3) {
+      this.addressSuggestions = [];
+      this.showAddressSuggestions = false;
+      return;
+    }
+    this.addressSearch$.next(value);
+  }
+
+  selectAddressSuggestion(suggestion: GeocodingResult): void {
+    this.projectForm.patchValue({
+      address: suggestion.displayName,
+      latitude: suggestion.latitude,
+      longitude: suggestion.longitude
+    });
+    this.addressSuggestions = [];
+    this.showAddressSuggestions = false;
+  }
+
+  hideAddressSuggestions(): void {
+    // Léger délai pour laisser le temps au clic sur une suggestion de s'exécuter avant fermeture
+    setTimeout(() => { this.showAddressSuggestions = false; }, 150);
   }
 
   t(key: string, params?: any): string {
@@ -117,7 +172,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
       this.projectForm.patchValue({
         managerId: currentUser.id,
         moaId: 1,      // Fixé à 1 comme demandé
-        promoterId: 1  // Fixé à 1 comme demandé
+        publisherId: currentUser.id // ID de l'utilisateur connecté
       });
     }
   }
@@ -137,7 +192,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
       address: ['', [Validators.required, Validators.minLength(5)]],
       numberOfLots: ['', [Validators.required, Validators.min(1)]],
       numberOfRooms: ['', [Validators.required, Validators.min(1)]],
-      promoterId: [1], // Fixé à 1
+      publisherId: [''], // Sera rempli avec l'ID de l'utilisateur connecté
       moaId: [1], // Fixé à 1
       managerId: [''], // Sera rempli avec l'ID de l'utilisateur connecté
       constructionStatus: [''],
@@ -204,16 +259,19 @@ export class NewProjectComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Charge les types de propriétés (à adapter selon votre service)
+   * Charge les types de chantier depuis l'API (GET /api/property-types/all)
    */
   private async loadPropertyTypes(): Promise<void> {
-    // Exemple de données - remplacez par votre service réel
-    this.propertyTypes = [
-      { id: 1, typename: 'Appartement' },
-      { id: 2, typename: 'Villa' },
-      { id: 3, typename: 'Immeuble' },
-      { id: 4, typename: 'Terrain' }
-    ];
+    this.propertyTypes = await new Promise<PropertyType[]>((resolve) => {
+      const sub = this.propertyTypeService.getAll().subscribe({
+        next: (types) => resolve(types),
+        error: () => {
+          this.toastService.showError(this.t('newProject.propertyTypesLoadError') || 'Erreur lors du chargement des types de chantier');
+          resolve([]);
+        }
+      });
+      this.subscriptions.add(sub);
+    });
   }
 
   /**
@@ -390,7 +448,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
         longitude: formValues.longitude || undefined,
         description: formValues.description || undefined,
         numberOfLots: formValues.numberOfLots,
-        promoterId: 1, // Fixé à 1
+        publisherId: currentUser.id, // ID de l'utilisateur connecté
         moaId: 1, // Fixé à 1
         managerId: currentUser.id, // ID de l'utilisateur connecté
         propertyTypeId: propertyTypeId, // Converti en nombre
@@ -514,7 +572,7 @@ export class NewProjectComponent implements OnInit, OnDestroy {
 
   // Méthodes de tracking pour les listes (optimisation Angular)
   trackByTypeId(index: number, item: PropertyType): number {
-    return item.id;
+    return item.id ?? index;
   }
 
   trackByPromoterId(index: number, item: Promoter): number {

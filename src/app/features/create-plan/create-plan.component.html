@@ -140,6 +140,42 @@
         <p *ngIf="errors['description']" class="mt-1 text-sm text-red-600">{{ errors['description'] }}</p>
       </div>
 
+      <!-- Ligne 4b: Avantages du plan -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          {{ t('subscriptions.advantages') }}
+        </label>
+
+        <!-- Ajout d'un avantage -->
+        <div *ngIf="!isReadOnly" class="flex gap-3 mb-3">
+          <input type="text" name="newAdvantage" [(ngModel)]="newAdvantage"
+            (keydown.enter)="$event.preventDefault(); addAdvantage()"
+            placeholder="Ex: Support prioritaire 24h/24"
+            class="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent" />
+          <button type="button" (click)="addAdvantage()"
+            class="px-5 py-3 bg-[#FF5C01] hover:bg-[#E54F00] text-white rounded-lg font-medium transition-colors">
+            {{ t('common.add') }}
+          </button>
+        </div>
+
+        <!-- Liste des avantages -->
+        <ul *ngIf="formData.advantages.length > 0" class="space-y-2">
+          <li *ngFor="let advantage of formData.advantages; let i = index"
+            class="flex items-center justify-between bg-gray-50 border rounded-lg px-4 py-2.5">
+            <span class="text-gray-700 text-sm">{{ advantage }}</span>
+            <button *ngIf="!isReadOnly" type="button" (click)="removeAdvantage(i)"
+              class="text-gray-400 hover:text-red-600 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </li>
+        </ul>
+        <p *ngIf="formData.advantages.length === 0" class="text-sm text-gray-400 italic">
+          {{ t('subscriptions.noAdvantages') }}
+        </p>
+      </div>
+
       <!-- Ligne 5: Statut du plan -->
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">

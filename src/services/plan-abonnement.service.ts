@@ -17,6 +17,7 @@ export interface SubscriptionPlan {
   unlimitedProjects: boolean;
   yearlyDiscountRate: number;
   active: boolean;
+  advantages: string[];
 }
 
 export interface Subscription {
@@ -46,6 +47,7 @@ export interface CreatePlanRequest {
   unlimitedProjects: boolean;
   yearlyDiscountRate: number;
   active: boolean;
+  advantages: string[];
 }
 
 @Injectable({
@@ -289,7 +291,8 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
     projectLimit: number,
     unlimitedProjects: boolean,
     yearlyDiscountRate: number,
-    active: boolean = true
+    active: boolean = true,
+    advantages: string[] = []
   ): CreatePlanRequest {
     return {
       id: 0, // Généré par le backend
@@ -301,7 +304,8 @@ putPlanAbonnement(id: number, planData: CreatePlanRequest): Observable<void> {
       projectLimit,
       unlimitedProjects,
       yearlyDiscountRate,
-      active
+      active,
+      advantages
     };
   }
 

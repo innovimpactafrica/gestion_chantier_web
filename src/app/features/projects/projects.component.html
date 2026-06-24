@@ -124,6 +124,104 @@
   <!-- ========== CONTENU PRINCIPAL (abonnement actif) ========== -->
   <ng-container *ngIf="!hasNoSubscription()">
 
+  @if (showEmptyProjectsState()) {
+  <!-- ========== EMPTY STATE PREMIUM : AUCUN CHANTIER ENCORE CRÉÉ ========== -->
+  <div class="empty-projects-state min-h-[75vh] flex flex-col items-center justify-center text-center px-4 py-10 animate-empty-fade-in">
+
+    <!-- Illustration principale -->
+    <div class="relative mb-10 w-full max-w-2xl">
+      <img src="assets/images/construction-hero.jpg" alt="Chantier en construction"
+        class="w-full h-56 sm:h-72 md:h-80 object-cover rounded-3xl shadow-2xl empty-projects-illustration" />
+    </div>
+
+    <!-- Titre principal -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1E293B] mb-4 max-w-2xl">
+      Bienvenue dans votre <span class="text-[#ff5c01]">espace chantier</span>
+    </h1>
+
+    <!-- Sous-titre -->
+    <p class="text-gray-500 text-base sm:text-lg max-w-xl mb-10 leading-relaxed">
+      Commencez dès maintenant en créant votre premier chantier et suivez l'avancement de vos équipes, tâches et
+      dépenses en temps réel.
+    </p>
+
+    <!-- Carte des avantages -->
+    <div class="empty-projects-card bg-white rounded-2xl border border-gray-100 shadow-lg p-6 sm:p-8 mb-10 w-full max-w-3xl">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
+        <div class="flex items-start gap-3 empty-projects-benefit">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Suivi des équipes sur le terrain</span>
+        </div>
+        <div class="flex items-start gap-3 empty-projects-benefit">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Gestion des tâches et interventions</span>
+        </div>
+        <div class="flex items-start gap-3 empty-projects-benefit">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Contrôle des dépenses</span>
+        </div>
+        <div class="flex items-start gap-3 empty-projects-benefit">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Rapports et statistiques en temps réel</span>
+        </div>
+        <div class="flex items-start gap-3 empty-projects-benefit">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Pointage géolocalisé des ouvriers</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="flex flex-col sm:flex-row items-center gap-4">
+      @if (checkingPermission()) {
+      <button disabled
+        class="inline-flex items-center gap-2 bg-gray-200 text-gray-400 font-semibold px-8 py-4 rounded-xl cursor-not-allowed">
+        <span class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></span>
+        Vérification de votre abonnement...
+      </button>
+      } @else if (canCreateProject()) {
+      <button [routerLink]="['/nouveau-projet']"
+        class="empty-projects-cta inline-flex items-center gap-2 bg-[#ff5c01] hover:bg-orange-600 text-white font-semibold text-lg px-10 py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5">
+        <!-- Icône "add_circle" -->
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" stroke-width="2" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m-4-4h8" />
+        </svg>
+        Créer mon premier chantier
+      </button>
+      } @else {
+      <button (click)="openSubscriptionPopup()"
+        class="empty-projects-cta inline-flex items-center gap-2 bg-[#ff5c01] hover:bg-orange-600 text-white font-semibold text-lg px-10 py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        Changer de plan pour créer un chantier
+      </button>
+      }
+
+      <button [routerLink]="['/fonctionnalites']"
+        class="inline-flex items-center gap-2 border-2 border-gray-300 hover:border-[#ff5c01] hover:text-[#ff5c01] text-gray-600 font-medium text-base px-8 py-4 rounded-xl transition-colors duration-300">
+        Découvrir les fonctionnalités
+      </button>
+    </div>
+  </div>
+  } @else {
+
   <!-- ========== EN-TÊTE ET NOUVEAU PROJET ========== -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
     <h1 class="text-2xl sm:text-3xl font-bold text-[#2C3E50]">{{ t('projects.title') }}</h1>
@@ -152,6 +250,31 @@
         {{ t('projects.newProject') }}
       </button>
     </div>
+  </div>
+
+  <!-- ========== BANNIÈRE : LIMITE DE PROJETS ATTEINTE ========== -->
+  <div *ngIf="isProjectLimitExceeded()"
+    class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-red-50 border border-red-200 rounded-xl p-4">
+    <div class="flex items-start gap-3">
+      <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <div>
+        <p class="font-semibold text-red-800">
+          Vos chantiers sont bloqués : limite de {{ subscriptionLimitInfo()?.projectLimit }} projet(s) atteinte
+          ({{ subscriptionLimitInfo()?.currentProjectCount }}/{{ subscriptionLimitInfo()?.projectLimit }})<ng-container
+            *ngIf="subscriptionLimitInfo()?.planLabel"> pour le plan {{ subscriptionLimitInfo()?.planLabel }}</ng-container>.
+        </p>
+        <p class="text-sm text-red-600 mt-1">
+          Passez à un plan supérieur ou supprimez un chantier existant pour débloquer l'accès.
+        </p>
+      </div>
+    </div>
+    <button (click)="openSubscriptionPopup()"
+      class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors">
+      Changer de plan
+    </button>
   </div>
 
   <!-- Description -->
@@ -322,8 +445,7 @@
                 </svg>
               </div>
               <span class="text-xs font-medium">
-                {{ project.startDate[2] }}/{{ project.startDate[1] }}/{{ project.startDate[0] }} - {{ project.endDate[2]
-                }}/{{ project.endDate[1] }}/{{ project.endDate[0] }}
+                {{ project.startDate }} - {{ project.endDate }}
               </span>
             </div>
           </div>
@@ -431,6 +553,7 @@
     </div>
   </div>
 
+  }
   </ng-container>
 </div>
 <div *ngIf="showErrorModal" class="fixed inset-0 z-[9999] overflow-y-auto">

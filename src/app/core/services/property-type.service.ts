@@ -43,6 +43,6 @@ export class PropertyTypeService {
 
   // Supprimer une propriété
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBaseUrl}/delete/${id}`);
+    return this.http.delete<void>(`${this.apiBaseUrl}/${id}`);
   }
 }

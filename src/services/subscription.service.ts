@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError, firstValueFrom } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { Observable, throwError, firstValueFrom, of } from 'rxjs';
+import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { API } from '../app/core/constants/api-endpoints';
 
@@ -67,15 +67,35 @@ export interface SubscriptionPlan {
   yearlyDiscountRate: number;
   active: boolean;
   targetProfiles?: string[];
+  advantages?: string[];
 }
 
+/**
+ * Reflète le schéma backend `Subscription` (GET /api/subscriptions/user/{userId}).
+ * ⚠️ En pratique, le backend ne renvoie actuellement NI `user` NI `subscriptionPlan` sur cet
+ * endpoint (vérifié sur un cas réel) : seuls les champs propres à l'abonnement (dates, montant
+ * payé, statut, compteurs de projets) sont garantis. Tout code consommant `subscriptionPlan`
+ * doit prévoir un repli (la donnée peut être `undefined`). Le backend renvoie en revanche
+ * `planId`, utilisé par `getSubscriptionByUser` pour résoudre `subscriptionPlan` via un second
+ * appel à `/subscription-plans/{planId}` quand celui-ci n'est pas déjà fourni.
+ */
 export interface UserSubscription {
   id: number;
-  user: { id: number };
-  subscriptionPlan: SubscriptionPlan;
-  createdAt: BackendDateTime | string;
-  endDate: BackendDateTime | string;
+  user?: { id: number };
+  planId?: number;
+  subscriptionPlan?: SubscriptionPlan;
   startDate: BackendDateTime | string;
+  endDate: BackendDateTime | string;
+  /** Flag renvoyé par le backend — peut être désynchronisé de endDate, préférer un calcul côté front via toJsDate(endDate) */
+  active: boolean;
+  paidAmount: number;
+  installmentCount: number;
+  dateInvoice: BackendDateTime | string;
+  status: 'PENDING' | 'PAID' | 'OVERDUE';
+  renewed: boolean;
+  currentProjectCount: number;
+  remainingProjects: number;
+  properties?: unknown[];
 }
 
 export interface CreateSubscriptionParams {
@@ -136,14 +156,30 @@ export interface PaymentHistory {
   confirmedAt: BackendDateTime | string | null;
 }
 
-/** Convertit un LocalDateTime backend (tableau ou chaîne ISO) en Date JS */
+/**
+ * Convertit une date backend en Date JS. Le backend est inconsistant selon l'endpoint :
+ * tableau LocalDateTime [année, mois, jour, ...], chaîne ISO, ou chaîne "DD-MM-YYYY[ HH:mm]"
+ * (ex: /subscriptions/invoices renvoie "21-11-2025 11:56"). On valide toujours le résultat
+ * car un Date invalide reste "truthy" en JS (un simple `if (!date)` ne le détecte pas).
+ */
 export function toJsDate(value: BackendDateTime | string | null | undefined): Date | null {
   if (!value) return null;
+
   if (Array.isArray(value)) {
     const [year, month, day, hour = 0, minute = 0, second = 0, nano = 0] = value;
-    return new Date(year, month - 1, day, hour, minute, second, Math.floor(nano / 1_000_000));
+    const date = new Date(year, month - 1, day, hour, minute, second, Math.floor(nano / 1_000_000));
+    return isNaN(date.getTime()) ? null : date;
   }
-  return new Date(value);
+
+  const frenchFormat = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}))?$/.exec(value);
+  if (frenchFormat) {
+    const [, day, month, year, hour = '0', minute = '0'] = frenchFormat;
+    const date = new Date(+year, +month - 1, +day, +hour, +minute);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
 }
 
 /** Réponse paginée */
@@ -319,13 +355,32 @@ export class SubscriptionService {
       .pipe(catchError(error => this.handleError(error, 'canCreateProject')));
   }
 
-  /** Récupère l'abonnement d'un utilisateur */
+  /**
+   * Récupère l'abonnement d'un utilisateur.
+   * Si le backend ne renvoie pas `subscriptionPlan` mais fournit `planId`, le plan est résolu
+   * via un second appel à `/subscription-plans/{planId}` et fusionné dans le résultat.
+   */
   getSubscriptionByUser(userId: number): Observable<UserSubscription> {
     return this.http
       .get<UserSubscription>(`${this.baseUrl}/user/${userId}`, {
         headers: this.getAuthHeaders(),
       })
-      .pipe(catchError(error => this.handleError(error, 'getSubscriptionByUser')));
+      .pipe(
+        switchMap(subscription => this.resolveSubscriptionPlan(subscription)),
+        catchError(error => this.handleError(error, 'getSubscriptionByUser')),
+      );
+  }
+
+  /** Complète `subscriptionPlan` à partir de `planId` quand le backend ne l'a pas déjà fourni */
+  private resolveSubscriptionPlan(subscription: UserSubscription): Observable<UserSubscription> {
+    if (subscription.subscriptionPlan || !subscription.planId) {
+      return of(subscription);
+    }
+
+    return this.getPlanById(subscription.planId).pipe(
+      map(plan => ({ ...subscription, subscriptionPlan: plan })),
+      catchError(() => of(subscription)),
+    );
   }
 
   /** Récupère les abonnements par profil */

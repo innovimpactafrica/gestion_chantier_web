@@ -57,8 +57,8 @@
                 <div class="flex items-center">
                   <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
-                      <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan.label ||
-                        subscription.subscriptionPlan.name }}</h3>
+                      <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan?.label ||
+                        subscription.subscriptionPlan?.name || 'Abonnement' }}</h3>
                       <span [class]="getSubscriptionTypeClass(getSubscriptionType(subscription))">
                         {{ getSubscriptionType(subscription) }}
                       </span>
@@ -70,7 +70,7 @@
                       <span>Début: {{ toDate(subscription.startDate) | date:'dd/MM/yyyy' }}</span>
                       <span>Fin: {{ toDate(subscription.endDate) | date:'dd/MM/yyyy' }}</span>
                       <span class="font-semibold text-gray-700">{{
-                        formatCurrency(subscription.subscriptionPlan.totalCost) }}</span>
+                        formatCurrency(subscription.subscriptionPlan?.totalCost ?? subscription.paidAmount) }}</span>
                     </div>
                   </div>
                 </div>
@@ -101,8 +101,8 @@
         <div class="flex justify-between items-start">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
-              <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan.label ||
-                subscription.subscriptionPlan.name }}</h3>
+              <h3 class="text-lg font-medium text-gray-900">{{ subscription.subscriptionPlan?.label ||
+                subscription.subscriptionPlan?.name || 'Abonnement' }}</h3>
               <span [class]="getSubscriptionTypeClass(getSubscriptionType(subscription))">
                 {{ getSubscriptionType(subscription) }}
               </span>
@@ -121,8 +121,8 @@
                 <span class="font-medium">Fin:</span> {{ toDate(subscription.endDate) | date:'dd/MM/yyyy' }}
               </p>
               <p class="text-sm text-gray-600">
-                <span class="font-medium">Prix:</span> {{ subscription.subscriptionPlan.totalCost |
-                currency:'XOF':'symbol':'1.0-0' }}
+                <span class="font-medium">Prix:</span> {{ (subscription.subscriptionPlan?.totalCost ??
+                subscription.paidAmount) | currency:'XOF':'symbol':'1.0-0' }}
               </p>
             </div>
           </div>

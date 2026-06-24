@@ -15,6 +15,7 @@ import { RealestateService } from '../../core/services/realestate.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as QRCode from 'qrcode';
 import { PointingAddressComponent } from "../components/project/pointing-adress/pointing-adress.component";
+import { GestionSalaireComponent } from "../components/project/gestion-salaire/gestion-salaire.component";
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
@@ -30,7 +31,8 @@ import { LanguageService } from '../../core/services/language.service';
     ProjectPresentationComponent,
     ProjectAlertComponent,
     EtudeBetComponent,
-    PointingAddressComponent
+    PointingAddressComponent,
+    GestionSalaireComponent
   ],
   templateUrl: './project-detail-header.component.html',
   styleUrl: './project-detail-header.component.css'
@@ -119,16 +121,18 @@ export class ProjectDetailHeaderComponent implements OnInit {
   }
 
   /**
-   * Génère le QR code à partir de la clé retournée par le backend
+   * Génère le QR code à partir d'un lien vers la page de détail du projet.
+   * Le backend (RealEstateProperty) n'expose aucun champ "qrcode" — on génère
+   * donc l'image QR côté client à partir de l'URL de la page elle-même.
    */
   private async generateQrCode(): Promise<void> {
     try {
-      if (!this.projectDetails?.qrcode) {
+      if (!this.projectDetails || !this.projectId || !this.isBrowser) {
         this.qrCodeDataUrl = null;
         return;
       }
 
-      const qrCodeValue = this.projectDetails.qrcode;
+      const qrCodeValue = `${window.location.origin}/detailprojet/${this.projectId}`;
       const qrCodeUrl = await QRCode.toDataURL(qrCodeValue, {
         width: 256,
         margin: 2,

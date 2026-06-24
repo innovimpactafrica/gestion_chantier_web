@@ -6,6 +6,7 @@ export const API = {
 
   subscriptions: `${environment.apiUrl}/subscriptions`,
   subscriptionPlans: `${environment.apiUrl}/subscription-plans`,
+  quoteTokens: `${environment.apiUrl}/quote-tokens`,
 
   tasks: `${environment.apiUrl}/tasks`,
   indicators: `${environment.apiUrl}/indicators`,
@@ -20,6 +21,12 @@ export const API = {
   adminNotificationsUnreadCount: `${environment.apiUrl}/admin-notifications/unread/count`,
 
   pointingAddresses: `${environment.apiUrl}/pointing-addresses`,
+
+  salaryProfiles: `${environment.apiUrl}/salary-profiles`,
+  payPeriods: `${environment.apiUrl}/pay-periods`,
+  payslips: `${environment.apiUrl}/payslips`,
+  salaryAdvances: `${environment.apiUrl}/salary-advances`,
+  payrollPayments: `${environment.apiUrl}/payroll-payments`,
 
   pharmaAuth: `${environment.apiBaseUrl}/pharma-delivery/api/auth`,
   pharmaDelivery: `${environment.apiBaseUrl}/pharma-delivery/api`

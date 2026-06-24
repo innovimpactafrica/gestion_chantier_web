@@ -1,0 +1,537 @@
+<div class="p-4 sm:p-6">
+
+  <!-- Messages -->
+  <div *ngIf="error" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between">
+    <span>{{ error }}</span>
+    <button (click)="error = null" class="text-red-400 hover:text-red-600">✕</button>
+  </div>
+  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
+    <span>{{ successMessage }}</span>
+    <button (click)="successMessage = null" class="text-green-400 hover:text-green-600">✕</button>
+  </div>
+
+  <!-- Sous-onglets -->
+  <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-3">
+    <button (click)="setActiveTab('profils')"
+      [ngClass]="activeSubTab === 'profils' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Profils salariaux</button>
+    <button (click)="setActiveTab('periodes')"
+      [ngClass]="activeSubTab === 'periodes' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Périodes de paie</button>
+    <button (click)="setActiveTab('bulletins')"
+      [ngClass]="activeSubTab === 'bulletins' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Bulletins de paie</button>
+    <button (click)="setActiveTab('acomptes')"
+      [ngClass]="activeSubTab === 'acomptes' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Acomptes</button>
+    <button (click)="setActiveTab('paiements')"
+      [ngClass]="activeSubTab === 'paiements' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Paiements</button>
+  </div>
+
+  <!-- Sélecteur de période (commun aux onglets Bulletins / Acomptes / Paiements) -->
+  <div *ngIf="activeSubTab === 'bulletins' || activeSubTab === 'acomptes' || activeSubTab === 'paiements'"
+    class="mb-6 flex items-center gap-3">
+    <label class="text-sm font-medium text-gray-700">Période de paie :</label>
+    <select [(ngModel)]="selectedPeriodId" (ngModelChange)="onPeriodSelectionChange()"
+      class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent min-w-[260px]">
+      <option [ngValue]="null">-- Sélectionner une période --</option>
+      <option *ngFor="let period of payPeriods" [ngValue]="period.id">
+        {{ period.label }} ({{ formatDate(period.startDate) }} - {{ formatDate(period.endDate) }})
+      </option>
+    </select>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center py-10">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+  </div>
+
+  <!-- ══════════════════════════ PROFILS SALARIAUX ══════════════════════════ -->
+  <div *ngIf="!loading && activeSubTab === 'profils'">
+    <div class="flex justify-end mb-4">
+      <button (click)="openCreateProfileModal()"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        <span>+</span> Nouveau profil
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Ouvrier</th>
+            <th class="px-4 py-3">Type de paie</th>
+            <th class="px-4 py-3">Taux</th>
+            <th class="px-4 py-3">Heures normales/j</th>
+            <th class="px-4 py-3">Majoration heures sup</th>
+            <th class="px-4 py-3">Statut</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let profile of salaryProfiles" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ profile.workerName }}</td>
+            <td class="px-4 py-3">{{ getRateLabel(profile.payType) }}</td>
+            <td class="px-4 py-3">{{ formatAmount(getProfileRate(profile), profile.currency) }}</td>
+            <td class="px-4 py-3">{{ profile.normalHoursPerDay || '-' }}</td>
+            <td class="px-4 py-3">x{{ profile.overtimeMultiplier || '-' }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium"
+                [ngClass]="profile.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
+                {{ profile.active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex gap-3">
+                <button (click)="openEditProfileModal(profile)" class="text-orange-600 hover:underline">Modifier</button>
+                <button (click)="deleteSalaryProfile(profile)" class="text-red-600 hover:underline">Supprimer</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="salaryProfiles.length === 0">
+            <td colspan="7" class="px-4 py-8 text-center text-gray-500">Aucun profil salarial pour ce chantier.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ PÉRIODES DE PAIE ══════════════════════════ -->
+  <div *ngIf="!loading && activeSubTab === 'periodes'">
+    <div class="flex justify-end mb-4">
+      <button (click)="openCreatePeriodModal()"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        <span>+</span> Nouvelle période
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Libellé</th>
+            <th class="px-4 py-3">Type</th>
+            <th class="px-4 py-3">Début</th>
+            <th class="px-4 py-3">Fin</th>
+            <th class="px-4 py-3">Statut</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let period of payPeriods" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ period.label }}</td>
+            <td class="px-4 py-3">{{ period.type }}</td>
+            <td class="px-4 py-3">{{ formatDate(period.startDate) }}</td>
+            <td class="px-4 py-3">{{ formatDate(period.endDate) }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPeriodStatusClass(period.status)">
+                {{ period.status }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex gap-3">
+                <button *ngIf="period.status === 'OPEN'" (click)="lockPeriod(period)" class="text-yellow-600 hover:underline">Verrouiller</button>
+                <button *ngIf="period.status === 'LOCKED'" (click)="closePeriod(period)" class="text-blue-600 hover:underline">Clôturer</button>
+                <button *ngIf="period.status === 'OPEN'" (click)="deletePeriod(period)" class="text-red-600 hover:underline">Supprimer</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="payPeriods.length === 0">
+            <td colspan="6" class="px-4 py-8 text-center text-gray-500">Aucune période de paie pour ce chantier.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ BULLETINS DE PAIE ══════════════════════════ -->
+  <div *ngIf="!loading && activeSubTab === 'bulletins'">
+    <div class="flex justify-end mb-4">
+      <button (click)="generatePayslips()" [disabled]="!selectedPeriodId"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+        Générer les bulletins
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Ouvrier</th>
+            <th class="px-4 py-3">Heures travaillées</th>
+            <th class="px-4 py-3">Heures sup.</th>
+            <th class="px-4 py-3">Brut</th>
+            <th class="px-4 py-3">Bonus</th>
+            <th class="px-4 py-3">Acomptes</th>
+            <th class="px-4 py-3">Autres déductions</th>
+            <th class="px-4 py-3">Net</th>
+            <th class="px-4 py-3">Statut</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let payslip of payslips" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ payslip.workerName }}</td>
+            <td class="px-4 py-3">{{ payslip.workedHours }} h</td>
+            <td class="px-4 py-3">{{ payslip.overtimeHours }} h</td>
+            <td class="px-4 py-3">{{ formatAmount(payslip.grossAmount, payslip.currency) }}</td>
+            <td class="px-4 py-3">{{ formatAmount(payslip.bonus, payslip.currency) }}</td>
+            <td class="px-4 py-3">{{ formatAmount(payslip.advanceTotal, payslip.currency) }}</td>
+            <td class="px-4 py-3">{{ formatAmount(payslip.otherDeductions, payslip.currency) }}</td>
+            <td class="px-4 py-3 font-semibold">{{ formatAmount(payslip.netAmount, payslip.currency) }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPayslipStatusClass(payslip.status)">
+                {{ payslip.status }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex gap-2 flex-wrap">
+                <button *ngIf="payslip.status === 'DRAFT'" (click)="openAdjustModal(payslip)" class="text-orange-600 hover:underline">Ajuster</button>
+                <button *ngIf="payslip.status === 'DRAFT'" (click)="validatePayslip(payslip)" class="text-blue-600 hover:underline">Valider</button>
+                <button (click)="downloadPayslipPdf(payslip)" class="text-gray-600 hover:underline">PDF</button>
+                <button *ngIf="payslip.status === 'DRAFT'" (click)="deletePayslip(payslip)" class="text-red-600 hover:underline">Supprimer</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="payslips.length === 0">
+            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
+              {{ selectedPeriodId ? 'Aucun bulletin pour cette période.' : 'Sélectionnez une période de paie.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ ACOMPTES ══════════════════════════ -->
+  <div *ngIf="!loading && activeSubTab === 'acomptes'">
+    <div class="flex justify-end mb-4">
+      <button (click)="openCreateAdvanceModal()"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        <span>+</span> Nouvel acompte
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Ouvrier</th>
+            <th class="px-4 py-3">Montant</th>
+            <th class="px-4 py-3">Date</th>
+            <th class="px-4 py-3">Motif</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let advance of salaryAdvances" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ advance.workerName }}</td>
+            <td class="px-4 py-3">{{ formatAmount(advance.amount) }}</td>
+            <td class="px-4 py-3">{{ formatDate(advance.date) }}</td>
+            <td class="px-4 py-3">{{ advance.reason || '-' }}</td>
+            <td class="px-4 py-3">
+              <button (click)="deleteSalaryAdvance(advance)" class="text-red-600 hover:underline">Supprimer</button>
+            </td>
+          </tr>
+          <tr *ngIf="salaryAdvances.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+              {{ selectedPeriodId ? 'Aucun acompte pour cette période.' : 'Sélectionnez une période de paie.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ PAIEMENTS ══════════════════════════ -->
+  <div *ngIf="!loading && activeSubTab === 'paiements'">
+
+    <!-- KPIs masse salariale -->
+    <div *ngIf="payrollKpis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="text-xs text-gray-500 mb-1">Masse brute</div>
+        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalGross) }}</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="text-xs text-gray-500 mb-1">Acomptes</div>
+        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalAdvances) }}</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="text-xs text-gray-500 mb-1">Masse nette</div>
+        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalNet) }}</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="text-xs text-gray-500 mb-1">Déjà payé</div>
+        <div class="text-lg font-bold text-green-600">{{ formatAmount(payrollKpis.totalPaid) }}</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="text-xs text-gray-500 mb-1">Reste à payer</div>
+        <div class="text-lg font-bold text-orange-600">{{ formatAmount(payrollKpis.remainingToPay) }}</div>
+      </div>
+    </div>
+
+    <div class="flex justify-end items-center gap-3 mb-4">
+      <select [(ngModel)]="bulkPayMethod" class="border border-gray-300 rounded-lg py-2 px-3 text-sm">
+        <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+      </select>
+      <button (click)="payInBulk()" [disabled]="!selectedPeriodId"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+        Payer en masse
+      </button>
+      <button (click)="openCreatePaymentModal()"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+        Paiement unitaire
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Ouvrier</th>
+            <th class="px-4 py-3">Montant</th>
+            <th class="px-4 py-3">Méthode</th>
+            <th class="px-4 py-3">Référence</th>
+            <th class="px-4 py-3">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let payment of payrollPayments" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ payment.workerName }}</td>
+            <td class="px-4 py-3">{{ formatAmount(payment.amount) }}</td>
+            <td class="px-4 py-3">{{ payment.method }}</td>
+            <td class="px-4 py-3">{{ payment.reference || '-' }}</td>
+            <td class="px-4 py-3">{{ formatDate(payment.paidAt) }}</td>
+          </tr>
+          <tr *ngIf="payrollPayments.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Aucun paiement enregistré pour ce chantier.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: PROFIL SALARIAL ══════════════════════════ -->
+<div *ngIf="showProfileModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeProfileModal()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">{{ editingProfileId ? 'Modifier le' : 'Nouveau' }} profil salarial</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Ouvrier *</label>
+        <select [(ngModel)]="profileForm.workerId" [disabled]="!!editingProfileId"
+          class="w-full border border-gray-300 rounded-lg py-2 px-3 disabled:bg-gray-100">
+          <option [ngValue]="0">-- Sélectionner --</option>
+          <option *ngFor="let worker of workers" [ngValue]="worker.id">{{ worker.prenom }} {{ worker.nom }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Type de paie *</label>
+        <select [(ngModel)]="profileForm.payType" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option *ngFor="let type of payTypes" [value]="type">{{ getRateLabel(type) }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="profileForm.payType === 'HOURLY'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Taux horaire *</label>
+        <input type="number" [(ngModel)]="profileForm.hourlyRate" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div *ngIf="profileForm.payType === 'DAILY'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Taux journalier *</label>
+        <input type="number" [(ngModel)]="profileForm.dailyRate" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div *ngIf="profileForm.payType === 'WEEKLY'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Taux hebdomadaire *</label>
+        <input type="number" [(ngModel)]="profileForm.weeklyRate" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div *ngIf="profileForm.payType === 'MONTHLY'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Salaire mensuel *</label>
+        <input type="number" [(ngModel)]="profileForm.monthlySalary" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Heures normales / jour</label>
+          <input type="number" [(ngModel)]="profileForm.normalHoursPerDay" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Majoration heures sup.</label>
+          <input type="number" step="0.1" [(ngModel)]="profileForm.overtimeMultiplier" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
+        <select [(ngModel)]="profileForm.currency" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="closeProfileModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="saveSalaryProfile()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: PÉRIODE DE PAIE ══════════════════════════ -->
+<div *ngIf="showPeriodModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closePeriodModal()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">Nouvelle période de paie</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Libellé *</label>
+        <input type="text" [(ngModel)]="periodForm.label" placeholder="Ex: Paie Juin 2026"
+          class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+        <select [(ngModel)]="periodForm.type" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option *ngFor="let type of periodTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date de début *</label>
+          <input type="date" [(ngModel)]="periodForm.startDate" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin *</label>
+          <input type="date" [(ngModel)]="periodForm.endDate" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="closePeriodModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="savePayPeriod()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: AJUSTER BULLETIN ══════════════════════════ -->
+<div *ngIf="showAdjustModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeAdjustModal()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">Ajuster le bulletin de {{ adjustingPayslip?.workerName }}</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Bonus</label>
+        <input type="number" [(ngModel)]="adjustForm.bonus" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Autres déductions</label>
+        <input type="number" [(ngModel)]="adjustForm.otherDeductions" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="closeAdjustModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="saveAdjustment()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: ACOMPTE ══════════════════════════ -->
+<div *ngIf="showAdvanceModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeAdvanceModal()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">Nouvel acompte</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Ouvrier *</label>
+        <select [(ngModel)]="advanceForm.workerId" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option [ngValue]="0">-- Sélectionner --</option>
+          <option *ngFor="let worker of workers" [ngValue]="worker.id">{{ worker.prenom }} {{ worker.nom }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>
+        <input type="number" [(ngModel)]="advanceForm.amount" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+        <input type="date" [(ngModel)]="advanceForm.date" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Motif</label>
+        <input type="text" [(ngModel)]="advanceForm.reason" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="closeAdvanceModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="saveSalaryAdvance()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: PAIEMENT UNITAIRE ══════════════════════════ -->
+<div *ngIf="showPaymentModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closePaymentModal()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">Paiement unitaire</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Bulletin *</label>
+        <select [(ngModel)]="paymentForm.payslipId" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option [ngValue]="0">-- Sélectionner --</option>
+          <option *ngFor="let payslip of payslips" [ngValue]="payslip.id">
+            {{ payslip.workerName }} — Net: {{ formatAmount(payslip.netAmount, payslip.currency) }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>
+        <input type="number" [(ngModel)]="paymentForm.amount" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Méthode *</label>
+        <select [(ngModel)]="paymentForm.method" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+          <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Référence</label>
+        <input type="text" [(ngModel)]="paymentForm.reference" class="w-full border border-gray-300 rounded-lg py-2 px-3">
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="closePaymentModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="savePayrollPayment()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">Payer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL: CONFIRMATION ══════════════════════════ -->
+<div *ngIf="showConfirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4" (click)="confirmNo()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 text-center" (click)="$event.stopPropagation()">
+    <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-4"
+      [ngClass]="confirmDanger ? 'bg-red-100' : 'bg-blue-100'">
+      <svg *ngIf="confirmDanger" class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <svg *ngIf="!confirmDanger" class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+
+    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ confirmTitle }}</h3>
+    <p class="text-sm text-gray-600 mb-6">{{ confirmMessage }}</p>
+
+    <div class="flex justify-center gap-3">
+      <button (click)="confirmNo()" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annuler</button>
+      <button (click)="confirmYes()" class="px-5 py-2 rounded-lg text-white"
+        [ngClass]="confirmDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>

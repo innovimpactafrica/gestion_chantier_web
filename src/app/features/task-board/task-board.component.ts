@@ -333,6 +333,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   public getFileBaseUrl() {
     return `${environment.filebaseUrl}`;
   }
+
   private loadTasks(): void {
     if (!this.currentPropertyId) {
       this.error = this.t('taskBoard.error.propertyNotSet') || 'ID de propriété non défini';

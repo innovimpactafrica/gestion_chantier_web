@@ -29,6 +29,8 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   plan: SubscriptionPlan | null = null;
   isLoading = true;
   chart: Chart | null = null;
+  /** Mode lecture seule (consultation depuis la liste des abonnements) : masque les actions d'admin */
+  isViewMode = false;
 
   // 🆕 États pour les modals et notifications
   showDeleteModal = false;
@@ -61,6 +63,10 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.isViewMode = params['mode'] === 'view';
+    });
+
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.planId = +params['id'];
       if (this.planId) {
@@ -170,7 +176,8 @@ export class DetailsAbonnementComponent implements OnInit, OnDestroy {
       projectLimit: this.plan.projectLimit,
       unlimitedProjects: this.plan.unlimitedProjects,
       yearlyDiscountRate: this.plan.yearlyDiscountRate,
-      active: newStatus
+      active: newStatus,
+      advantages: this.plan.advantages || []
     };
 
 

@@ -141,12 +141,24 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   private readonly isCheckingPermission = signal<boolean>(true);
   private readonly hasActiveSubscriptionSignal = signal<boolean>(true);
   private readonly subscriptionChecked = signal<boolean>(false);
+  private readonly subscriptionLimitInfoSignal = signal<{
+    currentProjectCount: number;
+    projectLimit: number;
+    remainingProjects: number;
+    unlimitedProjects: boolean;
+    planLabel: string;
+  } | null>(null);
 
   // Computed signal pour l'accès dans le template
   readonly canCreateProject = computed(() => this.canCreateProjectSignal());
   readonly checkingPermission = computed(() => this.isCheckingPermission());
   readonly hasNoSubscription = computed(() => this.subscriptionChecked() && !this.hasActiveSubscriptionSignal());
   readonly showSubscriptionPopup = signal<boolean>(false);
+  readonly subscriptionLimitInfo = computed(() => this.subscriptionLimitInfoSignal());
+  readonly isProjectLimitExceeded = computed(() => {
+    const info = this.subscriptionLimitInfoSignal();
+    return !!info && !info.unlimitedProjects && info.remainingProjects <= 0;
+  });
 
   promoterId: number = 0;
   @Input() project: any;
@@ -188,6 +200,14 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       canLoadMore: state.canLoadMore && !state.loading && !state.allProjectsLoaded
     };
   });
+
+  /**
+   * Vrai uniquement quand l'utilisateur n'a strictement aucun chantier (pas un filtre qui ne
+   * matche rien) : le backend ne reçoit pas les filtres de recherche (voir loadProjectsWithRetry),
+   * donc `totalElements` reflète toujours le nombre réel de chantiers, indépendamment des filtres
+   * appliqués localement.
+   */
+  readonly showEmptyProjectsState = computed(() => !this.loading() && this.pagination().totalElements === 0);
 
   // Subjects pour la gestion des événements
   private readonly searchSubject = new Subject<ProjectFilters>();
@@ -280,6 +300,38 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       next: (isActive: boolean) => {
         this.hasActiveSubscriptionSignal.set(isActive);
         this.subscriptionChecked.set(true);
+      }
+    });
+
+    this.loadSubscriptionLimitInfo();
+  }
+
+  /**
+   * Récupère la limite de projets du plan en cours pour pouvoir expliquer
+   * clairement à l'utilisateur pourquoi ses chantiers sont bloqués (limite
+   * de projets atteinte) plutôt que de juste afficher un badge "BLOQUÉ".
+   */
+  private loadSubscriptionLimitInfo(): void {
+    this.subscriptionService.getSubscriptionByUser(this.promoterId).pipe(
+      timeout(this.REQUEST_TIMEOUT),
+      catchError(() => of(null)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (subscription) => {
+        if (!subscription) {
+          this.subscriptionLimitInfoSignal.set(null);
+          return;
+        }
+        this.subscriptionLimitInfoSignal.set({
+          currentProjectCount: subscription.currentProjectCount,
+          // Le backend ne renvoie pas toujours le plan lié : on déduit la limite des compteurs
+          // de l'abonnement (toujours présents) plutôt que de retomber sur 0
+          projectLimit: subscription.subscriptionPlan?.projectLimit
+            ?? (subscription.currentProjectCount + subscription.remainingProjects),
+          remainingProjects: subscription.remainingProjects,
+          unlimitedProjects: subscription.subscriptionPlan?.unlimitedProjects ?? false,
+          planLabel: subscription.subscriptionPlan?.label ?? ''
+        });
       }
     });
   }
@@ -684,7 +736,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     }
 
     // Vérifier si le projet est bloqué
-    if (project.blocked === true) {
+    if (this.isProjectBlocked(project)) {
       this.blockedProjectTitle.set(project.title || 'Ce projet');
       this.showBlockedPopup.set(true);
       return;
@@ -728,10 +780,18 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Vérifie si un projet est bloqué
+   * Vérifie si un projet est bloqué.
+   *
+   * Le flag `blocked` renvoyé par le backend est calculé à partir du `promoterId`
+   * enregistré SUR LE PROJET — qui peut être erroné pour des chantiers créés avant
+   * la correction du bug `promoterId` (certains pointaient vers un autre utilisateur).
+   * On ne bloque donc l'accès que si le projet est marqué bloqué ET que l'utilisateur
+   * connecté lui-même n'a pas la permission de créer/accéder à des projets
+   * (GET /api/subscriptions/can-create-project/{userId}, déjà vérifié dans
+   * checkCanCreateProject() avec l'ID de l'utilisateur courant).
    */
   isProjectBlocked(project: any): boolean {
-    return project?.blocked === true;
+    return project?.blocked === true && !this.canCreateProject();
   }
 
   /**
@@ -927,8 +987,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       'Titre': project.title || '',
       'Localisation': project.location || '',
       'Adresse': project.address || '',
-      'Date de début': project.startDate ? `${project.startDate[2]}/${project.startDate[1]}/${project.startDate[0]}` : '',
-      'Date de fin': project.endDate ? `${project.endDate[2]}/${project.endDate[1]}/${project.endDate[0]}` : '',
+      'Date de début': project.startDate || '',
+      'Date de fin': project.endDate || '',
       'Progression (%)': project.progress || 0,
       'Statut': project.available ? 'Actif' : 'Inactif',
       'Budget': project.budget || 0

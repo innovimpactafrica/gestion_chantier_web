@@ -117,7 +117,7 @@ export class PropertyTypeComponent implements OnInit, OnDestroy {
           error: () => { this.loading = false; this.error = 'Erreur lors de la modification'; }
         });
     } else {
-      const newType: PropertyType = { id: 0, name: '', typeName: this.typeForm.value.typeName, parent: true };
+      const newType: PropertyType = { typeName: this.typeForm.value.typeName, parent: true };
       this.propertyTypeService.create(newType)
         .pipe(takeUntil(this.destroy$))
         .subscribe({

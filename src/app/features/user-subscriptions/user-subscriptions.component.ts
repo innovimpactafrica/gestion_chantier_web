@@ -249,7 +249,7 @@ export class UserSubscriptionsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/subscription-details'], {
       queryParams: {
         id: subscription.id,
-        userId: subscription.user.id
+        userId: subscription.user?.id ?? this.currentUserId ?? this.userId
       }
     });
   }

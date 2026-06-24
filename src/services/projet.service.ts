@@ -17,7 +17,7 @@ export interface ProjectData {
   longitude?: string;
   description?: string;
   numberOfLots?: number;
-  promoterId?: number;
+  publisherId?: number;
   moaId?: number;
   managerId?: number;
   propertyTypeId?: number;
@@ -105,7 +105,7 @@ export class ProjectService {
 
     // Liste de tous les champs possibles
     const stringFields = ['name', 'number', 'address', 'latitude', 'longitude', 'description', 'startDate', 'endDate'];
-    const numberFields = ['price', 'numberOfRooms', 'area', 'numberOfLots', 'promoterId', 'moaId', 'managerId', 'propertyTypeId'];
+    const numberFields = ['price', 'numberOfRooms', 'area', 'numberOfLots', 'publisherId', 'moaId', 'managerId', 'propertyTypeId'];
     const booleanFields = [
       'hasHall', 'hasParking', 'hasElevator', 'hasSwimmingPool', 'hasGym', 'hasPlayground',
       'hasSecurityService', 'hasGarden', 'hasSharedTerrace', 'hasBicycleStorage', 'hasLaundryRoom',
@@ -199,7 +199,7 @@ export class ProjectService {
     }
 
     // Validation des IDs
-    const idFields = ['promoterId', 'moaId', 'managerId', 'propertyTypeId'];
+    const idFields = ['publisherId', 'moaId', 'managerId', 'propertyTypeId'];
     idFields.forEach(field => {
       const value = (projectData as any)[field];
       if (value !== undefined && (!Number.isInteger(value) || value <= 0)) {
@@ -298,7 +298,7 @@ export class ProjectService {
       longitude: "-17.4441",
       description: "Magnifique résidence avec vue sur mer",
       numberOfLots: 50,
-      promoterId: 1,
+      publisherId: 1,
       moaId: 1,
       managerId: 1,
       propertyTypeId: 1,

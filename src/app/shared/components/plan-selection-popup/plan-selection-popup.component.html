@@ -65,7 +65,7 @@
             <div class="plan-card">
                 <div class="plan-header">
                     <h3 class="plan-name">{{ basicPlan()!.label || basicPlan()!.name }}</h3>
-                    <p class="plan-description">{{ t('popup.plan.basic.description') }}</p>
+                    <p class="plan-description">{{ basicPlan()!.description }}</p>
                 </div>
 
                 <!-- Price -->
@@ -84,30 +84,16 @@
                 }
 
                 <div class="plan-features">
+                    @for (advantage of basicPlan()!.advantages; track advantage) {
                     <div class="feature-item">
                         <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        <span>{{ t('popup.plan.basic.feature1') }}</span>
+                        <span>{{ advantage }}</span>
                     </div>
-                    <div class="feature-item">
-                        <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{{ t('popup.plan.basic.feature2') }}</span>
-                    </div>
-                    <div class="feature-item">
-                        <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{{ t('popup.plan.basic.feature3') }}</span>
-                    </div>
+                    }
                 </div>
 
                 <button class="plan-button plan-button-basic" (click)="onSelectPlan('basic')"
@@ -128,7 +114,7 @@
 
                 <div class="plan-header">
                     <h3 class="plan-name">{{ premiumPlan()!.label || premiumPlan()!.name }}</h3>
-                    <p class="plan-description">{{ t('popup.plan.premium.description') }}</p>
+                    <p class="plan-description">{{ premiumPlan()!.description }}</p>
                 </div>
 
                 <!-- Price -->
@@ -147,38 +133,16 @@
                 }
 
                 <div class="plan-features">
+                    @for (advantage of premiumPlan()!.advantages; track advantage) {
                     <div class="feature-item">
                         <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        <span>{{ t('popup.plan.premium.feature1') }}</span>
+                        <span>{{ advantage }}</span>
                     </div>
-                    <div class="feature-item">
-                        <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{{ t('popup.plan.premium.feature2') }}</span>
-                    </div>
-                    <div class="feature-item">
-                        <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{{ t('popup.plan.premium.feature3') }}</span>
-                    </div>
-                    <div class="feature-item">
-                        <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{{ t('popup.plan.premium.feature4') }}</span>
-                    </div>
+                    }
                 </div>
 
                 <button class="plan-button plan-button-premium" (click)="onSelectPlan('premium')"

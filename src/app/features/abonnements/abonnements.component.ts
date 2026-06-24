@@ -144,7 +144,8 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
       projectLimit: this.selectedPlanForAction.projectLimit,
       unlimitedProjects: this.selectedPlanForAction.unlimitedProjects,
       yearlyDiscountRate: this.selectedPlanForAction.yearlyDiscountRate,
-      active: newStatus  // ✅ Seul ce champ change
+      active: newStatus,  // ✅ Seul ce champ change
+      advantages: this.selectedPlanForAction.advantages || []
     };
 
 

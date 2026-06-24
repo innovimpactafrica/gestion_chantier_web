@@ -55,8 +55,12 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     projectLimit: 0,
     unlimitedProjects: false,
     yearlyDiscountRate: 0,
-    active: true
+    active: true,
+    advantages: [] as string[]
   };
+
+  // Saisie en cours pour l'ajout d'un avantage
+  newAdvantage: string = '';
 
   // Validation
   errors: { [key: string]: string } = {};
@@ -115,7 +119,8 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
             projectLimit: plan.projectLimit,
             unlimitedProjects: plan.unlimitedProjects,
             yearlyDiscountRate: plan.yearlyDiscountRate,
-            active: plan.active
+            active: plan.active,
+            advantages: plan.advantages ? [...plan.advantages] : []
           };
           this.isLoading = false;
         },
@@ -134,6 +139,25 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
     if (this.formData.unlimitedProjects) {
       this.formData.projectLimit = 0;
     }
+  }
+
+  /**
+   * Ajoute un avantage saisi par l'admin à la liste du plan
+   */
+  addAdvantage(): void {
+    const value = this.newAdvantage.trim();
+    if (!value || this.isReadOnly) return;
+
+    this.formData.advantages.push(value);
+    this.newAdvantage = '';
+  }
+
+  /**
+   * Retire un avantage de la liste du plan
+   */
+  removeAdvantage(index: number): void {
+    if (this.isReadOnly) return;
+    this.formData.advantages.splice(index, 1);
   }
 
   /**
@@ -219,7 +243,8 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
       unlimitedProjects: this.formData.unlimitedProjects,
       yearlyDiscountRate: this.formData.yearlyDiscountRate,
-      active: this.formData.active
+      active: this.formData.active,
+      advantages: this.formData.advantages
     };
 
 
@@ -271,7 +296,8 @@ export class CreatePlanComponent implements OnInit, OnDestroy {
       projectLimit: this.formData.unlimitedProjects ? 0 : this.formData.projectLimit,
       unlimitedProjects: this.formData.unlimitedProjects,
       yearlyDiscountRate: this.formData.yearlyDiscountRate,
-      active: this.formData.active
+      active: this.formData.active,
+      advantages: this.formData.advantages
     };
 
 
