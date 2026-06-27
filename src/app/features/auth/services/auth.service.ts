@@ -541,21 +541,36 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   }
 
   // Méthode de Refresh Token
+  // Contrat API: POST {apiV1Url}/auth/refresh
+  //   - Pas d'en-tête Authorization (l'exemple Swagger en mettait un par erreur)
+  //   - Body    : { "token": "<token>" }
+  //   - Réponse : { token, refreshToken }
   refreshAuthToken(): Observable<any> {
+    const accessToken = this._token() || (isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null);
     const refreshToken = this._refreshToken() || (isPlatformBrowser(this.platformId) ? localStorage.getItem('refreshToken') : null);
-    if (!refreshToken) {
+
+    // Le backend attend le JWT à rafraîchir dans le champ "token" du body.
+    // On privilégie le refreshToken s'il existe, sinon on retombe sur l'access token.
+    const tokenToRefresh = refreshToken || accessToken;
+    if (!tokenToRefresh) {
       this.clearAuthData();
       return of(null);
     }
-    
-    // Remplacer "refresh" par votre route de refresh token côté back
-    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+
+    // Pas d'en-tête Authorization : l'intercepteur n'ajoute pas le token sur /refresh,
+    // et le backend identifie l'utilisateur via le token présent dans le body.
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { token: tokenToRefresh }, { headers }).pipe(
       tap((tokens: any) => {
-        this.updateToken(tokens.token, tokens.refreshToken);
+        if (tokens?.token) {
+          this.updateToken(tokens.token, tokens.refreshToken);
+        }
       }),
       catchError(err => {
         this.clearAuthData();
-        // Optionnel : rediriger vers /login via Router (s'il est injecté)
         return of(null);
       })
     );
