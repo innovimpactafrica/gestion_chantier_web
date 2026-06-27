@@ -509,19 +509,16 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
   }
 
   // ✅ CORRECTION MAJEURE: Méthode pour obtenir le token
-  getToken(): string | null {
+getToken(): string | null {
     const token = this._token();
+    if (token) return token;
 
-    if (!token) {
-      return null;
+    // Fallback si le signal n'est pas encore peuplé
+    if (isPlatformBrowser(this.platformId)) {
+        return localStorage.getItem('token') || localStorage.getItem('auth_token');
     }
-
-    // Retrait de la suppression automatique stricte sinon l'intercepteur n'a pas le temps
-    // de déclencher le refresh token
-    // On revoie le token, c'est l'intercepteur qui va gérer le refresh si expiré ou l'API qui revoie 401.
-
-    return token;
-  }
+    return null;
+}
 
   // Mettre à jour le token
   updateToken(token: string, refreshToken?: string): void {
