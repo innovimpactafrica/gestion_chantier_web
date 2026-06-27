@@ -4,13 +4,13 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../../features/auth/services/auth.service';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 
-// État partagé : un seul refresh à la fois ; les autres requêtes en erreur attendent
-// que le nouveau token soit disponible avant d'être rejouées.
+// État partagé : un seul refresh à la fois ; les autres requêtes attendent que le
+// nouveau token soit disponible avant d'être (re)jouées.
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-// Marqueur (côté client uniquement, pas envoyé sur le réseau → pas de preflight CORS)
-// pour éviter de relancer un refresh en boucle sur une requête déjà rejouée.
+// Marqueur côté client (non envoyé sur le réseau → pas de preflight CORS) pour
+// éviter de relancer un refresh en boucle sur une requête déjà rejouée.
 const ALREADY_RETRIED = new HttpContextToken<boolean>(() => false);
 
 const addToken = (req: HttpRequest<unknown>, token: string, markRetried = false): HttpRequest<unknown> =>
@@ -25,41 +25,53 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = authService.getToken();
 
-  // Endpoints d'authentification : on ne déclenche jamais le refresh dessus
-  // (sinon boucle infinie sur un échec de /refresh ou /signin).
+  // Endpoints d'authentification : jamais de refresh dessus (sinon boucle infinie).
   const isAuthEndpoint =
     req.url.includes('/refresh') ||
     req.url.includes('/signin') ||
     req.url.includes('/signup');
+
+  const alreadyRetried = req.context.get(ALREADY_RETRIED);
+
+  // 1) PROACTIF : le backend renvoie des codes incohérents (400/401/403) quand le
+  //    token est expiré. Plutôt que de réagir à ces codes, si on sait déjà que le
+  //    token est expiré et qu'on a un refresh token, on rafraîchit AVANT d'envoyer.
+  if (
+    token &&
+    !isAuthEndpoint &&
+    !alreadyRetried &&
+    !authService.isTokenValid() &&
+    authService.getRefreshToken()
+  ) {
+    return refreshAndRetry(req, next, authService, router);
+  }
 
   // On n'ajoute pas le token sur /refresh : refreshAuthToken() gère son propre body.
   const authReq = token && !req.url.includes('/refresh') ? addToken(req, token) : req;
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Le backend renvoie 401 (token absent/invalide) OU 403 (token expiré).
-      // On ne déclenche le refresh sur 403 que si le token est réellement expiré,
-      // pour ne pas confondre avec un vrai 403 de permission (droits insuffisants).
-      const isExpiredAuthError =
+      // 2) RÉACTIF (filet de sécurité) : si une réponse d'erreur arrive alors que le
+      //    token est expiré, on tente un refresh. Gardé sur isTokenValid() pour ne pas
+      //    confondre avec un vrai 400 (validation) ou 403 (permission) token encore valide.
+      const looksLikeAuthError =
         error.status === 401 ||
-        (error.status === 403 && !authService.isTokenValid());
+        ((error.status === 403 || error.status === 400) && !authService.isTokenValid());
 
-      const alreadyRetried = req.context.get(ALREADY_RETRIED);
-
-      if (isExpiredAuthError && !isAuthEndpoint && !alreadyRetried) {
-        return handle401(req, next, authService, router, error);
+      if (looksLikeAuthError && !isAuthEndpoint && !alreadyRetried) {
+        return refreshAndRetry(req, next, authService, router, error);
       }
       return throwError(() => error);
     })
   );
 };
 
-function handle401(
+function refreshAndRetry(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
   authService: AuthService,
   router: Router,
-  originalError: HttpErrorResponse
+  originalError?: HttpErrorResponse
 ) {
   if (!isRefreshing) {
     isRefreshing = true;
@@ -74,13 +86,13 @@ function handle401(
         if (newToken) {
           // Débloque toutes les requêtes mises en file d'attente.
           refreshTokenSubject.next(newToken);
-          // Rejoue la requête originale avec le nouveau token (marquée pour ne pas reboucler).
+          // (Re)joue la requête avec le nouveau token, marquée pour ne pas reboucler.
           return next(addToken(req, newToken, true));
         }
 
         // Refresh échoué (refreshAuthToken a déjà nettoyé l'état) : déconnexion + login.
         forceLogout(authService, router);
-        return throwError(() => originalError);
+        return throwError(() => originalError ?? new HttpErrorResponse({ status: 401 }));
       }),
       catchError((err) => {
         isRefreshing = false;
@@ -90,7 +102,7 @@ function handle401(
     );
   }
 
-  // Un refresh est déjà en cours : on attend le nouveau token puis on rejoue.
+  // Un refresh est déjà en cours : on attend le nouveau token puis on (re)joue.
   return refreshTokenSubject.pipe(
     filter((t): t is string => t !== null),
     take(1),
