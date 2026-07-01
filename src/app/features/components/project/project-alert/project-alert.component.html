@@ -1,501 +1,400 @@
-<!-- Loader -->
-<div *ngIf="loading" class="flex justify-center items-center p-8">
+<!-- Loader page entière -->
+<div *ngIf="loading" class="flex justify-center items-center py-12">
   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
 </div>
 
 <div class="p-6 bg-white rounded-lg" *ngIf="!loading">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ t('alert.title') }}</h2>
+
+  <!-- En-tête -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+    <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">{{ t('alert.title') }}</h1>
     <button (click)="openAddModal()"
-      class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
-      <span class="text-xl">+</span> {{ t('alert.addAlert') }}
+      class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+      style="background-color: #FF5C01;">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      {{ t('alert.addAlert') }}
     </button>
   </div>
 
-  <div class="mb-4 relative">
-    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor">
+  <!-- Barre de recherche -->
+  <div class="mb-6">
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+        stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
+      <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" [placeholder]="t('alert.search')"
+        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base" />
     </div>
-
-    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" [placeholder]="t('alert.search')"
-      class="w-3/6 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white rounded-lg">
-      <thead>
-        <tr class="text-left text-gray-600 border-b">
-          <th class="px-4 py-3 font-semibold">{{ t('alert.date') }}</th>
-          <th class="px-4 py-3 font-semibold">{{ t('alert.alertType') }}</th>
-          <th class="px-4 py-3 font-semibold">{{ t('alert.description') }}</th>
-          <th class="px-4 py-3 font-semibold">{{ t('incidents.status') || 'Statut' }}</th>
-          <th class="px-4 py-3 font-semibold">{{ t('alert.actions') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let signalement of filteredSignalements" class="border-b hover:bg-gray-50">
-          <td class="px-4 py-3">{{ formatDate(signalement.createdAt) }}</td>
-          <td class="px-4 py-3">{{ signalement.title }}</td>
-          <td class="px-4 py-3">{{ signalement.description || '--' }}</td>
+  <!-- Table : pas de overflow-hidden pour que le dropdown statut ne soit pas rogné -->
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <div class="w-full">
+      <table class="w-full min-w-[700px]">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">{{ t('alert.date') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">{{ t('alert.alertType') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">{{ t('alert.description') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">{{ t('incidents.status') || 'Statut' }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">{{ t('alert.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let signalement of filteredSignalements" class="hover:bg-gray-50">
 
-          <td class="px-4 py-3">
-            <div class="relative status-dropdown-container">
-              <button (click)="toggleStatusDropdown(signalement.id, $event)"
-                      [ngClass]="{
-                        'bg-yellow-100 text-yellow-800 border-yellow-200': mapIncidentStatus(signalement.status).type === 'warning',
-                        'bg-blue-100 text-blue-800 border-blue-200': mapIncidentStatus(signalement.status).type === 'info',
-                        'bg-green-100 text-green-800 border-green-200': mapIncidentStatus(signalement.status).type === 'success',
-                        'bg-gray-100 text-gray-800 border-gray-200': mapIncidentStatus(signalement.status).type === 'neutral'
-                      }"
-                      class="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1 hover:opacity-80 transition-opacity">
-                {{ t(mapIncidentStatus(signalement.status).labelKey) }}
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              
-              <!-- Dropdown Menu -->
-              <div *ngIf="showStatusDropdown[signalement.id]" 
-                   class="absolute z-50 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
-                <div class="py-1">
-                  <button *ngFor="let s of availableIncidentStatuses"
-                          (click)="changeIncidentStatus(signalement, s.value)"
-                          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                    {{ t(s.labelKey) }}
-                  </button>
+            <!-- Date -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ formatDate(signalement.createdAt) }}
+            </td>
+
+            <!-- Type -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+              {{ signalement.title }}
+            </td>
+
+            <!-- Description -->
+            <td class="px-6 py-4 text-sm text-gray-700" style="max-width: 300px;">
+              <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                {{ signalement.description || '--' }}
+              </div>
+            </td>
+
+            <!-- Statut dropdown (identique à etude-bet) -->
+            <td class="px-6 py-4 whitespace-nowrap overflow-visible relative">
+              <div class="relative inline-block status-dropdown-container">
+                <button (click)="toggleStatusDropdown(signalement.id, $event)"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-800': mapIncidentStatus(signalement.status).type === 'warning',
+                    'bg-blue-100 text-blue-800': mapIncidentStatus(signalement.status).type === 'info',
+                    'bg-green-100 text-green-800': mapIncidentStatus(signalement.status).type === 'success',
+                    'bg-gray-100 text-gray-700': mapIncidentStatus(signalement.status).type === 'neutral'
+                  }"
+                  class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 transition-all">
+                  {{ t(mapIncidentStatus(signalement.status).labelKey) }}
+                  <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <div *ngIf="showStatusDropdown[signalement.id]"
+                  class="absolute z-[100] mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200 left-0">
+                  <div class="py-1">
+                    <button *ngFor="let s of availableIncidentStatuses"
+                      (click)="changeIncidentStatus(signalement, s.value)"
+                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                      {{ t(s.labelKey) }}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </td>
+            </td>
 
-          <td class="px-4 py-3 flex gap-2">
-            <!-- Image icon button -->
-            <button *ngIf="signalement.pictures && signalement.pictures.length > 0"
-              (click)="openPhotoModal(signalement)" class="p-1 rounded-full transition" title="Voir les photos"
-              aria-label="Voir les photos">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#2196F3" fill-opacity="0.1" />
-                <path
-                  d="M10 10C10 9.46957 10.2107 8.96086 10.5858 8.58579C10.9609 8.21071 11.4696 8 12 8H20C20.5304 8 21.0391 8.21071 21.4142 8.58579C21.7893 8.96086 22 9.46957 22 10V20C22 20.5304 21.7893 21.0391 21.4142 21.4142C21.0391 21.7893 20.5304 22 20 22H12C11.4696 22 10.9609 21.7893 10.5858 21.4142C10.2107 21.0391 10 20.5304 10 20V10Z"
-                  stroke="#2196F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                <path
-                  d="M10 17L13 14C13.3536 13.6464 13.8464 13.6464 14.2 14L17 17M16 16L17 15C17.3536 14.6464 17.8464 14.6464 18.2 15L22 19"
-                  stroke="#2196F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                <circle cx="14.5" cy="12.5" r="1.5" fill="#2196F3" />
-              </svg>
-            </button>
+            <!-- Actions -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex items-center gap-2">
 
-            <!-- Bouton IA -->
-            <button
-              (click)="openAlertIAModal(signalement)"
-              class="text-purple-600 hover:text-purple-900 p-1.5 rounded-lg hover:bg-purple-50 transition-colors"
-              title="Voir rapport IA">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-              </svg>
-            </button>
+                <!-- Photos -->
+                <button *ngIf="signalement.pictures && signalement.pictures.length > 0"
+                  (click)="openPhotoModal(signalement)"
+                  class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir les photos">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </button>
 
-            <!-- Delete icon button -->
-            <button (click)="openDeleteConfirmModal(signalement.id)" class="p-1 rounded-full transition"
-              title="Supprimer" aria-label="Supprimer">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#F44336" fill-opacity="0.1" />
-                <path d="M17.6663 15.1667V20.1667M14.333 15.1667V20.1667M10.9997 11.8333V21.8333
-         C10.9997 22.2754 11.1753 22.6993 11.4878 23.0118
-         C11.8004 23.3244 12.2243 23.5 12.6663 23.5H19.333
-         C19.775 23.5 20.199 23.3244 20.5115 23.0118
-         C20.8241 22.6993 20.9997 22.2754 20.9997 21.8333V11.8333
-         M9.33301 11.8333H22.6663
-         M11.833 11.8333L13.4997 8.5H18.4997L20.1663 11.8333" stroke="#F44336" stroke-width="1.66667"
-                  stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </button>
-          </td>
-        </tr>
+                <!-- Rapport IA -->
+                <button (click)="openAlertIAModal(signalement)"
+                  class="text-purple-600 hover:text-purple-900 transition-colors" title="Rapport IA">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </button>
 
-        <!-- Message si aucun signalement -->
-        <tr *ngIf="filteredSignalements.length === 0">
-          <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-            {{ t('alert.noAlerts') }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Pagination améliorée -->
-  <div class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4" *ngIf="totalPages > 1">
-    <div class="text-sm text-gray-600">
-      {{ t('common.showing') }} {{ (currentPage * pageSize) + 1 }} {{ t('common.to') }} {{ Math.min((currentPage + 1) *
-      pageSize, totalElements) }} {{ t('common.of') }}
-      {{ totalElements }} {{ t('common.results') }}
+                <!-- Supprimer -->
+                <button (click)="openDeleteConfirmModal(signalement.id)"
+                  class="text-red-600 hover:text-red-900 transition-colors" title="Supprimer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="flex items-center gap-4">
-      <!-- Sélecteur de taille de page -->
+    <!-- Aucun signalement -->
+    <div *ngIf="filteredSignalements.length === 0" class="text-center py-12">
+      <p class="text-gray-500">{{ t('alert.noAlerts') }}</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4">
+    <div class="flex items-center text-xs sm:text-sm text-gray-700">
+      <span>
+        {{ (currentPage * pageSize) + 1 }}–{{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+        sur {{ totalElements }} résultat{{ totalElements > 1 ? 's' : '' }}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-gray-600">{{ t('projects.perPage') }}</span>
+        <span class="text-sm text-gray-500">Par page</span>
         <select [(ngModel)]="pageSize" (change)="onPageSizeChange()"
-          class="px-2 py-1 border border-gray-300 rounded text-sm">
+          class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
           <option value="5">5</option>
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="50">50</option>
         </select>
-        <span class="text-sm text-gray-600"></span>
       </div>
 
-      <!-- Navigation des pages -->
-      <div class="flex gap-1">
-        <button (click)="goToPage(0)" [disabled]="currentPage === 0"
-          class="px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-          title="Première page">
-          «
-        </button>
-
+      <div class="flex items-center space-x-1 sm:space-x-2">
         <button (click)="previousPage()" [disabled]="currentPage === 0"
-          class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100">
-          {{ t('common.previous') }}
+          class="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Précédent
         </button>
 
-        <div class="flex items-center gap-1">
-          <span *ngFor="let page of pageNumbers" class="text-sm">
-            <button (click)="goToPage(page)" [class]="page === currentPage ? 
-                       'px-3 py-1 bg-orange-500 text-white rounded' : 
-                       'px-3 py-1 border border-gray-300 text-gray-600 rounded hover:bg-gray-100'"
-              class="text-sm min-w-[2rem]">
-              {{ page + 1 }}
-            </button>
-          </span>
+        <div class="flex space-x-1">
+          <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
+            [class]="'px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium border rounded-md ' +
+              (page === currentPage ?
+                'bg-orange-500 text-white border-orange-500' :
+                'text-gray-700 bg-white border-gray-300 hover:bg-gray-50')">
+            {{ page + 1 }}
+          </button>
         </div>
 
         <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
-          class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100">
-          {{ t('common.next') }}
-        </button>
-
-        <button (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1"
-          class="px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-          title="Dernière page">
-          »
+          class="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Suivant
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal d'ajout avec upload d'images -->
-<div *ngIf="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-  <div class="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-gray-800">{{ t('alert.addAlert') }}</h3>
-      <button (click)="closeAddModal()" class="text-gray-400 hover:text-gray-600 text-xl">
-        ×
-      </button>
-    </div>
+<!-- ══════════════════════════ MODAL AJOUT SIGNALEMENT ══════════════════════════ -->
+<div *ngIf="showAddModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black opacity-50" (click)="closeAddModal()"></div>
+    <div class="bg-white rounded-lg p-8 max-w-2xl w-full relative z-10">
 
-    <form (ngSubmit)="addSignalement()" #signalementForm="ngForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ t('alert.alertType') }} *
-        </label>
-        <input type="text" [(ngModel)]="newSignalement.title" name="title" required maxlength="100"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-          [placeholder]="t('alert.alertType')" />
-        <div class="text-xs text-gray-500 mt-1">{{ newSignalement.title.length }}/100 caractères</div>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">{{ t('alert.addAlert') }}</h2>
+        <button (click)="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ t('alert.description') }} *
-        </label>
-        <textarea [(ngModel)]="newSignalement.description" name="description" required rows="4" maxlength="500"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-          [placeholder]="t('alert.description')"></textarea>
-        <div class="text-xs text-gray-500 mt-1">{{ newSignalement.description.length }}/500 caractères</div>
-      </div>
+      <form (ngSubmit)="addSignalement()" #signalementForm="ngForm" class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
 
-      <!-- Upload d'images -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ t('alert.photos') }} {{ t('common.optional') ? '(' + t('common.optional') + ')' : '(optionnel)' }}
-        </label>
-
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-          <input type="file" #fileInput (change)="onFileSelected($event)" multiple accept="image/*" class="hidden" />
-
-          <div class="mb-2">
-            <svg class="w-12 h-12 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-
-          <p class="text-sm text-gray-600 mb-2">{{ t('documents.dragDrop') }}</p>
-          <button type="button" (click)="fileInput.click()"
-            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
-            {{ t('documents.browse') }}
-          </button>
+        <!-- Type de signalement -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('alert.alertType') }} <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="newSignalement.title" name="title" required maxlength="100"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            [placeholder]="t('alert.alertType')" />
         </div>
 
-        <!-- Aperçu des images sélectionnées -->
-        <div *ngIf="newSignalement.pictures.length > 0" class="mt-4">
-          <h4 class="text-sm font-medium text-gray-700 mb-2">{{ t('alert.selectedImages') || 'Images sélectionnées:' }}</h4>
-          <div class="grid grid-cols-3 gap-2">
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('alert.description') }} <span class="text-red-500">*</span></label>
+          <textarea [(ngModel)]="newSignalement.description" name="description" required rows="4" maxlength="500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+            [placeholder]="t('alert.description')"></textarea>
+        </div>
+
+        <!-- Upload photos -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Photos <span class="text-gray-400 font-normal text-xs">(optionnel)</span>
+          </label>
+
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-400 transition-colors cursor-pointer"
+            (click)="fileInput.click()">
+            <input type="file" #fileInput (change)="onFileSelected($event)" multiple accept="image/*" class="hidden" />
+            <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p class="text-sm text-gray-500">Cliquez pour ajouter des photos</p>
+            <p class="text-xs text-gray-400 mt-1">PNG, JPG, JPEG acceptés</p>
+          </div>
+
+          <div *ngIf="newSignalement.pictures.length > 0" class="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2">
             <div *ngFor="let picture of newSignalement.pictures; let i = index" class="relative">
-              <img [src]="picture" class="w-full h-20 object-cover rounded" [alt]="(t('alert.imagePreview') || 'Aperçu image') + ' ' + (i + 1)" />
+              <img [src]="picture" class="w-full h-20 object-cover rounded-lg border border-gray-200" [alt]="'Photo ' + (i + 1)" />
               <button type="button" (click)="removeImage(i)"
-                class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                [title]="t('common.delete')">
-                ×
+                class="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm hover:bg-red-600">
+                &times;
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-        <button type="button" (click)="closeAddModal()"
-          class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
-          {{ t('common.cancel') }}
-        </button>
-        <button type="submit" [disabled]="!signalementForm.valid || loading"
-          class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
-          <span *ngIf="loading" class="flex items-center gap-2">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            {{ t('common.loading') }}
-          </span>
-          <span *ngIf="!loading">{{ t('common.add') }}</span>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modale de confirmation suppression -->
-<div *ngIf="showDeleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded-lg w-full max-w-sm">
-    <h3 class="text-lg font-semibold mb-4 text-gray-800">{{ t('alert.confirmDelete') }}</h3>
-    <p class="text-gray-600 mb-6">{{ t('alert.deleteConfirm') }} {{ t('statusReport.irreversibleAction') }}</p>
-
-    <div class="flex justify-end gap-2">
-      <button (click)="cancelDelete()"
-        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
-        {{ t('common.cancel') }}
-      </button>
-      <button (click)="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-        {{ t('common.delete') }}
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal Affichage Photos -->
-<div *ngIf="showPhotoModal && selectedSignalementForPhotos" class="fixed inset-0 z-[60] overflow-y-auto"
-  aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
-      (click)="closePhotoModal()"></div>
-
-    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-    <div
-      class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <div class="flex justify-between items-start mb-4">
-          <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-            Photos du signalement : {{ selectedSignalementForPhotos.title }}
-          </h3>
-          <button (click)="closePhotoModal()" type="button"
-            class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
-            <span class="sr-only">Fermer</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <!-- Footer -->
+        <div class="flex gap-3 pt-4 border-t border-gray-100">
+          <button type="submit" [disabled]="!signalementForm.valid || submitting"
+            class="flex-1 px-4 py-2 text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style="background-color: #FF5C01;">
+            <div *ngIf="submitting" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            {{ submitting ? 'Enregistrement...' : t('common.add') }}
+          </button>
+          <button type="button" (click)="closeAddModal()"
+            class="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+            {{ t('common.cancel') }}
           </button>
         </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-        <div class="mt-2">
-          <div *ngIf="selectedSignalementForPhotos.description" class="mb-4 text-gray-600 bg-gray-50 p-3 rounded">
-            <p>{{ selectedSignalementForPhotos.description }}</p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <div *ngFor="let pic of selectedSignalementForPhotos.pictures" class="relative group">
-              <img [src]="baseUrl + pic" alt="Photo du signalement"
-                class="w-full h-64 object-cover rounded-lg shadow-sm border border-gray-200 transition-transform duration-300 group-hover:scale-105"
-                onerror="this.src='https://via.placeholder.com/400x300?text=Image+non+disponible'">
-            </div>
-          </div>
-
-          <div *ngIf="selectedSignalementForPhotos.pictures && selectedSignalementForPhotos.pictures.length === 0"
-            class="text-center py-10 text-gray-500">
-            {{ t('projects.noImage') }}
-          </div>
-        </div>
+<!-- ══════════════════════════ MODAL CONFIRMATION SUPPRESSION ══════════════════════════ -->
+<div *ngIf="showDeleteConfirmModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black opacity-50" (click)="cancelDelete()"></div>
+    <div class="bg-white rounded-lg p-8 max-w-sm w-full relative z-10 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
       </div>
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button type="button" (click)="closePhotoModal()"
-          class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-          {{ t('common.close') }}
+      <h3 class="text-lg font-semibold mb-2">{{ t('alert.confirmDelete') }}</h3>
+      <p class="text-gray-600 mb-6">{{ t('alert.deleteConfirm') }}</p>
+      <div class="flex gap-3">
+        <button (click)="confirmDelete()"
+          class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">
+          {{ t('common.delete') }}
+        </button>
+        <button (click)="cancelDelete()"
+          class="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50">
+          {{ t('common.cancel') }}
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal Rapport IA — Incident -->
-<div *ngIf="showAlertIAModal"
-  class="fixed inset-0 z-[9999] overflow-y-auto">
+<!-- ══════════════════════════ MODAL PHOTOS ══════════════════════════ -->
+<div *ngIf="showPhotoModal && selectedSignalementForPhotos" class="fixed inset-0 z-[60] overflow-y-auto">
   <div class="flex items-center justify-center min-h-screen px-4">
-    <div class="fixed inset-0 bg-black bg-opacity-60"
-      (click)="closeAlertIAModal()"></div>
+    <div class="fixed inset-0 bg-black bg-opacity-60" (click)="closePhotoModal()"></div>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-10">
 
-    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full
-      relative z-[10000] max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center px-6 py-4 border-b">
+        <h3 class="text-lg font-bold text-gray-900">Photos — {{ selectedSignalementForPhotos.title }}</h3>
+        <button (click)="closePhotoModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-      <!-- Header -->
-      <div class="flex justify-between items-center px-6 py-4
-        border-b border-gray-100">
+      <div class="p-6">
+        <div *ngIf="selectedSignalementForPhotos.description"
+          class="mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          {{ selectedSignalementForPhotos.description }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div *ngFor="let pic of selectedSignalementForPhotos.pictures">
+            <img [src]="baseUrl + pic" alt="Photo du signalement"
+              class="w-full h-64 object-cover rounded-xl shadow-sm border border-gray-200"
+              onerror="this.src='https://via.placeholder.com/400x300?text=Image+non+disponible'" />
+          </div>
+        </div>
+
+        <div *ngIf="!selectedSignalementForPhotos.pictures || selectedSignalementForPhotos.pictures.length === 0"
+          class="text-center py-10 text-gray-400 text-sm">
+          Aucune photo disponible
+        </div>
+      </div>
+
+      <div class="border-t px-6 py-4 flex justify-end">
+        <button (click)="closePhotoModal()"
+          class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL RAPPORT IA ══════════════════════════ -->
+<div *ngIf="showAlertIAModal" class="fixed inset-0 z-[9999] overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black bg-opacity-60" (click)="closeAlertIAModal()"></div>
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full relative z-10 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-purple-100 rounded-lg flex
-            items-center justify-center">
-            <svg class="w-5 h-5 text-purple-600" fill="none"
-              stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2"
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707
-                M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828
-                9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014
-                18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754
-                -.988-2.386l-.548-.547z"/>
+          <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-900">
-              Rapport IA — Incident
-            </h2>
-            <p *ngIf="selectedAlertForIA"
-              class="text-xs text-gray-500">
-              {{ selectedAlertForIA.titre || 
-                 selectedAlertForIA.title || 
-                 selectedAlertForIA.type || 
-                 'Incident #' + selectedAlertForIA.id }}
+            <h2 class="text-lg font-semibold text-gray-900">Rapport IA — Incident</h2>
+            <p *ngIf="selectedAlertForIA" class="text-xs text-gray-500">
+              {{ selectedAlertForIA.titre || selectedAlertForIA.title || 'Incident #' + selectedAlertForIA.id }}
             </p>
           </div>
         </div>
-        <button (click)="closeAlertIAModal()"
-          class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        <button (click)="closeAlertIAModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Spinner chargement -->
-      <div *ngIf="isLoadingAlertIA"
-        class="flex flex-col items-center justify-center py-16">
-        <div class="animate-spin rounded-full h-10 w-10
-          border-b-2 border-purple-500 mb-4"></div>
-        <p class="text-gray-500 text-sm">
-          Chargement du rapport IA...
-        </p>
+      <div *ngIf="isLoadingAlertIA" class="flex flex-col items-center justify-center py-16">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mb-4"></div>
+        <p class="text-gray-500 text-sm">Chargement du rapport IA...</p>
       </div>
 
-      <!-- Erreur -->
-      <div *ngIf="!isLoadingAlertIA && alertIAError"
-        class="p-8 text-center">
-        <div class="w-14 h-14 bg-gray-100 rounded-full flex
-          items-center justify-center mx-auto mb-4">
-          <svg class="w-7 h-7 text-gray-400" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              stroke-width="2"
-              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15
-              10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
+      <div *ngIf="!isLoadingAlertIA && alertIAError" class="p-8 text-center">
         <p class="text-gray-600 font-medium">{{ alertIAError }}</p>
-        <p class="text-gray-400 text-sm mt-1">
-          Veuillez réessayer ultérieurement.
-        </p>
+        <p class="text-gray-400 text-sm mt-1">Veuillez réessayer ultérieurement.</p>
       </div>
 
-      <!-- Contenu rapport IA -->
-      <div *ngIf="!isLoadingAlertIA && alertIAReport"
-        class="p-6 space-y-5">
-
-        <!-- Sévérité + Type incident -->
+      <div *ngIf="!isLoadingAlertIA && alertIAReport" class="p-6 space-y-5">
         <div class="flex flex-wrap gap-3 items-center">
           <span [class]="'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ' + getAlertSeverityClass(alertIAReport.severity)">
             Sévérité : {{ getAlertSeverityLabel(alertIAReport.severity) }}
           </span>
-          <span class="px-3 py-1 rounded-full text-xs font-medium
-            bg-blue-100 text-blue-800">
-            {{ alertIAReport.incidentType }}
-          </span>
-          <span class="px-3 py-1 rounded-full text-xs font-medium
-            bg-gray-100 text-gray-700">
-            {{ alertIAReport.propertyName }}
-          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ alertIAReport.incidentType }}</span>
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{{ alertIAReport.propertyName }}</span>
         </div>
 
-        <!-- Explication -->
         <div class="border border-blue-100 rounded-lg p-4">
-          <p class="text-xs font-semibold text-blue-600 uppercase
-            tracking-wide mb-2 flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0
-                8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542
-                7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            Explication
-          </p>
-          <!-- [innerHTML] car le texte peut contenir du HTML -->
-          <div class="ia-html-content text-sm text-gray-700
-            leading-relaxed"
-            [innerHTML]="getAlertIAText(alertIAReport.explanation)">
-          </div>
+          <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Explication</p>
+          <div class="text-sm text-gray-700 leading-relaxed" [innerHTML]="getAlertIAText(alertIAReport.explanation)"></div>
         </div>
 
-        <!-- Recommandation -->
         <div class="border border-green-100 rounded-lg p-4">
-          <p class="text-xs font-semibold text-green-600 uppercase
-            tracking-wide mb-2 flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Recommandation
-          </p>
-          <div class="ia-html-content text-sm text-gray-700
-            leading-relaxed"
-            [innerHTML]="getAlertIAText(alertIAReport.recommendation)">
-          </div>
+          <p class="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2">Recommandation</p>
+          <div class="text-sm text-gray-700 leading-relaxed" [innerHTML]="getAlertIAText(alertIAReport.recommendation)"></div>
         </div>
 
-        <!-- Footer -->
         <div class="flex justify-end pt-2 border-t border-gray-100">
           <button (click)="closeAlertIAModal()"
-            class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg
-            hover:bg-gray-200 font-medium transition-colors">
+            class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
             Fermer
           </button>
         </div>
