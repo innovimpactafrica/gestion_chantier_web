@@ -1,6 +1,7 @@
 // progress-report.component.ts - Compatible SSR avec données API
 import { Component, Input, AfterViewInit, ElementRef, ViewChild, PLATFORM_ID, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Chart, ChartConfiguration, registerables } from 'chart.js/auto';
 import { DashboardService, PhaseIndicator } from '../../../../../services/dashboard.service';
 import { Subject } from 'rxjs';
@@ -30,10 +31,12 @@ export class ProgressReportComponent implements OnInit, AfterViewInit, OnDestroy
   @Input() iconName: string = '';
   @Input() chartId: string = 'progressChart';
   @ViewChild('barChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
-  
+
   private chart: Chart | undefined;
   private isBrowser: boolean;
   private destroy$ = new Subject<void>();
+  /** ID du chantier courant (lu depuis la route /detailprojet/:id), pour scoper l'avancement à ce seul chantier */
+  private projectId: number | null = null;
 
   // États de chargement et d'erreur
   isLoading: boolean = true;
@@ -69,12 +72,15 @@ private createDefaultData(): void {
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private route: ActivatedRoute
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
+    const idFromUrl = this.route.snapshot.paramMap.get('id');
+    this.projectId = idFromUrl ? +idFromUrl : null;
     this.loadProgressData();
   }
 
@@ -103,7 +109,7 @@ private createDefaultData(): void {
       return;
     }
     
-    this.dashboardService.etatAvancement().pipe(
+    this.dashboardService.etatAvancement(this.projectId ?? undefined).pipe(
       catchError(error => {
         return of([] as PhaseIndicator[]);
       })
@@ -113,7 +119,11 @@ private createDefaultData(): void {
         this.isLoading = false;
         
         // Créer le graphique après le chargement des données (côté navigateur uniquement)
-        if (this.isBrowser && this.chartCanvas) {
+        // Note : ne pas conditionner sur `this.chartCanvas` ici — le canvas est dans un
+        // bloc *ngIf affiché seulement une fois `isLoading` à false, donc la référence
+        // ViewChild n'existe pas encore à ce tick. Le setTimeout laisse le temps au DOM
+        // de se mettre à jour ; createChart() vérifie déjà chartCanvas en interne.
+        if (this.isBrowser) {
           setTimeout(() => this.createChart(), 100);
         }
       },
@@ -122,7 +132,11 @@ private createDefaultData(): void {
         this.isLoading = false;
         this.createDefaultData();
         
-        if (this.isBrowser && this.chartCanvas) {
+        // Note : ne pas conditionner sur `this.chartCanvas` ici — le canvas est dans un
+        // bloc *ngIf affiché seulement une fois `isLoading` à false, donc la référence
+        // ViewChild n'existe pas encore à ce tick. Le setTimeout laisse le temps au DOM
+        // de se mettre à jour ; createChart() vérifie déjà chartCanvas en interne.
+        if (this.isBrowser) {
           setTimeout(() => this.createChart(), 100);
         }
       }
@@ -174,64 +188,46 @@ private createDefaultData(): void {
 
   private createChart(): void {
     if (!this.isBrowser || !this.chartCanvas || !this.progressData.length) return;
-  
+
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
-  
+
     const labels = this.progressData.map(p => p.label);
     const data = this.progressData.map(p => p.value);
     const colors = this.progressData.map(p => p.color);
-  
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
+
+    const config: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
       data: {
         labels,
         datasets: [{
           data,
           backgroundColor: colors,
-          borderSkipped: false
+          borderWidth: 2,
+          borderColor: '#FFFFFF',
+          hoverOffset: 8
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '62%',
         plugins: {
-          legend: { display: false }
-        },
-   scales: {
-  y: {
-    beginAtZero: true,
-    max: 100,
-    border: {
-      display: false // Supprime la ligne de bordure verticale de l'axe Y
-    },
-    ticks: {
-      stepSize: 20,
-      callback: function (value) {
-        return value.toString();
-      },
-      color: '#4B5563',
-      font: { size: 12 }
-    },
-    grid: {
-      display: true,
-      color: '#E5E7EB'
-    }
-  },
-  x: {
-    grid: { display: false },
-    ticks: {
-      font: { size: 12 },
-      color: '#4B5563'
-    }
-  }
-}
+          // Légende native désactivée : on affiche une légende personnalisée
+          // (couleur + libellé + pourcentage) dans le template, alignée sur le design system.
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${this.formatPercentage(context.parsed)}`
+            }
+          }
+        }
       }
     };
-  
-    // Détruire l’ancien graphique s’il existe
+
+    // Détruire l'ancien graphique s'il existe
     if (this.chart) this.chart.destroy();
-  
+
     this.chart = new Chart(ctx, config);
   }
   
@@ -250,13 +246,6 @@ private createDefaultData(): void {
   // Getter pour vérifier si on a des données
   get hasData(): boolean {
     return this.progressData.length > 0 && this.progressData.some(item => item.value > 0);
-  }
-
-  // Getter pour le pourcentage moyen
-  get averageProgress(): number {
-    if (this.progressData.length === 0) return 0;
-    const total = this.progressData.reduce((sum, item) => sum + item.value, 0);
-    return Math.round(total / this.progressData.length);
   }
 }
 // le html

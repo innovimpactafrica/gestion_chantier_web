@@ -1,0 +1,378 @@
+/* ========== HERO "ESPACE CHANTIER" (premium SaaS 2025) ========== */
+
+@keyframes heroFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-hero-fade-in {
+  animation: heroFadeIn 0.6s ease-out;
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---- Carte Hero ---- */
+.chantier-hero {
+  margin-bottom: 3rem;
+}
+
+.chantier-hero__card {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 2.5rem;
+  background: linear-gradient(135deg, #fff8f3 0%, #fef2e8 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px -15px rgba(255, 107, 0, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .chantier-hero__card {
+    grid-template-columns: 60% 40%;
+    padding: 3.5rem;
+    gap: 2rem;
+  }
+}
+
+.chantier-hero__text {
+  position: relative;
+  z-index: 2;
+}
+
+.chantier-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 107, 0, 0.1);
+  color: #ff6b00;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+
+.chantier-hero__title {
+  font-size: 2.25rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #16213e;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .chantier-hero__title { font-size: 3rem; }
+}
+
+@media (min-width: 1280px) {
+  .chantier-hero__title { font-size: 3.5rem; }
+}
+
+.chantier-hero__title-accent {
+  color: #ff6b00;
+}
+
+.chantier-hero__subtitle {
+  color: #5b6478;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  max-width: 36rem;
+  margin-bottom: 2rem;
+}
+
+.chantier-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.chantier-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.95rem 1.75rem;
+  border-radius: 14px;
+  white-space: nowrap;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.chantier-cta--primary {
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 25px -8px rgba(255, 107, 0, 0.55);
+}
+
+.chantier-cta--primary:hover {
+  background: #e85f00;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -8px rgba(255, 107, 0, 0.6);
+}
+
+.chantier-cta--secondary {
+  background: #fff;
+  color: #16213e;
+  border: 1px solid #e2dfdb;
+}
+
+.chantier-cta--secondary:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
+  transform: translateY(-2px);
+}
+
+.chantier-cta--disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.chantier-hero__trust {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* ---- Colonne image ---- */
+.chantier-hero__media {
+  position: relative;
+  z-index: 1;
+}
+
+/* Carte fantôme derrière l'image (effet "pile de cartes" du modèle fourni) */
+.chantier-hero__ghost-card {
+  position: absolute;
+  top: 0.9rem;
+  left: -0.9rem;
+  right: 0.9rem;
+  bottom: -0.9rem;
+  background: #fffdfb;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -10px rgba(22, 33, 62, 0.15);
+  z-index: 0;
+}
+
+.chantier-hero__image-wrap {
+  position: relative;
+  z-index: 1;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(22, 33, 62, 0.35);
+  animation: heroFloat 6s ease-in-out infinite;
+  aspect-ratio: 4 / 5;
+}
+
+.chantier-hero__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Léger effet "verre" en bas de l'image pour la profondeur */
+.chantier-hero__glass {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: linear-gradient(to top, rgba(22, 33, 62, 0.55), transparent);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.chantier-hero__deco {
+  position: absolute;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ff6b00, #ff9d52);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.chantier-hero__deco--top {
+  top: -1.25rem;
+  left: -1.25rem;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.chantier-hero__deco--bottom {
+  bottom: -1.5rem;
+  right: -1.5rem;
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+/* ========== SECTION FONCTIONNALITÉS ========== */
+.chantier-features {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.chantier-features__title {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #16213e;
+  margin-bottom: 2.5rem;
+}
+
+.chantier-features__underline {
+  display: block;
+  width: 3rem;
+  height: 4px;
+  border-radius: 999px;
+  background: #ff6b00;
+  margin-top: 0.75rem;
+}
+
+.chantier-features__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+@media (min-width: 640px) {
+  .chantier-features__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .chantier-features__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1280px) {
+  .chantier-features__grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+.chantier-feature-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f1f1f3;
+  box-shadow: 0 4px 16px -4px rgba(22, 33, 62, 0.06);
+  padding: 1.75rem 1.5rem;
+  height: 100%;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.chantier-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px -10px rgba(22, 33, 62, 0.14);
+}
+
+.chantier-feature-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: rgba(255, 107, 0, 0.12);
+  color: #ff6b00;
+  margin-bottom: 1.1rem;
+}
+
+.chantier-feature-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #16213e;
+  margin-bottom: 0.4rem;
+}
+
+.chantier-feature-card__text {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.55;
+}
+
+/* ========== CTA FINALE ========== */
+.chantier-final-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, #fff8f3 0%, #fef2e8 100%);
+  border-radius: 22px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .chantier-final-cta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.chantier-final-cta__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: #ff6b00;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.chantier-final-cta__text {
+  flex: 1;
+}
+
+.chantier-final-cta__text h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #16213e;
+  margin-bottom: 0.25rem;
+}
+
+.chantier-final-cta__text p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 38rem;
+}
+
+.chantier-final-cta__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  background: #fff;
+  color: #ff6b00;
+  border: 1.5px solid #ff6b00;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chantier-final-cta__button:hover {
+  background: #ff6b00;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-fade-in,
+  .chantier-hero__image-wrap {
+    animation: none;
+  }
+}

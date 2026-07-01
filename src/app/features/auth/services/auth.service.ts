@@ -548,8 +548,8 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       return of(null);
     }
     
-    // Remplacer "refresh" par votre route de refresh token côté back
-    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+    // Le backend attend { "token": <refreshToken> } (schéma RefreshTokenRequest), pas { refreshToken }
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { token: refreshToken }).pipe(
       tap((tokens: any) => {
         this.updateToken(tokens.token, tokens.refreshToken);
       }),

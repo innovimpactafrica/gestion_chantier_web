@@ -632,9 +632,11 @@ export class CompteComponent implements OnInit, OnDestroy {
       next: (isActive: boolean) => {
         this.hasActiveSubscription.set(isActive);
 
-        if (isActive) {
-          this.loadCurrentSubscription(userId);
-        } else {
+        // Charger les détails (dont la date d'expiration) que l'abonnement soit actif ou expiré,
+        // pour que l'utilisateur puisse toujours voir quand son abonnement a expiré.
+        this.loadCurrentSubscription(userId);
+
+        if (!isActive) {
           const user = this.currentUser();
           if (user) {
             this.loadSubscriptionPlans(user);
@@ -645,6 +647,7 @@ export class CompteComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.hasActiveSubscription.set(false);
+        this.loadCurrentSubscription(userId);
         this.isCheckingSubscription.set(false);
 
         const user = this.currentUser();

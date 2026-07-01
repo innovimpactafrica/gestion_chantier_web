@@ -147,6 +147,34 @@ export const routes: Routes = [
         canActivate: [RoleGuard]
       },
       {
+        path: 'jalons',
+        loadComponent: () => import('./features/jalons/jalons.component')
+          .then(m => m.JalonsComponent),
+        data: { breadcrumb: 'Jalons de chantier' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'gestion-salaire',
+        loadComponent: () => import('./features/gestion-salaire-home/gestion-salaire-home.component')
+          .then(m => m.GestionSalaireHomeComponent),
+        data: { breadcrumb: 'Gestion salaire' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'gestion-salaire/:id',
+        loadComponent: () => import('./features/gestion-salaire-home/gestion-salaire-home.component')
+          .then(m => m.GestionSalaireHomeComponent),
+        data: { breadcrumb: 'Gestion salaire' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'plan3d',
+        loadComponent: () => import('./features/plan3d/plan3d.component')
+          .then(m => m.Plan3dComponent),
+        data: { breadcrumb: 'Plans 3D' },
+        canActivate: [RoleGuard]
+      },
+      {
         path: 'detailprojet/:id',
         component: ProjectDetailHeaderComponent,
         data: { breadcrumb: 'Détail Projet' },

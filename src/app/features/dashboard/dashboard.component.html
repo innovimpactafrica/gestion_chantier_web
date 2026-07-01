@@ -64,8 +64,12 @@
 
 
 
-  <!-- layout principale -->
-  <div *ngIf="!isLoading && !hasError">
+  <!-- ========== HERO "ESPACE CHANTIER" : aucun chantier créé encore ========== -->
+  <app-chantier-welcome-hero *ngIf="!isLoading && !hasError && chantiersEmpty"
+    (viewProjects)="goToProjects()"></app-chantier-welcome-hero>
+
+  <!-- layout principale (dashboard normal avec les cards) -->
+  <div *ngIf="!isLoading && !hasError && !chantiersEmpty">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <!-- Title -->

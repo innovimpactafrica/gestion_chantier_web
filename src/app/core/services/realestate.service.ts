@@ -369,7 +369,7 @@ export class RealestateService {
       startDate: this.formatDisplayDate(project.startDate),
       endDate: this.formatDisplayDate(project.endDate),
       progress: project.averageProgress !== undefined && project.averageProgress !== null
-        ? Math.max(0, Math.min(100, Number(project.averageProgress)))
+        ? Math.round(Math.max(0, Math.min(100, Number(project.averageProgress))))
         : this.calculateProgress(project.startDate, project.endDate),
       plan: this.apiImageUrl + (project.plan || ''),
       available: project.available,

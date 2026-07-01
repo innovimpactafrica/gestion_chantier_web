@@ -28,6 +28,8 @@ export class LanguageService {
             'sidebar.propertyType': 'Types de propriété',
             'sidebar.materialCategories': 'Catégories de matériaux',
             'sidebar.projects': 'Chantiers',
+            'sidebar.jalons': 'Jalons de chantier',
+            'sidebar.payroll': 'Gestion salaire',
             'sidebar.requests': 'Demandes',
             'sidebar.orders': 'Commandes',
             'sidebar.myAccount': 'Mon compte',
@@ -609,7 +611,7 @@ export class LanguageService {
             'projects.export': 'Exporter',
 
             // Project Detail Tabs
-            'projectDetail.presentation': 'Présentation',
+            'projectDetail.fiche': 'Fiche',
             'projectDetail.tasks': 'Tâches',
             'projectDetail.team': 'Équipe',
             'projectDetail.lots': 'Lots',
@@ -618,7 +620,6 @@ export class LanguageService {
             'projectDetail.alert': 'Signalement',
             'projectDetail.studyBet': 'Etude Bet',
             'projectDetail.pointingAddress': 'Adresse Pointage',
-            'projectDetail.payroll': 'Gestion salaire',
             'projectDetail.viewQrCode': 'Voir QR Code',
             'projectDetail.qrCode': 'QR code',
             'projectDetail.scanMessage': 'Scannez avec votre téléphone pour ouvrir les détails du projet.',
@@ -1966,6 +1967,8 @@ export class LanguageService {
             'sidebar.propertyType': 'Property Type',
             'sidebar.materialCategories': 'Material Categories',
             'sidebar.projects': 'Sites',
+            'sidebar.jalons': 'Site Milestones',
+            'sidebar.payroll': 'Payroll',
             'sidebar.requests': 'Requests',
             'sidebar.orders': 'Orders',
             'sidebar.myAccount': 'My Account',
@@ -2559,7 +2562,7 @@ export class LanguageService {
             'projects.export': 'Export',
 
             // Project Detail Tabs
-            'projectDetail.presentation': 'Presentation',
+            'projectDetail.fiche': 'Sheet',
             'projectDetail.tasks': 'Tasks',
             'projectDetail.team': 'Team',
             'projectDetail.lots': 'Lots',
@@ -2568,7 +2571,6 @@ export class LanguageService {
             'projectDetail.alert': 'Alert',
             'projectDetail.studyBet': 'BET Study',
             'projectDetail.pointingAddress': 'Pointing Address',
-            'projectDetail.payroll': 'Payroll',
             'projectDetail.viewQrCode': 'View QR Code',
             'projectDetail.qrCode': 'QR Code',
             'projectDetail.scanMessage': 'Scan with your phone to open the project details.',

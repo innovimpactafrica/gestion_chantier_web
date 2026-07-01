@@ -12,6 +12,7 @@ import {
   PaymentMethod,
   SalaryProfileResponse,
   SalaryProfileRequest,
+  SalaryProfileBulkRequest,
   PayPeriodResponse,
   PayPeriodRequest,
   PayslipResponse,
@@ -52,6 +53,11 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
   editingProfileId: number | null = null;
   profileForm: SalaryProfileRequest = this.emptyProfileForm();
 
+  // Sélection multiple d'ouvriers (autocomplétion) pour la création en masse
+  selectedWorkerIds: number[] = [];
+  workerSearchKeyword = '';
+  showWorkerDropdown = false;
+
   // ── Périodes de paie ──
   payPeriods: PayPeriodResponse[] = [];
   showPeriodModal = false;
@@ -68,6 +74,8 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
   salaryAdvances: SalaryAdvanceResponse[] = [];
   showAdvanceModal = false;
   advanceForm: SalaryAdvanceRequest = this.emptyAdvanceForm();
+  advanceWorkerSearchKeyword = '';
+  showAdvanceWorkerDropdown = false;
 
   // ── Paiements ──
   payrollKpis: PayrollKpiResponse | null = null;
@@ -178,6 +186,39 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
     return worker ? `${worker.prenom} ${worker.nom}` : `Ouvrier #${workerId}`;
   }
 
+  /** Ouvriers proposés dans l'autocomplétion (hors ceux déjà sélectionnés) */
+  get filteredWorkersForSelection(): Worker[] {
+    const keyword = this.workerSearchKeyword.trim().toLowerCase();
+    return this.workers.filter(worker => {
+      if (this.selectedWorkerIds.includes(worker.id)) return false;
+      if (!keyword) return true;
+      return `${worker.prenom} ${worker.nom}`.toLowerCase().includes(keyword);
+    });
+  }
+
+  onWorkerSearchFocus(): void {
+    this.showWorkerDropdown = true;
+  }
+
+  onWorkerSearchBlur(): void {
+    // Léger délai pour laisser le temps au clic sur une suggestion de s'exécuter avant fermeture
+    setTimeout(() => { this.showWorkerDropdown = false; }, 150);
+  }
+
+  toggleWorkerSelection(worker: Worker): void {
+    const index = this.selectedWorkerIds.indexOf(worker.id);
+    if (index > -1) {
+      this.selectedWorkerIds.splice(index, 1);
+    } else {
+      this.selectedWorkerIds.push(worker.id);
+    }
+    this.workerSearchKeyword = '';
+  }
+
+  removeSelectedWorker(workerId: number): void {
+    this.selectedWorkerIds = this.selectedWorkerIds.filter(id => id !== workerId);
+  }
+
   // ═══════════════════════════════════════════════════════════════════════
   // PROFILS SALARIAUX
   // ═══════════════════════════════════════════════════════════════════════
@@ -206,6 +247,8 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
   openCreateProfileModal(): void {
     this.editingProfileId = null;
     this.profileForm = this.emptyProfileForm();
+    this.selectedWorkerIds = [];
+    this.workerSearchKeyword = '';
     this.showProfileModal = true;
   }
 
@@ -222,6 +265,9 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
       overtimeMultiplier: profile.overtimeMultiplier,
       currency: profile.currency
     };
+    // En édition, un seul ouvrier, non modifiable (affiché en lecture seule)
+    this.selectedWorkerIds = [profile.workerId];
+    this.workerSearchKeyword = '';
     this.showProfileModal = true;
   }
 
@@ -230,23 +276,48 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
   }
 
   saveSalaryProfile(): void {
-    if (!this.profileForm.workerId) {
-      this.showError('Veuillez sélectionner un ouvrier');
+    if (this.selectedWorkerIds.length === 0) {
+      this.showError('Veuillez sélectionner au moins un ouvrier');
       return;
     }
 
-    const request$ = this.editingProfileId
-      ? this.payrollService.updateSalaryProfile(this.editingProfileId, this.profileForm)
-      : this.payrollService.createSalaryProfile(this.profileForm);
+    if (this.editingProfileId) {
+      const request: SalaryProfileRequest = { ...this.profileForm, workerId: this.selectedWorkerIds[0] };
+      this.payrollService.updateSalaryProfile(this.editingProfileId, request)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.showSuccess('Profil salarial mis à jour');
+            this.closeProfileModal();
+            this.loadSalaryProfiles();
+          },
+          error: (err) => this.showError(err.userMessage || "Erreur lors de l'enregistrement du profil")
+        });
+      return;
+    }
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.showSuccess(this.editingProfileId ? 'Profil salarial mis à jour' : 'Profil salarial créé');
-        this.closeProfileModal();
-        this.loadSalaryProfiles();
-      },
-      error: (err) => this.showError(err.userMessage || "Erreur lors de l'enregistrement du profil")
-    });
+    const bulkRequest: SalaryProfileBulkRequest = {
+      workerIds: this.selectedWorkerIds,
+      payType: this.profileForm.payType,
+      hourlyRate: this.profileForm.hourlyRate,
+      dailyRate: this.profileForm.dailyRate,
+      weeklyRate: this.profileForm.weeklyRate,
+      monthlySalary: this.profileForm.monthlySalary,
+      normalHoursPerDay: this.profileForm.normalHoursPerDay,
+      overtimeMultiplier: this.profileForm.overtimeMultiplier,
+      currency: this.profileForm.currency
+    };
+
+    this.payrollService.bulkCreateSalaryProfiles(bulkRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (profiles) => {
+          this.showSuccess(`${profiles.length} profil(s) salarial(aux) créé(s)`);
+          this.closeProfileModal();
+          this.loadSalaryProfiles();
+        },
+        error: (err) => this.showError(err.userMessage || "Erreur lors de l'enregistrement du profil")
+      });
   }
 
   deleteSalaryProfile(profile: SalaryProfileResponse): void {
@@ -270,6 +341,14 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
       case 'DAILY': return 'Taux journalier';
       case 'WEEKLY': return 'Taux hebdomadaire';
       case 'MONTHLY': return 'Salaire mensuel';
+    }
+  }
+
+  getPeriodTypeLabel(type: PayPeriodType): string {
+    switch (type) {
+      case 'DAILY': return 'Journalier';
+      case 'WEEKLY': return 'Hebdomadaire';
+      case 'MONTHLY': return 'Mensuel';
     }
   }
 
@@ -548,11 +627,33 @@ export class GestionSalaireComponent implements OnInit, OnDestroy {
       return;
     }
     this.advanceForm = this.emptyAdvanceForm();
+    this.advanceWorkerSearchKeyword = '';
     this.showAdvanceModal = true;
   }
 
   closeAdvanceModal(): void {
     this.showAdvanceModal = false;
+  }
+
+  /** Ouvriers proposés dans l'autocomplétion du formulaire d'acompte */
+  get filteredWorkersForAdvance(): Worker[] {
+    const keyword = this.advanceWorkerSearchKeyword.trim().toLowerCase();
+    if (!keyword) return this.workers;
+    return this.workers.filter(worker => `${worker.prenom} ${worker.nom}`.toLowerCase().includes(keyword));
+  }
+
+  onAdvanceWorkerSearchFocus(): void {
+    this.showAdvanceWorkerDropdown = true;
+  }
+
+  onAdvanceWorkerSearchBlur(): void {
+    setTimeout(() => { this.showAdvanceWorkerDropdown = false; }, 150);
+  }
+
+  selectAdvanceWorker(worker: Worker): void {
+    this.advanceForm.workerId = worker.id;
+    this.advanceWorkerSearchKeyword = `${worker.prenom} ${worker.nom}`;
+    this.showAdvanceWorkerDropdown = false;
   }
 
   saveSalaryAdvance(): void {

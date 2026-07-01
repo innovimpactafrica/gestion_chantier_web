@@ -44,7 +44,7 @@
 
           <ng-container *ngIf="!isLoadingProgress; else loadingProgress">
             <div class="flex justify-between items-center mb-2">
-              <span class="text-xl font-bold mr-2 ml-2">{{ averageProgress }}%</span>
+              <span class="text-xl font-bold mr-2 ml-2">{{ averageProgress | number:'1.0-0' }}%</span>
               <div>
                 <i class="fa-solid fa-spinner text-xs text-[#4A6FA5]"></i>
                 <span class="px-2 py-1 text-[#4A6FA5] text-xs">{{ statutFrancais }}</span>

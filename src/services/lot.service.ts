@@ -145,7 +145,8 @@ export interface CreateLotRequest {
   startDate: string;  // Format: dd-MM-yyyy
   endDate: string;    // Format: dd-MM-yyyy
   realEstatePropertyId: number;
-  subcontractorId: number;
+  /** Optionnel côté backend (LotDto ne le marque pas requis) — peut être assigné plus tard depuis le module Lots. */
+  subcontractorId?: number;
   file?: File;
 }
 
@@ -260,7 +261,7 @@ export class LotService {
       .set('size', size.toString());
 
     return this.http.get<SubcontractorsResponse>(
-      `${this.baseURL}api/workers/${managerId}/subcontractors`,
+      `${this.baseURL}/api/workers/${managerId}/subcontractors`,
       {
         params,
         headers: this.getAuthHeaders()

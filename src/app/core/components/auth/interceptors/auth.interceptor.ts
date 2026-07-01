@@ -6,6 +6,10 @@ import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
+// Sentinel distinct de `null` (qui signifie "pas encore résolu") pour signaler un échec
+// de refresh aux requêtes mises en attente, sinon elles restent bloquées indéfiniment.
+const REFRESH_FAILED = Symbol('REFRESH_FAILED');
+
 // Interceptor fonctionnel pour Angular 18
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -40,10 +44,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 });
                 return next(newAuthReq);
               }
+              // Échec du refresh : prévenir les requêtes en attente pour qu'elles
+              // n'attendent pas indéfiniment un token qui ne viendra jamais.
+              refreshTokenSubject.next(REFRESH_FAILED);
               return throwError(() => error);
             }),
             catchError((refreshErr) => {
               isRefreshing = false;
+              refreshTokenSubject.next(REFRESH_FAILED);
               return throwError(() => refreshErr);
             })
           );
@@ -53,6 +61,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             filter(newToken => newToken !== null),
             take(1),
             switchMap((newToken) => {
+              if (newToken === REFRESH_FAILED) {
+                return throwError(() => error);
+              }
               const newAuthReq = req.clone({
                 headers: req.headers.set('Authorization', `Bearer ${newToken}`)
               });

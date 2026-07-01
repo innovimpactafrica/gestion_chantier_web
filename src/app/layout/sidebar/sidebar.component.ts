@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { BreadcrumbService } from '../../core/services/breadcrumb-service.service';
 import { AuthService, profil } from '../../features/auth/services/auth.service';
 import { SubscriptionService } from '../../../services/subscription.service';
@@ -59,12 +60,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.initializeActiveMenu();
+    // Synchronise immédiatement le menu actif sur l'URL réelle (rechargement de page, lien direct...)
+    this.syncActiveMenuFromUrl(this.router.url);
+
+    // Puis tient ce menu à jour à chaque navigation effective (clic sidebar, redirection de garde
+    // d'accès, bouton précédent/suivant...), au lieu de ne dépendre que des clics sidebar eux-mêmes.
+    const navSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(event => this.syncActiveMenuFromUrl(event.urlAfterRedirects));
+    this.subscriptions.add(navSubscription);
 
     if (this.authService.isAuthenticated()) {
       const userSubscription = this.authService.refreshUser().subscribe({
         next: (user) => {
-          this.initializeActiveMenu();
+          // Ne pas réinitialiser activeMenu ici : il est déjà synchronisé sur l'URL réelle,
+          // l'écraser pourrait l'aligner à tort sur le dashboard alors que l'utilisateur est ailleurs.
 
           // Vérifier l'abonnement seulement si ce n'est pas un ADMIN
           if (user && user.id && !this.isADMINProfile()) {
@@ -129,6 +139,52 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private initializeActiveMenu(): void {
     const route = this.getInitialDashboardRoute();
     this.activeMenu = route.substring(1);
+  }
+
+  /** Association route -> identifiant de menu, utilisée pour resynchroniser activeMenu sur l'URL réelle. */
+  private readonly routeMenuMap: { path: string; menuId: string }[] = [
+    { path: '/dashboard-admin/paiements', menuId: 'paiements' },
+    { path: '/dashboard-admin', menuId: 'dashboard-admin' },
+    { path: '/utilisateurs', menuId: 'utilisateurs' },
+    { path: '/abonnements', menuId: 'abonnements' },
+    { path: '/reclamations', menuId: 'reclamations' },
+    { path: '/humanresources', menuId: 'hr' },
+    { path: '/subcontractor', menuId: 'subcontractor' },
+    { path: '/fournisseur', menuId: 'suppliers' },
+    { path: '/dashboard-etude', menuId: 'dashboard-etude' },
+    { path: '/dashboard', menuId: 'dashboard' },
+    { path: '/demande', menuId: 'demande' },
+    { path: '/projects', menuId: 'projects' },
+    { path: '/jalons', menuId: 'jalons' },
+    { path: '/gestion-salaire', menuId: 'gestion-salaire' },
+    { path: '/plan3d', menuId: 'plan3d' },
+    { path: '/devis', menuId: 'devis' },
+    { path: '/dashboardf', menuId: 'dashboardf' },
+    { path: '/commandes', menuId: 'commandes' },
+    { path: '/mon-compte', menuId: 'mon-compte' },
+    { path: '/parametres/unite-mesure', menuId: 'unite-mesure' },
+    { path: '/parametres/documents', menuId: 'documents' },
+    { path: '/parametres/typebien', menuId: 'typebien' },
+    { path: '/parametres/categories', menuId: 'categories' }
+  ];
+
+  /**
+   * Resynchronise le menu actif sur l'URL réellement affichée, au lieu de ne dépendre que des clics
+   * sidebar : couvre les redirections de garde d'accès (ex: dashboard refusé -> /mon-compte), les
+   * rechargements de page, les liens directs et le bouton précédent/suivant du navigateur.
+   */
+  private syncActiveMenuFromUrl(url: string): void {
+    const cleanUrl = (url || '').split('?')[0].split('#')[0];
+
+    const match = [...this.routeMenuMap]
+      .sort((a, b) => b.path.length - a.path.length)
+      .find(entry => cleanUrl === entry.path || cleanUrl.startsWith(entry.path + '/'));
+
+    if (match) {
+      this.activeMenu = match.menuId;
+    } else if (!cleanUrl || cleanUrl === '/') {
+      this.initializeActiveMenu();
+    }
   }
 
   isADMINProfile(): boolean {
@@ -251,7 +307,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // Vérifier si l'utilisateur peut accéder au dashboard
     if ((path === '/dashboard' || path === '/dashboard-etude' || path === '/dashboardf')
       && !this.canAccessDashboard()) {
-      // Optionnel: afficher un message ou rediriger vers la page d'abonnement
+      // Accès refusé : on redirige vers la page d'abonnement, et on aligne le menu actif sur
+      // la page réellement affichée (sinon "Dashboard" reste surligné alors que c'est "Mon compte" qui s'affiche).
+      this.activeMenu = 'mon-compte';
       this.router.navigate(['/mon-compte']);
       return;
     }
