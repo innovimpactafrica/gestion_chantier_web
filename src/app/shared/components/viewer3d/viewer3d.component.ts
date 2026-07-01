@@ -224,12 +224,12 @@ export class Viewer3dComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.fillLight.position.set(-20, 10, -20);
     this.scene.add(this.fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0x34d399, 0.2);
+    const rimLight = new THREE.DirectionalLight(0x2563eb, 0.2);
     rimLight.position.set(0, 20, -30);
     this.scene.add(rimLight);
 
     // Grid
-    this.gridHelper = new THREE.GridHelper(500, 80, 0x1d9e75, 0x1a2232);
+    this.gridHelper = new THREE.GridHelper(500, 80, 0xff5c02, 0x1a2232);
     this.gridHelper.material.opacity = 0.25;
     this.gridHelper.material.transparent = true;
     this.scene.add(this.gridHelper);
@@ -454,8 +454,8 @@ export class Viewer3dComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (this.wireOn) {
         this.origMats.set(obj.uuid, obj.material);
         obj.material = Array.isArray(obj.material)
-          ? obj.material.map(() => new THREE.MeshBasicMaterial({ color: 0x34d399, wireframe: true }))
-          : new THREE.MeshBasicMaterial({ color: 0x34d399, wireframe: true });
+          ? obj.material.map(() => new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true }))
+          : new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true });
       } else {
         const orig = this.origMats.get(obj.uuid);
         if (orig) obj.material = orig;

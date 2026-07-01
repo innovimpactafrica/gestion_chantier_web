@@ -42,7 +42,7 @@
   .loader-logo {
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, #1d9e75, #0f6e56);
+    background: linear-gradient(135deg, #ff5c02, #c24502);
     border-radius: 16px;
     display: flex;
     align-items: center;
@@ -74,7 +74,7 @@
   }
   .loader-bar {
     height: 100%;
-    background: linear-gradient(90deg, #1d9e75, #34d399);
+    background: linear-gradient(90deg, #ff5c02, #3b82f6);
     border-radius: 2px;
     width: 0%;
     transition: width 0.4s ease;
@@ -131,7 +131,7 @@
   .btn-retry {
     padding: 11px 24px;
     border-radius: 10px;
-    background: #1d9e75;
+    background: #ff5c02;
     color: #fff;
     border: none;
     font-size: 13px;
@@ -169,7 +169,7 @@
   .tb-icon {
     width: 34px;
     height: 34px;
-    background: #1d9e75;
+    background: #ff5c02;
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -206,11 +206,11 @@
     gap: 5px;
     padding: 5px 12px;
     border-radius: 8px;
-    background: rgba(29, 158, 117, 0.15);
-    border: 1px solid rgba(29, 158, 117, 0.3);
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(37, 99, 235, 0.3);
     font-size: 11px;
     font-weight: 600;
-    color: #34d399;
+    color: #3b82f6;
     pointer-events: all;
   }
   .tb-badge svg {
@@ -257,8 +257,8 @@
     color: #e5e7eb;
   }
   .ctrl-btn.active {
-    background: rgba(29, 158, 117, 0.18);
-    color: #34d399;
+    background: rgba(255, 92, 2, 0.18);
+    color: #ff7a33;
   }
   .ctrl-btn svg {
     width: 18px;
@@ -343,7 +343,7 @@
   }
   .slider-label em {
     font-size: 10px;
-    color: #34d399;
+    color: #ff7a33;
     font-style: normal;
     font-weight: 700;
   }
@@ -361,17 +361,17 @@
     width: 13px;
     height: 13px;
     border-radius: 50%;
-    background: #1d9e75;
+    background: #ff5c02;
     cursor: pointer;
-    border: 2px solid #34d399;
+    border: 2px solid #ff7a33;
   }
   input[type='range']::-moz-range-thumb {
     width: 13px;
     height: 13px;
     border-radius: 50%;
-    background: #1d9e75;
+    background: #ff5c02;
     cursor: pointer;
-    border: 2px solid #34d399;
+    border: 2px solid #ff7a33;
   }
   .env-btns {
     display: grid;
@@ -393,9 +393,9 @@
   }
   .env-btn.active,
   .env-btn:hover {
-    background: rgba(29, 158, 117, 0.18);
-    border-color: rgba(29, 158, 117, 0.35);
-    color: #34d399;
+    background: rgba(255, 92, 2, 0.18);
+    border-color: rgba(255, 92, 2, 0.35);
+    color: #ff7a33;
   }
 
   .hints {
@@ -451,7 +451,7 @@
   .toast svg {
     width: 14px;
     height: 14px;
-    stroke: #34d399;
+    stroke: #3b82f6;
     fill: none;
     stroke-width: 2.5;
     stroke-linecap: round;
