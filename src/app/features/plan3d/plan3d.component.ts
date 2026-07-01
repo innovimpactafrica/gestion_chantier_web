@@ -7,6 +7,7 @@ import { Plan3dService, Plan3dItem } from '../../../services/plan3d.service';
 import { RealestateService } from '../../core/services/realestate.service';
 import { AuthService } from '../auth/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { Viewer3dComponent } from '../../shared/components/viewer3d/viewer3d.component';
 
 interface SelectableProperty {
   id: number;
@@ -16,7 +17,7 @@ interface SelectableProperty {
 @Component({
   selector: 'app-plan3d',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Viewer3dComponent],
   templateUrl: './plan3d.component.html'
 })
 export class Plan3dComponent implements OnInit, OnDestroy {
@@ -41,6 +42,11 @@ export class Plan3dComponent implements OnInit, OnDestroy {
   selectedFileName = '';
   dragOver = false;
   uploading = false;
+
+  // ── Modal visionneur 3D ──
+  showViewerModal = false;
+  viewerUrl: string | null = null;
+  viewerName = '';
 
   constructor(
     private plan3dService: Plan3dService,
@@ -107,6 +113,19 @@ export class Plan3dComponent implements OnInit, OnDestroy {
 
   closeUploadModal(): void {
     this.showUploadModal = false;
+  }
+
+  // ── Modal visionneur 3D ──
+
+  openViewer(plan: Plan3dItem): void {
+    this.viewerUrl = plan.fileLink;
+    this.viewerName = plan.propertyName;
+    this.showViewerModal = true;
+  }
+
+  closeViewer(): void {
+    this.showViewerModal = false;
+    this.viewerUrl = null;
   }
 
   onFileSelected(event: Event): void {
