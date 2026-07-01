@@ -302,15 +302,22 @@ export class DashboardService {
 
   /**
    * État d'avancement par phase
-   * Endpoint: api/indicators/by-phase?promoterId={userId}
+   * Endpoint: api/indicators/by-phase?promoterId={userId}&realEstatePropertyId={projectId}
+   *
+   * Sans `realEstatePropertyId`, le backend agrège les indicateurs sur TOUS les chantiers
+   * du promoteur (utilisé par le dashboard global). Avec, il scope sur un seul chantier
+   * (utilisé par le graphique d'avancement affiché dans le détail d'un chantier).
    */
-  etatAvancement(): Observable<PhaseIndicator[]> {
+  etatAvancement(realEstatePropertyId?: number): Observable<PhaseIndicator[]> {
     const userId = this.getCurrentUserId();
     if (!userId) {
       throw new Error('Utilisateur non connecté');
     }
 
-    const params = new HttpParams().set('promoterId', userId.toString());
+    let params = new HttpParams().set('promoterId', userId.toString());
+    if (realEstatePropertyId != null) {
+      params = params.set('realEstatePropertyId', realEstatePropertyId.toString());
+    }
     const url = `${this.endpoints.indicators}/by-phase`;
 
 

@@ -313,6 +313,54 @@
           </div>
         </a>
       </li>
+
+      <!-- Jalons de chantier (Standard uniquement) -->
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
+        <a (click)="navigateTo('/jalons', 'Jalons de chantier', 'jalons')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('jalons') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 3v18" />
+              <path stroke-linejoin="round" d="M5 4h11l-2.5 3.5L16 11H5" />
+            </svg>
+            <span class="text-sm">{{ t('sidebar.jalons') }}</span>
+          </div>
+        </a>
+      </li>
+
+      <!-- Gestion salaire (Standard uniquement) -->
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
+        <a (click)="navigateTo('/gestion-salaire', 'Gestion salaire', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('gestion-salaire') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-sm">{{ t('sidebar.payroll') }}</span>
+          </div>
+        </a>
+      </li>
+
+      <!-- Plans 3D (Standard uniquement) -->
+      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
+        <a (click)="navigateTo('/plan3d', 'Plans 3D', 'plan3d')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('plan3d') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span class="text-sm">Plans 3D</span>
+          </div>
+        </a>
+      </li>
+
       <!-- Devis (Promoteur uniquement) -->
       <li *ngIf="isPromoterProfile()">
         <a (click)="navigateTo('/devis', 'Devis', 'devis')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +

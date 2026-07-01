@@ -115,7 +115,7 @@
 
             <!-- Pourcentage avec icône d'édition -->
             <div class="flex items-center gap-2">
-              <span class="text-lg font-bold text-gray-900">{{ lot.progression }}%</span>
+              <span class="text-lg font-bold text-gray-900">{{ lot.progression | number:'1.0-0' }}%</span>
               <button (click)="openProgressModal(lot.id, lot.progression)"
                 class="text-orange-600 hover:text-orange-700 transition-colors p-1 rounded hover:bg-orange-50"
                 title="Modifier la progression">
@@ -649,7 +649,7 @@
                 class="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500">
               </div>
             </div>
-            <span class="text-xl font-bold text-gray-900">{{ selectedLotDetails.progressPercentage }}%</span>
+            <span class="text-xl font-bold text-gray-900">{{ selectedLotDetails.progressPercentage | number:'1.0-0' }}%</span>
           </div>
         </div>
 

@@ -15,30 +15,21 @@
     </button>
   </div>
 
-  <!-- Navigation principale -->
-  <div class="bg-white rounded-lg shadow-sm mb-6">
-    <!-- Sous-navigation entre Albums, Graphique, Tableau -->
-    <div class="flex bg-[#F5F7FA] px-6 py-3 rounded-lg">
-      <button (click)="setActiveTab('albums')"
-        [ngClass]="activeTab === 'albums' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
-        class="py-2 px-4 w-2/6 rounded-[4px]">
-        {{ t('statusReport.albumsView') }}
-      </button>
-      <button (click)="setActiveTab('graphique')"
-        [ngClass]="activeTab === 'graphique' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
-        class="py-2 px-4 w-2/6 rounded-[4px]">
-        {{ t('statusReport.graphView') }}
-      </button>
-      <button (click)="setActiveTab('tableau')"
-        [ngClass]="activeTab === 'tableau' ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium' : 'text-gray-600 hover:text-gray-800'"
-        class="py-2 px-4 w-2/6 rounded-[4px]">
-        {{ t('statusReport.indicatorsTable') }}
-      </button>
+  <!-- Vue Graphique et Vue Albums fusionnées : plus de navigation par onglets,
+       affichage vertical continu (graphique d'abord, puis albums juste en dessous).
+       L'onglet "Tableau indicateurs" a été retiré de l'interface. -->
+
+  <!-- Contenu Vue Graphique -->
+  <div class="bg-white p-4 rounded-lg shadow mb-6">
+    <div class="flex justify-center">
+      <div class="w-full md:w-4/5">
+        <app-progess-report></app-progess-report>
+      </div>
     </div>
   </div>
 
   <!-- Contenu Vue Albums -->
-  <div *ngIf="activeTab === 'albums'" class="p-2">
+  <div class="p-2">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
       <!-- Cartes albums normales avec hover actions -->
@@ -103,116 +94,6 @@
     </div>
   </div>
 
-  <!-- Contenu Vue Graphique -->
-  <div *ngIf="activeTab === 'graphique'" class="bg-white p-4 rounded-lg shadow">
-    <div class="flex justify-center">
-      <div class="w-full md:w-4/5">
-        <app-progess-report></app-progess-report>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contenu Vue Tableau indicateurs -->
-  <div *ngIf="activeTab === 'tableau'">
-
-    <!-- Composant progress-report caché pour récupérer les données -->
-    <div style="display: none;">
-      <app-progess-report #progressReport [title]="'État d\'avancement'" [chartId]="'hiddenProgressChart'">
-      </app-progess-report>
-    </div>
-
-    <div class="bg-white p-4 rounded-lg shadow-md">
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-left text-sm">
-          <thead class="bg-[#F5F7FA]">
-            <tr>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.step') }}</th>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.percentage') }}</th>
-              <th class="py-4 px-6 font-semibold text-gray-800 text-base">{{ t('statusReport.updateDate') }}</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-700">
-            <tr *ngFor="let ligne of lignes; let i = index"
-              class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-              <!-- Colonne Étape -->
-              <td class="py-6 px-6">
-                <span class="text-base font-medium text-gray-800">{{ ligne.etape }}</span>
-              </td>
-
-              <!-- Colonne %Pourcentage avec Select -->
-              <td class="py-6 px-6">
-                <div class="relative">
-                  <!-- Indicateur de chargement -->
-                  <div *ngIf="isUpdating(ligne.etape)"
-                    class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md z-10">
-                    <svg class="animate-spin h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                      viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                      </path>
-                    </svg>
-                  </div>
-
-                  <!-- Select personnalisé -->
-                  <div class="relative">
-                    <select [ngModel]="getProgressValue(ligne.etape) > 0 ? getProgressValue(ligne.etape) + '%' : ''"
-                      (change)="onPercentageChange(ligne.etape, $event)" [disabled]="isUpdating(ligne.etape)"
-                      class="w-[357px] h-[40px] appearance-none border border-[#CBD5E1] rounded-[5px] px-3 py-2.5 pr-10 text-sm font-normal text-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      [ngClass]="{
-                      'text-gray-400': getProgressValue(ligne.etape) === 0,
-                      'text-gray-800': getProgressValue(ligne.etape) > 0
-                    }" style="font-family: Inter; font-size: 14px; line-height: 100%;">
-
-                      <!-- Option par défaut si aucun pourcentage -->
-                      <option value="" [selected]="getProgressValue(ligne.etape) === 0" disabled>
-                        {{ t('statusReport.selectPercentage') }}
-                      </option>
-
-                      <!-- Options des pourcentages -->
-                      <option *ngFor="let pct of pourcentages" [value]="pct"
-                        [selected]="getProgressValue(ligne.etape) + '%' === pct">
-                        {{ pct }}
-                      </option>
-                    </select>
-
-                    <!-- Icône flèche dropdown personnalisée -->
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Colonne Date -->
-              <td class="py-6 px-6">
-                <span class="text-base text-gray-600">
-                  {{ getProgressDate(ligne.etape) || getCurrentDate() }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Message d'erreur si présent -->
-        <div *ngIf="error" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clip-rule="evenodd"></path>
-          </svg>
-          <div class="flex-1">
-            <p class="text-red-700 text-sm font-medium">{{ error }}</p>
-            <button (click)="error = null" class="mt-2 text-red-600 hover:text-red-800 text-xs font-medium underline">
-              Fermer
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Modal Créer Album -->

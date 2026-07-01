@@ -27,10 +27,10 @@
   <!-- Navigation Tabs - Continu avec le header -->
   <nav class="border-t border-gray-100 bg-white rounded-lg shadow-sm px-4 sm:px-6 pt-4 overflow-x-auto">
     <ul class="flex space-x-4 sm:space-x-6 lg:space-x-12 text-sm sm:text-base min-w-max">
-      <li [class.border-b-2]="activeTab === 'presentation'" [class.border-orange-500]="activeTab === 'presentation'"
-        [class.text-orange-500]="activeTab === 'presentation'" class="pb-2 flex-shrink-0">
-        <a (click)="setActiveTab('presentation')" class="font-medium cursor-pointer whitespace-nowrap">{{
-          t('projectDetail.presentation') }}</a>
+      <li [class.border-b-2]="activeTab === 'fiche'" [class.border-orange-500]="activeTab === 'fiche'"
+        [class.text-orange-500]="activeTab === 'fiche'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('fiche')" class="font-medium cursor-pointer whitespace-nowrap">{{
+          t('projectDetail.fiche') }}</a>
       </li>
       <li [class.border-b-2]="activeTab === 'tasks'" [class.border-orange-500]="activeTab === 'tasks'"
         [class.text-orange-500]="activeTab === 'tasks'" class="pb-2 flex-shrink-0">
@@ -73,11 +73,6 @@
         <a (click)="setActiveTab('pointing-adress')" class="font-medium cursor-pointer whitespace-nowrap">{{
           t('projectDetail.pointingAddress') }}</a>
       </li>
-      <li [class.border-b-2]="activeTab === 'salaire'" [class.border-orange-500]="activeTab === 'salaire'"
-        [class.text-orange-500]="activeTab === 'salaire'" class="pb-2 flex-shrink-0">
-        <a (click)="setActiveTab('salaire')" class="font-medium cursor-pointer whitespace-nowrap">{{
-          t('projectDetail.payroll') }}</a>
-      </li>
     </ul>
   </nav>
 </div>
@@ -105,14 +100,11 @@
 @case ('signalement') {
 <app-project-alert></app-project-alert>
 }
-@case ('presentation') {
+@case ('fiche') {
 <app-project-presentation></app-project-presentation>
 }
 @case ('pointing-adress') {
 <app-pointing-adress></app-pointing-adress>
-}
-@case ('salaire') {
-<app-gestion-salaire></app-gestion-salaire>
 }
 @default {
 <div>{{ t('projectDetail.selectTab') }}</div>

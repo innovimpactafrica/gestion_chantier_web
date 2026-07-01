@@ -1,4 +1,4 @@
-<div class="p-4 sm:p-6">
+<div class="bg-white min-h-screen p-4 sm:p-6">
 
   <!-- Messages -->
   <div *ngIf="error" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between">
@@ -11,30 +11,30 @@
   </div>
 
   <!-- Sous-onglets -->
-  <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-3">
+  <div class="flex flex-wrap gap-2 mb-8 border-b border-gray-200 pb-4">
     <button (click)="setActiveTab('profils')"
-      [ngClass]="activeSubTab === 'profils' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      [ngClass]="activeSubTab === 'profils' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Profils salariaux</button>
     <button (click)="setActiveTab('periodes')"
-      [ngClass]="activeSubTab === 'periodes' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      [ngClass]="activeSubTab === 'periodes' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Périodes de paie</button>
     <button (click)="setActiveTab('bulletins')"
-      [ngClass]="activeSubTab === 'bulletins' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      [ngClass]="activeSubTab === 'bulletins' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Bulletins de paie</button>
     <button (click)="setActiveTab('acomptes')"
-      [ngClass]="activeSubTab === 'acomptes' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      [ngClass]="activeSubTab === 'acomptes' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Acomptes</button>
     <button (click)="setActiveTab('paiements')"
-      [ngClass]="activeSubTab === 'paiements' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      [ngClass]="activeSubTab === 'paiements' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Paiements</button>
   </div>
 
   <!-- Sélecteur de période (commun aux onglets Bulletins / Acomptes / Paiements) -->
   <div *ngIf="activeSubTab === 'bulletins' || activeSubTab === 'acomptes' || activeSubTab === 'paiements'"
-    class="mb-6 flex items-center gap-3">
+    class="mb-6 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
     <label class="text-sm font-medium text-gray-700">Période de paie :</label>
     <select [(ngModel)]="selectedPeriodId" (ngModelChange)="onPeriodSelectionChange()"
-      class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent min-w-[260px]">
+      class="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent min-w-[260px] bg-white">
       <option [ngValue]="null">-- Sélectionner une période --</option>
       <option *ngFor="let period of payPeriods" [ngValue]="period.id">
         {{ period.label }} ({{ formatDate(period.startDate) }} - {{ formatDate(period.endDate) }})
@@ -49,24 +49,25 @@
 
   <!-- ══════════════════════════ PROFILS SALARIAUX ══════════════════════════ -->
   <div *ngIf="!loading && activeSubTab === 'profils'">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-base font-semibold text-gray-800">Profils salariaux</h2>
       <button (click)="openCreateProfileModal()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm">
         <span>+</span> Nouveau profil
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
+        <thead class="bg-gray-50 text-left text-gray-700 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3">Ouvrier</th>
-            <th class="px-4 py-3">Type de paie</th>
-            <th class="px-4 py-3">Taux</th>
-            <th class="px-4 py-3">Heures normales/j</th>
-            <th class="px-4 py-3">Majoration heures sup</th>
-            <th class="px-4 py-3">Statut</th>
-            <th class="px-4 py-3">Actions</th>
+            <th class="px-4 py-3 font-semibold">Ouvrier</th>
+            <th class="px-4 py-3 font-semibold">Type de paie</th>
+            <th class="px-4 py-3 font-semibold">Taux</th>
+            <th class="px-4 py-3 font-semibold">Heures normales/j</th>
+            <th class="px-4 py-3 font-semibold">Majoration heures sup</th>
+            <th class="px-4 py-3 font-semibold">Statut</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -99,29 +100,30 @@
 
   <!-- ══════════════════════════ PÉRIODES DE PAIE ══════════════════════════ -->
   <div *ngIf="!loading && activeSubTab === 'periodes'">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-base font-semibold text-gray-800">Périodes de paie</h2>
       <button (click)="openCreatePeriodModal()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm">
         <span>+</span> Nouvelle période
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
+        <thead class="bg-gray-50 text-left text-gray-700 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3">Libellé</th>
-            <th class="px-4 py-3">Type</th>
-            <th class="px-4 py-3">Début</th>
-            <th class="px-4 py-3">Fin</th>
-            <th class="px-4 py-3">Statut</th>
-            <th class="px-4 py-3">Actions</th>
+            <th class="px-4 py-3 font-semibold">Libellé</th>
+            <th class="px-4 py-3 font-semibold">Type</th>
+            <th class="px-4 py-3 font-semibold">Début</th>
+            <th class="px-4 py-3 font-semibold">Fin</th>
+            <th class="px-4 py-3 font-semibold">Statut</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <tr *ngFor="let period of payPeriods" class="hover:bg-gray-50">
             <td class="px-4 py-3 font-medium text-gray-900">{{ period.label }}</td>
-            <td class="px-4 py-3">{{ period.type }}</td>
+            <td class="px-4 py-3">{{ getPeriodTypeLabel(period.type) }}</td>
             <td class="px-4 py-3">{{ formatDate(period.startDate) }}</td>
             <td class="px-4 py-3">{{ formatDate(period.endDate) }}</td>
             <td class="px-4 py-3">
@@ -147,27 +149,28 @@
 
   <!-- ══════════════════════════ BULLETINS DE PAIE ══════════════════════════ -->
   <div *ngIf="!loading && activeSubTab === 'bulletins'">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-base font-semibold text-gray-800">Bulletins de paie</h2>
       <button (click)="generatePayslips()" [disabled]="!selectedPeriodId"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
         Générer les bulletins
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm overflow-x-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
+        <thead class="bg-gray-50 text-left text-gray-700 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3">Ouvrier</th>
-            <th class="px-4 py-3">Heures travaillées</th>
-            <th class="px-4 py-3">Heures sup.</th>
-            <th class="px-4 py-3">Brut</th>
-            <th class="px-4 py-3">Bonus</th>
-            <th class="px-4 py-3">Acomptes</th>
-            <th class="px-4 py-3">Autres déductions</th>
-            <th class="px-4 py-3">Net</th>
-            <th class="px-4 py-3">Statut</th>
-            <th class="px-4 py-3">Actions</th>
+            <th class="px-4 py-3 font-semibold">Ouvrier</th>
+            <th class="px-4 py-3 font-semibold">Heures travaillées</th>
+            <th class="px-4 py-3 font-semibold">Heures sup.</th>
+            <th class="px-4 py-3 font-semibold">Brut</th>
+            <th class="px-4 py-3 font-semibold">Bonus</th>
+            <th class="px-4 py-3 font-semibold">Acomptes</th>
+            <th class="px-4 py-3 font-semibold">Autres déductions</th>
+            <th class="px-4 py-3 font-semibold">Net</th>
+            <th class="px-4 py-3 font-semibold">Statut</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -206,22 +209,23 @@
 
   <!-- ══════════════════════════ ACOMPTES ══════════════════════════ -->
   <div *ngIf="!loading && activeSubTab === 'acomptes'">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-base font-semibold text-gray-800">Acomptes</h2>
       <button (click)="openCreateAdvanceModal()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm">
         <span>+</span> Nouvel acompte
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
+        <thead class="bg-gray-50 text-left text-gray-700 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3">Ouvrier</th>
-            <th class="px-4 py-3">Montant</th>
-            <th class="px-4 py-3">Date</th>
-            <th class="px-4 py-3">Motif</th>
-            <th class="px-4 py-3">Actions</th>
+            <th class="px-4 py-3 font-semibold">Ouvrier</th>
+            <th class="px-4 py-3 font-semibold">Montant</th>
+            <th class="px-4 py-3 font-semibold">Date</th>
+            <th class="px-4 py-3 font-semibold">Motif</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -246,28 +250,29 @@
 
   <!-- ══════════════════════════ PAIEMENTS ══════════════════════════ -->
   <div *ngIf="!loading && activeSubTab === 'paiements'">
+    <h2 class="text-base font-semibold text-gray-800 mb-4">Paiements</h2>
 
     <!-- KPIs masse salariale -->
     <div *ngIf="payrollKpis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="text-xs text-gray-500 mb-1">Masse brute</div>
-        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalGross) }}</div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Masse brute</div>
+        <div class="text-xl font-bold text-gray-900">{{ formatAmount(payrollKpis.totalGross) }}</div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="text-xs text-gray-500 mb-1">Acomptes</div>
-        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalAdvances) }}</div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Acomptes</div>
+        <div class="text-xl font-bold text-gray-900">{{ formatAmount(payrollKpis.totalAdvances) }}</div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="text-xs text-gray-500 mb-1">Masse nette</div>
-        <div class="text-lg font-bold text-gray-900">{{ formatAmount(payrollKpis.totalNet) }}</div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Masse nette</div>
+        <div class="text-xl font-bold text-gray-900">{{ formatAmount(payrollKpis.totalNet) }}</div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="text-xs text-gray-500 mb-1">Déjà payé</div>
-        <div class="text-lg font-bold text-green-600">{{ formatAmount(payrollKpis.totalPaid) }}</div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Déjà payé</div>
+        <div class="text-xl font-bold text-green-600">{{ formatAmount(payrollKpis.totalPaid) }}</div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="text-xs text-gray-500 mb-1">Reste à payer</div>
-        <div class="text-lg font-bold text-orange-600">{{ formatAmount(payrollKpis.remainingToPay) }}</div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Reste à payer</div>
+        <div class="text-xl font-bold text-orange-600">{{ formatAmount(payrollKpis.remainingToPay) }}</div>
       </div>
     </div>
 
@@ -276,24 +281,24 @@
         <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
       </select>
       <button (click)="payInBulk()" [disabled]="!selectedPeriodId"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
         Payer en masse
       </button>
       <button (click)="openCreatePaymentModal()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm">
         Paiement unitaire
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
+        <thead class="bg-gray-50 text-left text-gray-700 border-b border-gray-200">
           <tr>
-            <th class="px-4 py-3">Ouvrier</th>
-            <th class="px-4 py-3">Montant</th>
-            <th class="px-4 py-3">Méthode</th>
-            <th class="px-4 py-3">Référence</th>
-            <th class="px-4 py-3">Date</th>
+            <th class="px-4 py-3 font-semibold">Ouvrier</th>
+            <th class="px-4 py-3 font-semibold">Montant</th>
+            <th class="px-4 py-3 font-semibold">Méthode</th>
+            <th class="px-4 py-3 font-semibold">Référence</th>
+            <th class="px-4 py-3 font-semibold">Date</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -320,16 +325,38 @@
 
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Ouvrier *</label>
-        <select [(ngModel)]="profileForm.workerId" [disabled]="!!editingProfileId"
-          class="w-full border border-gray-300 rounded-lg py-2 px-3 disabled:bg-gray-100">
-          <option [ngValue]="0">-- Sélectionner --</option>
-          <option *ngFor="let worker of workers" [ngValue]="worker.id">{{ worker.prenom }} {{ worker.nom }}</option>
-        </select>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Ouvrier(s) * <span *ngIf="!editingProfileId" class="text-xs text-gray-400 font-normal">(sélection multiple)</span>
+        </label>
+
+        <!-- Ouvriers sélectionnés (chips) -->
+        <div *ngIf="selectedWorkerIds.length > 0" class="flex flex-wrap gap-2 mb-2">
+          <span *ngFor="let workerId of selectedWorkerIds"
+            class="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-sm px-2.5 py-1 rounded-full">
+            {{ getWorkerName(workerId) }}
+            <button *ngIf="!editingProfileId" type="button" (click)="removeSelectedWorker(workerId)"
+              class="text-orange-400 hover:text-orange-700 leading-none">✕</button>
+          </span>
+        </div>
+
+        <!-- Champ de recherche avec autocomplétion (masqué en édition : ouvrier non modifiable) -->
+        <div *ngIf="!editingProfileId" class="relative">
+          <input type="text" [(ngModel)]="workerSearchKeyword" (focus)="onWorkerSearchFocus()" (blur)="onWorkerSearchBlur()"
+            placeholder="Rechercher un ouvrier par nom..."
+            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+
+          <ul *ngIf="showWorkerDropdown && filteredWorkersForSelection.length > 0"
+            class="absolute z-30 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            <li *ngFor="let worker of filteredWorkersForSelection" (mousedown)="toggleWorkerSelection(worker)"
+              class="px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0">
+              {{ worker.prenom }} {{ worker.nom }}
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Type de paie *</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Type de rémunération *</label>
         <select [(ngModel)]="profileForm.payType" class="w-full border border-gray-300 rounded-lg py-2 px-3">
           <option *ngFor="let type of payTypes" [value]="type">{{ getRateLabel(type) }}</option>
         </select>
@@ -354,11 +381,11 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Heures normales / jour</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre d'heures normales par jour</label>
           <input type="number" [(ngModel)]="profileForm.normalHoursPerDay" class="w-full border border-gray-300 rounded-lg py-2 px-3">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Majoration heures sup.</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Coefficient des heures supplémentaires</label>
           <input type="number" step="0.1" [(ngModel)]="profileForm.overtimeMultiplier" class="w-full border border-gray-300 rounded-lg py-2 px-3">
         </div>
       </div>
@@ -392,7 +419,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
         <select [(ngModel)]="periodForm.type" class="w-full border border-gray-300 rounded-lg py-2 px-3">
-          <option *ngFor="let type of periodTypes" [value]="type">{{ type }}</option>
+          <option *ngFor="let type of periodTypes" [value]="type">{{ getPeriodTypeLabel(type) }}</option>
         </select>
       </div>
       <div class="grid grid-cols-2 gap-4">
@@ -445,10 +472,19 @@
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Ouvrier *</label>
-        <select [(ngModel)]="advanceForm.workerId" class="w-full border border-gray-300 rounded-lg py-2 px-3">
-          <option [ngValue]="0">-- Sélectionner --</option>
-          <option *ngFor="let worker of workers" [ngValue]="worker.id">{{ worker.prenom }} {{ worker.nom }}</option>
-        </select>
+        <div class="relative">
+          <input type="text" [(ngModel)]="advanceWorkerSearchKeyword" (focus)="onAdvanceWorkerSearchFocus()" (blur)="onAdvanceWorkerSearchBlur()"
+            placeholder="Rechercher un ouvrier par nom..."
+            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+
+          <ul *ngIf="showAdvanceWorkerDropdown && filteredWorkersForAdvance.length > 0"
+            class="absolute z-30 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            <li *ngFor="let worker of filteredWorkersForAdvance" (mousedown)="selectAdvanceWorker(worker)"
+              class="px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0">
+              {{ worker.prenom }} {{ worker.nom }}
+            </li>
+          </ul>
+        </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>

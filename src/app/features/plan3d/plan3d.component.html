@@ -1,0 +1,245 @@
+<div class="bg-white min-h-screen p-4 sm:p-6">
+
+  <!-- ══════════════════════════ EN-TÊTE ══════════════════════════ -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900">Plans 3D</h1>
+          <p class="text-sm text-gray-500">Gérez et associez vos modèles 3D par chantier</p>
+        </div>
+      </div>
+
+      <button (click)="openUploadModal()"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm whitespace-nowrap transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Téléverser un plan 3D
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ CHARGEMENT ══════════════════════════ -->
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+  </div>
+
+  <!-- ══════════════════════════ ÉTAT VIDE ══════════════════════════ -->
+  <div *ngIf="!loading && plans.length === 0"
+    class="border-2 border-dashed border-gray-200 rounded-2xl bg-white py-20 px-4 flex flex-col items-center text-center">
+    <div class="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-5">
+      <svg class="w-9 h-9 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    </div>
+    <h2 class="text-lg font-bold text-gray-900 mb-2">Aucun plan 3D</h2>
+    <p class="text-sm text-gray-400 max-w-sm mb-6">
+      Téléversez votre premier modèle 3D au format <span class="font-semibold text-orange-500">.glb</span> et associez-le à l'un de vos chantiers.
+    </p>
+    <button (click)="openUploadModal()"
+      class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-colors">
+      Téléverser un plan 3D
+    </button>
+  </div>
+
+  <!-- ══════════════════════════ GRILLE DES PLANS ══════════════════════════ -->
+  <div *ngIf="!loading && plans.length > 0">
+
+    <!-- Compteur -->
+    <p class="text-sm text-gray-500 mb-4">{{ totalElements }} plan{{ totalElements > 1 ? 's' : '' }} 3D</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div *ngFor="let plan of plans"
+        class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col">
+
+        <!-- Aperçu image / placeholder 3D -->
+        <div class="relative h-44 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+          <img *ngIf="isImageFile(plan.planLink)" [src]="plan.planLink" alt="Plan"
+            class="w-full h-full object-cover" />
+          <div *ngIf="!isImageFile(plan.planLink)" class="flex flex-col items-center gap-2 text-gray-300">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span class="text-xs font-medium text-gray-400">Modèle 3D GLB</span>
+          </div>
+          <!-- Badge GLB -->
+          <span class="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-md uppercase">
+            GLB
+          </span>
+        </div>
+
+        <!-- Infos -->
+        <div class="p-4 flex-1 flex flex-col gap-2">
+          <h3 class="font-bold text-gray-900 text-base truncate">{{ plan.propertyName }}</h3>
+          <p class="text-xs text-gray-400 flex items-center gap-1 truncate">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {{ plan.address }}
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-4 pb-4 grid grid-cols-2 gap-2 border-t border-gray-100 pt-3">
+          <!-- Télécharger le GLB -->
+          <button (click)="downloadFile(plan.fileLink, plan.propertyName + '.glb')"
+            class="flex items-center justify-center gap-1.5 text-sm text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 font-medium transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Modèle 3D
+          </button>
+
+          <!-- Voir le plan image si disponible -->
+          <a *ngIf="isImageFile(plan.planLink)" [href]="plan.planLink" target="_blank"
+            class="flex items-center justify-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 font-medium transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Voir le plan
+          </a>
+          <!-- Placeholder si pas d'image -->
+          <div *ngIf="!isImageFile(plan.planLink)" class="flex items-center justify-center gap-1.5 text-sm text-gray-300 bg-gray-50 rounded-lg py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Aperçu N/A
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="mt-8 flex justify-center">
+      <nav class="flex items-center gap-2">
+        <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-gray-50 transition-colors">
+          Précédent
+        </button>
+        <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
+          [class.bg-orange-500]="page === currentPage" [class.text-white]="page === currentPage"
+          [class.border-orange-500]="page === currentPage"
+          class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors">
+          {{ page + 1 }}
+        </button>
+        <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-gray-50 transition-colors">
+          Suivant
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ MODAL : TÉLÉVERSER UN PLAN 3D ══════════════════════════ -->
+<div *ngIf="showUploadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="closeUploadModal()">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900">Téléverser un plan 3D</h3>
+      </div>
+      <button (click)="closeUploadModal()" class="text-gray-400 hover:text-gray-600 p-1">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-5">
+
+      <!-- Sélecteur de chantier -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Chantier associé *</label>
+        <select [(ngModel)]="selectedPropertyId" [disabled]="loadingProperties"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white text-sm">
+          <option [ngValue]="null" disabled>{{ loadingProperties ? 'Chargement...' : '-- Sélectionner un chantier --' }}</option>
+          <option *ngFor="let p of properties" [ngValue]="p.id">{{ p.title }}</option>
+        </select>
+      </div>
+
+      <!-- Zone de dépôt du fichier -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Fichier 3D (.glb) *</label>
+
+        <!-- Zone drag-and-drop -->
+        <div *ngIf="!selectedFile"
+          class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors"
+          [ngClass]="dragOver ? 'border-orange-400 bg-orange-50' : 'border-gray-300 hover:border-orange-400 hover:bg-orange-50'"
+          (click)="fileInput.click()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)">
+          <input #fileInput type="file" accept=".glb,.gltf" class="hidden" (change)="onFileSelected($event)">
+          <svg class="mx-auto h-12 w-12 mb-3 transition-colors"
+            [class]="dragOver ? 'text-orange-400' : 'text-gray-300'"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <p class="text-sm font-medium text-gray-700 mb-1">Glissez-déposez un fichier ici</p>
+          <p class="text-xs text-gray-400 mb-3">ou cliquez pour parcourir</p>
+          <span class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+            Format accepté : .glb
+          </span>
+        </div>
+
+        <!-- Fichier sélectionné -->
+        <div *ngIf="selectedFile"
+          class="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+          <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 truncate">{{ selectedFileName }}</p>
+            <p class="text-xs text-gray-500">{{ fileSizeLabel }}</p>
+          </div>
+          <button type="button" (click)="clearFile()" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t px-6 py-4 flex gap-3 rounded-b-2xl">
+      <button (click)="closeUploadModal()"
+        class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+        Annuler
+      </button>
+      <button (click)="upload()" [disabled]="uploading || !selectedFile || !selectedPropertyId"
+        class="flex-1 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors font-medium">
+        <div *ngIf="uploading" class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+        {{ uploading ? 'Téléversement...' : 'Téléverser' }}
+      </button>
+    </div>
+
+  </div>
+</div>

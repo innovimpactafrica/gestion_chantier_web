@@ -138,22 +138,6 @@
                                 {{ currentPremiumPlan.projectLimit }} projets maximum
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">Gestion avancée des projets</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">Support prioritaire 24/7</span>
-                        </div>
                         <div class="flex items-center gap-2" *ngIf="currentPremiumPlan.yearlyDiscountRate > 0">
                             <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
@@ -163,6 +147,18 @@
                             <span class="text-gray-700">Réduction de {{ currentPremiumPlan.yearlyDiscountRate * 100 }}%
                                 sur paiement annuel</span>
                         </div>
+                        <div class="flex items-center gap-2" *ngFor="let advantage of currentPremiumPlan.advantages">
+                            <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700">{{ advantage }}</span>
+                        </div>
+                        <p *ngIf="!currentPremiumPlan.advantages || currentPremiumPlan.advantages.length === 0"
+                            class="text-sm text-gray-400 italic">
+                            Aucun avantage défini pour ce plan.
+                        </p>
                     </div>
 
                     <button (click)="goToSubscription('premium')"
@@ -210,30 +206,18 @@
                                 {{ currentBasicPlan.projectLimit }} projets maximum
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2" *ngFor="let advantage of currentBasicPlan.advantages">
                             <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <span class="text-gray-700">Gestion standard des projets</span>
+                            <span class="text-gray-700">{{ advantage }}</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">Support par email</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-700">Mises à jour régulières</span>
-                        </div>
+                        <p *ngIf="!currentBasicPlan.advantages || currentBasicPlan.advantages.length === 0"
+                            class="text-sm text-gray-400 italic">
+                            Aucun avantage défini pour ce plan.
+                        </p>
                     </div>
 
                     <button (click)="goToSubscription('basic')"

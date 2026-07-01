@@ -1,0 +1,175 @@
+<!-- ========== HERO "ESPACE CHANTIER" (premium SaaS 2025) ========== -->
+<section class="chantier-hero animate-hero-fade-in">
+  <div class="chantier-hero__card">
+
+    <!-- Colonne texte -->
+    <div class="chantier-hero__text">
+      <span class="chantier-hero__badge">Plateforme de gestion de chantier</span>
+
+      <h1 class="chantier-hero__title">
+        Bienvenue dans votre<br>
+        <span class="chantier-hero__title-accent">espace chantier</span>
+      </h1>
+
+      <p class="chantier-hero__subtitle">
+        Commencez dès maintenant en créant votre premier chantier et suivez l'avancement de vos équipes, tâches et
+        dépenses en temps réel.
+      </p>
+
+      <div class="chantier-hero__actions">
+        @if (checkingPermission()) {
+        <button disabled class="chantier-cta chantier-cta--primary chantier-cta--disabled">
+          <span class="animate-spin rounded-full h-5 w-5 border-b-2 border-white/70"></span>
+          Vérification de votre abonnement...
+        </button>
+        } @else if (canCreateProject()) {
+        <button [routerLink]="['/nouveau-projet']" class="chantier-cta chantier-cta--primary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Créer mon premier chantier
+        </button>
+        } @else {
+        <button (click)="openSubscriptionPopup()" class="chantier-cta chantier-cta--primary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Changer de plan pour créer un chantier
+        </button>
+        }
+
+        <button (click)="onViewProjects()" class="chantier-cta chantier-cta--secondary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+          </svg>
+          Voir mes chantiers
+        </button>
+      </div>
+
+      <div class="chantier-hero__trust">
+        <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" />
+        </svg>
+        Vos données sont sécurisées et sauvegardées en continu
+      </div>
+    </div>
+
+    <!-- Colonne image -->
+    <div class="chantier-hero__media">
+      <span class="chantier-hero__deco chantier-hero__deco--top" aria-hidden="true"></span>
+      <span class="chantier-hero__deco chantier-hero__deco--bottom" aria-hidden="true"></span>
+      <!-- Carte fantôme derrière l'image, pour l'effet "pile de cartes" -->
+      <span class="chantier-hero__ghost-card" aria-hidden="true"></span>
+      <div class="chantier-hero__image-wrap">
+        <img src="assets/images/construction-hero.jpg" alt="Chantier en construction"
+          class="chantier-hero__image" />
+        <div class="chantier-hero__glass" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FONCTIONNALITÉS ========== -->
+<section class="chantier-features">
+  <h2 class="chantier-features__title">
+    Tout ce dont vous avez besoin pour réussir
+    <span class="chantier-features__underline" aria-hidden="true"></span>
+  </h2>
+
+  <div class="chantier-features__grid">
+    <div class="chantier-feature-card">
+      <div class="chantier-feature-card__icon">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h3 class="chantier-feature-card__title">Suivi des équipes sur le terrain</h3>
+      <p class="chantier-feature-card__text">Localisez et coordonnez vos équipes en temps réel.</p>
+    </div>
+
+    <div class="chantier-feature-card">
+      <div class="chantier-feature-card__icon">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      </div>
+      <h3 class="chantier-feature-card__title">Gestion des tâches et interventions</h3>
+      <p class="chantier-feature-card__text">Créez, assignez et suivez l'avancement de chaque tâche.</p>
+    </div>
+
+    <div class="chantier-feature-card">
+      <div class="chantier-feature-card__icon">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2" />
+        </svg>
+      </div>
+      <h3 class="chantier-feature-card__title">Contrôle des dépenses</h3>
+      <p class="chantier-feature-card__text">Suivez vos budgets et maîtrisez vos coûts en temps réel.</p>
+    </div>
+
+    <div class="chantier-feature-card">
+      <div class="chantier-feature-card__icon">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <h3 class="chantier-feature-card__title">Rapports et statistiques</h3>
+      <p class="chantier-feature-card__text">Analysez vos données et prenez des décisions éclairées.</p>
+    </div>
+
+    <div class="chantier-feature-card">
+      <div class="chantier-feature-card__icon">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h3 class="chantier-feature-card__title">Pointage géolocalisé des ouvriers</h3>
+      <p class="chantier-feature-card__text">Assurez la présence et la sécurité de vos ouvriers sur le terrain.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA FINALE ========== -->
+<section class="chantier-final-cta">
+  <div class="chantier-final-cta__icon">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+  </div>
+  <div class="chantier-final-cta__text">
+    <h3>Prêt à démarrer ?</h3>
+    <p>Créez votre premier chantier en quelques clics et commencez à gérer vos projets efficacement.</p>
+  </div>
+
+  @if (!checkingPermission() && canCreateProject()) {
+  <button [routerLink]="['/nouveau-projet']" class="chantier-final-cta__button">
+    Créer mon premier chantier
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  </button>
+  } @else if (!checkingPermission()) {
+  <button (click)="openSubscriptionPopup()" class="chantier-final-cta__button">
+    Changer de plan
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  </button>
+  }
+</section>
+
+<!-- Popup sélection d'abonnement -->
+<app-plan-selection-popup
+  *ngIf="showSubscriptionPopup()"
+  (close)="onClosePlanPopup()"
+  (planSelected)="onPlanSelected($event)">
+</app-plan-selection-popup>

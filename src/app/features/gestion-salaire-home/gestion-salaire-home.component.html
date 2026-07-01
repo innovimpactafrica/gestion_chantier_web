@@ -1,0 +1,53 @@
+<div [class]="selectedPropertyId ? 'bg-white p-4 sm:p-6' : 'bg-white min-h-screen p-4 sm:p-6'">
+
+  <!-- ══════════════════════════ EN-TÊTE (même design que Jalons de chantier) ══════════════════════════ -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+          <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.5384 19.3018H12.5759C11.2239 19.3018 10.128 20.3977 10.128 21.7497V23.7118C10.128 23.9193 10.3237 24.0868 10.5266 24.0425C12.6955 23.5694 14.3956 21.8699 14.8694 19.7005C14.9136 19.4977 14.7462 19.3019 14.5386 19.3019L14.5384 19.3018Z" fill="#22C55E"/>
+            <path d="M37.872 23.7118V21.7497C37.872 20.3977 36.7761 19.3018 35.424 19.3018H33.4616C33.2541 19.3018 33.0866 19.4975 33.1308 19.7004C33.6044 21.8699 35.3044 23.5694 37.4736 24.0424C37.6764 24.0867 37.8722 23.9192 37.8722 23.7116L37.872 23.7118Z" fill="#22C55E"/>
+            <path d="M28.08 28.2782C28.08 30.5315 26.2533 32.3582 24 32.3582C21.7467 32.3582 19.92 30.5315 19.92 28.2782C19.92 26.025 21.7467 24.1982 24 24.1982C26.2533 24.1982 28.08 26.025 28.08 28.2782Z" fill="#22C55E"/>
+            <path d="M10.128 26.1356V30.42C10.128 30.6445 10.2938 30.8258 10.5152 30.8626C13.5925 31.3747 16.0072 33.7892 16.5196 36.8666C16.5565 37.088 16.7377 37.2538 16.9622 37.2538H31.0378C31.2624 37.2538 31.4436 37.088 31.4805 36.8666C31.9928 33.7893 34.4073 31.3746 37.4849 30.8626C37.7064 30.8258 37.8721 30.6445 37.8721 30.42V26.1356C37.8721 25.9111 37.7063 25.7298 37.4849 25.6929C34.4075 25.1809 31.9929 22.7664 31.4805 19.6889C31.4436 19.4675 31.2623 19.3018 31.0378 19.3018H16.9622C16.7377 19.3018 16.5564 19.4675 16.5196 19.6889C16.0072 22.7663 13.5927 25.1809 10.5152 25.6929C10.2938 25.7297 10.128 25.9109 10.128 26.1356ZM24 22.5656C27.1492 22.5656 29.712 25.1284 29.712 28.2776C29.712 31.4268 27.1492 33.9896 24 33.9896C20.8508 33.9896 18.288 31.4268 18.288 28.2776C18.288 25.1284 20.8508 22.5656 24 22.5656Z" fill="#22C55E"/>
+            <path d="M33.4616 37.2538H35.4241C36.7761 37.2538 37.872 36.1579 37.872 34.8058V32.8438C37.872 32.6363 37.6763 32.4688 37.4734 32.513C35.3045 32.9861 33.6044 34.6856 33.1306 36.855C33.0864 37.0577 33.2538 37.2536 33.4614 37.2536L33.4616 37.2538Z" fill="#22C55E"/>
+            <path d="M10.128 32.8436V34.8056C10.128 36.1577 11.2239 37.2536 12.576 37.2536H14.5384C14.7459 37.2536 14.9134 37.0578 14.8692 36.855C14.3956 34.6855 12.6956 32.9859 10.5264 32.513C10.3236 32.4688 10.1278 32.6361 10.1278 32.8438L10.128 32.8436Z" fill="#22C55E"/>
+            <path d="M24.5772 17.431L29.4728 12.535C29.7916 12.2162 29.7916 11.6998 29.4728 11.3811C29.154 11.0623 28.6376 11.0623 28.3189 11.3811L24.8158 14.884V7.06201C24.8158 6.61093 24.4508 6.24609 23.9998 6.24609C23.5488 6.24609 23.1839 6.61109 23.1839 7.06201V14.884L19.6808 11.3809C19.362 11.0621 18.8456 11.0621 18.5269 11.3809C18.2081 11.6996 18.2081 12.2161 18.5269 12.5348L23.4225 17.4308C23.4978 17.5057 23.5878 17.5655 23.6883 17.6069C23.7879 17.6483 23.8934 17.6699 23.9998 17.6699C24.1062 17.6699 24.2119 17.6483 24.3114 17.6069C24.4119 17.5655 24.5019 17.5057 24.5772 17.4308L24.5772 17.431Z" fill="#22C55E"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900">Gestion des salaires</h1>
+          <p class="text-sm text-gray-500">Profils salariaux, périodes de paie, bulletins, acomptes et paiements</p>
+        </div>
+      </div>
+
+      <select id="salaire-property-select" [(ngModel)]="selectedPropertyId" (ngModelChange)="onPropertyChange()"
+        [disabled]="loadingProperties"
+        class="border border-gray-200 rounded-full py-2.5 px-4 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 min-w-[220px]">
+        <option [ngValue]="null">-- Sélectionner un chantier --</option>
+        <option *ngFor="let property of properties" [ngValue]="property.id">{{ property.title }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ ÉTAT VIDE : AUCUN CHANTIER SÉLECTIONNÉ ══════════════════════════ -->
+  <div *ngIf="!selectedPropertyId" class="border-2 border-dashed border-gray-200 rounded-2xl bg-white py-20 px-4 flex flex-col items-center text-center">
+    <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-5">
+      <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 9v1m9-5a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h2 class="text-lg font-bold text-gray-900 mb-2">Aucun chantier sélectionné</h2>
+    <p class="text-sm text-gray-400 max-w-sm mb-6">
+      Sélectionnez un chantier dans la liste ci-dessus pour gérer ses salaires.
+    </p>
+    <button (click)="openPropertySelector()"
+      class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm">
+      Sélectionner un chantier
+    </button>
+  </div>
+</div>
+
+<!-- Monté en dehors du conteneur ci-dessus : ce composant gère déjà son propre fond blanc / padding -->
+<app-gestion-salaire *ngIf="selectedPropertyId"></app-gestion-salaire>

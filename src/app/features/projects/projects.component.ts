@@ -47,6 +47,7 @@ import { SubscriptionService } from '../../../services/subscription.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
 import { PlanSelectionPopupComponent } from '../../shared/components/plan-selection-popup/plan-selection-popup.component';
+import { ChantierWelcomeHeroComponent } from '../../shared/components/chantier-welcome-hero/chantier-welcome-hero.component';
 
 
 // Types et interfaces
@@ -75,7 +76,7 @@ interface PaginationInfo {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PlanSelectionPopupComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PlanSelectionPopupComponent, ChantierWelcomeHeroComponent],
   selector: 'app-projects',
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],
@@ -153,6 +154,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   readonly canCreateProject = computed(() => this.canCreateProjectSignal());
   readonly checkingPermission = computed(() => this.isCheckingPermission());
   readonly hasNoSubscription = computed(() => this.subscriptionChecked() && !this.hasActiveSubscriptionSignal());
+  /** Vrai si l'utilisateur a déjà créé au moins un chantier (indépendamment du statut de l'abonnement). */
+  readonly hasExistingProjects = computed(() => this.pagination().totalElements > 0);
   readonly showSubscriptionPopup = signal<boolean>(false);
   readonly subscriptionLimitInfo = computed(() => this.subscriptionLimitInfoSignal());
   readonly isProjectLimitExceeded = computed(() => {
@@ -208,6 +211,14 @@ export class ProjectsComponent implements OnInit, OnDestroy {
    * appliqués localement.
    */
   readonly showEmptyProjectsState = computed(() => !this.loading() && this.pagination().totalElements === 0);
+
+  /** Permet de fermer le Hero d'accueil ("Voir mes chantiers") pour voir la liste/grille standard, même vide. */
+  private readonly heroDismissedSignal = signal(false);
+  readonly heroDismissed = computed(() => this.heroDismissedSignal());
+
+  dismissHero(): void {
+    this.heroDismissedSignal.set(true);
+  }
 
   // Subjects pour la gestion des événements
   private readonly searchSubject = new Subject<ProjectFilters>();
@@ -791,6 +802,10 @@ export class ProjectsComponent implements OnInit, OnDestroy {
    * checkCanCreateProject() avec l'ID de l'utilisateur courant).
    */
   isProjectBlocked(project: any): boolean {
+    // Abonnement expiré/inexistant : tous les chantiers existants sont verrouillés jusqu'au renouvellement.
+    if (this.hasNoSubscription()) {
+      return true;
+    }
     return project?.blocked === true && !this.canCreateProject();
   }
 
@@ -951,7 +966,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     return 'progress-high';
   }
 
-  formatProgress = (progress: number): string => `${progress}%`;
+  formatProgress = (progress: number): string => `${Math.round(progress ?? 0)}%`;
 
 
 

@@ -25,6 +25,7 @@ export class ProjectAlertComponent implements OnInit {
   totalPages: number = 0;
   pageNumbers: number[] = [];
   loading: boolean = false;
+  submitting: boolean = false;
   propertyId!: number;
 
   baseUrl = environment.filebaseUrl; // ✨ Base URL for images
@@ -230,11 +231,11 @@ export class ProjectAlertComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.submitting = true;
 
     const currentUser = this.authService.currentUser();
     if (!currentUser?.id) {
-      this.loading = false;
+      this.submitting = false;
       this.showError('Utilisateur non authentifié');
       return;
     }
@@ -280,12 +281,12 @@ export class ProjectAlertComponent implements OnInit {
     this.projectBudgetService.saveSignalementWithFormData(formData)
       .subscribe({
         next: () => {
-          this.loadSignalements();
+          this.submitting = false;
           this.closeAddModal();
-          this.loading = false;
+          this.loadSignalements();
         },
         error: () => {
-          this.loading = false;
+          this.submitting = false;
           this.showError('Erreur lors de l\'ajout du signalement');
         }
       });

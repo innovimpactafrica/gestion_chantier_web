@@ -28,6 +28,8 @@ export const API = {
   salaryAdvances: `${environment.apiUrl}/salary-advances`,
   payrollPayments: `${environment.apiUrl}/payroll-payments`,
 
+  milestones: `${environment.apiUrl}/milestones`,
+
   pharmaAuth: `${environment.apiBaseUrl}/pharma-delivery/api/auth`,
   pharmaDelivery: `${environment.apiBaseUrl}/pharma-delivery/api`
 } as const;

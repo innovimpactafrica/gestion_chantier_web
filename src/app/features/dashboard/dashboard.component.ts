@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import {
   DashboardService,
@@ -21,6 +22,7 @@ import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
+import { ChantierWelcomeHeroComponent } from '../../shared/components/chantier-welcome-hero/chantier-welcome-hero.component';
 
 Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
 Chart.defaults.font.size = 12;
@@ -29,7 +31,7 @@ Chart.register(...registerables);
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ChantierWelcomeHeroComponent],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
@@ -234,6 +236,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private dashboardService: DashboardService,
     public languageService: LanguageService,
+    private router: Router,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -241,6 +244,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   t(key: string): string {
     return this.languageService.translate(key);
+  }
+
+  /** Vrai tant que l'utilisateur n'a créé aucun chantier : affiche le hero d'accueil au lieu des cards. */
+  get chantiersEmpty(): boolean {
+    return this.dashboardData.chantiers.total === 0;
+  }
+
+  goToProjects(): void {
+    this.router.navigate(['/projects']);
   }
 
   ngOnInit(): void {

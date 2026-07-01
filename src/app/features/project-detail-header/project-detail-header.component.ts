@@ -15,7 +15,6 @@ import { RealestateService } from '../../core/services/realestate.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as QRCode from 'qrcode';
 import { PointingAddressComponent } from "../components/project/pointing-adress/pointing-adress.component";
-import { GestionSalaireComponent } from "../components/project/gestion-salaire/gestion-salaire.component";
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
@@ -31,15 +30,14 @@ import { LanguageService } from '../../core/services/language.service';
     ProjectPresentationComponent,
     ProjectAlertComponent,
     EtudeBetComponent,
-    PointingAddressComponent,
-    GestionSalaireComponent
+    PointingAddressComponent
   ],
   templateUrl: './project-detail-header.component.html',
   styleUrl: './project-detail-header.component.css'
 })
 export class ProjectDetailHeaderComponent implements OnInit {
   private isBrowser: boolean;
-  activeTab: string = 'presentation';
+  activeTab: string = 'fiche';
   projectId: number | null = null;
   stockAlerts: any;
 
