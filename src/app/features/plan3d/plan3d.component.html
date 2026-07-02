@@ -189,9 +189,29 @@
       <!-- Sélecteur de chantier -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Chantier associé *</label>
-        <select [(ngModel)]="selectedPropertyId" [disabled]="loadingProperties"
+
+        <!-- Chargement -->
+        <div *ngIf="loadingProperties" class="flex items-center gap-2 py-3 text-sm text-gray-500">
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+          Chargement des chantiers…
+        </div>
+
+        <!-- Erreur chargement -->
+        <div *ngIf="!loadingProperties && propertiesLoadError" class="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+          <span class="text-sm text-red-700">Impossible de charger les chantiers.</span>
+          <button type="button" (click)="retryLoadProperties()" class="text-sm font-medium text-red-600 hover:underline ml-2">Réessayer</button>
+        </div>
+
+        <!-- Liste vide -->
+        <div *ngIf="!loadingProperties && !propertiesLoadError && properties.length === 0" class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+          Aucun chantier trouvé. Créez d'abord un projet dans la section <strong>Chantiers</strong>.
+        </div>
+
+        <!-- Select -->
+        <select *ngIf="!loadingProperties && !propertiesLoadError && properties.length > 0"
+          [(ngModel)]="selectedPropertyId"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white text-sm">
-          <option [ngValue]="null" disabled>{{ loadingProperties ? 'Chargement...' : '-- Sélectionner un chantier --' }}</option>
+          <option [ngValue]="null" disabled>-- Sélectionner un chantier --</option>
           <option *ngFor="let p of properties" [ngValue]="p.id">{{ p.title }}</option>
         </select>
       </div>
@@ -245,13 +265,21 @@
 
     </div>
 
+    <!-- Erreur upload visible -->
+    <div *ngIf="uploadError" class="mx-6 mb-0 flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+      <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-red-700">{{ uploadError }}</p>
+    </div>
+
     <!-- Footer -->
-    <div class="border-t px-6 py-4 flex gap-3 rounded-b-2xl">
+    <div class="border-t px-6 py-4 flex gap-3 rounded-b-2xl mt-4">
       <button (click)="closeUploadModal()"
         class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
         Annuler
       </button>
-      <button (click)="upload()" [disabled]="uploading || !selectedFile || !selectedPropertyId"
+      <button (click)="upload()" [disabled]="uploading || !selectedFile || selectedPropertyId === null || selectedPropertyId === undefined"
         class="flex-1 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors font-medium">
         <div *ngIf="uploading" class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
         {{ uploading ? 'Téléversement...' : 'Téléverser' }}

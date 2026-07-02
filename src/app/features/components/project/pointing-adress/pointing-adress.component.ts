@@ -1,7 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import * as QRCode from 'qrcode';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { LanguageService } from '../../../../core/services/language.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import {
@@ -24,12 +26,15 @@ export class PointingAddressComponent implements OnInit {
   isLoading = false;
 
   currentPropertyId!: number;
-  projectQrCode: string = ''; // QR code du projet
+  qrCodeDataUrl: SafeUrl | null = null;
+  qrCodeRawDataUrl: string | null = null;
+  isGeneratingQr = false;
 
   // Modals state
   showCreateModal = false;
   showEditModal = false;
   showDeleteModal = false;
+  showQrCodeModal = false;
 
   // Forms data
   selectedAddress: PointingAddressResponse | null = null;
@@ -52,7 +57,9 @@ export class PointingAddressComponent implements OnInit {
     private pointingAddressService: PointingAddressService,
     private route: ActivatedRoute,
     public languageService: LanguageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private sanitizer: DomSanitizer,
+    @Inject(PLATFORM_ID) private platformId: object
   ) { }
 
   t(key: string): string {
@@ -67,25 +74,30 @@ export class PointingAddressComponent implements OnInit {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     if (idFromUrl) {
       this.currentPropertyId = +idFromUrl;
-      this.loadProjectQrCode();
+      this.generateProjectQrCode();
       this.loadAddresses();
-    } else {
     }
   }
 
-  /**
-   * Récupère le QR code du projet
-   */
-  private loadProjectQrCode(): void {
-    this.pointingAddressService.getProjectDetails(this.currentPropertyId)
-      .subscribe({
-        next: (response) => {
-          this.projectQrCode = response.realEstateProperty.qrcode || '';
-        },
-        error: (error) => {
-          this.projectQrCode = '';
-        }
+  private async generateProjectQrCode(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.isGeneratingQr = true;
+    try {
+      const qrValue = `${window.location.origin}/detailprojet/${this.currentPropertyId}`;
+      const dataUrl = await QRCode.toDataURL(qrValue, {
+        width: 256,
+        margin: 2,
+        color: { dark: '#000000', light: '#FFFFFF' },
+        errorCorrectionLevel: 'M'
       });
+      this.qrCodeRawDataUrl = dataUrl;
+      this.qrCodeDataUrl = this.sanitizer.bypassSecurityTrustUrl(dataUrl);
+    } catch {
+      this.qrCodeDataUrl = null;
+      this.qrCodeRawDataUrl = null;
+    } finally {
+      this.isGeneratingQr = false;
+    }
   }
 
   loadAddresses() {
@@ -97,7 +109,7 @@ export class PointingAddressComponent implements OnInit {
           this.onSearch();
           this.isLoading = false;
         },
-        error: (error) => {
+        error: (_error) => {
           this.isLoading = false;
         }
       });
@@ -120,12 +132,20 @@ export class PointingAddressComponent implements OnInit {
     this.toastService.showInfo('Cette fonctionnalité est gérée sur l\'application mobile.');
   }
 
+  openQrCodeModal(): void {
+    this.showQrCodeModal = true;
+  }
+
+  closeQrCodeModal(): void {
+    this.showQrCodeModal = false;
+  }
+
   openCreateModal() {
     this.newAddress = {
       name: '',
       latitude: 0,
       longitude: 0,
-      qrcode: this.projectQrCode // Assigner automatiquement le QR code du projet
+      qrcode: this.qrCodeRawDataUrl || ''
     };
     this.showCreateModal = true;
   }
@@ -136,7 +156,7 @@ export class PointingAddressComponent implements OnInit {
       name: address.name,
       latitude: address.latitude,
       longitude: address.longitude,
-      qrcode: this.projectQrCode // Assigner automatiquement le QR code du projet
+      qrcode: this.qrCodeRawDataUrl || ''
     };
     this.showEditModal = true;
   }
@@ -160,7 +180,7 @@ export class PointingAddressComponent implements OnInit {
           this.loadAddresses();
           this.closeAllModals();
         },
-        error: (error) => {
+        error: (_error) => {
           this.isLoading = false;
         }
       });
@@ -179,7 +199,7 @@ export class PointingAddressComponent implements OnInit {
           this.loadAddresses();
           this.closeAllModals();
         },
-        error: (error) => {
+        error: (_error) => {
           this.isLoading = false;
         }
       });
@@ -202,7 +222,7 @@ export class PointingAddressComponent implements OnInit {
           this.loadAddresses();
           this.closeAllModals();
         },
-        error: (error) => {
+        error: (_error) => {
           this.isLoading = false;
         }
       });
@@ -226,19 +246,16 @@ export class PointingAddressComponent implements OnInit {
           longitude: position.coords.longitude
         };
 
-        // Mise à jour pour la création
         if (this.showCreateModal) {
           this.newAddress.latitude = coords.latitude;
           this.newAddress.longitude = coords.longitude;
         }
 
-        // Mise à jour pour l'édition
         if (this.showEditModal) {
           this.editAddress.latitude = coords.latitude;
           this.editAddress.longitude = coords.longitude;
         }
 
-        // Géolocalisation inversée pour obtenir le nom du lieu
         this.reverseGeocode(coords.latitude, coords.longitude);
 
         this.isLocating = false;
@@ -267,26 +284,16 @@ export class PointingAddressComponent implements OnInit {
     );
   }
 
-  /**
-   * Géolocalisation inversée pour obtenir le nom du lieu à partir des coordonnées
-   */
   private reverseGeocode(latitude: number, longitude: number): void {
-    // Utiliser l'API Nominatim d'OpenStreetMap (gratuite, pas de clé API requise)
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
 
-    fetch(url, {
-      headers: {
-        'User-Agent': 'BTP-Connect-App'
-      }
-    })
+    fetch(url, { headers: { 'User-Agent': 'BTP-Connect-App' } })
       .then(response => response.json())
       .then(data => {
         if (data && data.display_name) {
-          // Extraire un nom de lieu approprié
           let placeName = '';
 
           if (data.address) {
-            // Priorité: quartier, ville, commune
             placeName = data.address.suburb ||
               data.address.neighbourhood ||
               data.address.city ||
@@ -298,20 +305,15 @@ export class PointingAddressComponent implements OnInit {
             placeName = data.display_name.split(',')[0];
           }
 
-          // Mise à jour du nom pour la création
           if (this.showCreateModal && !this.newAddress.name) {
             this.newAddress.name = placeName;
           }
 
-          // Mise à jour du nom pour l'édition
           if (this.showEditModal && !this.editAddress.name) {
             this.editAddress.name = placeName;
           }
-
         }
       })
-      .catch(error => {
-        // Ne pas bloquer l'utilisateur si la géolocalisation inversée échoue
-      });
+      .catch(() => {});
   }
 }

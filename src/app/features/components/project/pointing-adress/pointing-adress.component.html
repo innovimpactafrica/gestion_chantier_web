@@ -14,7 +14,7 @@
           class="w-full pl-10 pr-4 h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
       </div>
       
-      <button (click)="showMobileOnlyNotice()"
+      <button (click)="openQrCodeModal()"
         class="flex items-center justify-center gap-2 h-10 px-4 text-white rounded-lg font-medium hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
         style="background-color: #FF5C01;">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,6 +233,59 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- QR Code Modal -->
+<div *ngIf="showQrCodeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  (click)="closeQrCodeModal()">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="bg-white rounded-2xl p-8 max-w-sm w-full relative z-10 text-center shadow-2xl"
+    (click)="$event.stopPropagation()">
+
+    <button (click)="closeQrCodeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <h2 class="text-lg font-bold text-gray-900 mb-1">{{ t('pointingAddress.addAddress') }}</h2>
+    <p class="text-sm text-gray-500 mb-6">
+      Scannez ce QR code avec l'application mobile pour ajouter une nouvelle adresse.
+    </p>
+
+    <!-- Génération en cours -->
+    <div *ngIf="isGeneratingQr" class="flex justify-center items-center w-52 h-52 mx-auto mb-6">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mx-auto mb-3"></div>
+        <p class="text-xs text-gray-400">Génération du QR code…</p>
+      </div>
+    </div>
+
+    <!-- QR code disponible -->
+    <div *ngIf="!isGeneratingQr && qrCodeDataUrl" class="flex justify-center mb-6">
+      <div class="p-3 bg-white border-2 border-gray-100 rounded-xl shadow-sm">
+        <img [src]="qrCodeDataUrl" alt="QR Code du chantier" class="w-48 h-48 object-contain" />
+      </div>
+    </div>
+
+    <!-- QR code non disponible -->
+    <div *ngIf="!isGeneratingQr && !qrCodeDataUrl"
+      class="flex justify-center items-center w-52 h-52 mx-auto mb-6 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl">
+      <div class="text-center px-4">
+        <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+        </svg>
+        <p class="text-xs text-gray-400">QR code non disponible</p>
+      </div>
+    </div>
+
+    <button (click)="closeQrCodeModal()"
+      class="w-full px-4 py-2.5 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
+      style="background-color: #FF5C01;">
+      Fermer
+    </button>
   </div>
 </div>
 

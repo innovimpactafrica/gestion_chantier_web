@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin, of } from 'rxjs';
@@ -51,6 +51,9 @@ export class JalonsComponent implements OnInit, OnDestroy {
   properties: SelectableProperty[] = [];
   loadingProperties = false;
   selectedPropertyId: number | null = null;
+  showProjectDropdown = false;
+  showCenterDropdown = false;
+  centerDropdownSearch = '';
 
   // ── Données ──
   loading = false;
@@ -217,10 +220,47 @@ export class JalonsComponent implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.project-dropdown-container')) {
+      this.showProjectDropdown = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.showProjectDropdown = false;
+    this.showCenterDropdown = false;
+    this.centerDropdownSearch = '';
+  }
+
   openPropertySelector(): void {
-    const select = document.getElementById('jalon-property-select') as HTMLSelectElement | null;
-    select?.focus();
-    select?.click();
+    this.centerDropdownSearch = '';
+    this.showCenterDropdown = true;
+  }
+
+  toggleProjectDropdown(): void {
+    this.showProjectDropdown = !this.showProjectDropdown;
+  }
+
+  toggleCenterDropdown(): void {
+    this.showCenterDropdown = !this.showCenterDropdown;
+    if (this.showCenterDropdown) this.centerDropdownSearch = '';
+  }
+
+  selectProject(id: number | null): void {
+    this.selectedPropertyId = id;
+    this.showProjectDropdown = false;
+    this.showCenterDropdown = false;
+    this.centerDropdownSearch = '';
+    this.onPropertyChange();
+  }
+
+  get filteredPropertiesForCenter(): SelectableProperty[] {
+    if (!this.centerDropdownSearch.trim()) return this.properties;
+    const q = this.centerDropdownSearch.toLowerCase();
+    return this.properties.filter(p => p.title.toLowerCase().includes(q));
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -309,7 +349,8 @@ export class JalonsComponent implements OnInit, OnDestroy {
   }
 
   get selectedPropertyName(): string {
-    return this.properties.find(p => p.id === this.selectedPropertyId)?.title || '';
+    if (!this.selectedPropertyId) return '-- Sélectionner un chantier --';
+    return this.properties.find(p => p.id === this.selectedPropertyId)?.title || '-- Sélectionner un chantier --';
   }
 
   openCreateModal(): void {

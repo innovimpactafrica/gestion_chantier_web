@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,6 +28,9 @@ export class GestionSalaireHomeComponent implements OnInit {
   properties: SelectableProperty[] = [];
   loadingProperties = false;
   selectedPropertyId: number | null = null;
+  showProjectDropdown = false;
+  showCenterDropdown = false;
+  centerDropdownSearch = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +43,19 @@ export class GestionSalaireHomeComponent implements OnInit {
     const idFromUrl = this.route.snapshot.paramMap.get('id');
     this.selectedPropertyId = idFromUrl ? +idFromUrl : null;
     this.loadProperties();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.project-dropdown-container')) this.showProjectDropdown = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.showProjectDropdown = false;
+    this.showCenterDropdown = false;
+    this.centerDropdownSearch = '';
   }
 
   private loadProperties(): void {
@@ -64,9 +80,31 @@ export class GestionSalaireHomeComponent implements OnInit {
     }
   }
 
-  openPropertySelector(): void {
-    const select = document.getElementById('salaire-property-select') as HTMLSelectElement | null;
-    select?.focus();
-    select?.click();
+  toggleProjectDropdown(): void {
+    this.showProjectDropdown = !this.showProjectDropdown;
+  }
+
+  toggleCenterDropdown(): void {
+    this.showCenterDropdown = !this.showCenterDropdown;
+    if (this.showCenterDropdown) this.centerDropdownSearch = '';
+  }
+
+  selectProject(id: number | null): void {
+    this.selectedPropertyId = id;
+    this.showProjectDropdown = false;
+    this.showCenterDropdown = false;
+    this.centerDropdownSearch = '';
+    this.onPropertyChange();
+  }
+
+  get filteredPropertiesForCenter(): SelectableProperty[] {
+    if (!this.centerDropdownSearch.trim()) return this.properties;
+    const q = this.centerDropdownSearch.toLowerCase();
+    return this.properties.filter(p => p.title.toLowerCase().includes(q));
+  }
+
+  get selectedPropertyName(): string {
+    if (!this.selectedPropertyId) return '-- Sélectionner un chantier --';
+    return this.properties.find(p => p.id === this.selectedPropertyId)?.title ?? '-- Sélectionner un chantier --';
   }
 }

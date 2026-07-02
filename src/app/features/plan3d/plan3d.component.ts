@@ -42,6 +42,8 @@ export class Plan3dComponent implements OnInit, OnDestroy {
   selectedFileName = '';
   dragOver = false;
   uploading = false;
+  uploadError: string | null = null;
+  propertiesLoadError = false;
 
   // ── Modal visionneur 3D ──
   showViewerModal = false;
@@ -73,15 +75,24 @@ export class Plan3dComponent implements OnInit, OnDestroy {
     const userId = this.userId;
     if (!userId) return;
     this.loadingProperties = true;
+    this.propertiesLoadError = false;
     this.realestateService.getAllProjectsPaginated(userId, 0, 100)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.properties = (res.content || []).map((p: any) => ({ id: p.id, title: p.title || p.name }));
+          this.properties = (res.content || []).map((p: any) => ({ id: p.id, title: p.title || p.name || `Chantier #${p.id}` }));
           this.loadingProperties = false;
         },
-        error: () => { this.loadingProperties = false; }
+        error: (err) => {
+          console.error('[Plan3D] Erreur chargement chantiers:', err);
+          this.loadingProperties = false;
+          this.propertiesLoadError = true;
+        }
       });
+  }
+
+  retryLoadProperties(): void {
+    this.loadProperties();
   }
 
   loadPlans(page = 0): void {
@@ -108,7 +119,11 @@ export class Plan3dComponent implements OnInit, OnDestroy {
     this.selectedPropertyId = null;
     this.selectedFile = null;
     this.selectedFileName = '';
+    this.uploadError = null;
     this.showUploadModal = true;
+    if (this.properties.length === 0 && !this.loadingProperties) {
+      this.loadProperties();
+    }
   }
 
   closeUploadModal(): void {
@@ -173,14 +188,15 @@ export class Plan3dComponent implements OnInit, OnDestroy {
   }
 
   upload(): void {
-    if (!this.selectedPropertyId) {
-      this.toast.showError('Veuillez sélectionner un chantier');
+    if (this.selectedPropertyId === null || this.selectedPropertyId === undefined) {
+      this.uploadError = 'Veuillez sélectionner un chantier.';
       return;
     }
     if (!this.selectedFile) {
-      this.toast.showError('Veuillez sélectionner un fichier .glb');
+      this.uploadError = 'Veuillez sélectionner un fichier .glb.';
       return;
     }
+    this.uploadError = null;
     this.uploading = true;
     this.plan3dService.upload(this.selectedPropertyId, this.selectedFile)
       .pipe(takeUntil(this.destroy$))
@@ -193,7 +209,12 @@ export class Plan3dComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.uploading = false;
-          this.toast.showError(err?.error?.message || 'Erreur lors du téléversement');
+          const msg = err?.error?.message
+            || err?.error?.error
+            || err?.message
+            || `Erreur ${err?.status || ''} lors du téléversement`;
+          this.uploadError = msg;
+          console.error('[Plan3D] Erreur upload:', err);
         }
       });
   }
