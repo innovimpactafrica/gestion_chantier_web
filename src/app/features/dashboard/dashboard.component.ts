@@ -148,6 +148,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   getBaseFile() {
     return environment.filebaseUrl;
   }
+  normalizeImageUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed) || /^data:/i.test(trimmed)) {
+      return trimmed;
+    }
+    const normalized = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
+    return `${environment.filebaseUrl}${normalized}`;
+  }
   /**
    * Ferme le modal des photos
    */

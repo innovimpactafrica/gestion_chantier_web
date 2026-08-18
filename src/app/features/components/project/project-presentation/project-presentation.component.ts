@@ -20,7 +20,7 @@ import { environment } from '../../../../../environments/environment';
 export class ProjectPresentationComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
-  private realEstateService = inject(RealestateService);
+  public realEstateService = inject(RealestateService);
   private projectBudgetService = inject(ProjectBudgetService);
   private languageService = inject(LanguageService);
 

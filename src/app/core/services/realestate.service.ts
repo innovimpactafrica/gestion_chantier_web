@@ -125,6 +125,24 @@ export class RealestateService {
 
   private apiImageUrl = environment.filebaseUrl;
 
+  normalizeMediaUrl(url?: string | null): string {
+    if (!url) {
+      return '';
+    }
+
+    const trimmed = url.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    if (/^https?:\/\//i.test(trimmed) || /^data:/i.test(trimmed)) {
+      return trimmed;
+    }
+
+    const normalized = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
+    return `${this.apiImageUrl}${normalized}`;
+  }
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
@@ -371,7 +389,7 @@ export class RealestateService {
       progress: project.averageProgress !== undefined && project.averageProgress !== null
         ? Math.round(Math.max(0, Math.min(100, Number(project.averageProgress))))
         : this.calculateProgress(project.startDate, project.endDate),
-      plan: this.apiImageUrl + (project.plan || ''),
+      plan: this.normalizeMediaUrl(project.plan),
       available: project.available,
       blocked: project.blocked === true,
       name: project.name

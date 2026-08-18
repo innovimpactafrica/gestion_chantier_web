@@ -72,7 +72,7 @@
         </div>
 
         <!-- Contenu de la carte -->
-        <img [src]="getBaseFile() + (album?.pictures?.[0] || 'default-placeholder.jpg')" alt="{{ album.phaseName }}"
+        <img [src]="normalizeImageUrl(album?.pictures?.[0]) || 'assets/images/architecte.png'" alt="{{ album.phaseName }}"
           class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
           (error)="handleImageError($event, album)" />
 
@@ -207,7 +207,7 @@
           </p>
           <div class="grid grid-cols-3 gap-2">
             <div *ngFor="let picture of albumForm.pictures; let i = index" class="relative">
-              <img [src]="picture.startsWith('data:') ? picture : getBaseFile() + picture"
+              <img [src]="picture.startsWith('data:') ? picture : normalizeImageUrl(picture) || 'assets/images/architecte.png'"
                 class="w-full h-20 object-cover rounded-md border border-gray-300">
               <button type="button" (click)="removePicture(i)"
                 class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
@@ -303,7 +303,7 @@
         <div *ngFor="let picture of currentAlbum.pictures; let i = index"
           (click)="openImageViewer(picture, currentAlbum.pictures)"
           class="relative group cursor-pointer rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-          <img [src]="getBaseFile() + picture" [alt]="'Photo ' + (i + 1)"
+          <img [src]="normalizeImageUrl(picture) || 'assets/images/architecte.png'" [alt]="'Photo ' + (i + 1)"
             class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110">
 
           <!-- Hover Overlay with magnify icon -->
@@ -344,7 +344,7 @@
 
     <!-- Main Image -->
     <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
-      <img [src]="getBaseFile() + selectedImage" class="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+      <img [src]="normalizeImageUrl(selectedImage) || 'assets/images/architecte.png'" class="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
         [alt]="'Photo album'">
 
       <!-- Navigation Buttons -->
@@ -372,7 +372,7 @@
         <div *ngFor="let img of currentAlbumImages; let i = index" (click)="selectImageIndex(i)"
           class="w-16 h-16 rounded overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0"
           [class.border-orange-500]="i === currentImageIndex" [class.border-transparent]="i !== currentImageIndex">
-          <img [src]="getBaseFile() + img" class="w-full h-full object-cover">
+          <img [src]="normalizeImageUrl(img) || 'assets/images/architecte.png'" class="w-full h-full object-cover">
         </div>
       </div>
     </div>

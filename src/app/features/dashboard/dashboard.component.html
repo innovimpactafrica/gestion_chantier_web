@@ -602,7 +602,7 @@
           <div *ngFor="let photo of photosRecentes | slice:0:6"
             class="group relative aspect-square rounded-lg overflow-hidden cursor-pointer"
             (click)="openPhotoModal(photo)">
-            <img [src]="getBaseFile() + photo.src"
+            <img [src]="normalizeImageUrl(photo.src) || 'assets/images/architecte.png'"
               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
 
             <!-- Hover Overlay -->
@@ -758,7 +758,7 @@
 
     <!-- Main Image -->
     <div class="relative w-full flex-1 flex items-center justify-center overflow-hidden min-h-0">
-      <img [src]="getBaseFile() + selectedPhoto.src" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
+      <img [src]="normalizeImageUrl(selectedPhoto.src) || 'assets/images/architecte.png'" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
         [alt]="selectedPhoto.phase || 'Photo chantier'">
 
       <!-- Navigation Buttons -->
@@ -786,7 +786,7 @@
         <div *ngFor="let img of selectedPhoto.images; let i = index" (click)="selectImageIndex(i)"
           class="w-16 h-16 rounded overflow-hidden cursor-pointer border-2 transition-all"
           [class.border-orange-500]="i === currentImageIndex" [class.border-transparent]="i !== currentImageIndex">
-          <img [src]="getBaseFile() + img" class="w-full h-full object-cover">
+          <img [src]="normalizeImageUrl(img) || 'assets/images/architecte.png'" class="w-full h-full object-cover">
         </div>
       </div>
     </div>
