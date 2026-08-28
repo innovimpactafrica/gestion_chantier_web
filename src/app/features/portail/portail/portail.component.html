@@ -1,6 +1,7 @@
 <div class="min-h-screen bg-gray-50 overflow-x-hidden">
     <!-- Header avec Navigation et Toggle de langue -->
-    <header class="fixed top-0 w-full z-50 bg-white shadow-md py-3 transition-all duration-300">
+    <header class="fixed top-0 w-full z-50 transition-all duration-300"
+        [ngClass]="isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg py-2' : 'bg-white shadow-md py-3'">
         <div class="max-w-screen-2xl 2xl:max-w-full mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
             <div class="flex justify-between items-center w-full">
                 <!-- Logo -->
@@ -32,19 +33,16 @@
                     </a>
                 </nav>
 
-                <!-- CTA Buttons + Language Toggle -->
+                <!-- Access buttons, language toggle and help -->
                 <div class="hidden md:flex items-center space-x-4 flex-shrink-0">
                     <button (click)="goToLogin()"
-                        class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all font-medium">
-                        {{ t('btn.login') }}
+                        class="px-5 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ease-out font-medium">
+                        {{ t('btn.siteManagement') }}
                     </button>
-                    <!-- Bouton Essayer gratuitement-->
-
-                    <!--  <button (click)="goToLogin()"
-                        class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
-                        {{ t('btn.tryFree') }}
-                    </button>
-                -->
+                    <a href="https://pilotage.btpcloud.sn/connexion" target="_blank" rel="noopener noreferrer"
+                        class="px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 ease-out font-medium">
+                        {{ t('btn.pilotage') }}
+                    </a>
                     <!-- Select de langue avec drapeaux -->
                     <div class="relative">
                         <select (change)="onLanguageChange($event)" [value]="currentLang"
@@ -176,44 +174,52 @@
                     </div>
                 </div>
 
-                <button (click)="goToLogin()" class="px-6 py-2 border-2 border-orange-500 text-orange-500 rounded-lg">
-                    {{ t('btn.login') }}
+                <button (click)="goToLogin()"
+                    class="min-h-11 px-6 py-3 border-2 border-orange-500 text-orange-500 rounded-lg font-medium">
+                    {{ t('btn.siteManagement') }}
                 </button>
-                <button (click)="goToLogin()" class="px-6 py-2 bg-orange-500 text-white rounded-lg">
-                    {{ t('btn.tryFree') }}
-                </button>
+                <a href="https://pilotage.btpcloud.sn/connexion" target="_blank" rel="noopener noreferrer"
+                    class="min-h-11 px-6 py-3 bg-orange-500 text-white rounded-lg text-center font-medium">
+                    {{ t('btn.pilotage') }}
+                </a>
+
             </nav>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section id="accueil"
-        class="min-h-[80vh] flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16 overflow-hidden">
+        class="hero-surface min-h-[80vh] flex items-center pt-24 pb-12 px-6 sm:px-8 lg:px-12 xl:px-16 overflow-hidden">
         <div class="w-full max-w-screen-2xl 2xl:max-w-none mx-auto">
             <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <!-- Left Content -->
-                <div class="space-y-6 2xl:space-y-8 animate-fade-in-left">
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl font-bold text-gray-900 leading-tight">
-                        {{ t('hero.title') }}
+                <div class="space-y-6 2xl:space-y-8">
+                    <h1 class="hero-title hero-enter text-gray-900">
+                        {{ t('hero.title.first') }} <span class="text-orange-500">{{ t('hero.title.second') }}</span>
                     </h1>
-                    <p class="text-lg 2xl:text-3xl text-gray-600 leading-relaxed">
+                    <p class="hero-description hero-enter text-gray-600">
                         {{ t('hero.description') }}
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                        <button (click)="goToFeaturesList()"
-                            class="px-8 py-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-medium shadow-lg hover:shadow-xl hover:scale-105 transform duration-200">
-                            {{ t('hero.btn.features') }}
+                    <div class="hero-enter flex flex-col sm:flex-row gap-4 pt-4">
+                        <button (click)="goToLogin()"
+                            class="min-h-11 px-8 py-4 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ease-out font-medium">
+                            {{ t('btn.siteManagement') }}
                         </button>
-                        <button (click)="scrollToSection('telecharger-app', $event)"
-                            class="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-all font-medium">
-                            {{ t('hero.btn.download') }}
-                        </button>
+                        <a href="https://pilotage.btpcloud.sn/connexion" target="_blank" rel="noopener noreferrer"
+                            class="min-h-11 px-8 py-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 ease-out font-medium text-center">
+                            {{ t('btn.pilotage') }}
+                        </a>
+                    </div>
+                    <div class="hero-enter hero-stats flex flex-wrap items-center gap-y-4 pt-3 text-gray-700">
+                        <div class="pr-5 mr-5 border-r border-gray-300"><strong class="block text-xl text-gray-900">{{ heroStat1 }}</strong><span class="text-sm">{{ t('hero.stat1.label') }}</span></div>
+                        <div class="pr-5 mr-5 border-r border-gray-300"><strong class="block text-xl text-gray-900">{{ heroStat2 }}</strong><span class="text-sm">{{ t('hero.stat2.label') }}</span></div>
+                        <div><strong class="block text-xl text-gray-900">{{ heroStat3 }}</strong><span class="text-sm">{{ t('hero.stat3.label') }}</span></div>
                     </div>
                 </div>
 
                 <!-- Right Content - Dashboard Preview -->
-                <div class="relative animate-fade-in-right flex justify-end">
-                    <div class="w-full hover:scale-105 transition-transform duration-300">
+                <div class="hero-preview relative flex justify-end">
+                    <div class="w-full">
                         <div class="w-full">
                             <div class="text-gray-400 transform scale-100 2xl:scale-125 origin-center">
                                 <img src="assets/images/appli.png" alt="" class="w-full h-auto">
@@ -223,7 +229,7 @@
                 </div>
             </div>
         </div>
-    </section>&nbsp;&nbsp;&nbsp;
+    </section>
 
     <!-- À propos Section -->
     <section id="apropos" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
@@ -287,56 +293,70 @@
         </div>
     </section>
 
-    <!-- Profils utilisateurs Section -->
-    <section id="profils" class="py-20 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white animate-fade-In-Up">
-        <div class="max-w-screen-2xl mx-auto relative">
-            <div class="text-center mb-16 animate-fade-in-up">
-                <div
-                    class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-4">
+    <!-- Profils de pilotage -->
+    <section id="profils" class="py-20 lg:py-28 px-6 sm:px-8 lg:px-12 xl:px-16 bg-white">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="text-center mb-14 lg:mb-20 reveal">
+                <div class="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold mb-5">
                     {{ t('profiles.badge') }}
                 </div>
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">{{ t('profiles.title') }}</h2>
-                <p class="text-lg text-gray-600">{{ t('profiles.description') }}</p>
+                <h2 class="section-title text-gray-900 mb-5">{{ t('profiles.title') }}</h2>
+                <p class="section-subtitle text-gray-600 max-w-3xl mx-auto">{{ t('profiles.description') }}</p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div *ngFor="let profil of profils; let i = index"
-                    class="bg-white border-2 border-gray-100 hover:border-orange-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="mb-6">
-                        <!-- Image -->
-                        <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden mb-4">
-                            <img [src]="profil.image" [alt]="t(profil.titleKey)" class="w-full h-full object-cover">
-                        </div>
+            <div class="hidden lg:flex gap-4 h-[540px] reveal">
+                <button *ngFor="let profil of profils; let i = index" type="button"
+                    class="profil-panel group relative overflow-hidden rounded-3xl text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300"
+                    [class.is-active]="activeProfil === i" [style.flex]="activeProfil === i ? '2.6 1 0%' : '0.8 1 0%'"
+                    [attr.aria-expanded]="activeProfil === i" (mouseenter)="selectProfil(i)" (focus)="selectProfil(i)"
+                    (click)="selectProfil(i)">
+                    <img [src]="profil.image" [alt]="t(profil.altKey)" class="profil-panel__img absolute inset-0 w-full h-full object-cover object-top">
+                    <span class="absolute inset-0 profil-panel__veil"></span>
+                    <span class="relative h-full flex flex-col justify-end p-7 xl:p-9">
+                        <span class="profil-panel__role inline-flex self-start items-center px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold tracking-wide mb-4">
+                            {{ t(profil.roleKey) }}
+                        </span>
+                        <span class="profil-panel__title text-white font-bold mb-3">{{ t(profil.titleKey) }}</span>
+                        <span class="profil-panel__detail">
+                            <span class="block text-orange-200 font-semibold mb-4">{{ t(profil.taglineKey) }}</span>
+                            <span class="block space-y-2.5 max-w-md">
+                                <span *ngFor="let bulletKey of profil.bulletKeys" class="flex items-start gap-3">
+                                    <span class="mt-2 w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></span>
+                                    <span class="text-gray-100 text-[15px] leading-relaxed">{{ t(bulletKey) }}</span>
+                                </span>
+                            </span>
+                        </span>
+                    </span>
+                    <span class="profil-panel__hint absolute top-6 right-6 w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
 
-                        <div class="px-6">
-                            <!-- Titre et sous-titre -->
-                            <h3 class="text-xl font-bold text-orange-500 mb-2">{{ t(profil.titleKey) }}</h3>
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ t(profil.subtitleKey) }}</h4>
-
-                            <!-- Description avec transition fluide -->
-                            <div class="overflow-hidden transition-all duration-500 ease-in-out">
-                                <p class="text-gray-600 text-sm mb-4 transition-all duration-300"
-                                    [class.line-clamp-2]="!profil.expanded">
-                                    <span *ngIf="!profil.expanded">{{ t(profil.shortKey) }}</span>
-                                    <span *ngIf="profil.expanded">{{ t(profil.fullKey) }}</span>
-                                </p>
-                            </div>
-
-                            <!-- Bouton Lire plus / Lire moins -->
-                            <button (click)="toggleDescription(i)"
-                                class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold text-sm transition-colors focus:outline-none">
-                                <span *ngIf="!profil.expanded">{{ t('profiles.readMore') }}</span>
-                                <span *ngIf="profil.expanded">{{ t('profiles.readLess') }}</span>
-                                <svg class="w-4 h-4 ml-2 transition-transform duration-300"
-                                    [class.rotate-90]="profil.expanded" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        </div>
+            <div class="lg:hidden grid sm:grid-cols-2 gap-6">
+                <article *ngFor="let profil of profils; let i = index"
+                    class="profil-card reveal bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm"
+                    [style.transition-delay.ms]="i * 80">
+                    <div class="relative h-56 overflow-hidden">
+                        <img [src]="profil.image" [alt]="t(profil.altKey)" class="w-full h-full object-cover object-top">
+                        <span class="absolute inset-0 profil-panel__veil"></span>
+                        <span class="absolute bottom-4 left-5 inline-flex items-center px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold tracking-wide">
+                            {{ t(profil.roleKey) }}
+                        </span>
                     </div>
-                </div>
+                    <div class="p-6">
+                        <h3 class="card-title text-gray-900 mb-2">{{ t(profil.titleKey) }}</h3>
+                        <p class="text-orange-600 font-semibold text-[15px] mb-4">{{ t(profil.taglineKey) }}</p>
+                        <ul class="space-y-2.5">
+                            <li *ngFor="let bulletKey of profil.bulletKeys" class="flex items-start gap-3">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></span>
+                                <span class="text-gray-600 text-[15px] leading-relaxed">{{ t(bulletKey) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
@@ -353,10 +373,24 @@
             </div>
             <div class="text-center mb-16 animate-fade-in-up">
                 <h2 class="text-4xl font-bold text-gray-900 mb-4">{{ t('features.title') }}</h2>
-                <p class="text-lg text-gray-600">{{ t('features.description') }}</p>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">{{ t('features.description') }}</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8 ">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <article *ngFor="let feature of features; let i = index"
+                    class="feature-card animate-fade-in-up bg-white border border-gray-100 rounded-2xl shadow-sm p-6 flex flex-col items-center text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:border-orange-200"
+                    [style.transition-delay.ms]="i < 5 ? i * 80 : 400">
+                    <div class="w-12 h-12 flex-shrink-0 bg-orange-500 rounded-full flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path [attr.d]="feature.icon"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">{{ t(feature.titleKey) }}</h3>
+                    <p class="text-gray-600 leading-relaxed">{{ t(feature.descriptionKey) }}</p>
+                </article>
+            </div>
+
+            <div *ngIf="false" class="grid md:grid-cols-3 gap-8 ">
                 <div
                     class="p-6 bg-white rounded-xl flex items-center flex-col hover:bg-orange-50 transition-all duration-300 hover:shadow-lg hover:scale-105">
                     <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">

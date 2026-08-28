@@ -56,7 +56,7 @@
     <!-- Compteur -->
     <p class="text-sm text-gray-500 mb-4">{{ totalElements }} plan{{ totalElements > 1 ? 's' : '' }} 3D</p>
 
-    <div class="flex flex-col gap-4">
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
       <div *ngFor="let plan of plans"
         class="group relative bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg hover:border-orange-200 transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
 
@@ -64,7 +64,7 @@
         <span class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
 
         <!-- Aperçu image / placeholder 3D (gauche) -->
-        <div class="relative w-full sm:w-52 md:w-60 h-44 sm:h-auto flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
+        <div class="relative w-full sm:w-44 md:w-48 h-44 sm:h-auto flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
           (click)="openViewer(plan)">
           <img *ngIf="isImageFile(plan.planLink)" [src]="plan.planLink" alt="Plan"
             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -115,7 +115,7 @@
         </div>
 
         <!-- Actions (droite) -->
-        <div class="flex sm:flex-col items-stretch justify-center gap-2 p-4 sm:p-5 sm:w-52 border-t sm:border-t-0 sm:border-l border-gray-100 bg-gray-50/50">
+        <div class="flex sm:flex-col items-stretch justify-center gap-2 p-4 sm:p-5 sm:w-44 border-t sm:border-t-0 sm:border-l border-gray-100 bg-gray-50/50">
           <!-- Voir le plan en 3D (action principale) -->
           <button (click)="openViewer(plan)"
             class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-lg py-2.5 px-4 font-semibold shadow-sm hover:shadow transition-all">

@@ -9,13 +9,13 @@ import { LanguageService, Language } from '../../../core/services/language.servi
 import { Subject, takeUntil, interval } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
-interface Profil {
-  titre: string;
-  sousTitre: string;
-  descriptionCourte: string;
-  descriptionComplete: string;
+interface ProfilPilotage {
+  roleKey: string;
+  titleKey: string;
+  taglineKey: string;
+  bulletKeys: string[];
   image: string;
-  expanded: boolean;
+  altKey: string;
 }
 
 interface Translations {
@@ -113,6 +113,11 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   activeAiCategoryIndex = 0;
   aiAnimKey = 0;
   private aiIntervalId: ReturnType<typeof setInterval> | null = null;
+  heroStat1 = 0;
+  heroStat2 = 0;
+  heroStat3 = 0;
+  private heroCounterFrameId: number | null = null;
+  activeProfil = 0;
 
   aiCategories: AiCategory[] = [
     {
@@ -307,14 +312,20 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'nav.features': 'Fonctionnalités',
       'nav.profiles': 'Profils',
       'nav.contact': 'Contact',
-      'btn.login': 'Se connecter',
+      'btn.siteManagement': 'Gestion chantier',
+      'btn.pilotage': 'Espace pilotage',
       'btn.tryFree': 'Essayer gratuitement',
 
       // Hero Section
-      'hero.title': 'Simplifiez la gestion de vos chantiers, du bureau au terrain.',
-      'hero.description': 'Suivi en temps réel, pointages, plannings, rapports PDF, coûts et photos — le tout dans une seule plateforme prête pour le MOA, le BET, le chef de chantier et les équipes terrain.',
-      'hero.btn.features': 'Voir Démos',
-      'hero.btn.download': 'Télécharger l\'application',
+      'hero.title.first': 'Du premier coup de pioche',
+      'hero.title.second': 'à la remise des clés.',
+      'hero.description': 'Pointages, plannings, appels d’offres, pénalités, états des lieux et livraison des acquéreurs. Une seule plateforme pour le promoteur, le chef de projet, les entreprises et les équipes terrain.',
+      'hero.stat1.value': '12',
+      'hero.stat1.label': 'étapes de suivi',
+      'hero.stat2.value': '3',
+      'hero.stat2.label': 'procédures SAV',
+      'hero.stat3.value': '4',
+      'hero.stat3.label': 'profils métier',
 
       // About Section
       'about.badge': 'Présentation',
@@ -326,16 +337,66 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'about.feature4': 'Suivi des dépenses et plannings',
 
       // Profiles Section
-      'profiles.badge': 'Profils utilisateurs',
-      'profiles.title': 'Une solution adaptée à chaque intervenant',
-      'profiles.description': 'BTP CLOUD propose des fonctionnalités spécifiques pour chaque profil impliqué dans vos projets de construction',
-      'profiles.readMore': 'Lire plus',
-      'profiles.readLess': 'Lire moins',
+      'profiles.badge': 'Profils de pilotage',
+      'profiles.title': 'Une interface par métier',
+      'profiles.description': 'Chaque intervenant voit ce qui le concerne, et valide les étapes qui lui reviennent.',
+      'profile1.title': 'Directeur de projet',
+      'profile1.role': 'Direction générale',
+      'profile1.tagline': 'Il décide et arbitre.',
+      'profile1.b1': 'Suit tous ses programmes depuis un tableau de bord unique : avancement, retards, montants engagés.',
+      'profile1.b2': 'Génère un chantier complet depuis un modèle, puis fige un planning de référence.',
+      'profile1.b3': 'Valide les marchés signés et les paiements en fin de cycle.',
+      'profile1.alt': 'Directeur de projet tenant un plan roulé devant un immeuble en construction',
+      'profile2.title': 'Chef de projet',
+      'profile2.role': 'Conduite de travaux',
+      'profile2.tagline': 'Il fait avancer le chantier.',
+      'profile2.b1': 'Crée et replanifie les tâches, propage un décalage sur toute la chaîne en aval.',
+      'profile2.b2': 'Lance les appels d’offres, enregistre les offres reçues et compare prix et délais.',
+      'profile2.b3': 'Valide les réceptions qui lui reviennent, chaque action restant horodatée.',
+      'profile2.alt': 'Chef de projet en gilet de sécurité consultant son planning sur une tablette',
+      'profile3.title': 'Responsable commercial',
+      'profile3.role': 'Direction commerciale',
+      'profile3.tagline': 'Il livre et suit les acquéreurs.',
+      'profile3.b1': 'Réceptionne les ouvrages après le chef de projet, avant présentation au client.',
+      'profile3.b2': 'Ouvre les états des lieux et les dossiers de service après-vente.',
+      'profile3.b3': 'Remet les clés : fiche d’état des lieux, procès-verbal et échéancier des charges.',
+      'profile3.alt': 'Responsable commercial remettant les clés d’un logement neuf',
+      'profile4.title': 'Architecte',
+      'profile4.role': 'Maîtrise d’œuvre',
+      'profile4.tagline': 'Il contrôle la conformité.',
+      'profile4.b1': 'Teste les ouvrages livrés avant toute réception, et rejette avec motif si nécessaire.',
+      'profile4.b2': 'Pose les diagnostics des états des lieux et des demandes après-vente.',
+      'profile4.b3': 'Accompagne le technicien sur place et chiffre les reprises.',
+      'profile4.alt': 'Architecte examinant un ouvrage technique sur le chantier',
 
       // Features Section
       'features.badge': 'Fonctionnalités clés',
-      'features.title': 'Tout ce dont vous avez besoin pour gérer vos chantiers',
-      'features.description': 'BTP CLOUD centralise tous les outils nécessaires pour gérer efficacement vos projets de construction dans une interface intuitive et accessible',
+      'features.title': 'Tout ce dont vous avez besoin, du terrain à la remise des clés',
+      'features.description': 'BTP Cloud accompagne un programme de sa conception à la livraison de ses acquéreurs, sans changer d’outil.',
+      'features.feature1.title': 'Suivi en temps réel',
+      'features.feature1.description': 'Suivez l’avancement de vos chantiers avec des mises à jour instantanées depuis le terrain.',
+      'features.feature2.title': 'Pointage digital',
+      'features.feature2.description': 'Enregistrez les présences de vos équipes, calculez les heures et préparez les salaires.',
+      'features.feature3.title': 'Planning et Gantt',
+      'features.feature3.description': 'Chaque tâche suit douze étapes horodatées, du lancement de l’appel d’offres au paiement validé.',
+      'features.feature4.title': 'Appels d’offres',
+      'features.feature4.description': 'Publiez un dossier, saisissez les offres reçues, comparez prix et délais, attribuez le marché.',
+      'features.feature5.title': 'Pénalités de retard',
+      'features.feature5.description': 'Calcul automatique chaque nuit, règle paramétrable, simulateur avant application.',
+      'features.feature6.title': 'Stocks et approvisionnement',
+      'features.feature6.description': 'Suivez les mouvements de matériaux, recevez une alerte avant la rupture.',
+      'features.feature7.title': 'États des lieux et SAV',
+      'features.feature7.description': 'Trois procédures : état des lieux interne, état des lieux client, service après-vente.',
+      'features.feature8.title': 'Livraison des acquéreurs',
+      'features.feature8.description': 'La remise des clés produit la fiche d’état des lieux, le procès-verbal et l’échéancier des charges.',
+      'features.feature9.title': 'Espace acquéreur',
+      'features.feature9.description': 'Votre client suit son logement, confirme ses rendez-vous et valide les devis.',
+      'features.feature10.title': 'Études et documents',
+      'features.feature10.description': 'Plans, visas, rapports et albums d’avancement, centralisés et versionnés.',
+      'features.feature11.title': 'Budgets et coûts',
+      'features.feature11.description': 'Suivez les dépenses par lot, comparez le prévu et le réel, anticipez les dépassements.',
+      'features.feature12.title': 'Alertes multicanal',
+      'features.feature12.description': 'Application, courriel et WhatsApp, réglables alerte par alerte.',
 
       // Pricing Section
       'pricing.badge': 'Offres et abonnements',
@@ -400,40 +461,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'testimonial3.text': 'BTP CLOUD a transformé notre façon de gérer les projets. La gestion des tâches et le traitement des rapports sont devenus beaucoup plus simples et efficaces. Je recommande vivement cette solution à toutes les entreprises du BTP.',
       'testimonial3.name': 'Thomas Martin',
       'testimonial3.position': 'PDG, Constructions MTG',
-      // ✅ AJOUTE CES LIGNES POUR LES FEATURES
-      'features.feature1.title': 'Suivi en temps réel',
-      'features.feature1.description': 'Suivez l\'avancement de vos chantiers en temps réel avec des mises à jour instantanées.',
-      'features.feature2.title': 'Pointages digitaux',
-      'features.feature2.description': 'Gérez les pointages de vos équipes facilement depuis le terrain.',
-      'features.feature3.title': 'Planning interactif',
-      'features.feature3.description': 'Organisez et visualisez tous vos projets avec des plannings intelligents.',
-      'features.feature4.title': 'Rapports PDF',
-      'features.feature4.description': 'Générez automatiquement des rapports professionnels en format PDF.',
-      'features.feature5.title': 'Gestion des coûts',
-      'features.feature5.description': 'Suivez et contrôlez les budgets de vos projets en toute transparence.',
-      'features.feature6.title': 'Photos & Documents',
-      'features.feature6.description': 'Centralisez tous vos documents et photos de chantier au même endroit.',
 
-      // ✅ AJOUTE CES LIGNES POUR LES PROFILS
-      'profile1.title': 'MOA (Maître d\'Ouvrage)',
-      'profile1.subtitle': 'Pilotage de projet',
-      'profile1.short': 'Suivi budgétaire, planning, validation des phases...',
-      'profile1.full': 'Le Maître d\'Ouvrage pilote l\'ensemble du projet de construction. Il bénéficie d\'un tableau de bord complet pour le suivi budgétaire, la gestion du planning, la validation des différentes phases du projet, le contrôle qualité et la coordination entre tous les intervenants. Des outils de reporting et d\'analyse permettent une prise de décision éclairée à chaque étape.',
-
-      'profile2.title': 'BET (Bureau d\'Études Techniques)',
-      'profile2.subtitle': 'Coordination technique',
-      'profile2.short': 'Documents, visas, plans, conformité, fil de validation.',
-      'profile2.full': 'Le Bureau d\'Études Techniques assure la coordination technique du projet. Il gère l\'ensemble des documents techniques, les visas et approbations, les plans de construction, la vérification de conformité aux normes, le suivi du fil de validation et la coordination avec les différents corps de métier. Un système de gestion documentaire centralisé facilite le partage et le versioning des documents.',
-
-      'profile3.title': 'Chef de Chantier',
-      'profile3.subtitle': 'Gestion opérationnelle',
-      'profile3.short': 'Suivi équipes, sécurité, avancement, planning terrain...',
-      'profile3.full': 'Le Chef de Chantier gère les opérations quotidiennes sur le terrain. Il supervise les équipes, assure le respect des normes de sécurité, suit l\'avancement des travaux en temps réel, gère le planning terrain, coordonne les approvisionnements, rédige les rapports d\'activité et communique avec tous les intervenants. Des outils mobiles permettent un suivi en direct depuis le chantier.',
-
-      'profile4.title': 'Ouvrier / Artisan',
-      'profile4.subtitle': 'Exécution des travaux',
-      'profile4.short': 'Tâches assignées, matériaux, pointage, sécurité...',
-      'profile4.full': 'Les Ouvriers et Artisans accèdent facilement à leurs tâches assignées, consultent les plans et instructions, gèrent les demandes de matériaux, effectuent leur pointage quotidien, signalent les problèmes ou incidents, consultent les consignes de sécurité et communiquent avec leur chef d\'équipe. Une interface simplifiée et mobile facilite l\'utilisation au quotidien.',
       'partners.empty': 'Nos partenaires arrivent bientôt',
     },
     EN: {
@@ -443,15 +471,21 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'nav.features': 'Features',
       'nav.profiles': 'Profiles',
       'nav.contact': 'Contact',
-      'btn.login': 'Sign in',
+      'btn.siteManagement': 'Site management',
+      'btn.pilotage': 'Project management space',
       'btn.tryFree': 'Try for free',
 
       // Hero Section
-      'hero.title': 'Simplify your construction site management, from office to field.',
-      'hero.description': 'Real-time tracking, time logging, scheduling, PDF reports, costs and photos — all in one platform ready for project owners, technical offices, site managers and field teams.',
-      'hero.btn.features': 'View features',
+      'hero.title.first': 'From the first groundbreaking',
+      'hero.title.second': 'to key handover.',
+      'hero.description': 'Time logging, scheduling, tenders, penalties, inspections and buyer handover. One platform for developers, project managers, contractors and field teams.',
+      'hero.stat1.value': '12',
+      'hero.stat1.label': 'tracked milestones',
+      'hero.stat2.value': '3',
+      'hero.stat2.label': 'after-sales procedures',
+      'hero.stat3.value': '4',
+      'hero.stat3.label': 'professional roles',
       'partners.empty': 'Our partners are coming soon',
-      'hero.btn.download': 'Download the app',
 
       // About Section
       'about.badge': 'Presentation',
@@ -463,16 +497,66 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'about.feature4': 'Expense and schedule tracking',
 
       // Profiles Section
-      'profiles.badge': 'User profiles',
-      'profiles.title': 'A solution tailored to each stakeholder',
-      'profiles.description': 'BTP CLOUD offers specific features for each profile involved in your construction projects',
-      'profiles.readMore': 'Read more',
-      'profiles.readLess': 'Read less',
+      'profiles.badge': 'Management roles',
+      'profiles.title': 'One interface per role',
+      'profiles.description': 'Everyone sees what concerns them, and signs off on the steps they own.',
+      'profile1.title': 'Project director',
+      'profile1.role': 'Executive',
+      'profile1.tagline': 'Decides and arbitrates.',
+      'profile1.b1': 'Follows every programme from a single dashboard: progress, delays, committed amounts.',
+      'profile1.b2': 'Generates a full site from a template, then locks a baseline schedule.',
+      'profile1.b3': 'Approves signed contracts and releases final payments.',
+      'profile1.alt': 'Project director holding rolled plans in front of a building under construction',
+      'profile2.title': 'Project manager',
+      'profile2.role': 'Site management',
+      'profile2.tagline': 'Keeps the site moving.',
+      'profile2.b1': 'Creates and reschedules tasks, cascading any shift down the chain.',
+      'profile2.b2': 'Opens tenders, records incoming bids and compares price against lead time.',
+      'profile2.b3': 'Signs off the acceptances they own, with every action time stamped.',
+      'profile2.alt': 'Project manager in a safety vest checking the schedule on a tablet',
+      'profile3.title': 'Sales manager',
+      'profile3.role': 'Sales management',
+      'profile3.tagline': 'Hands over and follows up.',
+      'profile3.b1': 'Accepts the work after the project manager, before it reaches the buyer.',
+      'profile3.b2': 'Opens condition reports and after sales cases.',
+      'profile3.b3': 'Hands over the keys: condition report, handover certificate and charges schedule.',
+      'profile3.alt': 'Sales manager handing over the keys to a new home',
+      'profile4.title': 'Architect',
+      'profile4.role': 'Design supervision',
+      'profile4.tagline': 'Checks that it complies.',
+      'profile4.b1': 'Tests delivered work before any acceptance, and rejects with a reason when needed.',
+      'profile4.b2': 'Diagnoses condition reports and after sales requests.',
+      'profile4.b3': 'Works alongside the technician on site and prices the remedial work.',
+      'profile4.alt': 'Architect inspecting technical work on the construction site',
 
       // Features Section
       'features.badge': 'Key features',
-      'features.title': 'Everything you need to manage your construction sites',
-      'features.description': 'BTP CLOUD centralizes all the tools needed to effectively manage your construction projects in an intuitive and accessible interface',
+      'features.title': 'Everything you need, from the field to key handover',
+      'features.description': 'BTP Cloud supports a development from design through to buyer handover, without changing tools.',
+      'features.feature1.title': 'Real-time tracking',
+      'features.feature1.description': 'Track construction-site progress with instant updates from the field.',
+      'features.feature2.title': 'Digital time logging',
+      'features.feature2.description': 'Record team attendance, calculate hours and prepare payroll.',
+      'features.feature3.title': 'Scheduling and Gantt',
+      'features.feature3.description': 'Every task follows twelve time-stamped stages, from tender launch through to validated payment.',
+      'features.feature4.title': 'Tenders',
+      'features.feature4.description': 'Publish a tender dossier, enter received bids, compare prices and timelines, and award the contract.',
+      'features.feature5.title': 'Late-payment penalties',
+      'features.feature5.description': 'Calculated automatically every night, with configurable rules and a simulator before application.',
+      'features.feature6.title': 'Inventory and procurement',
+      'features.feature6.description': 'Track material movements and receive an alert before stock runs out.',
+      'features.feature7.title': 'Inspections and after-sales service',
+      'features.feature7.description': 'Three procedures: internal inspection, buyer inspection and after-sales service.',
+      'features.feature8.title': 'Buyer handover',
+      'features.feature8.description': 'Key handover produces the inspection report, handover record and service-charge schedule.',
+      'features.feature9.title': 'Buyer portal',
+      'features.feature9.description': 'Buyers track their home, confirm appointments and approve quotations.',
+      'features.feature10.title': 'Studies and documents',
+      'features.feature10.description': 'Plans, approvals, reports and progress albums, centralized and versioned.',
+      'features.feature11.title': 'Budgets and costs',
+      'features.feature11.description': 'Track expenses by work package, compare planned and actual figures, and anticipate overruns.',
+      'features.feature12.title': 'Multichannel alerts',
+      'features.feature12.description': 'In-app, email and WhatsApp alerts, configurable one alert at a time.',
 
       // Pricing Section
       'pricing.badge': 'Plans and subscriptions',
@@ -538,108 +622,80 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       'testimonial3.name': 'Thomas Martin',
       'testimonial3.position': 'CEO, Constructions MTG',
 
-      // ✅ AJOUTE CES LIGNES POUR LES FEATURES
-      'features.feature1.title': 'Real-time tracking',
-      'features.feature1.description': 'Track the progress of your construction sites in real-time with instant updates.',
-      'features.feature2.title': 'Digital time logging',
-      'features.feature2.description': 'Easily manage your team\'s time logging from the field.',
-      'features.feature3.title': 'Interactive planning',
-      'features.feature3.description': 'Organize and visualize all your projects with smart schedules.',
-      'features.feature4.title': 'PDF reports',
-      'features.feature4.description': 'Automatically generate professional reports in PDF format.',
-      'features.feature5.title': 'Cost management',
-      'features.feature5.description': 'Track and control your project budgets with complete transparency.',
-      'features.feature6.title': 'Photos & Documents',
-      'features.feature6.description': 'Centralize all your construction site documents and photos in one place.',
-
-      // ✅ AJOUTE CES LIGNES POUR LES PROFILS
-      'profile1.title': 'Project Owner (MOA)',
-      'profile1.subtitle': 'Project Management',
-      'profile1.short': 'Budget tracking, planning, phase validation...',
-      'profile1.full': 'The Project Owner oversees the entire construction project. They benefit from a complete dashboard for budget tracking, schedule management, validation of different project phases, quality control and coordination between all stakeholders. Reporting and analysis tools enable informed decision-making at every stage.',
-
-      'profile2.title': 'Technical Office (BET)',
-      'profile2.subtitle': 'Technical Coordination',
-      'profile2.short': 'Documents, approvals, plans, compliance, validation flow.',
-      'profile2.full': 'The Technical Office ensures the technical coordination of the project. It manages all technical documents, approvals and authorizations, construction plans, compliance verification with standards, validation flow tracking and coordination with different trades. A centralized document management system facilitates sharing and versioning of documents.',
-
-      'profile3.title': 'Site Manager',
-      'profile3.subtitle': 'Operational Management',
-      'profile3.short': 'Team tracking, safety, progress, field planning...',
-      'profile3.full': 'The Site Manager handles daily operations in the field. They supervise teams, ensure compliance with safety standards, track work progress in real-time, manage field planning, coordinate supplies, write activity reports and communicate with all stakeholders. Mobile tools enable direct tracking from the site.',
-
-      'profile4.title': 'Worker / Craftsman',
-      'profile4.subtitle': 'Work Execution',
-      'profile4.short': 'Assigned tasks, materials, time logging, safety...',
-      'profile4.full': 'Workers and Craftsmen easily access their assigned tasks, review plans and instructions, manage material requests, perform daily time logging, report problems or incidents, review safety instructions and communicate with their team leader. A simplified and mobile interface facilitates daily use.',
     }
   };
 
   features = [
+    { titleKey: 'features.feature1.title', descriptionKey: 'features.feature1.description', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { titleKey: 'features.feature2.title', descriptionKey: 'features.feature2.description', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { titleKey: 'features.feature3.title', descriptionKey: 'features.feature3.description', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+    { titleKey: 'features.feature4.title', descriptionKey: 'features.feature4.description', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+    { titleKey: 'features.feature5.title', descriptionKey: 'features.feature5.description', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { titleKey: 'features.feature6.title', descriptionKey: 'features.feature6.description', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
     {
-      titleKey: 'features.feature1.title',
-      descriptionKey: 'features.feature1.description',
-      icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+      titleKey: 'features.feature7.title',
+      descriptionKey: 'features.feature7.description',
+      icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
     },
     {
-      titleKey: 'features.feature2.title',
-      descriptionKey: 'features.feature2.description',
-      icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+      titleKey: 'features.feature8.title',
+      descriptionKey: 'features.feature8.description',
+      icon: 'M5 13l4 4L19 7M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z'
     },
     {
-      titleKey: 'features.feature3.title',
-      descriptionKey: 'features.feature3.description',
-      icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+      titleKey: 'features.feature9.title',
+      descriptionKey: 'features.feature9.description',
+      icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 011-6 0z'
     },
     {
-      titleKey: 'features.feature4.title',
-      descriptionKey: 'features.feature4.description',
+      titleKey: 'features.feature10.title',
+      descriptionKey: 'features.feature10.description',
       icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
     },
     {
-      titleKey: 'features.feature5.title',
-      descriptionKey: 'features.feature5.description',
-      icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+      titleKey: 'features.feature11.title',
+      descriptionKey: 'features.feature11.description',
+      icon: 'M3 3v18h18M7 16l4-5 3 3 5-7'
     },
     {
-      titleKey: 'features.feature6.title',
-      descriptionKey: 'features.feature6.description',
-      icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+      titleKey: 'features.feature12.title',
+      descriptionKey: 'features.feature12.description',
+      icon: 'M18 8a3 3 0 01-3 3H9l-4 4v-4a3 3 0 01-2-3V6a3 3 0 013-3h9a3 3 0 013 3v2zM8 17h7a3 3 0 003-3v-1'
     }
   ];
 
-  profils = [
+  profils: ProfilPilotage[] = [
     {
       titleKey: 'profile1.title',
-      subtitleKey: 'profile1.subtitle',
-      shortKey: 'profile1.short',
-      fullKey: 'profile1.full',
+      roleKey: 'profile1.role',
+      taglineKey: 'profile1.tagline',
+      bulletKeys: ['profile1.b1', 'profile1.b2', 'profile1.b3'],
       image: 'assets/images/ouvrier1.png',
-      expanded: false
+      altKey: 'profile1.alt',
     },
     {
       titleKey: 'profile2.title',
-      subtitleKey: 'profile2.subtitle',
-      shortKey: 'profile2.short',
-      fullKey: 'profile2.full',
-      image: 'assets/images/ouvrier2.png',
-      expanded: false
+      roleKey: 'profile2.role',
+      taglineKey: 'profile2.tagline',
+      bulletKeys: ['profile2.b1', 'profile2.b2', 'profile2.b3'],
+      image: 'assets/images/ouvrier3.png',
+      altKey: 'profile2.alt',
     },
     {
       titleKey: 'profile3.title',
-      subtitleKey: 'profile3.subtitle',
-      shortKey: 'profile3.short',
-      fullKey: 'profile3.full',
-      image: 'assets/images/ouvrier3.png',
-      expanded: false
+      roleKey: 'profile3.role',
+      taglineKey: 'profile3.tagline',
+      bulletKeys: ['profile3.b1', 'profile3.b2', 'profile3.b3'],
+      image: 'assets/images/ouvrier4.png',
+      altKey: 'profile3.alt',
     },
     {
       titleKey: 'profile4.title',
-      subtitleKey: 'profile4.subtitle',
-      shortKey: 'profile4.short',
-      fullKey: 'profile4.full',
-      image: 'assets/images/ouvrier4.png',
-      expanded: false
+      roleKey: 'profile4.role',
+      taglineKey: 'profile4.tagline',
+      bulletKeys: ['profile4.b1', 'profile4.b2', 'profile4.b3'],
+      image: 'assets/images/ouvrier2.png',
+      altKey: 'profile4.alt',
     }
   ];
 
@@ -661,10 +717,13 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.aiIntervalId !== null) {
       clearInterval(this.aiIntervalId);
     }
+    if (this.heroCounterFrameId !== null && isPlatformBrowser(this.platformId)) {
+      cancelAnimationFrame(this.heroCounterFrameId);
+    }
   }
 
-  toggleDescription(index: number): void {
-    this.profils[index].expanded = !this.profils[index].expanded;
+  selectProfil(index: number): void {
+    this.activeProfil = index;
   }
 
   // Méthode pour obtenir la traduction
@@ -884,29 +943,42 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initIntersectionObserver();
+      this.animateHeroCounters();
     }
+  }
+
+  private animateHeroCounters(): void {
+    const startedAt = performance.now();
+    const duration = 1200;
+    const update = (timestamp: number): void => {
+      const progress = Math.min((timestamp - startedAt) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      this.heroStat1 = Math.round(12 * easedProgress);
+      this.heroStat2 = Math.round(3 * easedProgress);
+      this.heroStat3 = Math.round(4 * easedProgress);
+      if (progress < 1) {
+        this.heroCounterFrameId = requestAnimationFrame(update);
+      }
+    };
+    this.heroCounterFrameId = requestAnimationFrame(update);
   }
 
   private initIntersectionObserver(): void {
     const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
+      threshold: 0.12,
+      rootMargin: '0px 0px -80px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          (entry.target as HTMLElement).style.opacity = '1';
-          (entry.target as HTMLElement).style.transform = 'translateY(0)';
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
 
-    document.querySelectorAll('.animate-fade-in-up, .animate-fade-in-left, .animate-fade-in-right').forEach(el => {
-      (el as HTMLElement).style.opacity = '0';
-      (el as HTMLElement).style.transform = 'translateY(20px)';
-      observer.observe(el);
-    });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
   scrollToSection(sectionId: string, event: Event) {
