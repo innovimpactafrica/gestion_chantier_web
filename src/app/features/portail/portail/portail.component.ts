@@ -670,7 +670,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       roleKey: 'profile1.role',
       taglineKey: 'profile1.tagline',
       bulletKeys: ['profile1.b1', 'profile1.b2', 'profile1.b3'],
-      image: 'assets/images/construction-hero.jpg',
+      image: 'assets/images/profils/directeur de projet.png',
       altKey: 'profile1.alt',
     },
     {
@@ -678,7 +678,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       roleKey: 'profile2.role',
       taglineKey: 'profile2.tagline',
       bulletKeys: ['profile2.b1', 'profile2.b2', 'profile2.b3'],
-      image: 'assets/images/bat.png',
+      image: 'assets/images/profils/chefe de projet.jpeg',
       altKey: 'profile2.alt',
     },
     {
@@ -686,7 +686,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       roleKey: 'profile3.role',
       taglineKey: 'profile3.tagline',
       bulletKeys: ['profile3.b1', 'profile3.b2', 'profile3.b3'],
-      image: 'assets/images/construction.png',
+      image: 'assets/images/profils/responsable commerciale.jpeg',
       altKey: 'profile3.alt',
     },
     {
@@ -694,7 +694,7 @@ export class PortailComponent implements OnInit, AfterViewInit, OnDestroy {
       roleKey: 'profile4.role',
       taglineKey: 'profile4.tagline',
       bulletKeys: ['profile4.b1', 'profile4.b2', 'profile4.b3'],
-      image: 'assets/images/architecte.png',
+      image: 'assets/images/profils/architect.jpeg',
       altKey: 'profile4.alt',
     }
   ];
