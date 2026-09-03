@@ -4,7 +4,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TaskBoardComponent } from "../task-board/task-board.component";
 import { TeamListComponent } from '../team-list/team-list.component';
 import { DocumentsComponent } from '../documents/documents.component';
-import { LotsSubcontractorsComponent } from '../lots-subcontractors/lots-subcontractors.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbService } from '../../core/services/breadcrumb-service.service';
 import { StockComponent } from "../components/project/stock/stock.component";
@@ -25,7 +24,6 @@ import { LanguageService } from '../../core/services/language.service';
     TaskBoardComponent,
     TeamListComponent,
     DocumentsComponent,
-    LotsSubcontractorsComponent,
     StockComponent,
     ProjectPresentationComponent,
     ProjectAlertComponent,

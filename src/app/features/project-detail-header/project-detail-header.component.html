@@ -1,13 +1,13 @@
 <div class="mx-auto py-6">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h1 class="min-w-0 text-2xl font-bold break-words">
       <span class="font-bold">
         {{ projectDetails?.name || 'Chargement...' }}
       </span>
     </h1>
 
     <button (click)="openQrModal()" [disabled]="!projectDetails"
-      class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-orange-500 font-medium px-4 py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+      class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-orange-500 font-medium px-4 py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_4123_2628)">
           <path
@@ -25,7 +25,7 @@
   </div>
 
   <!-- Navigation Tabs - Continu avec le header -->
-  <nav class="border-t border-gray-100 bg-white rounded-lg shadow-sm px-4 sm:px-6 pt-4 overflow-x-auto">
+  <nav class="border-t border-gray-100 bg-white rounded-lg shadow-sm px-4 sm:px-6 pt-4 overflow-x-auto touch-pan-x">
     <ul class="flex space-x-4 sm:space-x-6 lg:space-x-12 text-sm sm:text-base min-w-max">
       <li [class.border-b-2]="activeTab === 'fiche'" [class.border-orange-500]="activeTab === 'fiche'"
         [class.text-orange-500]="activeTab === 'fiche'" class="pb-2 flex-shrink-0">
@@ -41,11 +41,6 @@
         [class.text-orange-500]="activeTab === 'team'" class="pb-2 flex-shrink-0">
         <a (click)="setActiveTab('team')" class="font-medium cursor-pointer whitespace-nowrap">{{
           t('projectDetail.team') }}</a>
-      </li>
-      <li [class.border-b-2]="activeTab === 'lots'" [class.border-orange-500]="activeTab === 'lots'"
-        [class.text-orange-500]="activeTab === 'lots'" class="pb-2 flex-shrink-0">
-        <a (click)="setActiveTab('lots')" class="font-medium cursor-pointer whitespace-nowrap">{{
-          t('projectDetail.lots') }}</a>
       </li>
       <li [class.border-b-2]="activeTab === 'documents'" [class.border-orange-500]="activeTab === 'documents'"
         [class.text-orange-500]="activeTab === 'documents'" class="pb-2 flex-shrink-0">
@@ -88,9 +83,6 @@
 @case ('documents') {
 <app-documents></app-documents>
 }
-@case ('lots') {
-<app-lots-subcontractors></app-lots-subcontractors>
-}
 @case ('stock') {
 <app-stock></app-stock>
 }
@@ -114,7 +106,7 @@
 <!-- ✅ MODAL QR CODE -->
 <div *ngIf="showQrModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
   (click)="closeQrModal()">
-  <div class="bg-white rounded-lg shadow-lg w-[380px] p-6 relative" (click)="$event.stopPropagation()">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-[380px] max-h-[calc(100vh-2rem)] overflow-y-auto mx-4 p-4 sm:p-6 relative" (click)="$event.stopPropagation()">
 
     <!-- Bouton fermer -->
     <button (click)="closeQrModal()"
@@ -191,7 +183,7 @@
       </div>
 
       <!-- Boutons d'action -->
-      <div class="flex justify-between w-full mt-6 gap-3">
+      <div class="flex flex-col sm:flex-row justify-between w-full mt-6 gap-3">
         <button (click)="printQrCode()" [disabled]="!qrCodeDataUrl"
           class="flex-1 flex items-center justify-center gap-2 border border-gray-300 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <svg width="20" height="20" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">

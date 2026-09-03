@@ -1,4 +1,4 @@
-<div class="flex flex-col w-[280px] h-[732px] text-gray-900 py-4 px-4 mr-2 relative">
+<div class="flex flex-col w-full max-w-[280px] h-full min-h-0 text-gray-900 py-4 px-4 mr-2 relative">
   <!-- Close Sidebar Button (Mobile Only) -->
   <button (click)="closeSidebar()"
     class="md:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white shadow-sm border border-gray-200 rounded-full p-1"
@@ -214,28 +214,28 @@
             <!-- Unité de mesure -->
             <a (click)="navigateToSubSection('/parametres/unite-mesure', 'Unité de mesure', 'unite-mesure')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('unite-mesure') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <svg class="w-2 h-2 mr-2 flex-shrink-0" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="3"></circle></svg>
               <span>{{ t('settings.unitOfMeasure') }}</span>
             </a>
 
             <!-- Documents -->
             <a (click)="navigateToSubSection('/parametres/documents', 'Documents', 'documents')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('documents') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <svg class="w-2 h-2 mr-2 flex-shrink-0" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="3"></circle></svg>
               <span>{{ t('settings.documents') }}</span>
             </a>
 
             <!-- Property Type -->
             <a (click)="navigateToSubSection('/parametres/typebien', 'Type de bien', 'typebien')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('typebien') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <svg class="w-2 h-2 mr-2 flex-shrink-0" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="3"></circle></svg>
               <span>{{ t('settings.propertyType') }}</span>
             </a>
 
             <!-- Catégories de matériel -->
             <a (click)="navigateToSubSection('/parametres/categories', 'Catégories de matériel', 'categories')" [class]="'flex items-center py-2 px-3 rounded-md cursor-pointer transition-all duration-200 text-sm ' + 
                    (isActive('categories') ? 'bg-[#FF5C02] text-white' : '')">
-              <img src="assets/images/eclipse.png" alt="" class="mr-2">
+              <svg class="w-2 h-2 mr-2 flex-shrink-0" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="3"></circle></svg>
               <span>{{ t('settings.materialCategories') }}</span>
             </a>
           </div>
@@ -249,8 +249,7 @@
         <a (click)="navigateTo('/dashboard', 'Tableau de bord', 'dashboard')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboard') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
-                         (isActive('dashboard') ? 'brightness-0 invert' : '')" srcset="">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22v-6h6v6"></path></svg>
             <span class="text-sm">{{ t('sidebar.dashboard') }}</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -267,8 +266,7 @@
         <a (click)="navigateTo('/dashboard-etude', 'Tableau de bord Etude', 'dashboard-etude')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboard-etude') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
-                         (isActive('dashboard-etude') ? 'brightness-0 invert' : '')" srcset="">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22v-6h6v6"></path></svg>
             <span class="text-sm">{{ t('sidebar.dashboardStudy') }}</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -284,8 +282,7 @@
         <a (click)="navigateTo('/demande', 'Demandes', 'demande')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('demande') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
-                         (isActive('demande') ? 'brightness-0 invert' : '')" srcset="">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.17L4 17.17z"></path><path d="M7 8h10M7 12h6"></path></svg>
             <span class="text-sm">Demandes</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -314,38 +311,6 @@
         </a>
       </li>
 
-      <!-- Jalons de chantier (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/jalons', 'Jalons de chantier', 'jalons')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
-                   (isActive('jalons') ? 'bg-[#FF5C02] text-white' : '')">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 3v18" />
-              <path stroke-linejoin="round" d="M5 4h11l-2.5 3.5L16 11H5" />
-            </svg>
-            <span class="text-sm">{{ t('sidebar.jalons') }}</span>
-          </div>
-        </a>
-      </li>
-
-      <!-- Gestion salaire (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/gestion-salaire', 'Gestion salaire', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
-                   (isActive('gestion-salaire') ? 'bg-[#FF5C02] text-white' : '')">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm">{{ t('sidebar.payroll') }}</span>
-          </div>
-        </a>
-      </li>
-
       <!-- Plans 3D (Standard uniquement) -->
       <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
         <a (click)="navigateTo('/plan3d', 'Plans 3D', 'plan3d')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
@@ -361,31 +326,13 @@
         </a>
       </li>
 
-      <!-- Devis (Promoteur uniquement) -->
-      <li *ngIf="isPromoterProfile()">
-        <a (click)="navigateTo('/devis', 'Devis', 'devis')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
-                   (isActive('devis') ? 'bg-[#FF5C02] text-white' : '')">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" [class]="'w-5 h-5 mr-3 transition-all duration-200 flex-shrink-0'"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span class="text-sm">{{ t('sidebar.devis') }}</span>
-          </div>
-        </a>
-      </li>
-
-
       <!-- ========== MENU SUPPLIER ========== -->
       <!-- Dashboard Fournisseur -->
       <li *ngIf="isSUPPLIERProfile() && canAccessDashboard()">
         <a (click)="navigateTo('/dashboardf', 'Tableau de bord', 'dashboardf')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                     (isActive('dashboardf') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
-                         (isActive('dashboardf') ? 'brightness-0 invert' : '')" srcset="">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22v-6h6v6"></path></svg>
             <span class="text-sm">{{ t('sidebar.dashboard') }}</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -401,8 +348,7 @@
         <a (click)="navigateTo('/commandes', 'Commandes', 'commandes')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' + 
                    (isActive('commandes') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <img src="assets/images/home.png" [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0 ' + 
-                         (isActive('commandes') ? 'brightness-0 invert' : '')" srcset="">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h15l3 4v14H3z"></path><path d="M3 7h18M8 11h8M8 15h5"></path></svg>
             <span class="text-sm">Commandes</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
