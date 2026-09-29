@@ -5,22 +5,6 @@ import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../app/features/auth/services/auth.service';
 import { API } from '../app/core/constants/api-endpoints';
 
-// ─── Déclaration SDK TouchPay (chargé via index.html) ────────────────────────
-declare function sendPaymentInfos(
-  orderNumber: number,
-  agencyCode: string,
-  secureCode: string,
-  domainName: string,
-  successUrl: string,
-  failedUrl: string,
-  amount: number,
-  city: string,
-  email: string,
-  clientFirstName: string,
-  clientLastName: string,
-  clientPhone: string,
-): void;
-
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
 export interface Invoice {
@@ -119,19 +103,9 @@ export interface CreateSubscriptionResponse {
 
 // ─── Nouvelles interfaces paiement ───────────────────────────────────────────
 
-/** Paramètres retournés par le backend pour déclencher TouchPay */
-export interface TouchPayParams {
-  orderNumber: number;
-  agencyCode: string;
-  secureCode: string;
-  domainName: string;
-  successUrl: string;
-  failedUrl: string;
-  amount: number;
-  email: string;
-  clientFirstName: string;
-  clientLastName: string;
-  clientPhone: string;
+/** URL Wave retournée après création du paiement côté backend. */
+export interface WavePaymentResponse {
+  paymentUrl: string;
 }
 
 /** Tableau LocalDateTime renvoyé par le backend : [année, mois, jour, heure, minute, seconde, nanosecondes] */
@@ -199,7 +173,7 @@ export interface PaymentHistoryFilters {
   userId?: number;
   orderNumber?: number;
   status?: 'PENDING' | 'SUCCESS' | 'FAILED';
-  from?: string; // ISO datetime : ex "2026-01-01T00:00:00"
+  from?: string;
   to?: string;
   page?: number;
   size?: number;
@@ -207,9 +181,7 @@ export interface PaymentHistoryFilters {
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SubscriptionService {
   private baseUrl = API.subscriptions;
   private planBaseUrl = API.subscriptionPlans;
@@ -219,77 +191,33 @@ export class SubscriptionService {
     private authService: AuthService,
   ) {}
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PAIEMENT — Nouveau flux via backend
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /**
-   * Étape 1 — Appelle le backend pour :
-   *   • Créer un historique de paiement en statut PENDING
-   *   • Récupérer les paramètres TouchPay (agencyCode, secureCode, montant, URLs...)
-   * Étape 2 — Déclenche la popup TouchPay avec ces paramètres
-   *
-   * Usage : await subscriptionService.initiatePayment(userId, planId, months)
-   */
   async initiatePayment(
     userId: number,
     planId: number,
     months: number = 1,
-  ): Promise<void> {
-
-    // 1. Récupère les paramètres depuis le backend (crée l'historique PENDING)
-    const params = await firstValueFrom(
-      this.http.post<TouchPayParams>(
-        `${this.baseUrl}/payment-params`,
-        { userId, planId, months },
+    phoneNumber: string,
+  ): Promise<string> {
+    const response = await firstValueFrom(
+      this.http.post<WavePaymentResponse>(
+        `${this.baseUrl}/initiate`,
+        { userId, planId, months, phoneNumber },
         { headers: this.getAuthHeaders() },
-      ).pipe(
-        catchError(error => this.handleError(error, 'initiatePayment')),
-      ),
+      ).pipe(catchError(error => this.handleError(error, 'initiatePayment'))),
     );
-
-    // 2. Vérifie que le SDK TouchPay est bien chargé dans index.html
-    if (typeof sendPaymentInfos !== 'function') {
-      throw new Error(
-        "Le SDK TouchPay n'est pas chargé. Vérifiez que le script est bien dans index.html.",
-      );
-    }
-
-    // 3. Déclenche la popup de paiement TouchPay
-    sendPaymentInfos(
-      params.orderNumber,
-      params.agencyCode,
-      params.secureCode,
-      params.domainName,
-      params.successUrl,
-      params.failedUrl,
-      params.amount,
-      '',
-      params.email,
-      params.clientFirstName,
-      params.clientLastName,
-      params.clientPhone,
-    );
+    if (!response.paymentUrl) throw new Error('URL Wave absente de la réponse serveur.');
+    return response.paymentUrl;
   }
 
-  /**
-   * Alias avec objet user complet (pour compatibilité avec l'existant)
-   * Usage : await subscriptionService.initiateSubscriptionPayment(user, plan, isYearly)
-   */
   async initiateSubscriptionPayment(
     user: any,
     plan: SubscriptionPlan,
     isYearly: boolean,
-  ): Promise<void> {
-
-    if (!user.email || !user.prenom || !user.nom || !user.telephone) {
-      throw new Error(
-        'Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant de souscrire.',
-      );
+    phoneNumber: string = user.telephone,
+  ): Promise<string> {
+    if (!user.email || !user.prenom || !user.nom || !phoneNumber) {
+      throw new Error('Vos informations de paiement sont incomplètes.');
     }
-
-    const months = isYearly ? 12 : 1;
-    await this.initiatePayment(user.id, plan.id, months);
+    return this.initiatePayment(user.id, plan.id, isYearly ? 12 : 1, phoneNumber);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

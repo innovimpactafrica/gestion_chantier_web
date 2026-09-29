@@ -204,11 +204,13 @@ fetchUserProfile(id: number, urlProfile: string | null): void {
       const isYearly = plan.installmentCount === 12;
 
       // ✅ Remplace initiateSubscriptionPaymentbis par initiatePayment
-      await this.subscriptionService.initiatePayment(
+      const paymentUrl = await this.subscriptionService.initiatePayment(
         this.currentUser.id,
         plan.id,
-        isYearly ? 12 : 1
+        isYearly ? 12 : 1,
+        this.currentUser.telephone
       );
+      window.location.assign(paymentUrl);
 
     } catch (error: any) {
       this.hasError = true;

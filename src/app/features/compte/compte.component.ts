@@ -3,7 +3,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '../auth/services/auth.service';
 import { SubscriptionService, Invoice, InvoiceResponse, SubscriptionPlan, UserSubscription, toJsDate } from '../../../services/subscription.service';
-import { QuoteTokenService, QuoteTokenBalance, PRICE_PER_QUOTE_TOKEN } from '../../../services/quote-token.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -21,7 +20,7 @@ export class CompteComponent implements OnInit, OnDestroy {
   // Constante pour le répertoire de base des photos
 
 
-  activeTab = signal<'informations' | 'abonnements' | 'factures' | 'credits-ia'>('informations');
+  activeTab = signal<'informations' | 'abonnements' | 'factures'>('informations');
   userForm!: FormGroup;
   currentUser = signal<User | null>(null);
   isLoading = signal(false);
@@ -62,22 +61,9 @@ export class CompteComponent implements OnInit, OnDestroy {
   isProcessingBasic = signal(false);
   isProcessingPremium = signal(false);
 
-  // Crédits IA (quote-tokens)
-  quoteTokenBalance = signal<QuoteTokenBalance | null>(null);
-  isLoadingCredits = signal(false);
-  isProcessingRecharge = signal(false);
-  rechargeQuantity = signal(10);
-  readonly pricePerQuoteToken = PRICE_PER_QUOTE_TOKEN;
-
-  // Gestion du script OneTouch
-  private oneTouchCheckInterval: any;
-  private oneTouchLoaded = signal(false);
-  private maxOneTouchAttempts = 30;
-
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private subscriptionService = inject(SubscriptionService);
-  private quoteTokenService = inject(QuoteTokenService);
   public languageService = inject(LanguageService);
   // Dans compte.component.ts, ajouter cette logique dans ngOnInit() :
   private route = inject(ActivatedRoute);
@@ -90,9 +76,6 @@ export class CompteComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeForm();
     this.loadUserData();
-    this.startOneTouchMonitoring();
-
-    // ✅ GÉRER LE RETOUR DE PAIEMENT EN PRIORITÉ
     this.handlePaymentReturn();
 
     // ✅ VÉRIFIER SI ON VIENT D'UNE INTENTION D'ABONNEMENT
@@ -126,21 +109,7 @@ export class CompteComponent implements OnInit, OnDestroy {
         const userId = params['userId'];
         const planId = params['planId'];
         const months = params['months'];
-        const tokenAmount = params['tokenAmount'];
-
-        if (params['type'] === 'tokens' && userId && tokenAmount) {
-          // Retour d'un achat de crédits IA : créditer le compte puis rafraîchir le solde
-          this.quoteTokenService.recharge(+userId, +tokenAmount).subscribe({
-            next: () => {
-              this.showSuccess('🎉 Paiement effectué avec succès ! Vos crédits IA ont été ajoutés.');
-              this.activeTab.set('credits-ia');
-              this.loadQuoteTokenBalance(+userId);
-            },
-            error: () => {
-              this.showError('Le paiement a été confirmé mais l\'ajout des crédits a échoué. Contactez le support.');
-            }
-          });
-        } else if (userId && planId && months) {
+        if (userId && planId && months) {
           // Afficher un message de succès
           this.showSuccess('🎉 Paiement effectué avec succès ! Votre abonnement est maintenant actif.');
 
@@ -195,42 +164,12 @@ export class CompteComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.stopOneTouchMonitoring();
     // Nettoyer l'URL de prévisualisation
     if (this.photoPreviewUrl()) {
       URL.revokeObjectURL(this.photoPreviewUrl()!);
     }
   }
 
-  private startOneTouchMonitoring(): void {
-
-    let attempts = 0;
-
-    this.oneTouchCheckInterval = setInterval(() => {
-      attempts++;
-
-      if (this.isOneTouchScriptLoaded()) {
-        this.oneTouchLoaded.set(true);
-        this.stopOneTouchMonitoring();
-        return;
-      }
-
-      if (attempts >= this.maxOneTouchAttempts) {
-        this.stopOneTouchMonitoring();
-        return;
-      }
-
-      if (attempts % 5 === 0) {
-      }
-    }, 500);
-  }
-
-  private stopOneTouchMonitoring(): void {
-    if (this.oneTouchCheckInterval) {
-      clearInterval(this.oneTouchCheckInterval);
-      this.oneTouchCheckInterval = null;
-    }
-  }
   telechargerFacturePDF(facture: Invoice): void {
     const html = this.construireHTMLFacture(facture);
 
@@ -438,10 +377,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       `;
   }
 
-  private isOneTouchScriptLoaded(): boolean {
-    return typeof (window as any).sendPaymentInfos === 'function';
-  }
-
   private initializeForm(): void {
     this.userForm = this.fb.group({
       prenom: ['', [Validators.required, Validators.minLength(2)]],
@@ -462,7 +397,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       this.populateForm(user);
       this.loadFactures(user.id);
       this.checkUserSubscription(user.id);
-      this.loadQuoteTokenBalance(user.id);
       this.isLoading.set(false);
     } else {
       this.authService.getCurrentUser().subscribe({
@@ -472,7 +406,6 @@ export class CompteComponent implements OnInit, OnDestroy {
             this.populateForm(user);
             this.loadFactures(user.id);
             this.checkUserSubscription(user.id);
-            this.loadQuoteTokenBalance(user.id);
           }
           this.isLoading.set(false);
         },
@@ -769,7 +702,7 @@ export class CompteComponent implements OnInit, OnDestroy {
     });
   }
 
-  setActiveTab(tab: 'informations' | 'abonnements' | 'factures' | 'credits-ia'): void {
+  setActiveTab(tab: 'informations' | 'abonnements' | 'factures'): void {
     this.activeTab.set(tab);
 
     if (tab === 'factures' && this.currentUser()) {
@@ -780,9 +713,6 @@ export class CompteComponent implements OnInit, OnDestroy {
       this.checkUserSubscription(this.currentUser()!.id);
     }
 
-    if (tab === 'credits-ia' && this.currentUser()) {
-      this.loadQuoteTokenBalance(this.currentUser()!.id);
-    }
   }
 
   getPageTitle(): string {
@@ -790,86 +720,8 @@ export class CompteComponent implements OnInit, OnDestroy {
       'informations': 'Informations personnelles',
       'abonnements': 'Abonnements',
       'factures': 'Factures',
-      'credits-ia': 'Crédits IA'
     };
     return titles[this.activeTab()];
-  }
-
-  /**
-   * Charge le solde de crédits IA de l'utilisateur
-   */
-  loadQuoteTokenBalance(userId: number): void {
-    this.isLoadingCredits.set(true);
-
-    this.quoteTokenService.getBalance(userId).subscribe({
-      next: (balance) => {
-        this.quoteTokenBalance.set(balance);
-        this.isLoadingCredits.set(false);
-      },
-      error: () => {
-        this.quoteTokenBalance.set(null);
-        this.isLoadingCredits.set(false);
-      }
-    });
-  }
-
-  getRechargeCost(): number {
-    return this.rechargeQuantity() * this.pricePerQuoteToken;
-  }
-
-  onRechargeQuantityInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.rechargeQuantity.set(+value || 0);
-  }
-
-  formatLastDate(dateValue: QuoteTokenBalance['lastRechargedAt']): string {
-    const date = toJsDate(dateValue);
-    if (!date) return 'Jamais';
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  /**
-   * Déclenche le paiement TouchPay pour l'achat de crédits IA supplémentaires
-   */
-  async rechargeCredits(): Promise<void> {
-    const user = this.currentUser();
-    if (!user) {
-      this.showError('Vous devez être connecté pour acheter des crédits IA');
-      return;
-    }
-
-    if (!user.email || !user.prenom || !user.nom || !user.telephone) {
-      this.showError('Vos informations de profil sont incomplètes. Veuillez compléter votre profil avant d\'acheter des crédits.');
-      return;
-    }
-
-    if (this.rechargeQuantity() <= 0) {
-      this.showError('Veuillez indiquer un nombre de crédits valide');
-      return;
-    }
-
-    if (!this.isOneTouchScriptLoaded()) {
-      this.showError('Le système de paiement n\'est pas disponible. Veuillez rafraîchir la page et réessayer.');
-      return;
-    }
-
-    this.isProcessingRecharge.set(true);
-
-    try {
-      this.showInfo('Redirection vers la page de paiement...');
-
-      await this.quoteTokenService.initiateTokenPurchase(user.id, this.rechargeQuantity(), {
-        email: user.email,
-        prenom: user.prenom,
-        nom: user.nom,
-        telephone: user.telephone
-      });
-
-    } catch (error: any) {
-      this.showError(error.message || 'Une erreur est survenue');
-    } finally {
-      this.isProcessingRecharge.set(false);
-    }
   }
 
   getUserFullName(): string {
@@ -1025,21 +877,14 @@ export class CompteComponent implements OnInit, OnDestroy {
     }
 
     try {
-      if (!this.isOneTouchScriptLoaded()) {
-        this.showError(
-          'Le système de paiement n\'est pas disponible. ' +
-          'Veuillez rafraîchir la page et réessayer.'
-        );
-        return;
-      }
-
       this.showInfo('Redirection vers la page de paiement...');
 
-      await this.subscriptionService.initiateSubscriptionPayment(
+      const paymentUrl = await this.subscriptionService.initiateSubscriptionPayment(
         user,
         plan,
         this.isYearlyBilling()
       );
+      window.location.assign(paymentUrl);
 
     } catch (error: any) {
       this.showError(error.message || 'Une erreur est survenue');

@@ -1357,7 +1357,7 @@ export class StockComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedMaterial = material;
     this.showMovementModal = true;
     this.resetMovementForm();
-    const suggestedType = material.quantity <= material.criticalThreshold ? 'ENTRY' : 'OUT';
+    const suggestedType = material.quantity <= material.criticalThreshold ? 'ENTRY' : 'EXIT';
     this.movementForm.patchValue({
       type: suggestedType,
       quantity: 1

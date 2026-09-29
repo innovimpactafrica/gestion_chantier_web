@@ -34,6 +34,9 @@ export class PlanSelectionPopupComponent implements OnInit {
     isProcessingPremium = signal(false);
 
     errorMessage = signal<string | null>(null);
+    paymentPlan = signal<SubscriptionPlan | null>(null);
+    paymentPhone = signal('');
+    paymentError = signal<string | null>(null);
 
     ngOnInit(): void {
         this.loadSubscriptionPlans();
@@ -123,13 +126,6 @@ export class PlanSelectionPopupComponent implements OnInit {
     }
 
     /**
-     * Vérifie si le script OneTouch est chargé
-     */
-    private isOneTouchScriptLoaded(): boolean {
-        return typeof (window as any).sendPaymentInfos === 'function';
-    }
-
-    /**
      * Gère la sélection d'un plan et initie le paiement
      */
     async onSelectPlan(planType: 'basic' | 'premium'): Promise<void> {
@@ -158,23 +154,10 @@ export class PlanSelectionPopupComponent implements OnInit {
         }
 
         try {
-            // Vérifier que le script OneTouch est chargé
-            if (!this.isOneTouchScriptLoaded()) {
-                this.errorMessage.set(this.t('popup.error.payment'));
-                return;
-            }
-
-
-            // Initier le paiement via le service
-            await this.subscriptionService.initiateSubscriptionPayment(
-                user,
-                plan,
-                this.isYearlyBilling()
-            );
-
-            // Émettre l'événement et fermer le popup
-            this.planSelected.emit(planType);
-            this.onClose();
+            this.paymentPlan.set(plan);
+            this.paymentPhone.set(user.telephone || '');
+            this.paymentError.set(null);
+            return;
 
         } catch (error: any) {
             this.errorMessage.set(error.message || this.t('popup.error.payment'));
@@ -185,6 +168,28 @@ export class PlanSelectionPopupComponent implements OnInit {
                 this.isProcessingBasic.set(false);
             }
         }
+    }
+
+    async confirmWavePayment(): Promise<void> {
+        const user = this.authService.currentUser();
+        const plan = this.paymentPlan();
+        const phone = this.paymentPhone().trim();
+        if (!user || !plan || !phone) {
+            this.paymentError.set('Veuillez saisir un numéro Wave.');
+            return;
+        }
+        try {
+            const url = await this.subscriptionService.initiateSubscriptionPayment(
+                user, plan, this.isYearlyBilling(), phone);
+            window.location.assign(url);
+        } catch (error: any) {
+            this.paymentError.set(error?.message || this.t('popup.error.payment'));
+        }
+    }
+
+    closeWavePayment(): void {
+        this.paymentPlan.set(null);
+        this.paymentError.set(null);
     }
 
     onClose(): void {

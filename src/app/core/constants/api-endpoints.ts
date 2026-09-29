@@ -6,7 +6,6 @@ export const API = {
 
   subscriptions: `${environment.apiUrl}/subscriptions`,
   subscriptionPlans: `${environment.apiUrl}/subscription-plans`,
-  quoteTokens: `${environment.apiUrl}/quote-tokens`,
 
   tasks: `${environment.apiUrl}/tasks`,
   indicators: `${environment.apiUrl}/indicators`,

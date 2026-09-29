@@ -1,3 +1,31 @@
+.wave-payment-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgb(0 0 0 / 45%);
+}
+
+.wave-payment-card {
+    position: relative;
+    width: min(100%, 420px);
+    padding: 28px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 20%);
+}
+
+.wave-payment-brand { display: flex; align-items: center; gap: 12px; padding-right: 28px; margin-bottom: 18px; }
+.wave-payment-brand img { width: 54px; height: 54px; object-fit: contain; border-radius: 10px; }
+.wave-payment-brand strong { display: block; color: #172b4d; }
+
+.wave-payment-card label { display: block; margin: 20px 0 8px; font-weight: 600; }
+.wave-payment-card input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #d9dee5; border-radius: 10px; font: inherit; }
+.payment-muted { color: #667085; font-size: 13px; }
+.payment-error { color: #b42318; font-size: 13px; }
+.payment-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 .popup-overlay {
     position: fixed;
     top: 0;
