@@ -139,15 +139,19 @@ export class AdminSubscriptionPlansComponent implements OnInit {
   }
 
   getPlanLabel(user: User): string {
-    return this.getSubscription(user)?.subscriptionPlan?.label || '-';
+    const subscription = this.getSubscription(user);
+    return subscription?.subscriptionPlan?.label || subscription?.plan?.label || '-';
   }
 
   getCost(user: User): number | null {
-    return this.getSubscription(user)?.subscriptionPlan?.totalCost ?? null;
+    const subscription = this.getSubscription(user);
+    if (!subscription) return null;
+    return subscription.paidAmount ?? subscription.subscriptionPlan?.totalCost ?? subscription.plan?.totalCost ?? null;
   }
 
   getProjectLimit(user: User): string {
-    const plan = this.getSubscription(user)?.subscriptionPlan;
+    const subscription = this.getSubscription(user);
+    const plan = subscription?.subscriptionPlan || subscription?.plan;
     if (!plan) return '-';
     return plan.unlimitedProjects ? 'Illimité' : `${plan.projectLimit}`;
   }

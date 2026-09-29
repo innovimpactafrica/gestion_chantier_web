@@ -67,6 +67,8 @@ export interface UserSubscription {
   id: number;
   user?: { id: number };
   planId?: number;
+  /** Nom utilisé par le DTO backend SubscriptionResponse. */
+  plan?: SubscriptionPlan;
   subscriptionPlan?: SubscriptionPlan;
   startDate: BackendDateTime | string;
   endDate: BackendDateTime | string;
@@ -301,6 +303,9 @@ export class SubscriptionService {
 
   /** Complète `subscriptionPlan` à partir de `planId` quand le backend ne l'a pas déjà fourni */
   private resolveSubscriptionPlan(subscription: UserSubscription): Observable<UserSubscription> {
+    if (!subscription.subscriptionPlan && subscription.plan) {
+      return of({ ...subscription, subscriptionPlan: subscription.plan });
+    }
     if (subscription.subscriptionPlan || !subscription.planId) {
       return of(subscription);
     }

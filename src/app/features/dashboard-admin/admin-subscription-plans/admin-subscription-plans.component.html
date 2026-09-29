@@ -1,7 +1,7 @@
 <div class="p-6 max-w-7xl mx-auto">
   <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Historique d'Abonnement</h1>
-    <p class="text-gray-600">Historique des abonnements souscrits par les utilisateurs.</p>
+    <h1 class="text-2xl font-bold text-gray-900">Abonnements courts</h1>
+    <p class="text-gray-600">Suivi des abonnements souscrits par les utilisateurs.</p>
   </div>
 
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -79,7 +79,7 @@
                 {{ getPlanLabel(user) }}
               </span>
             </td>
-            <td class="px-6 py-4 font-medium">{{ getCost(user) !== null ? (getCost(user) | number) : '-' }}</td>
+            <td class="px-6 py-4 font-medium">{{ getCost(user) !== null ? ((getCost(user) || 0) | number:'1.0-0') + ' FCFA' : '-' }}</td>
             <td class="px-6 py-4">{{ getProjectLimit(user) }}</td>
             <td class="px-6 py-4">
               <span *ngIf="isActive(user)" class="inline-flex items-center gap-1 text-green-600 font-medium text-xs bg-green-50 px-2 py-1 rounded-full">
