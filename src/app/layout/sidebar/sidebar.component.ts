@@ -144,6 +144,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   /** Association route -> identifiant de menu, utilisée pour resynchroniser activeMenu sur l'URL réelle. */
   private readonly routeMenuMap: { path: string; menuId: string }[] = [
     { path: '/dashboard-admin/paiements', menuId: 'paiements' },
+    { path: '/dashboard-admin/plans', menuId: 'plans' },
     { path: '/dashboard-admin', menuId: 'dashboard-admin' },
     { path: '/utilisateurs', menuId: 'utilisateurs' },
     { path: '/abonnements', menuId: 'abonnements' },
@@ -165,7 +166,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { path: '/parametres/unite-mesure', menuId: 'unite-mesure' },
     { path: '/parametres/documents', menuId: 'documents' },
     { path: '/parametres/typebien', menuId: 'typebien' },
-    { path: '/parametres/categories', menuId: 'categories' }
+    { path: '/parametres/categories', menuId: 'categories' },
+    { path: '/parametres/types-materiaux', menuId: 'types-materiaux' }
   ];
 
   /**

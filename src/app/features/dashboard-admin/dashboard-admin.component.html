@@ -19,8 +19,13 @@
     </div>
   </div>
 
+  <div *ngIf="dashboardError" class="mb-6 flex items-center justify-between gap-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <span>{{ dashboardError }}</span>
+    <button type="button" (click)="loadAllData()" class="shrink-0 font-semibold underline hover:no-underline">Réessayer</button>
+  </div>
+
   <!-- Cartes statistiques principales -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
     <!-- Total Abonnements -->
     <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
@@ -119,6 +124,24 @@
 
         </div>
       </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <p class="text-gray-600 text-sm mb-1">Nouveaux ce mois</p>
+      <p class="text-3xl font-bold text-[#1E293B]">
+        <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.monthlySubscriptions }}</span>
+        <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+      </p>
+      <p class="mt-2 text-xs text-gray-500">Abonnements sur {{ selectedYear }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <p class="text-gray-600 text-sm mb-1">Taux encaissé</p>
+      <p class="text-3xl font-bold text-emerald-600">
+        <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.paidPercentage | number:'1.0-1' }}%</span>
+        <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+      </p>
+      <p class="mt-2 text-xs text-gray-500">{{ formatAmount(dashboardInfos?.paidRevenue || 0) }} encaissés</p>
     </div>
   </div>
 

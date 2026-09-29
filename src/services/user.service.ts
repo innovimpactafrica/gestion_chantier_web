@@ -315,6 +315,18 @@ export class UserService {
         })
       );
   }
+
+  /** Active ou désactive un compte depuis l’espace administrateur. */
+  updateActivationStatus(userId: number, activated: boolean): Observable<void> {
+    const params = new HttpParams().set('activated', activated.toString());
+    return this.http.patch<void>(`${this.baseUrl}/user/${userId}/activation`, null, {
+      params,
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(error => this.handleError(error, 'updateActivationStatus'))
+    );
+  }
+
   /**
    * Supprime un utilisateur
    */

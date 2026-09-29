@@ -31,6 +31,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   isLoadingPlans = true;
   isLoadingProfils = true;
   isLoadingInvoices = true;
+  dashboardError = '';
 
   // Statistiques principales
   dashboardInfos: DashboardInfos | null = null;
@@ -87,6 +88,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
    * Charge toutes les données du dashboard
    */
   loadAllData(): void {
+    this.dashboardError = '';
 
     // Charger les infos principales avec l'année sélectionnée
     this.loadDashboardInfos(this.selectedYear);
@@ -116,6 +118,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           this.isLoadingDashboard = false;
         },
         error: (error) => {
+          this.dashboardError = error?.userMessage || 'Les indicateurs administrateur sont momentanément indisponibles.';
           this.isLoadingDashboard = false;
         }
       });
@@ -149,6 +152,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           }, 100);
         },
         error: (error) => {
+          this.dashboardError = error?.userMessage || 'Les données du dashboard sont momentanément indisponibles.';
           this.isLoadingEvolution = false;
           this.isLoadingRevenu = false;
         }

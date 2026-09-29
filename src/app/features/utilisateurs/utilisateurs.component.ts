@@ -5,8 +5,6 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { UserService, User, UserPageResponse, CreateUserRequest } from '../../../services/user.service';
 import { environment } from '../../../environments/environment';
-import { AuthService } from '../auth/services/auth.service';
-import { UtilisateurService } from '../../../services/utilisateur.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
 
@@ -91,8 +89,6 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private userService: UserService,
-    private authService: AuthService,
-    private utilisateurService: UtilisateurService,
     public languageService: LanguageService,
     private exportService: ExportService
   ) { }
@@ -464,8 +460,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     }
 
 
-    // ✅ CORRECTION: Utiliser UserService au lieu de AuthService
-    this.authService.updateAnyUserWithFormData(this.editUserForm.id, formData)
+    this.userService.updateUserWithFormData(this.editUserForm.id, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {
@@ -546,7 +541,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
 
     // ✅ Appeler le service pour bloquer/débloquer
-    this.utilisateurService.blockUser(this.selectedUserForAction.id, shouldActivate)
+    this.userService.updateActivationStatus(this.selectedUserForAction.id, shouldActivate)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
