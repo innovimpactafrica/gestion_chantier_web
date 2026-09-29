@@ -177,12 +177,14 @@ export class RegisterComponent implements OnInit {
 
   private handleRegistrationSuccess(_response: any): void {
     this.successMessage = "Compte créé avec succès ! Redirection vers la connexion...";
+    this.errorMessage = '';
     this.isLoading = false;
     setTimeout(() => this.navigateToLogin(), 2000);
   }
 
   private handleRegistrationError(error: any): void {
     this.isLoading = false;
+    this.successMessage = '';
 
     if (error.userMessage) {
       this.errorMessage = error.userMessage;

@@ -395,12 +395,31 @@ export class UserService {
     return this.http.post(url, formData)
       .pipe(
         catchError(error => {
+          const serverMessage = this.getServerErrorMessage(error);
+          if (serverMessage) {
+            return throwError(() => ({
+              status: error.status,
+              userMessage: serverMessage,
+              originalError: error
+            }));
+          }
           if (error.status === 409) {
             return throwError(() => ({ userMessage: 'Cet email ou ce numéro est déjà utilisé.' }));
           }
           return this.handleError(error, 'createUser');
         })
       );
+  }
+
+  private getServerErrorMessage(error: any): string | null {
+    const body = error?.error;
+    if (typeof body === 'string' && body.trim()) {
+      return body.trim();
+    }
+    if (body && typeof body.message === 'string' && body.message.trim()) {
+      return body.message.trim();
+    }
+    return null;
   }
 
   /**
