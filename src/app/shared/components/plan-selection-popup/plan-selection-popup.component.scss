@@ -11,21 +11,30 @@
 .wave-payment-card {
     position: relative;
     width: min(100%, 420px);
-    padding: 28px;
+    padding: 32px;
     background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 20px 60px rgb(0 0 0 / 20%);
+    border: 1px solid #e8edf3;
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgb(15 23 42 / 24%);
 }
 
-.wave-payment-brand { display: flex; align-items: center; gap: 12px; padding-right: 28px; margin-bottom: 18px; }
-.wave-payment-brand img { width: 54px; height: 54px; object-fit: contain; border-radius: 10px; }
-.wave-payment-brand strong { display: block; color: #172b4d; }
+.wave-payment-brand { display: flex; align-items: center; gap: 12px; padding-right: 28px; margin-bottom: 24px; }
+.wave-payment-brand img { width: 48px; height: 48px; object-fit: contain; border-radius: 12px; }
+.wave-payment-brand strong { display: block; color: #172b4d; font-size: 15px; }
 
-.wave-payment-card label { display: block; margin: 20px 0 8px; font-weight: 600; }
-.wave-payment-card input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #d9dee5; border-radius: 10px; font: inherit; }
+.wave-payment-card h2 { margin: 0 0 6px; color: #172b4d; font-size: 24px; }
+
+.wave-payment-card label { display: block; margin: 24px 0 8px; font-weight: 600; color: #172b4d; }
+.wave-payment-card input { width: 100%; box-sizing: border-box; padding: 13px 14px; border: 1px solid #d9dee5; border-radius: 9px; font: inherit; color: #172b4d; outline: none; transition: border-color .2s, box-shadow .2s; }
+.wave-payment-card input:focus { border-color: #ff5c02; box-shadow: 0 0 0 3px rgb(255 92 2 / 12%); }
 .payment-muted { color: #667085; font-size: 13px; }
 .payment-error { color: #b42318; font-size: 13px; }
-.payment-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.payment-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; margin-top: 24px; }
+.payment-cancel-button, .payment-submit-button { min-height: 46px; padding: 10px 16px; border-radius: 9px; font: inherit; font-weight: 700; cursor: pointer; transition: transform .2s, background .2s, box-shadow .2s; }
+.payment-cancel-button { border: 1px solid #d9dee5; background: #fff; color: #344054; }
+.payment-cancel-button:hover { background: #f8fafc; }
+.payment-submit-button { border: 0; background: #ff5c02; color: #fff; box-shadow: 0 6px 14px rgb(255 92 2 / 24%); }
+.payment-submit-button:hover { background: #e95000; transform: translateY(-1px); box-shadow: 0 8px 18px rgb(255 92 2 / 30%); }
 .popup-overlay {
     position: fixed;
     top: 0;

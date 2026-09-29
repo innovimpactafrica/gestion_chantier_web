@@ -165,19 +165,18 @@
             <div class="wave-payment-brand">
                 <img src="assets/images/logo wave.jpg" alt="Logo Wave">
                 <div>
-                    <strong>BTP Cloud a choisi Wave</strong>
-                    <p class="payment-muted">D'autres moyens de paiement seront disponibles prochainement.</p>
+                    <strong>Paiement sécurisé avec Wave</strong>
                 </div>
             </div>
             <h2>Paiement Wave</h2>
             <p class="payment-muted">{{ paymentPlan()!.label || paymentPlan()!.name }} · {{ isYearlyBilling() ? 'Annuel' : 'Mensuel' }}</p>
             <label for="wave-phone">Numéro de téléphone Wave</label>
             <input id="wave-phone" type="tel" [value]="paymentPhone()" (input)="paymentPhone.set($any($event.target).value)" placeholder="77 123 45 67" autocomplete="tel">
-            <p class="payment-muted">La demande de paiement sera envoyée à ce numéro.</p>
+            <p class="payment-muted">La demande sera envoyée à ce numéro.</p>
             <p *ngIf="paymentError()" class="payment-error">{{ paymentError() }}</p>
             <div class="payment-actions">
-                <button class="plan-button" type="button" (click)="closeWavePayment()">Annuler</button>
-                <button class="plan-button plan-button-premium" type="button" (click)="confirmWavePayment()">Continuer vers Wave</button>
+                <button class="payment-cancel-button" type="button" (click)="closeWavePayment()">Annuler</button>
+                <button class="payment-submit-button" type="button" (click)="confirmWavePayment()">Payer avec Wave</button>
             </div>
         </div>
     </div>

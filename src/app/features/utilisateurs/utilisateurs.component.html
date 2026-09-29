@@ -1,8 +1,10 @@
-<div class="container mx-auto p-4 min-h-screen">
+<div class="users-page container mx-auto p-4 min-h-screen">
   <!-- En-tête -->
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-[#1E293B] mb-2">{{ t('users.title') }}</h1>
-    <p class="text-gray-600">{{ t('users.subtitle') }}</p>
+  <div class="users-header mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-[#1E293B] mb-2">{{ t('users.title') }}</h1>
+      <p class="text-gray-600">{{ t('users.subtitle') }}</p>
+    </div>
   </div>
 
   <!-- Messages d'erreur et de succès -->
@@ -14,9 +16,9 @@
   </div>
 
   <!-- Barre de recherche et actions -->
-  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+  <div class="users-toolbar flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
     <!-- Recherche -->
-    <div class="relative w-full lg:w-96">
+    <div class="users-search relative w-full lg:w-96">
       <input type="text" [(ngModel)]="searchTerm" (input)="searchUtilisateurs()"
         [placeholder]="t('common.searchPlaceholder')"
         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01] focus:border-transparent" />
@@ -29,11 +31,11 @@
     </div>
 
     <!-- Boutons d'action -->
-    <div class="flex gap-3 w-full lg:w-auto">
+    <div class="users-actions flex gap-3 w-full lg:w-auto">
       <!-- Profile Filter Dropdown -->
       <div class="relative group">
         <button
-          class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
+          class="users-filter-button flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -123,7 +125,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="users-date-filters flex items-center gap-2 flex-wrap">
         <label class="text-sm text-gray-600" for="dateFrom">Du</label>
         <input id="dateFrom" type="date" [(ngModel)]="dateFrom" (change)="filterByDate()"
           class="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01]" />
@@ -131,14 +133,14 @@
         <input id="dateTo" type="date" [(ngModel)]="dateTo" (change)="filterByDate()"
           class="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01]" />
         <button *ngIf="dateFrom || dateTo" type="button" (click)="clearDateFilter()"
-          class="px-3 py-3 text-sm text-red-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-          Réinitialiser les dates
+          class="users-reset-button px-3 py-3 text-sm text-red-600 border border-gray-300 rounded-lg hover:bg-gray-50" title="Réinitialiser les dates" aria-label="Réinitialiser les dates">
+          Réinitialiser
         </button>
       </div>
 
       <!-- Export Button (Excel only) -->
       <button (click)="exportUsers()"
-        class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">
+        class="users-secondary-button flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white" title="Exporter les utilisateurs">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,7 +150,7 @@
       </button>
 
       <button (click)="openCreateModal()"
-        class="bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-200 font-medium">
+        class="users-primary-button bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-200 font-medium">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -165,7 +167,7 @@
   </div>
 
   <!-- Tableau des utilisateurs -->
-  <div *ngIf="!isLoading" class="bg-white rounded-lg shadow-sm overflow-hidden">
+  <div *ngIf="!isLoading" class="users-table-card bg-white rounded-lg shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-gray-50">
@@ -222,7 +224,7 @@
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <!-- Voir -->
-                <button (click)="viewUser(user)" class="text-gray-600 hover:text-gray-900 transition-colors"
+                <button (click)="viewUser(user)" class="user-action-button user-action-view text-gray-600 hover:text-gray-900 transition-colors"
                   title="Voir">
                   <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -233,7 +235,7 @@
                 </button>
 
                 <!-- Modifier -->
-                <button (click)="editUser(user)" class="text-[#FF5C01] hover:text-[#E54F00] transition-colors"
+                <button (click)="editUser(user)" class="user-action-button user-action-edit text-[#FF5C01] hover:text-[#E54F00] transition-colors"
                   title="Modifier">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -245,7 +247,7 @@
 
                 <!-- Bloquer/Débloquer -->
                 <button (click)="toggleUserStatus(user)"
-                  [class]="getUserStatus(user) === 'Actif' ? 'text-gray-600 hover:text-gray-900' : 'text-green-600 hover:text-green-700'"
+                  [class]="getUserStatus(user) === 'Actif' ? 'user-action-button user-action-block text-gray-600 hover:text-gray-900' : 'user-action-button user-action-activate text-green-600 hover:text-green-700'"
                   class="transition-colors" [title]="getUserStatus(user) === 'Actif' ? 'Bloquer' : 'Débloquer'">
 
                   <svg *ngIf="getUserStatus(user) === 'Actif'" width="20" height="20" viewBox="0 0 20 20" fill="none"
