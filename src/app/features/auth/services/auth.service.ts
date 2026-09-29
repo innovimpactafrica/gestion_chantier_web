@@ -446,11 +446,11 @@ updateAnyUserWithFormData(userId: number, formData: FormData): Observable<User> 
       }
     });
 
-    return this.http.put(`${this.apiUrl}/signup`, formData);
+    return this.http.post(`${this.apiUrl}/signup`, formData);
   }
 
   registerWithFormData(data: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/signup`, data);
+    return this.http.post(`${this.apiUrl}/signup`, data);
   }
 
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {

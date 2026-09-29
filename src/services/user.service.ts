@@ -150,7 +150,7 @@ export class UserService {
   /**
    * Récupère tous les utilisateurs avec possibilité de recherche et filtrage par profil
    */
-  getAllUsers(keyword?: string, profil?: string, page: number = 0, size: number = 10): Observable<UserPageResponse> {
+  getAllUsers(keyword?: string, profil?: string, page: number = 0, size: number = 10, dateFrom?: string, dateTo?: string): Observable<UserPageResponse> {
     const headers = this.getAuthHeaders();
 
     // Construction des paramètres de requête
@@ -166,6 +166,14 @@ export class UserService {
     // Ajout du profil s'il est fourni
     if (profil && profil.trim() !== '') {
       params = params.set('profil', profil.trim());
+    }
+
+    if (dateFrom) {
+      params = params.set('dateFrom', dateFrom);
+    }
+
+    if (dateTo) {
+      params = params.set('dateTo', dateTo);
     }
 
     const url = `${this.baseUrl}/user/search`;

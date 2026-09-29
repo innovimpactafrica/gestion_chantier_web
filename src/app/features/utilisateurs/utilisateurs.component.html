@@ -123,6 +123,19 @@
         </div>
       </div>
 
+      <div class="flex items-center gap-2 flex-wrap">
+        <label class="text-sm text-gray-600" for="dateFrom">Du</label>
+        <input id="dateFrom" type="date" [(ngModel)]="dateFrom" (change)="filterByDate()"
+          class="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01]" />
+        <label class="text-sm text-gray-600" for="dateTo">Au</label>
+        <input id="dateTo" type="date" [(ngModel)]="dateTo" (change)="filterByDate()"
+          class="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5C01]" />
+        <button *ngIf="dateFrom || dateTo" type="button" (click)="clearDateFilter()"
+          class="px-3 py-3 text-sm text-red-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+          Réinitialiser les dates
+        </button>
+      </div>
+
       <!-- Export Button (Excel only) -->
       <button (click)="exportUsers()"
         class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white">

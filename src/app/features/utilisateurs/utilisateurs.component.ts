@@ -22,6 +22,8 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
   totalPages: number = 0;
   totalResults: number = 0;
   selectedProfile: string = ''; // Filter by profile
+  dateFrom: string = '';
+  dateTo: string = '';
 
   Math = Math;
   editPhotoFile: File | null = null;
@@ -113,7 +115,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
     // Use selectedProfile if set, otherwise undefined
     const profileFilter = this.selectedProfile || undefined;
 
-    this.userService.getAllUsers(this.searchTerm, profileFilter, this.currentPage, this.pageSize)
+    this.userService.getAllUsers(this.searchTerm, profileFilter, this.currentPage, this.pageSize, this.dateFrom, this.dateTo)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: UserPageResponse) => {
@@ -142,6 +144,18 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   clearProfileFilter(): void {
     this.selectedProfile = '';
+    this.currentPage = 0;
+    this.loadAllUsers();
+  }
+
+  filterByDate(): void {
+    this.currentPage = 0;
+    this.loadAllUsers();
+  }
+
+  clearDateFilter(): void {
+    this.dateFrom = '';
+    this.dateTo = '';
     this.currentPage = 0;
     this.loadAllUsers();
   }

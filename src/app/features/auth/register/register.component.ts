@@ -188,6 +188,8 @@ export class RegisterComponent implements OnInit {
       this.errorMessage = error.userMessage;
     } else if (error.error?.message) {
       this.errorMessage = error.error.message;
+    } else if (typeof error.error === 'string' && error.error.trim()) {
+      this.errorMessage = error.error;
     } else if (error.status === 409) {
       this.errorMessage = "Cette adresse email ou ce numéro de téléphone est déjà utilisé.";
     } else if (error.status === 400) {
