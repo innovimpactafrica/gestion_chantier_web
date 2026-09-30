@@ -313,9 +313,22 @@
         </a>
       </li>
 
-      <!-- Gestion salaire (chef de chantier et administrateur) -->
+      <!-- Finance chantier (chef de chantier et administrateur) -->
       <li *ngIf="isSiteManagerProfile() || isADMINProfile()">
-        <a (click)="navigateTo('/gestion-salaire', 'Gestion salaire', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+        <a (click)="navigateTo('/finance', 'Finance chantier', 'finance')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('finance') ? 'bg-[#FF5C02] text-white' : '')">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H7"></path>
+            </svg>
+            <span class="text-sm">Finance chantier</span>
+          </div>
+        </a>
+      </li>
+
+      <!-- Paie (chef de chantier et administrateur) -->
+      <li *ngIf="isSiteManagerProfile() || isADMINProfile()">
+        <a (click)="navigateTo('/gestion-salaire', 'Paie', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
                    (isActive('gestion-salaire') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
             <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -325,7 +338,7 @@
               <line x1="3" y1="10" x2="21" y2="10"></line>
               <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path>
             </svg>
-            <span class="text-sm">Gestion salaire</span>
+            <span class="text-sm">Paie</span>
           </div>
         </a>
       </li>

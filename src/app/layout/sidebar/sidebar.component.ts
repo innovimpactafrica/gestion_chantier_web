@@ -158,6 +158,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { path: '/projects', menuId: 'projects' },
     { path: '/jalons', menuId: 'jalons' },
     { path: '/gestion-salaire', menuId: 'gestion-salaire' },
+    { path: '/finance', menuId: 'finance' },
     { path: '/plan3d', menuId: 'plan3d' },
     { path: '/devis', menuId: 'devis' },
     { path: '/dashboardf', menuId: 'dashboardf' },

@@ -168,6 +168,20 @@ export const routes: Routes = [
         canActivate: [RoleGuard]
       },
       {
+        path: 'finance',
+        loadComponent: () => import('./features/finance-home/finance-home.component')
+          .then(m => m.FinanceHomeComponent),
+        data: { breadcrumb: 'Finance chantier' },
+        canActivate: [RoleGuard]
+      },
+      {
+        path: 'finance/:id',
+        loadComponent: () => import('./features/finance-home/finance-home.component')
+          .then(m => m.FinanceHomeComponent),
+        data: { breadcrumb: 'Finance chantier' },
+        canActivate: [RoleGuard]
+      },
+      {
         path: 'plan3d',
         loadComponent: () => import('./features/plan3d/plan3d.component')
           .then(m => m.Plan3dComponent),
