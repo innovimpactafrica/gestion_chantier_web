@@ -413,13 +413,20 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     const data = this.revenuData.map(d => d.total);
 
     this.chartInstances['revenus'] = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: labels,
         datasets: [{
           label: 'Revenus (F CFA)',
           data: data,
-          backgroundColor: '#0D47A1'
+          borderColor: '#0D47A1',
+          backgroundColor: 'rgba(13, 71, 161, 0.12)',
+          pointBackgroundColor: '#0D47A1',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          tension: 0.35,
+          fill: true
         }]
       },
       options: {
@@ -468,7 +475,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Crée ou met à jour le graphique de répartition des profils (barres horizontales)
+  * Crée ou met à jour le graphique circulaire de répartition des profils
    */
   updateProfilsChart(): void {
     if (!this.profilsChart?.nativeElement) return;
@@ -489,14 +496,14 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     const data = filteredData.map(d => d.count);
 
     this.chartInstances['profils'] = new Chart(ctx, {
-      type: 'bar',
+      type: 'doughnut',
       data: {
         labels: labels,
         datasets: [{
-          label: 'Nombre d\'utilisateurs',
           data: data,
-          backgroundColor: '#FF5C01',
-
+          backgroundColor: ['#FF5C01', '#0D47A1', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#14B8A6'],
+          borderColor: '#fff',
+          borderWidth: 3,
         }]
       },
       options: {
@@ -504,9 +511,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          },
+          legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
           tooltip: {
             backgroundColor: '#1E293B',
             titleColor: '#fff',
@@ -514,31 +519,6 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
             padding: 8,
           }
         },
-        scales: {
-          x: {
-            beginAtZero: true,
-            grid: {
-              color: '#E5E7EB',
-            },
-            ticks: {
-              color: '#6B7280',
-              font: {
-                size: 14
-              }
-            }
-          },
-          y: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              color: '#6B7280',
-              font: {
-                size: 12
-              }
-            }
-          }
-        }
       }
     });
   }

@@ -25,9 +25,9 @@
   </div>
 
   <!-- Cartes statistiques principales -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+  <div class="admin-stat-grid mb-8">
     <!-- Total Abonnements -->
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
         <div>
           <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.total') }}</p>
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Abonnements Actifs -->
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
         <div>
           <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.active') }}</p>
@@ -74,7 +74,7 @@
     </div>
 
     <!-- Abonnements Expirés -->
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
         <div>
           <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.subscriptions.expired') }}</p>
@@ -99,7 +99,7 @@
     </div>
 
     <!-- Revenus Cumulés -->
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
         <div>
           <p class="text-gray-600 text-sm mb-1">{{ t('dashboardAdmin.revenue.total') }}</p>
@@ -126,31 +126,45 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-      <p class="text-gray-600 text-sm mb-1">Nouveaux ce mois</p>
-      <p class="text-3xl font-bold text-[#1E293B]">
-        <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.monthlySubscriptions }}</span>
-        <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-      </p>
-      <p class="mt-2 text-xs text-gray-500">Abonnements sur {{ selectedYear }}</p>
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="admin-stat-card__head">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Nouveaux ce mois</p>
+          <p class="text-3xl font-bold text-[#1E293B]">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.monthlySubscriptions }}</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
+          <p class="mt-2 text-xs text-gray-500">Abonnements sur {{ selectedYear }}</p>
+        </div>
+        <div class="admin-stat-icon admin-stat-icon--orange" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M7 7.5h7a3 3 0 0 1 0 6H10a3 3 0 0 0 0 6h7" stroke-linecap="round"/></svg>
+        </div>
+      </div>
     </div>
 
-    <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-      <p class="text-gray-600 text-sm mb-1">Taux encaissé</p>
-      <p class="text-3xl font-bold text-emerald-600">
-        <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.paidPercentage | number:'1.0-1' }}%</span>
-        <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-      </p>
-      <p class="mt-2 text-xs text-gray-500">{{ formatAmount(dashboardInfos?.paidRevenue || 0) }} encaissés</p>
+    <div class="admin-stat-card bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div class="admin-stat-card__head">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Taux encaissé</p>
+          <p class="text-3xl font-bold text-emerald-600">
+            <span *ngIf="!isLoadingDashboard && dashboardInfos">{{ dashboardInfos.paidPercentage | number:'1.0-1' }}%</span>
+            <span *ngIf="isLoadingDashboard" class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
+          </p>
+          <p class="mt-2 text-xs text-gray-500">{{ formatAmount(dashboardInfos?.paidRevenue || 0) }} encaissés</p>
+        </div>
+        <div class="admin-stat-icon admin-stat-icon--green" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5 10.5 15 16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Graphiques principaux -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+  <div class="admin-chart-grid mb-8">
     <!-- Évolution des Abonnements -->
     <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-xl font-bold text-[#1E293B] mb-4">{{ t('dashboardAdmin.charts.subscriptions') }}</h2>
-      <div class="h-[300px] relative">
+      <div class="admin-chart-canvas relative">
         <div *ngIf="isLoadingEvolution"
           class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
@@ -168,7 +182,7 @@
     <!-- Revenus Mensuels -->
     <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-xl font-bold text-[#1E293B] mb-4">{{ t('dashboardAdmin.charts.revenue') }}</h2>
-      <div class="h-[300px] relative">
+      <div class="admin-chart-canvas relative">
         <div *ngIf="isLoadingRevenu" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D47A1]"></div>
         </div>
@@ -184,11 +198,11 @@
   </div>
 
   <!-- Graphiques de distribution -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Répartition des Profils (barres horizontales) -->
+  <div class="admin-chart-grid mb-8">
+    <!-- Répartition des Profils -->
     <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-xl font-bold text-[#1E293B] mb-6">{{ t('dashboardAdmin.charts.profiles') }}</h2>
-      <div class="h-[300px] relative">
+      <div class="admin-chart-canvas admin-chart-canvas--compact relative">
         <div *ngIf="isLoadingProfils" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5C01]"></div>
         </div>
@@ -199,8 +213,8 @@
     <!-- Distribution des Plans -->
     <div class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-xl font-bold text-[#1E293B] mb-6">{{ t('dashboardAdmin.charts.plans') }}</h2>
-      <div class="flex items-center">
-        <div class="w-1/2 h-[250px] relative">
+      <div class="admin-distribution-layout flex items-center">
+        <div class="admin-chart-canvas admin-chart-canvas--donut relative">
           <div *ngIf="isLoadingPlans" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3B82F6]"></div>
           </div>
