@@ -326,8 +326,8 @@
         </a>
       </li>
 
-      <!-- Paie (chef de chantier et administrateur) -->
-      <li *ngIf="isSiteManagerProfile() || isADMINProfile()">
+      <!-- Paie (chef de chantier, administrateur et ouvrier) -->
+      <li *ngIf="isSiteManagerProfile() || isADMINProfile() || isWorkerProfile()">
         <a (click)="navigateTo('/gestion-salaire', 'Paie', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
                    (isActive('gestion-salaire') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">

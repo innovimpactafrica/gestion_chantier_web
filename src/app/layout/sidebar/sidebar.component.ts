@@ -220,6 +220,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  isWorkerProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    if (typeof user.profil === 'string') {
+      return user.profil === 'WORKER';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('WORKER' as any);
+    }
+
+    return false;
+  }
+
   isSUPPLIERProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {
