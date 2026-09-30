@@ -313,17 +313,19 @@
         </a>
       </li>
 
-      <!-- Plans 3D (Standard uniquement) -->
-      <li *ngIf="!isBETProfile() && !isSUPPLIERProfile() && !isADMINProfile()">
-        <a (click)="navigateTo('/plan3d', 'Plans 3D', 'plan3d')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
-                   (isActive('plan3d') ? 'bg-[#FF5C02] text-white' : '')">
+      <!-- Gestion salaire (chef de chantier et administrateur) -->
+      <li *ngIf="isSiteManagerProfile() || isADMINProfile()">
+        <a (click)="navigateTo('/gestion-salaire', 'Gestion salaire', 'gestion-salaire')" [class]="'flex items-center justify-between py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 ' +
+                   (isActive('gestion-salaire') ? 'bg-[#FF5C02] text-white' : '')">
           <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              [class]="'w-[20px] h-[20px] mr-3 transition-all duration-200 flex-shrink-0'" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path>
             </svg>
-            <span class="text-sm">Plans 3D</span>
+            <span class="text-sm">Gestion salaire</span>
           </div>
         </a>
       </li>

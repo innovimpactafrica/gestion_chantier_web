@@ -204,6 +204,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  isSiteManagerProfile(): boolean {
+    const user = this.authService.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    if (typeof user.profil === 'string') {
+      return user.profil === 'SITE_MANAGER';
+    } else if (Array.isArray(user.profil)) {
+      return user.profil.includes('SITE_MANAGER' as any);
+    }
+
+    return false;
+  }
+
   isSUPPLIERProfile(): boolean {
     const user = this.authService.currentUser();
     if (!user) {
