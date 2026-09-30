@@ -48,6 +48,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
 import { PlanSelectionPopupComponent } from '../../shared/components/plan-selection-popup/plan-selection-popup.component';
 import { ChantierWelcomeHeroComponent } from '../../shared/components/chantier-welcome-hero/chantier-welcome-hero.component';
+import { ListStateComponent } from '../../shared/components/list-state/list-state.component';
 
 
 // Types et interfaces
@@ -76,7 +77,7 @@ interface PaginationInfo {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PlanSelectionPopupComponent, ChantierWelcomeHeroComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PlanSelectionPopupComponent, ChantierWelcomeHeroComponent, ListStateComponent],
   selector: 'app-projects',
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],

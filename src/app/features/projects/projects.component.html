@@ -265,12 +265,7 @@
   </form>
 
   <!-- Message d'erreur -->
-  <div *ngIf="error() as errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-    {{ errorMessage }}
-    <button (click)="onRefresh()" class="ml-4 underline hover:no-underline">
-      {{ t('projects.retry') }}
-    </button>
-  </div>
+  <app-list-state [error]="error()" (retry)="onRefresh()"></app-list-state>
 
   <!-- ========== CONTRÔLES DE PAGINATION ========== -->
   <!-- <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

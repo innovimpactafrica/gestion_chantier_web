@@ -7,11 +7,12 @@ import { UserService, User, UserPageResponse, CreateUserRequest } from '../../..
 import { environment } from '../../../environments/environment';
 import { LanguageService } from '../../core/services/language.service';
 import { ExportService } from '../../core/services/export.service';
+import { ListStateComponent } from '../../shared/components/list-state/list-state.component';
 
 @Component({
   selector: 'app-utilisateurs',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ListStateComponent],
   templateUrl: './utilisateurs.component.html',
   styleUrls: ['./utilisateurs.component.css']
 })
@@ -44,6 +45,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = false;
   errorMessage: string = '';
+  listErrorMessage: string | null = null;
   successMessage: string = '';
 
   createUserForm = {
@@ -110,7 +112,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
 
   loadAllUsers(): void {
     this.isLoading = true;
-    this.errorMessage = '';
+    this.listErrorMessage = null;
 
     // Use selectedProfile if set, otherwise undefined
     const profileFilter = this.selectedProfile || undefined;
@@ -131,7 +133,7 @@ export class UtilisateursComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          this.errorMessage = error.userMessage || 'Erreur lors du chargement des utilisateurs';
+          this.listErrorMessage = error.userMessage || 'Erreur lors du chargement des utilisateurs';
           this.isLoading = false;
         }
       });
