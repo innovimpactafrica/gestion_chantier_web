@@ -6,6 +6,21 @@
 	letter-spacing: -0.02em;
 }
 
+.users-header {
+	display: block;
+}
+
+.users-title-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+}
+
+.users-title-row h1 {
+	margin-bottom: 0;
+}
+
 .users-toolbar {
 	align-items: stretch;
 }
@@ -119,6 +134,20 @@
 @media (max-width: 640px) {
 	.users-page {
 		padding: 1rem;
+	}
+
+	.users-header {
+		display: block;
+	}
+
+	.users-title-row {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.users-title-row .users-primary-button {
+		width: 100%;
 	}
 
 	.users-actions > * {

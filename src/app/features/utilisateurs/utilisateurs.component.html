@@ -1,8 +1,18 @@
 <div class="users-page container mx-auto p-4 min-h-screen">
   <!-- En-tête -->
   <div class="users-header mb-6">
-    <div>
+    <div class="users-heading">
+      <div class="users-title-row">
       <h1 class="text-3xl font-bold text-[#1E293B] mb-2">{{ t('users.title') }}</h1>
+      <button (click)="openCreateModal()"
+        class="users-primary-button bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-200 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        {{ t('users.create') }}
+      </button>
+      </div>
       <p class="text-gray-600">{{ t('users.subtitle') }}</p>
     </div>
   </div>
@@ -147,15 +157,6 @@
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
         </svg>
         <span class="text-gray-700 font-medium">{{ t('export.excel') }}</span>
-      </button>
-
-      <button (click)="openCreateModal()"
-        class="users-primary-button bg-[#FF5C01] hover:bg-[#E54F00] text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors duration-200 font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        {{ t('users.create') }}
       </button>
 
     </div>
