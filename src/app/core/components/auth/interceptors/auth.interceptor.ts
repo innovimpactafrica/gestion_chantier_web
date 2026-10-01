@@ -2,12 +2,12 @@ import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpC
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../features/auth/services/auth.service';
-import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
+import { catchError, switchMap, throwError, Observable, finalize, shareReplay } from 'rxjs';
 
 // État partagé : un seul refresh à la fois ; les autres requêtes attendent que le
 // nouveau token soit disponible avant d'être (re)jouées.
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+let refreshRequest$: Observable<string> | null = null;
 
 // Marqueur côté client (non envoyé sur le réseau → pas de preflight CORS) pour
 // éviter de relancer un refresh en boucle sur une requête déjà rejouée.
@@ -75,38 +75,28 @@ function refreshAndRetry(
 ) {
   if (!isRefreshing) {
     isRefreshing = true;
-    // Remet à null pour que les requêtes en attente ne rejouent pas avec un ancien token.
-    refreshTokenSubject.next(null);
-
-    return authService.refreshAuthToken().pipe(
+    refreshRequest$ = authService.refreshAuthToken().pipe(
       switchMap((res: any) => {
-        isRefreshing = false;
         const newToken = res?.token;
-
-        if (newToken) {
-          // Débloque toutes les requêtes mises en file d'attente.
-          refreshTokenSubject.next(newToken);
-          // (Re)joue la requête avec le nouveau token, marquée pour ne pas reboucler.
-          return next(addToken(req, newToken, true));
+        if (!newToken) {
+          return throwError(() => originalError ?? new HttpErrorResponse({ status: 401 }));
         }
-
-        // Refresh échoué (refreshAuthToken a déjà nettoyé l'état) : déconnexion + login.
-        forceLogout(authService, router);
-        return throwError(() => originalError ?? new HttpErrorResponse({ status: 401 }));
+        return [newToken];
       }),
-      catchError((err) => {
+      finalize(() => {
         isRefreshing = false;
-        forceLogout(authService, router);
-        return throwError(() => err);
-      })
+        refreshRequest$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 
-  // Un refresh est déjà en cours : on attend le nouveau token puis on (re)joue.
-  return refreshTokenSubject.pipe(
-    filter((t): t is string => t !== null),
-    take(1),
-    switchMap((newToken) => next(addToken(req, newToken, true)))
+  return refreshRequest$!.pipe(
+    switchMap((newToken) => next(addToken(req, newToken, true))),
+    catchError((err) => {
+      forceLogout(authService, router);
+      return throwError(() => err);
+    }),
   );
 }
 
