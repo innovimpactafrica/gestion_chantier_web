@@ -15,6 +15,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as QRCode from 'qrcode';
 import { PointingAddressComponent } from "../components/project/pointing-adress/pointing-adress.component";
 import { LanguageService } from '../../core/services/language.service';
+import { ProjectManagementComponent } from '../project-management/project-management.component';
 
 @Component({
   selector: 'app-project-detail-header',
@@ -28,7 +29,8 @@ import { LanguageService } from '../../core/services/language.service';
     ProjectPresentationComponent,
     ProjectAlertComponent,
     EtudeBetComponent,
-    PointingAddressComponent
+    PointingAddressComponent,
+    ProjectManagementComponent
   ],
   templateUrl: './project-detail-header.component.html',
   styleUrl: './project-detail-header.component.css'

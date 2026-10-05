@@ -68,6 +68,10 @@
         <a (click)="setActiveTab('pointing-adress')" class="font-medium cursor-pointer whitespace-nowrap">{{
           t('projectDetail.pointingAddress') }}</a>
       </li>
+      <li [class.border-b-2]="activeTab === 'gestionnaire'" [class.border-orange-500]="activeTab === 'gestionnaire'"
+        [class.text-orange-500]="activeTab === 'gestionnaire'" class="pb-2 flex-shrink-0">
+        <a (click)="setActiveTab('gestionnaire')" class="font-medium cursor-pointer whitespace-nowrap">Gestionnaire</a>
+      </li>
     </ul>
   </nav>
 </div>
@@ -97,6 +101,9 @@
 }
 @case ('pointing-adress') {
 <app-pointing-adress></app-pointing-adress>
+}
+@case ('gestionnaire') {
+<app-project-management *ngIf="projectId" [projectId]="projectId"></app-project-management>
 }
 @default {
 <div>{{ t('projectDetail.selectTab') }}</div>
